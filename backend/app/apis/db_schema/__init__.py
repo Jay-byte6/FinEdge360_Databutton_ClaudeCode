@@ -2,14 +2,14 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import Dict, Any, List, Optional
 from supabase import create_client, Client
-import databutton as db
+# import databutton as db  # Commented out for Railway deployment - not needed
 import os
 
 router = APIRouter(prefix="/routes")
 
-# Get the Supabase credentials from .env or Databutton secrets
-supabase_url = os.getenv("SUPABASE_URL") or db.secrets.get("SUPABASE_URL")
-supabase_key = os.getenv("SUPABASE_ANON_KEY") or db.secrets.get("SUPABASE_ANON_KEY")
+# Get the Supabase credentials from environment variables (Railway deployment)
+supabase_url = os.getenv("SUPABASE_URL")
+supabase_key = os.getenv("SUPABASE_ANON_KEY")
 
 print(f"DB Schema - Supabase URL: {supabase_url[:30] if supabase_url else 'NOT SET'}...")
 print(f"DB Schema - Supabase ANON_KEY: {'YES' if supabase_key else 'NO'}")

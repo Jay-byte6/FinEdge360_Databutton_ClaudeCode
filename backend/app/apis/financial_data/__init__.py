@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel, ValidationError, Field
 from typing import List, Optional, Dict, Any, Union
-import databutton as db
+# import databutton as db  # Commented out for Railway deployment - not needed
 import json
 import re
 import traceback
@@ -10,9 +10,9 @@ import os
 
 router = APIRouter(prefix="/routes")
 
-# Set up Supabase client - support both local .env and Databutton secrets
-supabase_url = os.getenv("SUPABASE_URL") or db.secrets.get("SUPABASE_URL")
-supabase_key = os.getenv("SUPABASE_SERVICE_KEY") or db.secrets.get("SUPABASE_SERVICE_KEY")
+# Set up Supabase client - use environment variables (Railway deployment)
+supabase_url = os.getenv("SUPABASE_URL")
+supabase_key = os.getenv("SUPABASE_SERVICE_KEY")
 
 print(f"Financial Data - Supabase URL: {supabase_url[:30] if supabase_url else 'NOT SET'}...")
 print(f"Financial Data - Supabase SERVICE_KEY: {'YES' if supabase_key else 'NO'}")
@@ -334,17 +334,12 @@ def save_financial_data(data: FinancialDataInput) -> SaveFinancialDataResponse:
             )
             
         except Exception as supabase_error:
-            # If Supabase fails, fall back to db.storage
+            # If Supabase fails, raise an error (no db.storage fallback on Railway)
             print(f"Supabase error: {str(supabase_error)}")
-            # Generate a key for the user's financial data
-            user_key = sanitize_storage_key(f"financial_data_{data.userId}")
-            
-            # Store the financial data in JSON format
-            db.storage.json.put(user_key, data.dict())
-            
-            return SaveFinancialDataResponse(
-                success=True,
-                message="Financial data saved successfully to local storage"
+            print(f"Full traceback: {traceback.format_exc()}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"Failed to save financial data to Supabase: {str(supabase_error)}"
             )
 
     except Exception as e:
@@ -511,67 +506,13 @@ def get_financial_data(user_id: str) -> FinancialDataOutput:
             return FinancialDataOutput(**response_data)
             
         except Exception as supabase_error:
-            # Fall back to db.storage
+            # No db.storage fallback on Railway - raise the error
             print(f"Supabase retrieve error: {str(supabase_error)}")
-            # Generate the key for the user's financial data
-            user_key = sanitize_storage_key(f"financial_data_{user_id}")
-            
-            # Retrieve the financial data
-            data = db.storage.json.get(user_key, default=None)
-            
-            if data is None:
-                raise HTTPException(status_code=404, detail="Financial data not found")
-            
-            print(f"Data loaded from {user_key} before processing: type={type(data)}, content={{str(data)[:1000]}}...") # Log type and content
-            
-            # When retrieving from storage, we need to ensure the response
-            # has both the legacy and new structures
-            if "assets" not in data or not data["assets"]:
-                # Create default assets from assetsLiabilities
-                illiquid_assets = IlliquidAssets(
-                    home=data["assetsLiabilities"]["realEstateValue"] / 2,  # Estimate
-                    other_real_estate=data["assetsLiabilities"]["realEstateValue"] / 2,  # Estimate
-                    epf_ppf_vpf=data["assetsLiabilities"]["epfBalance"]  # Direct map
-                )
-                
-                liquid_assets = LiquidAssets(
-                    debt_funds=data["assetsLiabilities"]["mutualFundsValue"] / 2,  # Estimate
-                    domestic_equity_mutual_funds=data["assetsLiabilities"]["mutualFundsValue"] / 2  # Estimate
-                )
-                
-                data["assets"] = {"illiquid": illiquid_assets.dict(), "liquid": liquid_assets.dict()}
-            
-            if "liabilities" not in data or not data["liabilities"]:
-                # Create default liabilities from assetsLiabilities
-                data["liabilities"] = {
-                    "home_loan": data["assetsLiabilities"]["homeLoan"],
-                    "car_loan": data["assetsLiabilities"]["carLoan"],
-                    "personal_gold_loan": data["assetsLiabilities"]["personalLoan"],
-                    "other_liabilities": data["assetsLiabilities"]["otherLoans"]
-                }
-            
-            # Ensure riskAppetite has new field names
-            if "riskAppetite" in data:
-                if "risk_tolerance" not in data["riskAppetite"] and "riskTolerance" in data["riskAppetite"]:
-                    data["riskAppetite"]["risk_tolerance"] = data["riskAppetite"]["riskTolerance"]
-                
-                if "inflationRate" not in data["riskAppetite"]:
-                    data["riskAppetite"]["inflationRate"] = 5
-                
-                if "retirementAge" not in data["riskAppetite"]:
-                    data["riskAppetite"]["retirementAge"] = 55
-            data["userId"] = user_id # Ensure the requested user_id is in the response
-            try:
-                print(f"Attempting to return FinancialDataOutput from db.storage for {user_key} with data: {{str(data)[:500]}}...") # Log partial data
-                return FinancialDataOutput(**data)
-            except ValidationError as ve:
-                print(f"Pydantic ValidationError for {user_key} from db.storage: {ve}")
-                # Optionally, log the full data that caused validation error if it's not too large or sensitive
-                # print(f"Data causing validation error for {user_key}: {data}") 
-                raise HTTPException(status_code=500, detail=f"Data integrity issue for user {user_id} (db.storage). Please check logs for validation error details.")
-            except Exception as final_exc:
-                print(f"Unexpected error when processing db.storage data for {user_key}: {final_exc}")
-                raise HTTPException(status_code=500, detail=f"Unexpected error processing data for user {user_id} (db.storage).")
+            print(f"Full traceback: {traceback.format_exc()}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"Failed to retrieve financial data from Supabase: {str(supabase_error)}"
+            )
 
     except Exception as e:
         if isinstance(e, HTTPException):

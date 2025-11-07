@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Body
 from pydantic import BaseModel
-import databutton as db
+# import databutton as db  # Commented out for Railway deployment - not needed
 from supabase import create_client
 import traceback
 import requests
@@ -9,9 +9,9 @@ import os
 
 router = APIRouter(prefix="/routes")
 
-# Set up Supabase client - support both local .env and Databutton secrets
-supabase_url = os.getenv("SUPABASE_URL") or db.secrets.get("SUPABASE_URL")
-supabase_key = os.getenv("SUPABASE_SERVICE_KEY") or db.secrets.get("SUPABASE_SERVICE_KEY") # Use service key for admin operations on profiles
+# Set up Supabase client - use environment variables (Railway deployment)
+supabase_url = os.getenv("SUPABASE_URL")
+supabase_key = os.getenv("SUPABASE_SERVICE_KEY")  # Use service key for admin operations on profiles
 
 print(f"Supabase URL configured: {supabase_url[:30] if supabase_url else 'NOT SET'}...")
 print(f"Supabase SERVICE_KEY configured: {'YES' if supabase_key else 'NO'}")
@@ -55,9 +55,9 @@ def reset_password(request: PasswordResetRequest):
 
         # Use different approaches to reset the password, with full logging
         try:
-            # Get service role key - fallback to anon key if not available
-            service_key = db.secrets.get("SUPABASE_SERVICE_KEY")
-            
+            # Get service role key from environment variable
+            service_key = os.getenv("SUPABASE_SERVICE_KEY")
+
             if not service_key:
                 print("Warning: SUPABASE_SERVICE_KEY not found, falling back to ANON key")
                 service_key = supabase_key
