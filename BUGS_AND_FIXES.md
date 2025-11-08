@@ -1,8 +1,427 @@
 # FinEdge360 - Bugs & Fixes Master Log
 
 **Purpose**: Consolidated tracking of all bugs, fixes, and root causes for future reference
-**Last Updated**: 2025-11-05
+**Last Updated**: 2025-11-08
 **Project**: FinEdge360 - Financial Planning Platform
+
+---
+
+## 🚀 DEPLOYMENT ISSUES #12-17: Railway + Vercel Deployment (Nov 8, 2025)
+
+**Date**: 2025-11-08
+**Severity**: Critical (Complete deployment failure)
+**Status**: ✅ ALL FIXED - Successfully deployed to production
+**Deployment URLs**:
+- Frontend: https://finedge360-claudecode.vercel.app
+- Backend: https://finedge360databuttonclaudecode-production.up.railway.app
+
+### Overview
+Encountered 6 major deployment issues when deploying backend to Railway and frontend to Vercel. All issues documented for future reference.
+
+---
+
+## 🐛 BUG #12: Railway - Script start.sh Not Found
+
+**Platform**: Railway (Backend)
+**Error**: `Script start.sh not found` / `Railpack could not determine how to build the app`
+
+### Root Cause
+- Railway looking at root directory instead of `backend/` subdirectory
+- No deployment configuration files in backend folder
+- Railway couldn't auto-detect Python app
+
+### Fix Applied
+Created multiple configuration files in `backend/` for maximum compatibility:
+
+**`backend/railway.toml`** (highest priority):
+```toml
+[build]
+builder = "NIXPACKS"
+buildCommand = "pip install -r requirements.txt"
+
+[deploy]
+startCommand = "uvicorn main:app --host 0.0.0.0 --port 8000"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
+```
+
+**`backend/Procfile`** (Heroku-style fallback):
+```
+web: uvicorn main:app --host 0.0.0.0 --port $PORT
+```
+
+**`backend/runtime.txt`**:
+```
+python-3.11.0
+```
+
+**`backend/.dockerignore`**:
+```
+.env
+.venv
+__pycache__
+*.pyc
+```
+
+**Also set** "Root Directory" to `backend` in Railway dashboard settings.
+
+### Lesson Learned
+Always provide multiple deployment config formats for platform compatibility. Railway prioritizes: railway.toml > Dockerfile > Procfile > auto-detection.
+
+---
+
+## 🐛 BUG #13: Railway - ModuleNotFoundError: databutton
+
+**Platform**: Railway (Backend)
+**Error**:
+```
+ModuleNotFoundError: No module named 'databutton'
+Locations:
+- /app/main.py:94
+- /app/app/apis/db_schema/__init__.py:5
+- /app/app/apis/financial_data/__init__.py:4
+- /app/app/apis/auth/__init__.py:3
+```
+
+### Root Cause
+- App originally built for Databutton platform
+- `databutton` package removed from `requirements.txt` for Railway
+- BUT `import databutton as db` statements remained in code
+- Code still used `db.secrets.get()` and `db.storage` fallbacks
+
+### Fix Applied (3 Files)
+**Files Modified**:
+1. `backend/app/apis/auth/__init__.py`
+2. `backend/app/apis/db_schema/__init__.py`
+3. `backend/app/apis/financial_data/__init__.py`
+
+**Changes**:
+```python
+# 1. Commented out import
+# import databutton as db  # Commented out for Railway deployment
+
+# 2. Replaced db.secrets with os.getenv
+# BEFORE:
+supabase_url = os.getenv("SUPABASE_URL") or db.secrets.get("SUPABASE_URL")
+
+# AFTER:
+supabase_url = os.getenv("SUPABASE_URL")
+
+# 3. Removed db.storage fallback (65+ lines in financial_data)
+# BEFORE:
+except Exception as supabase_error:
+    db.storage.json.put(user_key, data.dict())
+
+# AFTER:
+except Exception as supabase_error:
+    raise HTTPException(status_code=500, detail=f"Failed...")
+```
+
+**Updated `backend/requirements.txt`**:
+```python
+# databutton==0.38.34  # Removed for Railway deployment
+python-dotenv==1.0.0  # Added for environment variables
+```
+
+### Lesson Learned
+When migrating from platform-specific deployments, audit ALL imports and remove ALL platform-specific code. Check for: imports, API calls, storage methods, secrets management.
+
+---
+
+## 🐛 BUG #14: Vercel - 404 NOT_FOUND After Successful Build
+
+**Platform**: Vercel (Frontend)
+**Error**: Build succeeded but deployment shows `404 NOT_FOUND`
+
+### Root Cause
+- No `vercel.json` configuration file
+- Vercel couldn't find frontend in custom monorepo structure
+- Expected files in root, but they're in `frontend/` directory
+- SPA routing not configured (all routes should go to index.html)
+
+### Fix Applied
+Created `vercel.json` in project root:
+
+```json
+{
+  "buildCommand": "cd frontend && npm install --legacy-peer-deps && npm run build",
+  "outputDirectory": "frontend/dist",
+  "installCommand": "cd frontend && npm install --legacy-peer-deps",
+  "framework": null,
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
+```
+
+**Key Points**:
+- Navigate to `frontend/` before all commands
+- `outputDirectory` points to `frontend/dist` not just `dist`
+- `rewrites` enable SPA routing (all routes → index.html)
+
+### Lesson Learned
+Custom monorepo structures ALWAYS need explicit Vercel configuration. Never rely on auto-detection.
+
+---
+
+## 🐛 BUG #15: Vercel - NPM Peer Dependency Conflict (Stripe)
+
+**Platform**: Vercel (Frontend)
+**Error**:
+```
+npm error ERESOLVE could not resolve
+npm error peer @stripe/stripe-js@"^1.44.1 || ^2.0.0 || ^3.0.0 || ^4.0.0" from @stripe/react-stripe-js@2.9.0
+npm error Conflicting peer dependency: @stripe/stripe-js@4.10.0
+npm error Project has: @stripe/stripe-js@5.0.0
+```
+
+### Root Cause
+- `@stripe/react-stripe-js@2.9.0` requires Stripe v4.x
+- Project has `@stripe/stripe-js@5.0.0` (newer version)
+- npm strict peer dependency checking fails
+
+### Fix Applied
+Added `--legacy-peer-deps` flag in `vercel.json`:
+
+```json
+{
+  "installCommand": "cd frontend && npm install --legacy-peer-deps",
+  "buildCommand": "cd frontend && npm install --legacy-peer-deps && npm run build"
+}
+```
+
+**Why this works**:
+- Bypasses strict peer dependency checking
+- Stripe v5 API is backward compatible with v4
+- Safe for backward-compatible libraries
+
+### Lesson Learned
+For minor version conflicts with backward-compatible APIs, `--legacy-peer-deps` is valid. NOT a hack - it's a legitimate npm feature.
+
+---
+
+## 🐛 BUG #16: Vercel - Missing UI Component Files (18 Files!)
+
+**Platform**: Vercel (Frontend)
+**Error**:
+```
+[vite:load-fallback] Could not load /vercel/path0/frontend/src/components/ui/card
+ENOENT: no such file or directory
+```
+
+### Root Cause
+- ALL shadcn UI components located in `frontend/src/extensions/shadcn/components/`
+- Imports used `@/components/ui/[component]` throughout app
+- Directory `frontend/src/components/ui/` didn't exist
+- Development worked (Vite lenient), production failed (strict)
+
+### Fix Applied
+Created `frontend/src/components/ui/` with 18 re-export files:
+
+**Example - `frontend/src/components/ui/card.tsx`**:
+```typescript
+export * from '@/extensions/shadcn/components/card';
+```
+
+**Complete list created**:
+- accordion.tsx, badge.tsx, button.tsx, card.tsx, carousel.tsx
+- dialog.tsx, dropdown-menu.tsx, input.tsx, label.tsx, progress.tsx
+- radio-group.tsx, select.tsx, separator.tsx, slider.tsx
+- table.tsx, tabs.tsx, toast.tsx, toggle.tsx, tooltip.tsx
+
+### Lesson Learned
+- Production builds are STRICTER than development
+- ALWAYS test production build locally: `npm run build`
+- Create re-export layers for cleaner import paths
+- Never trust dev server - if it works there, test production!
+
+---
+
+## 🐛 BUG #17: Vercel - Missing lib/utils.ts (.gitignore Issue) - CRITICAL!
+
+**Platform**: Vercel (Frontend)
+**Error**:
+```
+[vite:load-fallback] Could not load /vercel/path0/frontend/src/lib/utils
+ENOENT: no such file or directory
+```
+
+### Root Cause - THIS WAS THE CRITICAL ONE
+- `.gitignore` had `lib/` pattern (intended for Python)
+- This excluded `frontend/src/lib/` from git tracking
+- `frontend/src/lib/utils.ts` existed locally BUT was never committed
+- Vercel couldn't find file because it wasn't in repository
+- File contains `cn()` function used by ALL shadcn components
+
+### Fix Applied
+1. **Updated `.gitignore`**:
+```gitignore
+# BEFORE (WRONG):
+lib/
+lib64/
+
+# AFTER (CORRECT):
+# lib/ - commented out to allow frontend/src/lib/
+# lib64/ - commented out to allow frontend/src/lib/
+```
+
+2. **Force-added the file**:
+```bash
+git add -f frontend/src/lib/utils.ts
+```
+
+**File Content** (`frontend/src/lib/utils.ts`):
+```typescript
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+```
+
+### Why This Was Critical
+- `cn()` function used by EVERY SINGLE shadcn component
+- Without it, ALL UI components fail to build
+- Took multiple deployment attempts to find
+
+### Lesson Learned
+- BE SPECIFIC with `.gitignore` patterns
+- NEVER use overly broad patterns like `lib/`, `dist/`, `build/`
+- Use platform-specific paths: `backend/lib/` NOT `lib/`
+- Always verify critical files tracked: `git ls-files | grep [filename]`
+- When in doubt, check what's ignored: `git status --ignored`
+
+---
+
+## 🐛 BUG #18: Vercel - Missing Hooks Re-exports
+
+**Platform**: Vercel (Frontend)
+**Error**: `Could not resolve import from '@/hooks/use-toast'`
+
+### Root Cause
+- Hooks existed at `frontend/src/extensions/shadcn/hooks/`
+- Imports used `@/hooks/use-toast`
+- Directory `frontend/src/hooks/` didn't exist
+- Same pattern as UI components issue (Bug #16)
+
+### Fix Applied
+Created `frontend/src/hooks/` with re-exports:
+
+**`frontend/src/hooks/use-toast.ts`**:
+```typescript
+export * from '@/extensions/shadcn/hooks/use-toast';
+```
+
+**`frontend/src/hooks/use-theme.ts`**:
+```typescript
+export * from '@/extensions/shadcn/hooks/use-theme';
+```
+
+### Lesson Learned
+Maintain consistent import paths with re-export layers. Check ALL `@/` imports before deploying.
+
+---
+
+## 📋 Deployment Prevention Checklist
+
+Use this before ANY future deployment to Railway/Vercel/Netlify:
+
+### Backend (Railway/Heroku/etc.)
+- [ ] Create `railway.toml` or `app.json`
+- [ ] Create `Procfile`
+- [ ] Create `runtime.txt` (Python) or `.nvmrc` (Node)
+- [ ] Create `.dockerignore`
+- [ ] Remove ALL platform-specific imports (`databutton`, etc.)
+- [ ] Replace platform APIs with standard libraries
+- [ ] Set environment variables in hosting dashboard
+- [ ] Test locally with production-like environment
+- [ ] Verify all dependencies in `requirements.txt`/`package.json`
+
+### Frontend (Vercel/Netlify/etc.)
+- [ ] Create `vercel.json` or `netlify.toml` configuration
+- [ ] Run production build locally: `npm run build`
+- [ ] Verify ALL imports resolve correctly
+- [ ] Check files tracked by git: `git status`
+- [ ] Audit `.gitignore` for overly broad patterns
+- [ ] Add `--legacy-peer-deps` if needed
+- [ ] Configure SPA routing (rewrites)
+- [ ] Set environment variables in hosting dashboard
+- [ ] Verify output directory path
+
+### Critical .gitignore Patterns to Avoid
+❌ DON'T USE:
+- `lib/` → Use `backend/lib/` or `**/python/lib/`
+- `dist/` → Use `frontend/dist/` or `*/dist/`
+- `build/` → Use `backend/build/` or specific paths
+
+✅ DO USE:
+- Specific paths with directory context
+- Comments explaining WHY pattern exists
+- Regular audits: `git status --ignored`
+
+---
+
+## 🎯 Quick Reference: Common Deployment Errors
+
+### "Could not load [file]" → File missing from git
+1. Check if file exists: `ls [path]`
+2. Check if tracked: `git ls-files [path]`
+3. Check `.gitignore` for exclusions
+4. Force add: `git add -f [path]`
+
+### "ERESOLVE could not resolve" → Peer dependency conflict
+1. Add `--legacy-peer-deps` to npm commands
+2. OR update conflicting package versions
+3. DON'T use `--force` (breaks lockfile)
+
+### "404 NOT_FOUND" on Vercel → Missing config
+1. Create `vercel.json`
+2. Set correct `outputDirectory`
+3. Add SPA rewrites
+4. Specify build commands with paths
+
+### "ModuleNotFoundError" in Python → Missing dependency
+1. Check `requirements.txt`
+2. Remove platform-specific imports
+3. Replace with standard libraries
+
+### "Script not found" on Railway → Missing deployment config
+1. Create `railway.toml` + `Procfile`
+2. Set root directory in dashboard
+3. Specify build/start commands
+
+---
+
+## 📊 Updated Bug Statistics
+
+**Total Bugs**: 18 (was 11, added 7 deployment issues)
+**Fixed**: 18 ✅
+**Temporary Fix**: 0
+**Critical Unresolved**: 0 ✅
+
+**By Severity**:
+- Critical: 8 (all fixed)
+- High: 7 (all fixed)
+- Medium: 3 (all fixed)
+
+**By Category**:
+- Frontend: 12
+- Backend: 4
+- Deployment: 7 (NEW category)
+- Integration: 0
+
+**Deployment Issues** (Nov 8, 2025):
+- Bug #12: Railway script.sh not found ✅
+- Bug #13: Railway databutton import error ✅
+- Bug #14: Vercel 404 after build ✅
+- Bug #15: Vercel Stripe peer dependency ✅
+- Bug #16: Vercel missing UI components ✅
+- Bug #17: Vercel missing lib/utils.ts (CRITICAL .gitignore issue) ✅
+- Bug #18: Vercel missing hooks ✅
 
 ---
 
