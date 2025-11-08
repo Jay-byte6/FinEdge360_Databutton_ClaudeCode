@@ -7,6 +7,7 @@ import { ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, 
 import { toast } from "sonner";
 import useFinancialDataStore from "utils/financialDataStore"; // Corrected to default import
 import FinancialLadder from "@/components/FinancialLadder";
+import GuidelineBox from "@/components/GuidelineBox";
 
 const PortfolioPage: React.FC = () => {
   const [hasAccess, setHasAccess] = useState(false);
@@ -107,6 +108,9 @@ const PortfolioPage: React.FC = () => {
         <h1 className="text-4xl font-bold text-gray-800">Risk-Based Portfolio Allocator</h1>
         <p className="text-lg text-gray-600">Discover your ideal asset mix based on your risk appetite.</p>
       </header>
+
+      {/* Guideline Box */}
+      <GuidelineBox />
 
       {(riskAppetite === 0 || !financialData || Object.keys(financialData).length === 0) && (
         <Card className="mb-8 shadow-lg bg-yellow-50 border-yellow-300">

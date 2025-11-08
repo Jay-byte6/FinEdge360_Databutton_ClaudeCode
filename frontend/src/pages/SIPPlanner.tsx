@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import useFinancialDataStore from "utils/financialDataStore";
 import FinancialRoadmap from "@/components/FinancialRoadmap";
 import FinancialLadder from "@/components/FinancialLadder";
+import GuidelineBox from "@/components/GuidelineBox";
 
 // Define interfaces for goals and SIP data
 interface Goal {
@@ -101,6 +102,9 @@ const SIPPlanner: React.FC = () => {
         <h1 className="text-4xl font-bold text-gray-800">SIP Goal Planner</h1>
         <p className="text-lg text-gray-600">Plan your investments to achieve your financial goals.</p>
       </header>
+
+      {/* Guideline Box */}
+      <GuidelineBox />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <Card className="shadow-lg">

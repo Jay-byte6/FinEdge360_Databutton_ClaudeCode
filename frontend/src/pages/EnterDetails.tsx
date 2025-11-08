@@ -27,6 +27,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import DisclaimerAlert from "../components/DisclaimerAlert";
+import PrivacyPolicyModal from "../components/PrivacyPolicyModal";
+import GuidelineBox from "../components/GuidelineBox";
 // Assuming Tabs are used for layout, keep if already present or add if needed
 // import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -68,6 +72,8 @@ export default function EnterDetails() {
   const [activeTab, setActiveTab] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isInitialDataLoaded, setIsInitialDataLoaded] = useState(false);
+  const [privacyConsent, setPrivacyConsent] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
   // Get store functions and state
   const { user } = useAuthStore(); // Get the authenticated user
@@ -397,6 +403,15 @@ export default function EnterDetails() {
                 <h2 className="text-lg font-medium text-gray-800 mb-4">Personal Information</h2>
                 <p className="text-gray-600 mb-6">{tabs[activeTab].description}</p>
 
+                {/* Financial Advice Disclaimer */}
+                <DisclaimerAlert type="warning" title="⚠️ Important Financial Disclaimer">
+                  <p>
+                    The personal financial health check-up is provided for <strong>general information and
+                    educational purposes only</strong>. It is <strong>not intended to be financial advice</strong>.
+                    You should consult with a qualified financial expert for advice tailored to your specific situation.
+                  </p>
+                </DisclaimerAlert>
+
                 {/* Personal Info Form Fields - Will be implemented with React Hook Form */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
@@ -466,6 +481,9 @@ export default function EnterDetails() {
                 <h2 className="text-lg font-medium text-gray-800 mb-4">{tabs[activeTab].name}</h2>
                 <p className="text-gray-600 mb-6">{tabs[activeTab].description}</p>
 
+                {/* Guideline Box */}
+                <GuidelineBox />
+
                 <div className="space-y-8">
                   {/* Illiquid Assets */}
                   <Card>
@@ -532,6 +550,10 @@ export default function EnterDetails() {
               <div>
                 <h2 className="text-lg font-medium text-gray-800 mb-4">{tabs[activeTab].name}</h2>
                 <p className="text-gray-600 mb-6">{tabs[activeTab].description}</p>
+
+                {/* Guideline Box */}
+                <GuidelineBox />
+
                 <Card>
                   <CardHeader>
                     <CardTitle className="text-md font-medium text-gray-700">Liabilities</CardTitle>
@@ -566,6 +588,9 @@ export default function EnterDetails() {
               <div>
                 <h2 className="text-lg font-medium text-gray-800 mb-4">{tabs[activeTab].name}</h2>
                 <p className="text-gray-600 mb-6">{tabs[activeTab].description}</p>
+
+                {/* Guideline Box */}
+                <GuidelineBox />
 
                 {/* Goals Form Fields */}
                 <div className="space-y-8">
@@ -947,6 +972,37 @@ export default function EnterDetails() {
             )}
           </div>
 
+          {/* Privacy Consent Checkbox (Only on Personal Info Tab) */}
+          {activeTab === 0 && (
+            <div className="p-4 bg-blue-50 border-t border-blue-200">
+              <div className="flex items-start">
+                <div className="flex items-center h-5">
+                  <Checkbox
+                    id="privacy-consent"
+                    checked={privacyConsent}
+                    onCheckedChange={(checked) => setPrivacyConsent(checked as boolean)}
+                    className="border-blue-400"
+                  />
+                </div>
+                <div className="ml-3 text-sm">
+                  <label htmlFor="privacy-consent" className="font-medium text-blue-900">
+                    I have read and agree to the{' '}
+                    <button
+                      type="button"
+                      onClick={() => setShowPrivacyModal(true)}
+                      className="text-blue-600 hover:text-blue-800 underline font-semibold"
+                    >
+                      Privacy Policy
+                    </button>
+                  </label>
+                  <p className="text-blue-700 mt-1">
+                    You must accept the privacy policy to proceed with entering your financial data.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Navigation Buttons */}
           <div className="p-8 bg-gray-50 border-t border-gray-200 flex justify-between">
             <button
@@ -960,7 +1016,7 @@ export default function EnterDetails() {
             <button
               type="button"
               onClick={handleNext}
-              disabled={isSubmitting}
+              disabled={activeTab === 0 ? !privacyConsent || isSubmitting : isSubmitting}
               className="px-4 py-2 bg-gradient-to-r from-blue-600 to-green-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:from-blue-700 hover:to-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
             >
               {isSubmitting && activeTab === tabs.length - 1 ? (
@@ -990,6 +1046,9 @@ export default function EnterDetails() {
           Start Over
         </button>
       </div>
+
+      {/* Privacy Policy Modal */}
+      <PrivacyPolicyModal open={showPrivacyModal} onOpenChange={setShowPrivacyModal} />
     </div>
   );
 }

@@ -8,6 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import GuidelineBox from '../components/GuidelineBox';
 import {
   Accordion,
   AccordionContent,
@@ -514,6 +515,9 @@ export default function TaxPlanning() {
           <h1 className="text-3xl font-bold text-gray-800">Tax Planning</h1>
           <p className="text-gray-600">Compare old and new tax regimes to optimize your tax benefits</p>
         </div>
+
+        {/* Guideline Box */}
+        <GuidelineBox />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           <Card className="lg:col-span-3 bg-white shadow-md">
