@@ -47,10 +47,10 @@ const buildVariables = () => {
 	const defines: Record<string, string> = {
 		__APP_ID__: JSON.stringify(appId),
 		__API_PATH__: JSON.stringify(""),
-		__API_URL__: JSON.stringify("http://localhost:8001"),
-		__WS_API_URL__: JSON.stringify("ws://localhost:8001"),
+		__API_URL__: JSON.stringify("https://finedge360databuttonclaudecode-production.up.railway.app"),
+		__WS_API_URL__: JSON.stringify("wss://finedge360databuttonclaudecode-production.up.railway.app"),
 		__APP_BASE_PATH__: JSON.stringify("/"),
-		__APP_TITLE__: JSON.stringify("Databutton"),
+		__APP_TITLE__: JSON.stringify("FinEdge360"),
 		__APP_FAVICON_LIGHT__: JSON.stringify("/favicon-light.svg"),
 		__APP_FAVICON_DARK__: JSON.stringify("/favicon-dark.svg"),
 		__APP_DEPLOY_USERNAME__: JSON.stringify(""),

@@ -21,8 +21,23 @@ from databutton_app.mw.auth_mw import AuthConfig, get_authorized_user
 class CustomCORSMiddleware(BaseHTTPMiddleware):
     """Custom CORS middleware that manually adds headers to all responses."""
 
+    # Allowed origins for production and development
+    ALLOWED_ORIGINS = [
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "http://localhost:5175",
+        "https://finedge360-claudecode.vercel.app",  # Vercel production
+        "https://finedge360databuttonclaudecode-production.up.railway.app",  # Railway backend
+    ]
+
     async def dispatch(self, request: Request, call_next):
         logger.info(f"[CORS Middleware] {request.method} {request.url.path}")
+
+        # Get the origin from the request
+        origin = request.headers.get("origin", "*")
+
+        # Check if origin is in allowed list or allow all for development
+        allowed_origin = origin if origin in self.ALLOWED_ORIGINS or origin.endswith(".vercel.app") else "*"
 
         # Handle OPTIONS preflight requests immediately
         if request.method == "OPTIONS":
@@ -30,9 +45,10 @@ class CustomCORSMiddleware(BaseHTTPMiddleware):
             return Response(
                 status_code=200,
                 headers={
-                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Origin": allowed_origin,
                     "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
                     "Access-Control-Allow-Headers": "Content-Type, Authorization",
+                    "Access-Control-Allow-Credentials": "true",
                     "Access-Control-Max-Age": "600",
                 },
                 content=""
@@ -42,9 +58,10 @@ class CustomCORSMiddleware(BaseHTTPMiddleware):
         response = await call_next(request)
 
         # Add CORS headers to all responses
-        response.headers["Access-Control-Allow-Origin"] = "*"
+        response.headers["Access-Control-Allow-Origin"] = allowed_origin
         response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
         response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+        response.headers["Access-Control-Allow-Credentials"] = "true"
 
         return response
 
