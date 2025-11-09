@@ -2,10 +2,35 @@ import React, { useState } from 'react';
 import { Lightbulb, ChevronDown, ChevronUp } from 'lucide-react';
 
 const GuidelineBox: React.FC = () => {
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false); // Changed to false (collapsed by default)
 
   return (
     <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6 rounded-r-lg">
+      <style>{`
+        @keyframes brightPulse {
+          0%, 100% {
+            opacity: 1;
+            transform: scale(1);
+            background-color: rgb(37, 99, 235);
+            color: white;
+          }
+          50% {
+            opacity: 0.7;
+            transform: scale(1.05);
+            background-color: rgb(59, 130, 246);
+            color: white;
+          }
+        }
+        .bright-pulse {
+          animation: brightPulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+          box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4);
+        }
+        .bright-pulse:hover {
+          animation: none;
+          background-color: rgb(29, 78, 216);
+        }
+      `}</style>
+
       <div className="flex items-start">
         <div className="flex-shrink-0 mt-0.5">
           <Lightbulb className="h-5 w-5 text-blue-600" />
@@ -18,7 +43,11 @@ const GuidelineBox: React.FC = () => {
             <button
               type="button"
               onClick={() => setIsExpanded(!isExpanded)}
-              className="text-blue-600 hover:text-blue-800 transition-colors ml-2 flex items-center gap-1 text-xs font-medium"
+              className={`ml-2 flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-md transition-all ${
+                !isExpanded
+                  ? 'bright-pulse text-white'
+                  : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+              }`}
               aria-label={isExpanded ? "Hide details" : "Show details"}
             >
               {isExpanded ? (

@@ -124,6 +124,35 @@ class SaveFinancialDataResponse(BaseModel):
     message: str
     data: Optional[Dict[str, Any]] = None
 
+# Risk Assessment Models
+class RiskQuizAnswer(BaseModel):
+    questionId: int
+    score: int
+
+class PortfolioAllocation(BaseModel):
+    Equity: float
+    Debt: float
+    Gold: float
+    REITs: float
+    Cash: float
+
+class RiskAssessmentData(BaseModel):
+    userId: str
+    riskScore: int
+    riskType: str
+    quizAnswers: Optional[List[RiskQuizAnswer]] = None
+    idealPortfolio: PortfolioAllocation
+    currentPortfolio: PortfolioAllocation
+    difference: Dict[str, str]
+    summary: str
+    educationalInsights: List[str]
+    encouragement: str
+
+class RiskAssessmentResponse(BaseModel):
+    success: bool
+    message: str
+    data: Optional[Dict[str, Any]] = None
+
 @router.post("/save-financial-data")
 def save_financial_data(data: FinancialDataInput) -> SaveFinancialDataResponse:
     try:
@@ -518,3 +547,130 @@ def get_financial_data(user_id: str) -> FinancialDataOutput:
         if isinstance(e, HTTPException):
             raise e
         raise HTTPException(status_code=500, detail=f"Failed to retrieve financial data: {str(e)}")
+
+# Risk Assessment Endpoints
+@router.post("/save-risk-assessment")
+def save_risk_assessment(data: RiskAssessmentData) -> RiskAssessmentResponse:
+    """Save user's risk assessment data to database"""
+    try:
+        if not supabase:
+            raise HTTPException(status_code=500, detail="Database not initialized")
+        
+        # Get user ID from database
+        user_email = f"{sanitize_storage_key(data.userId)}@finnest.example.com"
+        user_response = supabase.from_("users").select("id").eq("email", user_email).execute()
+        
+        if not user_response.data or len(user_response.data) == 0:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        user_id_db = user_response.data[0]["id"]
+        
+        # Prepare risk assessment data
+        risk_assessment_data = {
+            "user_id": user_id_db,
+            "risk_score": data.riskScore,
+            "risk_type": data.riskType,
+            "quiz_answers": [answer.dict() for answer in data.quizAnswers] if data.quizAnswers else None,
+            "ideal_portfolio": data.idealPortfolio.dict(),
+            "current_portfolio": data.currentPortfolio.dict(),
+            "difference": data.difference,
+            "summary": data.summary,
+            "educational_insights": data.educationalInsights,
+            "encouragement": data.encouragement
+        }
+        
+        # Check if risk assessment already exists for this user
+        existing_response = supabase.from_("risk_assessments").select("id").eq("user_id", user_id_db).execute()
+        
+        if existing_response.data and len(existing_response.data) > 0:
+            # Update existing record
+            assessment_id = existing_response.data[0]["id"]
+            supabase.from_("risk_assessments").update(risk_assessment_data).eq("id", assessment_id).execute()
+            message = "Risk assessment updated successfully"
+        else:
+            # Create new record
+            supabase.from_("risk_assessments").insert(risk_assessment_data).execute()
+            message = "Risk assessment saved successfully"
+        
+        return RiskAssessmentResponse(
+            success=True,
+            message=message,
+            data={"user_id": user_id_db}
+        )
+        
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        print(f"Error saving risk assessment: {str(e)}")
+        print(f"Full traceback: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"Failed to save risk assessment: {str(e)}")
+
+@router.get("/get-risk-assessment/{user_id}")
+def get_risk_assessment(user_id: str) -> Optional[Dict[str, Any]]:
+    """Retrieve user's risk assessment data from database"""
+    try:
+        if not supabase:
+            raise HTTPException(status_code=500, detail="Database not initialized")
+        
+        # Get user ID from database
+        user_email = f"{sanitize_storage_key(user_id)}@finnest.example.com"
+        user_response = supabase.from_("users").select("id").eq("email", user_email).execute()
+        
+        if not user_response.data or len(user_response.data) == 0:
+            return None  # User not found, return None instead of error
+        
+        user_id_db = user_response.data[0]["id"]
+        
+        # Get risk assessment
+        assessment_response = supabase.from_("risk_assessments").select("*").eq("user_id", user_id_db).execute()
+        
+        if not assessment_response.data or len(assessment_response.data) == 0:
+            return None  # No assessment found
+        
+        assessment = assessment_response.data[0]
+        
+        # Format response
+        return {
+            "riskScore": assessment["risk_score"],
+            "riskType": assessment["risk_type"],
+            "quizAnswers": assessment.get("quiz_answers"),
+            "idealPortfolio": assessment["ideal_portfolio"],
+            "currentPortfolio": assessment["current_portfolio"],
+            "difference": assessment["difference"],
+            "summary": assessment["summary"],
+            "educationalInsights": assessment["educational_insights"],
+            "encouragement": assessment["encouragement"]
+        }
+        
+    except Exception as e:
+        print(f"Error retrieving risk assessment: {str(e)}")
+        print(f"Full traceback: {traceback.format_exc()}")
+        return None  # Return None on error instead of raising exception
+
+@router.delete("/delete-risk-assessment/{user_id}")
+def delete_risk_assessment(user_id: str) -> Dict[str, str]:
+    """Delete user's risk assessment data from database"""
+    try:
+        if not supabase:
+            raise HTTPException(status_code=500, detail="Database not initialized")
+
+        # Get user ID from database
+        user_email = f"{sanitize_storage_key(user_id)}@finnest.example.com"
+        user_response = supabase.from_("users").select("id").eq("email", user_email).execute()
+
+        if not user_response.data or len(user_response.data) == 0:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        user_id_db = user_response.data[0]["id"]
+
+        # Delete risk assessment
+        supabase.from_("risk_assessments").delete().eq("user_id", user_id_db).execute()
+
+        return {"message": "Risk assessment deleted successfully"}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error deleting risk assessment: {str(e)}")
+        print(f"Full traceback: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"Failed to delete risk assessment: {str(e)}")

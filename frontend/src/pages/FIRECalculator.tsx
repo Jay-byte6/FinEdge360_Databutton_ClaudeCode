@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
 import useFinancialDataStore from '../utils/financialDataStore';
 import useAuthStore from '../utils/authStore';
-import GuidelineBox from '../components/GuidelineBox';
 
 type FIREMetrics = {
   annualExpenseInRetirement: number;
@@ -277,9 +276,6 @@ export default function FIRECalculator() {
           <h1 className="text-3xl font-bold text-gray-800">FIRE Calculator</h1>
           <p className="text-gray-600">Track your journey to Financial Independence and Retire Early</p>
         </div>
-
-        {/* Guideline Box */}
-        <GuidelineBox />
 
         {/* FIRE Calculator Input Section */}
         <Card className="lg:col-span-3 mb-8 shadow-md">

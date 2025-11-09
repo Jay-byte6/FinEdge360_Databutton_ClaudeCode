@@ -8,7 +8,6 @@ import useFinancialDataStore from '../utils/financialDataStore';
 import useAuthStore from '../utils/authStore';
 import { FinancialData } from 'types'; // Added import for FinancialData
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"; // Import Table components
-import GuidelineBox from '../components/GuidelineBox';
 
 // Define color constants
 const COLORS = {
@@ -301,9 +300,6 @@ export default function NetWorth() {
           <h1 className="text-3xl font-bold text-gray-800">Net Worth Tracker</h1>
           <p className="text-gray-600">Visualize your assets and liabilities to track your financial health</p>
         </div>
-
-        {/* Guideline Box */}
-        <GuidelineBox />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           {/* Net Worth Summary Card */}

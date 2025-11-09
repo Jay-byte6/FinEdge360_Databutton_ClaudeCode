@@ -51,14 +51,13 @@ export const AccessCodeForm: React.FC<Props> = ({ expectedCode, onAccessGranted,
             </Label>
             <Input
               id="access-code"
-              type="password" // Use password type to mask input
+              type="text"
+              inputMode="numeric"
               value={enteredCode}
-              onChange={(e) => setEnteredCode(e.target.value)}
+              onChange={(e) => setEnteredCode(e.target.value.replace(/\D/g, ''))}
               maxLength={6}
               placeholder="Enter 6-digit code"
-              className="text-center tracking-[0.3em]" // Added tracking for better digit separation feel
-              pattern="\\d{6}"
-              title="Please enter exactly 6 digits."
+              className="text-center tracking-[0.3em]"
               required
             />
           </div>
