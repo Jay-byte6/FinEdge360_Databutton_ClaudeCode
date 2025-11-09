@@ -106,7 +106,7 @@ const NavBar: React.FC<NavBarProps> = ({ showFullNav = true }) => {
                   <DropdownMenuItem className="cursor-pointer" onClick={() => window.open("https://chat.whatsapp.com/yourcommunitylink", "_blank")}>
                     Join WA Community
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/feedback")}>
+                  <DropdownMenuItem className="cursor-pointer" onClick={() => window.open("https://form.typeform.com/to/euTwDCwt", "_blank")}>
                     Here's My Feedback
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
