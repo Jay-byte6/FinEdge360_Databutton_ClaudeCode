@@ -446,9 +446,9 @@ export default function TaxPlanning() {
     setTaxUnderOldRegime(oldRegimeTax);
 
     // Calculate tax for new regime (without most deductions, but with higher slabs)
-    // In new regime, standard deduction of ₹50,000 is still allowed
-    const standardDeduction = deductions.find(d => d.name === 'Standard Deduction')?.amount || 0;
-    const calculatedTaxableIncomeNewRegime = Math.max(0, yearlyIncome - standardDeduction);
+    // In new regime, standard deduction of ₹75,000 is allowed (as per Union Budget 2025)
+    const standardDeductionNewRegime = 75000;
+    const calculatedTaxableIncomeNewRegime = Math.max(0, yearlyIncome - standardDeductionNewRegime);
     setTaxableIncomeNewRegime(calculatedTaxableIncomeNewRegime); // Set state
     const newRegimeTax = calculateNewRegimeTax(calculatedTaxableIncomeNewRegime);
     setTaxUnderNewRegime(newRegimeTax);
