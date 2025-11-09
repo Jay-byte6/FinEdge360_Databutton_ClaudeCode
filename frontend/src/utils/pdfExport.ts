@@ -364,6 +364,14 @@ export const generateFinancialProfilePDF = async (
   yPosition += 5;
   addSectionHeader('TAX CALCULATION SUMMARY', [128, 0, 128]);
 
+  // Add financial year info
+  doc.setFontSize(7);
+  doc.setFont('helvetica', 'italic');
+  doc.setTextColor(100, 100, 100);
+  doc.text('Financial Year: 2025-26 (AY 2026-27) | As per Union Budget 2025 | Effective from: April 1, 2025', margin, yPosition);
+  yPosition += 5;
+  doc.setTextColor(50, 50, 50);
+
   const annualIncome = monthlyIncome * 12;
 
   const estimated80C = Math.min((illiquid.epf_ppf_vpf || 0) * 0.1 + 50000, 150000);
@@ -391,18 +399,23 @@ export const generateFinancialProfilePDF = async (
     taxableIncome = Math.max(0, taxableIncome);
 
     let tax = 0;
-    if (taxableIncome <= 300000) tax = 0;
-    else if (taxableIncome <= 600000) tax = (taxableIncome - 300000) * 0.05;
-    else if (taxableIncome <= 900000) tax = 15000 + (taxableIncome - 600000) * 0.10;
-    else if (taxableIncome <= 1200000) tax = 45000 + (taxableIncome - 900000) * 0.15;
-    else if (taxableIncome <= 1500000) tax = 90000 + (taxableIncome - 1200000) * 0.20;
-    else tax = 150000 + (taxableIncome - 1500000) * 0.30;
+    // New Tax Regime slabs as per Union Budget 2025 (FY 2025-26, AY 2026-27, effective from April 1, 2025)
+    // ₹0 - ₹4,00,000: Nil (0%)
+    // ₹4,00,001 - ₹8,00,000: 5%
+    // ₹8,00,001 - ₹12,00,000: 10%
+    // ₹12,00,001 - ₹16,00,000: 15%
+    // ₹16,00,001 - ₹20,00,000: 20%
+    // ₹20,00,001 - ₹24,00,000: 25%
+    // Above ₹24,00,000: 30%
+    if (taxableIncome <= 400000) tax = 0;
+    else if (taxableIncome <= 800000) tax = (taxableIncome - 400000) * 0.05;
+    else if (taxableIncome <= 1200000) tax = 20000 + (taxableIncome - 800000) * 0.10;
+    else if (taxableIncome <= 1600000) tax = 60000 + (taxableIncome - 1200000) * 0.15;
+    else if (taxableIncome <= 2000000) tax = 120000 + (taxableIncome - 1600000) * 0.20;
+    else if (taxableIncome <= 2400000) tax = 200000 + (taxableIncome - 2000000) * 0.25;
+    else tax = 300000 + (taxableIncome - 2400000) * 0.30;
 
-    if (income <= 700000) {
-      tax = Math.max(0, tax - 25000);
-    }
-
-    tax = tax * 1.04;
+    tax = tax * 1.04; // Add 4% cess
     return { taxableIncome, tax: Math.round(tax), effectiveRate: income > 0 ? (tax / income * 100) : 0 };
   };
 
