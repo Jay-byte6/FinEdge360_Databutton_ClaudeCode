@@ -169,7 +169,7 @@ export default function TaxPlanning() {
     { id: 'gen8', type: 'general', text: "Tuition fees paid for up to two children can be claimed as a deduction under Section 80C." },
     { id: 'gen9', type: 'general', text: "Explore tax benefits available on education loans under Section 80E for interest paid." },
     { id: 'gen10', type: 'general', text: "When switching jobs, ensure your Form 16 from previous employer is collected for accurate ITR filing." },
-    { id: 'gen11', type: 'general', text: "Standard Deduction of ₹50,000 is available for salaried individuals under both tax regimes." }, 
+    { id: 'gen11', type: 'general', text: "Standard Deduction is available for salaried individuals: ₹50,000 under Old Regime, ₹75,000 under New Regime (as per Union Budget 2025)." }, 
   ], []);
 
   // Calculate tax whenever income or deductions change
@@ -488,7 +488,7 @@ export default function TaxPlanning() {
     {
       name: 'New Regime',
       tax: taxUnderNewRegime,
-      deductions: 50000, // Standard deduction only
+      deductions: 75000, // Standard deduction only (as per Union Budget 2025)
       color: '#4ade80', // Green
     },
   ];
@@ -663,7 +663,7 @@ export default function TaxPlanning() {
                                         </TooltipTrigger>
                                         <TooltipContent className="w-80 p-3 bg-gray-800 text-white rounded-md shadow-lg">
                                           <p className="font-semibold mb-1">Standard Deduction:</p>
-                                          <p className="text-sm">A flat deduction of ₹50,000 from your salary income. Applicable under both Old and New Regimes.</p>
+                                          <p className="text-sm">A flat deduction from your salary income. ₹50,000 under Old Regime, ₹75,000 under New Regime (as per Union Budget 2025).</p>
                                         </TooltipContent>
                                       </Tooltip>
                                     </TooltipProvider>
@@ -1067,11 +1067,11 @@ export default function TaxPlanning() {
                       </div>
                       <div className="flex justify-between">
                         <dt className="text-green-700">Standard Deduction:</dt>
-                        <dd className="font-medium">{formatCurrency(50000)}</dd>
+                        <dd className="font-medium">{formatCurrency(75000)}</dd>
                       </div>
                       <div className="flex justify-between">
                         <dt className="text-green-700">Taxable Income:</dt>
-                        <dd className="font-medium">{formatCurrency(Math.max(0, yearlyIncome - 50000))}</dd>
+                        <dd className="font-medium">{formatCurrency(Math.max(0, yearlyIncome - 75000))}</dd>
                       </div>
                       <div className="flex justify-between">
                         <dt className="text-green-700">Tax Amount:</dt>
@@ -1240,11 +1240,11 @@ export default function TaxPlanning() {
                         <div className="space-y-1">
                           <div className="flex justify-between text-sm">
                             <span className="text-green-700">Standard Deduction (16(ia)):</span>
-                            <span>{formatCurrency(50000)}</span>
+                            <span>{formatCurrency(75000)}</span>
                           </div>
                           <div className="flex justify-between pt-1 font-medium border-t border-green-200 mt-2">
                             <span className="text-green-700">Total Deductions:</span>
-                            <span>{formatCurrency(50000)}</span>
+                            <span>{formatCurrency(75000)}</span>
                           </div>
                         </div>
                       </div>
@@ -1254,7 +1254,7 @@ export default function TaxPlanning() {
                         <div className="space-y-1">
                           <div className="flex justify-between">
                             <span className="text-amber-700">Taxable Income:</span>
-                            <span className="font-medium">{formatCurrency(Math.max(0, yearlyIncome - 50000))}</span>
+                            <span className="font-medium">{formatCurrency(Math.max(0, yearlyIncome - 75000))}</span>
                           </div>
                           {newRegimeSlabs.filter(s => s.tax > 0).map((slab, idx) => (
                             <div key={idx} className="flex justify-between text-sm">
@@ -1284,7 +1284,7 @@ export default function TaxPlanning() {
                     <li>Lower tax rates in multiple slabs</li>
                     <li>Higher rebate limit of ₹7 lakh (vs ₹5 lakh in old regime)</li>
                     <li>Simplified tax filing with fewer deductions to track</li>
-                    <li>Standard deduction of ₹50,000 still available</li>
+                    <li>Standard deduction of ₹75,000 (as per Union Budget 2025)</li>
                     <li>Beneficial for those with fewer investments and deductions</li>
                   </ul>
                 </div>
