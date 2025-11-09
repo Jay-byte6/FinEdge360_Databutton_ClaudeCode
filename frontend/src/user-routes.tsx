@@ -20,6 +20,7 @@ const FIRECalculator = lazy(() => import("./pages/FIRECalculator.tsx"));
 const Login = lazy(() => import("./pages/Login.tsx"));
 const NetWorth = lazy(() => import("./pages/NetWorth.tsx"));
 const Portfolio = lazy(() => import("./pages/Portfolio.tsx"));
+const Profile = lazy(() => import("./pages/Profile.tsx"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword.tsx"));
 const SIPPlanner = lazy(() => import("./pages/SIPPlanner.tsx"));
 const TaxPlanning = lazy(() => import("./pages/TaxPlanning.tsx"));
@@ -36,6 +37,7 @@ export const userRoutes: RouteObject[] = [
 	{ path: "/net-worth", element: <Suspense fallback={<LoadingFallback />}><AppProvider><NetWorth /></AppProvider></Suspense>},
 	{ path: "/networth", element: <Suspense fallback={<LoadingFallback />}><AppProvider><NetWorth /></AppProvider></Suspense>},
 	{ path: "/portfolio", element: <Suspense fallback={<LoadingFallback />}><AppProvider><Portfolio /></AppProvider></Suspense>},
+	{ path: "/profile", element: <Suspense fallback={<LoadingFallback />}><AppProvider><Profile /></AppProvider></Suspense>},
 	{ path: "/reset-password", element: <Suspense fallback={<LoadingFallback />}><AppProvider><ResetPassword /></AppProvider></Suspense>},
 	{ path: "/resetpassword", element: <Suspense fallback={<LoadingFallback />}><AppProvider><ResetPassword /></AppProvider></Suspense>},
 	{ path: "/sip-planner", element: <Suspense fallback={<LoadingFallback />}><AppProvider><SIPPlanner /></AppProvider></Suspense>},
