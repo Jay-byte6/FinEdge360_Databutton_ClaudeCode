@@ -16,6 +16,7 @@ const LoadingFallback = () => (
 const App = lazy(() => import("./pages/App.tsx"));
 const Dashboard = lazy(() => import("./pages/Dashboard.tsx"));
 const EnterDetails = lazy(() => import("./pages/EnterDetails.tsx"));
+const Feedback = lazy(() => import("./pages/Feedback.tsx"));
 const FIRECalculator = lazy(() => import("./pages/FIRECalculator.tsx"));
 const Login = lazy(() => import("./pages/Login.tsx"));
 const NetWorth = lazy(() => import("./pages/NetWorth.tsx"));
@@ -31,6 +32,7 @@ export const userRoutes: RouteObject[] = [
 	{ path: "/dashboard", element: <Suspense fallback={<LoadingFallback />}><AppProvider><Dashboard /></AppProvider></Suspense>},
 	{ path: "/enter-details", element: <Suspense fallback={<LoadingFallback />}><AppProvider><EnterDetails /></AppProvider></Suspense>},
 	{ path: "/enterdetails", element: <Suspense fallback={<LoadingFallback />}><AppProvider><EnterDetails /></AppProvider></Suspense>},
+	{ path: "/feedback", element: <Suspense fallback={<LoadingFallback />}><AppProvider><Feedback /></AppProvider></Suspense>},
 	{ path: "/fire-calculator", element: <Suspense fallback={<LoadingFallback />}><AppProvider><FIRECalculator /></AppProvider></Suspense>},
 	{ path: "/firecalculator", element: <Suspense fallback={<LoadingFallback />}><AppProvider><FIRECalculator /></AppProvider></Suspense>},
 	{ path: "/login", element: <Suspense fallback={<LoadingFallback />}><AppProvider><Login /></AppProvider></Suspense>},
