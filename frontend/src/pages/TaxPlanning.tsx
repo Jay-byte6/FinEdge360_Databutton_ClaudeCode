@@ -347,73 +347,72 @@ export default function TaxPlanning() {
     return totalTax;
   };
 
-  // Helper function to calculate tax for new regime AY 2025-26 (FY 2024-25)
+  // Helper function to calculate tax for new regime FY 2025-26 (AY 2026-27) - Union Budget 2025
   const calculateNewRegimeTax = (income: number) => { // income is net taxable income after standard deduction
     let slabs: TaxSlabNew[] = [];
     let totalTax = 0;
 
-    // New Regime Slabs for FY 2024-25 (AY 2025-26)
-    // ₹0 - ₹3,00,000: Nil
-    // ₹3,00,001 - ₹6,00,000: 5%
-    // ₹6,00,001 - ₹9,00,000: 10%
-    // ₹9,00,001 - ₹12,00,000: 15%
-    // ₹12,00,001 - ₹15,00,000: 20%
-    // Above ₹15,00,000: 30%
+    // New Regime Slabs for FY 2025-26 (AY 2026-27) - As per Union Budget 2025 (Effective from April 1, 2025)
+    // ₹0 - ₹4,00,000: Nil (0%)
+    // ₹4,00,001 - ₹8,00,000: 5%
+    // ₹8,00,001 - ₹12,00,000: 10%
+    // ₹12,00,001 - ₹16,00,000: 15%
+    // ₹16,00,001 - ₹20,00,000: 20%
+    // ₹20,00,001 - ₹24,00,000: 25%
+    // Above ₹24,00,000: 30%
 
-    // Rebate u/s 87A for New Regime: If net taxable income <= ₹7,00,000, tax liability is NIL.
-    if (income <= 700000) {
-      totalTax = 0;
-      // Populate slabs for display even if tax is nil
-      if (income <= 300000) {
-        slabs.push({ min: 0, max: income, rate: 0, tax: 0 });
-      } else {
-        slabs.push({ min: 0, max: 300000, rate: 0, tax: 0 });
-        if (income > 300000) {
-          const taxablePortion = Math.min(income, 600000) - 300000;
-          slabs.push({ min: 300000, max: Math.min(income, 600000), rate: 5, tax: taxablePortion * 0.05 });
-        }
-        if (income > 600000) {
-          const taxablePortion = Math.min(income, 900000) - 600000;
-          slabs.push({ min: 600000, max: Math.min(income, 900000), rate: 10, tax: taxablePortion * 0.10 });
-        }       
-      }
-    } else {
-      // Income > 700000, calculate tax normally
-      slabs.push({ min: 0, max: 300000, rate: 0, tax: 0 });
-      
-      let remainingIncome = income;
-      let slabTax = (Math.min(remainingIncome, 600000) - 300000) * 0.05;
+    // Calculate tax based on new slabs
+    slabs.push({ min: 0, max: 400000, rate: 0, tax: 0 });
+
+    if (income > 400000) {
+      const slabTax = (Math.min(income, 800000) - 400000) * 0.05;
       if (slabTax > 0) {
         totalTax += slabTax;
-        slabs.push({ min: 300000, max: 600000, rate: 5, tax: slabTax });
-      }
-
-      slabTax = (Math.min(remainingIncome, 900000) - 600000) * 0.10;
-      if (slabTax > 0) {
-        totalTax += slabTax;
-        slabs.push({ min: 600000, max: 900000, rate: 10, tax: slabTax });
-      }
-
-      slabTax = (Math.min(remainingIncome, 1200000) - 900000) * 0.15;
-      if (slabTax > 0) {
-        totalTax += slabTax;
-        slabs.push({ min: 900000, max: 1200000, rate: 15, tax: slabTax });
-      }
-
-      slabTax = (Math.min(remainingIncome, 1500000) - 1200000) * 0.20;
-      if (slabTax > 0) {
-        totalTax += slabTax;
-        slabs.push({ min: 1200000, max: 1500000, rate: 20, tax: slabTax });
-      }
-
-      if (remainingIncome > 1500000) {
-        slabTax = (remainingIncome - 1500000) * 0.30;
-        totalTax += slabTax;
-        slabs.push({ min: 1500000, max: Infinity, rate: 30, tax: slabTax });
+        slabs.push({ min: 400000, max: 800000, rate: 5, tax: slabTax });
       }
     }
 
-    // Add 4% cess (only if totalTax > 0 after rebate)
+    if (income > 800000) {
+      const slabTax = (Math.min(income, 1200000) - 800000) * 0.10;
+      if (slabTax > 0) {
+        totalTax += slabTax;
+        slabs.push({ min: 800000, max: 1200000, rate: 10, tax: slabTax });
+      }
+    }
+
+    if (income > 1200000) {
+      const slabTax = (Math.min(income, 1600000) - 1200000) * 0.15;
+      if (slabTax > 0) {
+        totalTax += slabTax;
+        slabs.push({ min: 1200000, max: 1600000, rate: 15, tax: slabTax });
+      }
+    }
+
+    if (income > 1600000) {
+      const slabTax = (Math.min(income, 2000000) - 1600000) * 0.20;
+      if (slabTax > 0) {
+        totalTax += slabTax;
+        slabs.push({ min: 1600000, max: 2000000, rate: 20, tax: slabTax });
+      }
+    }
+
+    if (income > 2000000) {
+      const slabTax = (Math.min(income, 2400000) - 2000000) * 0.25;
+      if (slabTax > 0) {
+        totalTax += slabTax;
+        slabs.push({ min: 2000000, max: 2400000, rate: 25, tax: slabTax });
+      }
+    }
+
+    if (income > 2400000) {
+      const slabTax = (income - 2400000) * 0.30;
+      if (slabTax > 0) {
+        totalTax += slabTax;
+        slabs.push({ min: 2400000, max: Infinity, rate: 30, tax: slabTax });
+      }
+    }
+
+    // Add 4% cess (only if totalTax > 0)
     if (totalTax > 0) {
       const cess = totalTax * 0.04;
       totalTax += cess;
@@ -514,6 +513,14 @@ export default function TaxPlanning() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-800">Tax Planning</h1>
           <p className="text-gray-600">Compare old and new tax regimes to optimize your tax benefits</p>
+          <div className="mt-3 p-3 bg-blue-50 border-l-4 border-blue-500 rounded">
+            <p className="text-sm font-medium text-blue-900">
+              Financial Year: 2025-26 (AY 2026-27) | As per Union Budget 2025 | Effective from: April 1, 2025
+            </p>
+            <p className="text-xs text-blue-700 mt-1">
+              All tax calculations use the latest tax slabs for both Old and New Tax Regimes
+            </p>
+          </div>
         </div>
 
         {/* Guideline Box */}
