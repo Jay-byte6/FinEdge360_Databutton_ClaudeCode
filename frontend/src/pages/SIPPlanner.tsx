@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { AccessCodeForm } from "components/AccessCodeForm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip as RechartsTooltip } from 'recharts';
 import { toast } from "sonner";
 import useFinancialDataStore from "utils/financialDataStore";
+import useAuthStore from "utils/authStore";
 import FinancialRoadmap from "@/components/FinancialRoadmap";
 import FinancialLadder from "@/components/FinancialLadder";
 import GuidelineBox from "@/components/GuidelineBox";
@@ -25,19 +26,93 @@ interface SipCalculation {
   monthlySip: number;
 }
 
+const SIP_PLANNER_ACCESS_KEY = 'sip_planner_access_granted';
+
 const SIPPlanner: React.FC = () => {
-  const [hasAccess, setHasAccess] = useState(false);
+  const { user } = useAuthStore();
   const { financialData } = useFinancialDataStore();
-  const [goals, setGoals] = useState<Goal[]>([
-    { id: "goal1", name: "Vacation", amount: 50000, deadline: 1, type: 'Short-Term' },
-  ]);
+
+  // Check localStorage for persisted access
+  const [hasAccess, setHasAccess] = useState(() => {
+    return localStorage.getItem(SIP_PLANNER_ACCESS_KEY) === 'true';
+  });
+
+  const [goals, setGoals] = useState<Goal[]>([]);
   const [newGoal, setNewGoal] = useState<Omit<Goal, 'id'>>({ name: "", amount: 0, deadline: 0, type: 'Short-Term' });
   const [sipCalculations, setSipCalculations] = useState<SipCalculation[]>([]);
+  const [isLoadingData, setIsLoadingData] = useState(true);
 
   const ACCESS_CODE = "123456"; // Hardcoded access code
 
+  // Load SIP planner data from database on mount and when access is granted
+  useEffect(() => {
+    const loadSIPPlannerData = async () => {
+      if (!user || !user.id || !hasAccess) {
+        setIsLoadingData(false);
+        return;
+      }
+
+      try {
+        const response = await fetch(`http://localhost:8001/routes/get-sip-planner/${user.id}`);
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.goals) {
+            setGoals(data.goals);
+            if (data.sipCalculations) {
+              setSipCalculations(data.sipCalculations);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error loading SIP planner data:', error);
+      } finally {
+        setIsLoadingData(false);
+      }
+    };
+
+    loadSIPPlannerData();
+  }, [user, hasAccess]);
+
+  // Save SIP planner data to database
+  const saveSIPPlannerData = async (updatedGoals: Goal[], calculations: SipCalculation[]) => {
+    if (!user || !user.id) {
+      toast.error("Authentication required", {
+        description: "Please log in to save your SIP planner data.",
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:8001/routes/save-sip-planner', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.id,
+          goals: updatedGoals,
+          sipCalculations: calculations,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save SIP planner data');
+      }
+
+      toast.success("Data Saved!", {
+        description: "Your SIP planner data has been saved to your profile.",
+      });
+    } catch (error) {
+      console.error('Error saving SIP planner data:', error);
+      toast.error("Save Failed", {
+        description: "Could not save your SIP planner data. Please try again.",
+      });
+    }
+  };
+
   const handleAccessGranted = () => {
     setHasAccess(true);
+    // Persist access to localStorage
+    localStorage.setItem(SIP_PLANNER_ACCESS_KEY, 'true');
   };
 
   const pmt = (rate: number, nper: number, pv: number, fv: number = 0, type: number = 0): number => {
@@ -50,7 +125,7 @@ const SIPPlanner: React.FC = () => {
     return pmtVal;
   };
 
-  const calculateSip = () => {
+  const calculateSip = async () => {
     if (goals.length === 0) {
       toast.info("No goals added", { description: "Please add at least one financial goal to calculate SIPs." });
       return;
@@ -68,16 +143,23 @@ const SIPPlanner: React.FC = () => {
     });
     setSipCalculations(calculations);
     toast.success("SIPs Calculated", { description: `Successfully calculated SIPs for ${calculations.length} goal(s).` });
+
+    // Save to database
+    await saveSIPPlannerData(goals, calculations);
   };
 
-  const handleAddGoal = () => {
+  const handleAddGoal = async () => {
     if (!newGoal.name || newGoal.amount <= 0 || newGoal.deadline <= 0) {
       toast.error("Invalid Goal Input", { description: "Please ensure all fields are filled correctly for the new goal." });
       return;
     }
-    setGoals([...goals, { ...newGoal, id: `goal${Date.now()}` }]);
+    const updatedGoals = [...goals, { ...newGoal, id: `goal${Date.now()}` }];
+    setGoals(updatedGoals);
     setNewGoal({ name: "", amount: 0, deadline: 0, type: 'Short-Term' }); // Reset form
     toast.success("Goal Added", { description: `Successfully added goal: ${newGoal.name}.` });
+
+    // Save to database (without calculations yet - those will be saved when user clicks "Calculate Required SIPs")
+    await saveSIPPlannerData(updatedGoals, sipCalculations);
   };
 
   const totalMonthlySip = sipCalculations.reduce((sum, sip) => sum + sip.monthlySip, 0);
@@ -106,6 +188,20 @@ const SIPPlanner: React.FC = () => {
       {/* Guideline Box */}
       <GuidelineBox />
 
+      {/* Loading State */}
+      {isLoadingData && hasAccess && (
+        <Card className="mb-8 shadow-lg border-2 border-blue-300 bg-gradient-to-br from-blue-50 to-indigo-50">
+          <CardContent className="py-12">
+            <div className="flex flex-col items-center justify-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+              <p className="text-blue-700 font-medium">Loading your SIP planner data...</p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Main Content - only show when not loading */}
+      {!isLoadingData && (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <Card className="shadow-lg">
           <CardHeader>
@@ -241,15 +337,17 @@ const SIPPlanner: React.FC = () => {
         </Card>
       )}
 
+      )}
+
       {/* Financial Roadmap Component */}
-      {financialData && Object.keys(financialData).length > 0 && (
+      {!isLoadingData && financialData && Object.keys(financialData).length > 0 && (
         <div className="mt-8">
           <FinancialRoadmap financialData={financialData} />
         </div>
       )}
 
       {/* Financial Ladder Component */}
-      {financialData && Object.keys(financialData).length > 0 && (
+      {!isLoadingData && financialData && Object.keys(financialData).length > 0 && (
         <div className="mt-8">
           <FinancialLadder financialData={financialData} />
         </div>

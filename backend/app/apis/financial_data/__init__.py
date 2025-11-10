@@ -674,3 +674,110 @@ def delete_risk_assessment(user_id: str) -> Dict[str, str]:
         print(f"Error deleting risk assessment: {str(e)}")
         print(f"Full traceback: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"Failed to delete risk assessment: {str(e)}")
+
+# SIP Planner Models
+class SIPGoal(BaseModel):
+    id: str
+    name: str
+    amount: float
+    deadline: int
+    type: str  # 'Short-Term', 'Mid-Term', 'Long-Term'
+
+class SIPCalculation(BaseModel):
+    goalName: str
+    monthlySip: float
+
+class SIPPlannerData(BaseModel):
+    userId: str
+    goals: List[SIPGoal]
+    sipCalculations: Optional[List[SIPCalculation]] = None
+
+class SIPPlannerResponse(BaseModel):
+    success: bool
+    message: str
+    data: Optional[Dict[str, Any]] = None
+
+# SIP Planner Endpoints
+@router.post("/save-sip-planner")
+def save_sip_planner(data: SIPPlannerData) -> SIPPlannerResponse:
+    """Save user's SIP planner goals and calculations to database"""
+    try:
+        if not supabase:
+            raise HTTPException(status_code=500, detail="Database not initialized")
+
+        # Get user ID from database
+        user_email = f"{sanitize_storage_key(data.userId)}@finnest.example.com"
+        user_response = supabase.from_("users").select("id").eq("email", user_email).execute()
+
+        if not user_response.data or len(user_response.data) == 0:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        user_id_db = user_response.data[0]["id"]
+
+        # Prepare SIP planner data
+        sip_planner_data = {
+            "user_id": user_id_db,
+            "goals": [goal.dict() for goal in data.goals],
+            "sip_calculations": [calc.dict() for calc in data.sipCalculations] if data.sipCalculations else None
+        }
+
+        # Check if SIP planner data already exists for this user
+        existing_response = supabase.from_("sip_planner_data").select("id").eq("user_id", user_id_db).execute()
+
+        if existing_response.data and len(existing_response.data) > 0:
+            # Update existing record
+            planner_id = existing_response.data[0]["id"]
+            supabase.from_("sip_planner_data").update(sip_planner_data).eq("id", planner_id).execute()
+            message = "SIP planner data updated successfully"
+        else:
+            # Create new record
+            supabase.from_("sip_planner_data").insert(sip_planner_data).execute()
+            message = "SIP planner data saved successfully"
+
+        return SIPPlannerResponse(
+            success=True,
+            message=message,
+            data={"user_id": user_id_db}
+        )
+
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        print(f"Error saving SIP planner data: {str(e)}")
+        print(f"Full traceback: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"Failed to save SIP planner data: {str(e)}")
+
+@router.get("/get-sip-planner/{user_id}")
+def get_sip_planner(user_id: str) -> Optional[Dict[str, Any]]:
+    """Retrieve user's SIP planner data from database"""
+    try:
+        if not supabase:
+            raise HTTPException(status_code=500, detail="Database not initialized")
+
+        # Get user ID from database
+        user_email = f"{sanitize_storage_key(user_id)}@finnest.example.com"
+        user_response = supabase.from_("users").select("id").eq("email", user_email).execute()
+
+        if not user_response.data or len(user_response.data) == 0:
+            return None  # User not found, return None instead of error
+
+        user_id_db = user_response.data[0]["id"]
+
+        # Get SIP planner data
+        planner_response = supabase.from_("sip_planner_data").select("*").eq("user_id", user_id_db).execute()
+
+        if not planner_response.data or len(planner_response.data) == 0:
+            return None  # No SIP planner data found
+
+        planner_data = planner_response.data[0]
+
+        # Format response
+        return {
+            "goals": planner_data["goals"],
+            "sipCalculations": planner_data.get("sip_calculations")
+        }
+
+    except Exception as e:
+        print(f"Error retrieving SIP planner data: {str(e)}")
+        print(f"Full traceback: {traceback.format_exc()}")
+        return None  # Return None on error instead of raising exception
