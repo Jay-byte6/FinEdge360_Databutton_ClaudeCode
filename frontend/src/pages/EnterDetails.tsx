@@ -28,9 +28,12 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Info } from "lucide-react";
 import DisclaimerAlert from "../components/DisclaimerAlert";
 import PrivacyPolicyModal from "../components/PrivacyPolicyModal";
 import GuidelineBox from "../components/GuidelineBox";
+import { illiquidAssetDescriptions, liquidAssetDescriptions, liabilityDescriptions } from "../utils/assetDescriptions";
 // Assuming Tabs are used for layout, keep if already present or add if needed
 // import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -491,26 +494,49 @@ export default function EnterDetails() {
                       <CardTitle className="text-md font-medium text-gray-700">Illiquid Assets</CardTitle>
                     </CardHeader>
                     <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {(Object.keys(defaultAssets.illiquid) as Array<keyof AssetsValues['illiquid']>).map((key) => (
-                        <div key={`illiquid-${key}`}>
-                          <Label htmlFor={`illiquid-${key}`} className="block text-sm font-medium text-gray-700 capitalize">{key.replace(/_/g, ' ')}</Label>
-                          <div className="mt-1 relative rounded-md shadow-sm">
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                              <span className="text-gray-500 sm:text-sm">₹</span>
+                      {(Object.keys(defaultAssets.illiquid) as Array<keyof AssetsValues['illiquid']>).map((key) => {
+                        const assetInfo = illiquidAssetDescriptions[key];
+                        return (
+                          <div key={`illiquid-${key}`}>
+                            <div className="flex items-center gap-1 mb-1">
+                              <Label htmlFor={`illiquid-${key}`} className="text-sm font-medium text-gray-700">
+                                {assetInfo?.label || key.replace(/_/g, ' ')}
+                              </Label>
+                              {assetInfo && (
+                                <TooltipProvider>
+                                  <Tooltip delayDuration={300}>
+                                    <TooltipTrigger asChild>
+                                      <Info className="h-4 w-4 text-gray-400 cursor-help" />
+                                    </TooltipTrigger>
+                                    <TooltipContent className="max-w-xs p-3 bg-gray-800 text-white rounded-md shadow-lg">
+                                      <p className="font-semibold mb-1">{assetInfo.label}</p>
+                                      <p className="text-sm mb-2">{assetInfo.description}</p>
+                                      {assetInfo.example && (
+                                        <p className="text-xs text-gray-300 italic">Example: {assetInfo.example}</p>
+                                      )}
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              )}
                             </div>
-                            <Input
-                              id={`illiquid-${key}`}
-                              type="number"
-                              className="pl-7 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                              placeholder="0.00"
-                              {...assetsForm.register(`illiquid.${key}`, { valueAsNumber: true })}
-                            />
+                            <div className="mt-1 relative rounded-md shadow-sm">
+                              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span className="text-gray-500 sm:text-sm">₹</span>
+                              </div>
+                              <Input
+                                id={`illiquid-${key}`}
+                                type="number"
+                                className="pl-7 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                placeholder="0.00"
+                                {...assetsForm.register(`illiquid.${key}`, { valueAsNumber: true })}
+                              />
+                            </div>
+                            {assetsForm.formState.errors.illiquid?.[key] && (
+                              <p className="mt-1 text-sm text-red-600">{assetsForm.formState.errors.illiquid[key]?.message}</p>
+                            )}
                           </div>
-                          {assetsForm.formState.errors.illiquid?.[key] && (
-                            <p className="mt-1 text-sm text-red-600">{assetsForm.formState.errors.illiquid[key]?.message}</p>
-                          )}
-                        </div>
-                      ))}
+                        );
+                      })}
                     </CardContent>
                   </Card>
 
@@ -520,26 +546,49 @@ export default function EnterDetails() {
                       <CardTitle className="text-md font-medium text-gray-700">Liquid Assets</CardTitle>
                     </CardHeader>
                     <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {(Object.keys(defaultAssets.liquid) as Array<keyof AssetsValues['liquid']>).map((key) => (
-                        <div key={`liquid-${key}`}>
-                           <Label htmlFor={`liquid-${key}`} className="block text-sm font-medium text-gray-700 capitalize">{key.replace(/_/g, ' ')}</Label>
-                          <div className="mt-1 relative rounded-md shadow-sm">
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                              <span className="text-gray-500 sm:text-sm">₹</span>
+                      {(Object.keys(defaultAssets.liquid) as Array<keyof AssetsValues['liquid']>).map((key) => {
+                        const assetInfo = liquidAssetDescriptions[key];
+                        return (
+                          <div key={`liquid-${key}`}>
+                            <div className="flex items-center gap-1 mb-1">
+                              <Label htmlFor={`liquid-${key}`} className="text-sm font-medium text-gray-700">
+                                {assetInfo?.label || key.replace(/_/g, ' ')}
+                              </Label>
+                              {assetInfo && (
+                                <TooltipProvider>
+                                  <Tooltip delayDuration={300}>
+                                    <TooltipTrigger asChild>
+                                      <Info className="h-4 w-4 text-gray-400 cursor-help" />
+                                    </TooltipTrigger>
+                                    <TooltipContent className="max-w-xs p-3 bg-gray-800 text-white rounded-md shadow-lg">
+                                      <p className="font-semibold mb-1">{assetInfo.label}</p>
+                                      <p className="text-sm mb-2">{assetInfo.description}</p>
+                                      {assetInfo.example && (
+                                        <p className="text-xs text-gray-300 italic">Example: {assetInfo.example}</p>
+                                      )}
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              )}
                             </div>
-                            <Input
-                              id={`liquid-${key}`}
-                              type="number"
-                              className="pl-7 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                              placeholder="0.00"
-                              {...assetsForm.register(`liquid.${key}`, { valueAsNumber: true })}
-                            />
+                            <div className="mt-1 relative rounded-md shadow-sm">
+                              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span className="text-gray-500 sm:text-sm">₹</span>
+                              </div>
+                              <Input
+                                id={`liquid-${key}`}
+                                type="number"
+                                className="pl-7 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                placeholder="0.00"
+                                {...assetsForm.register(`liquid.${key}`, { valueAsNumber: true })}
+                              />
+                            </div>
+                            {assetsForm.formState.errors.liquid?.[key] && (
+                              <p className="mt-1 text-sm text-red-600">{assetsForm.formState.errors.liquid[key]?.message}</p>
+                            )}
                           </div>
-                          {assetsForm.formState.errors.liquid?.[key] && (
-                            <p className="mt-1 text-sm text-red-600">{assetsForm.formState.errors.liquid[key]?.message}</p>
-                          )}
-                        </div>
-                      ))}
+                        );
+                      })}
                     </CardContent>
                   </Card>
                 </div>
@@ -559,26 +608,49 @@ export default function EnterDetails() {
                     <CardTitle className="text-md font-medium text-gray-700">Liabilities</CardTitle>
                   </CardHeader>
                   <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {(Object.keys(defaultLiabilities) as Array<keyof LiabilitiesValues>).map((key) => (
-                      <div key={`liability-${key}`}>
-                        <Label htmlFor={`liability-${key}`} className="block text-sm font-medium text-gray-700 capitalize">{key.replace(/_/g, ' ')}</Label>
-                        <div className="mt-1 relative rounded-md shadow-sm">
-                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <span className="text-gray-500 sm:text-sm">₹</span>
+                    {(Object.keys(defaultLiabilities) as Array<keyof LiabilitiesValues>).map((key) => {
+                      const liabilityInfo = liabilityDescriptions[key];
+                      return (
+                        <div key={`liability-${key}`}>
+                          <div className="flex items-center gap-1 mb-1">
+                            <Label htmlFor={`liability-${key}`} className="text-sm font-medium text-gray-700">
+                              {liabilityInfo?.label || key.replace(/_/g, ' ')}
+                            </Label>
+                            {liabilityInfo && (
+                              <TooltipProvider>
+                                <Tooltip delayDuration={300}>
+                                  <TooltipTrigger asChild>
+                                    <Info className="h-4 w-4 text-gray-400 cursor-help" />
+                                  </TooltipTrigger>
+                                  <TooltipContent className="max-w-xs p-3 bg-gray-800 text-white rounded-md shadow-lg">
+                                    <p className="font-semibold mb-1">{liabilityInfo.label}</p>
+                                    <p className="text-sm mb-2">{liabilityInfo.description}</p>
+                                    {liabilityInfo.example && (
+                                      <p className="text-xs text-gray-300 italic">Example: {liabilityInfo.example}</p>
+                                    )}
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            )}
                           </div>
-                          <Input
-                            id={`liability-${key}`}
-                            type="number"
-                            className="pl-7 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                            placeholder="0.00"
-                            {...liabilitiesForm.register(key, { valueAsNumber: true })}
-                          />
+                          <div className="mt-1 relative rounded-md shadow-sm">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                              <span className="text-gray-500 sm:text-sm">₹</span>
+                            </div>
+                            <Input
+                              id={`liability-${key}`}
+                              type="number"
+                              className="pl-7 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                              placeholder="0.00"
+                              {...liabilitiesForm.register(key, { valueAsNumber: true })}
+                            />
+                          </div>
+                          {liabilitiesForm.formState.errors[key] && (
+                            <p className="mt-1 text-sm text-red-600">{liabilitiesForm.formState.errors[key]?.message}</p>
+                          )}
                         </div>
-                        {liabilitiesForm.formState.errors[key] && (
-                          <p className="mt-1 text-sm text-red-600">{liabilitiesForm.formState.errors[key]?.message}</p>
-                        )}
-                      </div>
-                    ))}
+                      );
+                    })}
                   </CardContent>
                 </Card>
               </div>
