@@ -8,6 +8,7 @@ import {
   CommandGroup,
   CommandInput,
   CommandItem,
+  CommandList,
 } from "@/components/ui/command";
 import {
   Popover,
@@ -60,7 +61,7 @@ export function GoalCombobox({
   };
 
   // Filter options based on input
-  const filteredOptions = options.filter((option) =>
+  const filteredOptions = (options || []).filter((option) =>
     option.label.toLowerCase().includes(inputValue.toLowerCase()) ||
     (option.description && option.description.toLowerCase().includes(inputValue.toLowerCase()))
   );
@@ -91,43 +92,45 @@ export function GoalCombobox({
                 value={inputValue}
                 onValueChange={setInputValue}
               />
-              <CommandEmpty>
-                <div className="p-4 text-sm">
-                  <p className="font-medium">No matching goals found</p>
-                  <p className="text-gray-500 mt-1">You can still type your custom goal above</p>
-                </div>
-              </CommandEmpty>
-              <CommandGroup className="max-h-[300px] overflow-auto">
-                {filteredOptions.map((option) => (
-                  <CommandItem
-                    key={option.value}
-                    value={option.value}
-                    onSelect={() => handleSelect(option.label)}
-                    className="cursor-pointer"
-                  >
-                    <div className="flex items-start gap-2 w-full">
-                      <Check
-                        className={cn(
-                          "mt-1 h-4 w-4 shrink-0",
-                          value === option.label ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      <div className="flex-1 min-w-0">
-                        <div className="font-medium">{option.label}</div>
-                        {option.description && (
-                          <div className="text-xs text-gray-500 mt-1">{option.description}</div>
-                        )}
-                        {(option.typicalAmount || option.typicalYears) && (
-                          <div className="flex gap-3 mt-1 text-xs text-gray-400">
-                            {option.typicalAmount && <span>💰 {option.typicalAmount}</span>}
-                            {option.typicalYears && <span>⏰ {option.typicalYears}</span>}
-                          </div>
-                        )}
+              <CommandList>
+                <CommandEmpty>
+                  <div className="p-4 text-sm">
+                    <p className="font-medium">No matching goals found</p>
+                    <p className="text-gray-500 mt-1">You can still type your custom goal above</p>
+                  </div>
+                </CommandEmpty>
+                <CommandGroup className="max-h-[300px] overflow-auto">
+                  {filteredOptions.map((option) => (
+                    <CommandItem
+                      key={option.value}
+                      value={option.value}
+                      onSelect={() => handleSelect(option.label)}
+                      className="cursor-pointer"
+                    >
+                      <div className="flex items-start gap-2 w-full">
+                        <Check
+                          className={cn(
+                            "mt-1 h-4 w-4 shrink-0",
+                            value === option.label ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium">{option.label}</div>
+                          {option.description && (
+                            <div className="text-xs text-gray-500 mt-1">{option.description}</div>
+                          )}
+                          {(option.typicalAmount || option.typicalYears) && (
+                            <div className="flex gap-3 mt-1 text-xs text-gray-400">
+                              {option.typicalAmount && <span>💰 {option.typicalAmount}</span>}
+                              {option.typicalYears && <span>⏰ {option.typicalYears}</span>}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  </CommandItem>
-                ))}
-              </CommandGroup>
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </CommandList>
             </Command>
           </PopoverContent>
         </Popover>

@@ -202,141 +202,142 @@ const SIPPlanner: React.FC = () => {
 
       {/* Main Content - only show when not loading */}
       {!isLoadingData && (
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle>Add New Financial Goal</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <label htmlFor="goalName" className="block text-sm font-medium text-gray-700 mb-1">Goal Name</label>
-              <Input 
-                id="goalName"
-                value={newGoal.name} 
-                onChange={(e) => setNewGoal({ ...newGoal, name: e.target.value })} 
-                placeholder="e.g., Dream Car, Europe Trip"
-              />
-            </div>
-            <div>
-              <label htmlFor="goalAmount" className="block text-sm font-medium text-gray-700 mb-1">Target Amount (₹)</label>
-              <Input 
-                id="goalAmount"
-                type="number" 
-                value={newGoal.amount} 
-                onChange={(e) => setNewGoal({ ...newGoal, amount: parseFloat(e.target.value) || 0 })} 
-                placeholder="e.g., 500000"
-              />
-            </div>
-            <div>
-              <label htmlFor="goalDeadline" className="block text-sm font-medium text-gray-700 mb-1">Deadline (Years)</label>
-              <Input 
-                id="goalDeadline"
-                type="number" 
-                value={newGoal.deadline} 
-                onChange={(e) => setNewGoal({ ...newGoal, deadline: parseInt(e.target.value) || 0 })} 
-                placeholder="e.g., 5"
-              />
-            </div>
-            <div>
-              <label htmlFor="goalType" className="block text-sm font-medium text-gray-700 mb-1">Goal Type</label>
-              <Select 
-                value={newGoal.type} 
-                onValueChange={(value: 'Short-Term' | 'Mid-Term' | 'Long-Term') => setNewGoal({ ...newGoal, type: value })}
-              >
-                <SelectTrigger id="goalType">
-                  <SelectValue placeholder="Select goal term" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Short-Term">Short-Term (6% p.a.)</SelectItem>
-                  <SelectItem value="Mid-Term">Mid-Term (9% p.a.)</SelectItem>
-                  <SelectItem value="Long-Term">Long-Term (11% p.a.)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <Button onClick={handleAddGoal} className="w-full bg-green-600 hover:bg-green-700">
-              Add Goal
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle>Your Financial Goals</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {goals.length === 0 ? (
-              <p className="text-gray-500 italic">No goals added yet. Add some goals to get started!</p>
-            ) : (
-              <ul className="space-y-3">
-                {goals.map(goal => (
-                  <li key={goal.id} className="p-3 bg-gray-50 rounded-md shadow-sm">
-                    <p className="font-semibold text-gray-700">{goal.name}</p>
-                    <p className="text-sm text-gray-600">Amount: ₹{goal.amount.toLocaleString()}</p>
-                    <p className="text-sm text-gray-600">Deadline: {goal.deadline} years ({goal.type})</p>
-                  </li>
-                ))}
-              </ul>
-            )}
-            {goals.length > 0 && (
-                <Button onClick={calculateSip} className="w-full mt-4 bg-blue-600 hover:bg-blue-700">
-                    Calculate Required SIPs
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <Card className="shadow-lg">
+              <CardHeader>
+                <CardTitle>Add New Financial Goal</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <label htmlFor="goalName" className="block text-sm font-medium text-gray-700 mb-1">Goal Name</label>
+                  <Input
+                    id="goalName"
+                    value={newGoal.name}
+                    onChange={(e) => setNewGoal({ ...newGoal, name: e.target.value })}
+                    placeholder="e.g., Dream Car, Europe Trip"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="goalAmount" className="block text-sm font-medium text-gray-700 mb-1">Target Amount (₹)</label>
+                  <Input
+                    id="goalAmount"
+                    type="number"
+                    value={newGoal.amount}
+                    onChange={(e) => setNewGoal({ ...newGoal, amount: parseFloat(e.target.value) || 0 })}
+                    placeholder="e.g., 500000"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="goalDeadline" className="block text-sm font-medium text-gray-700 mb-1">Deadline (Years)</label>
+                  <Input
+                    id="goalDeadline"
+                    type="number"
+                    value={newGoal.deadline}
+                    onChange={(e) => setNewGoal({ ...newGoal, deadline: parseInt(e.target.value) || 0 })}
+                    placeholder="e.g., 5"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="goalType" className="block text-sm font-medium text-gray-700 mb-1">Goal Type</label>
+                  <Select
+                    value={newGoal.type}
+                    onValueChange={(value: 'Short-Term' | 'Mid-Term' | 'Long-Term') => setNewGoal({ ...newGoal, type: value })}
+                  >
+                    <SelectTrigger id="goalType">
+                      <SelectValue placeholder="Select goal term" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Short-Term">Short-Term (6% p.a.)</SelectItem>
+                      <SelectItem value="Mid-Term">Mid-Term (9% p.a.)</SelectItem>
+                      <SelectItem value="Long-Term">Long-Term (11% p.a.)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button onClick={handleAddGoal} className="w-full bg-green-600 hover:bg-green-700">
+                  Add Goal
                 </Button>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+              </CardContent>
+            </Card>
 
-      {sipCalculations.length > 0 && (
-        <Card className="shadow-lg mb-8">
-          <CardHeader>
-            <CardTitle>Monthly SIP Requirements</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-3 mb-6">
-              {sipCalculations.map(sip => (
-                <li key={sip.goalName} className="flex justify-between items-center p-3 bg-indigo-50 rounded-md">
-                  <span className="font-medium text-indigo-700">{sip.goalName}:</span>
-                  <span className="font-semibold text-indigo-900">₹{sip.monthlySip.toLocaleString()} per month</span>
-                </li>
-              ))}
-              <li className="flex justify-between items-center p-3 bg-green-100 rounded-md mt-4 border-t-2 border-green-500">
-                <span className="text-lg font-bold text-green-700">Total Monthly SIP:</span>
-                <span className="text-lg font-bold text-green-900">₹{totalMonthlySip.toLocaleString()}</span>
-              </li>
-            </ul>
-            
-            {totalMonthlySip > 0 && (
-              <div className="h-[400px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={sipCalculations}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                      outerRadius={120}
-                      fill="#8884d8"
-                      dataKey="monthlySip"
-                      nameKey="goalName"
-                    >
-                      {sipCalculations.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <RechartsTooltip formatter={(value: number) => `₹${value.toLocaleString()}`} />
-                    <Legend />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            )}
-            <p className="mt-6 text-xs text-gray-500 text-center">
-              Disclaimer: Assumed returns are indicative: Short-Term @ 6% p.a., Mid-Term @ 9% p.a., Long-Term @ 11% p.a. Actual returns may vary. Please consult a financial advisor.
-            </p>
-          </CardContent>
-        </Card>
-      )}
+            <Card className="shadow-lg">
+              <CardHeader>
+                <CardTitle>Your Financial Goals</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {goals.length === 0 ? (
+                  <p className="text-gray-500 italic">No goals added yet. Add some goals to get started!</p>
+                ) : (
+                  <ul className="space-y-3">
+                    {goals.map(goal => (
+                      <li key={goal.id} className="p-3 bg-gray-50 rounded-md shadow-sm">
+                        <p className="font-semibold text-gray-700">{goal.name}</p>
+                        <p className="text-sm text-gray-600">Amount: ₹{goal.amount.toLocaleString()}</p>
+                        <p className="text-sm text-gray-600">Deadline: {goal.deadline} years ({goal.type})</p>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {goals.length > 0 && (
+                    <Button onClick={calculateSip} className="w-full mt-4 bg-blue-600 hover:bg-blue-700">
+                        Calculate Required SIPs
+                    </Button>
+                )}
+              </CardContent>
+            </Card>
+          </div>
 
+          {sipCalculations.length > 0 && (
+            <Card className="shadow-lg mb-8">
+              <CardHeader>
+                <CardTitle>Monthly SIP Requirements</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3 mb-6">
+                  {sipCalculations.map(sip => (
+                    <li key={sip.goalName} className="flex justify-between items-center p-3 bg-indigo-50 rounded-md">
+                      <span className="font-medium text-indigo-700">{sip.goalName}:</span>
+                      <span className="font-semibold text-indigo-900">₹{sip.monthlySip.toLocaleString()} per month</span>
+                    </li>
+                  ))}
+                  <li className="flex justify-between items-center p-3 bg-green-100 rounded-md mt-4 border-t-2 border-green-500">
+                    <span className="text-lg font-bold text-green-700">Total Monthly SIP:</span>
+                    <span className="text-lg font-bold text-green-900">₹{totalMonthlySip.toLocaleString()}</span>
+                  </li>
+                </ul>
+
+                {totalMonthlySip > 0 && (
+                  <div className="h-[400px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={sipCalculations}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                          outerRadius={120}
+                          fill="#8884d8"
+                          dataKey="monthlySip"
+                          nameKey="goalName"
+                        >
+                          {sipCalculations.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <RechartsTooltip formatter={(value: number) => `₹${value.toLocaleString()}`} />
+                        <Legend />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
+                <p className="mt-6 text-xs text-gray-500 text-center">
+                  Disclaimer: Assumed returns are indicative: Short-Term @ 6% p.a., Mid-Term @ 9% p.a., Long-Term @ 11% p.a. Actual returns may vary. Please consult a financial advisor.
+                </p>
+              </CardContent>
+            </Card>
+          )}
+        </>
       )}
 
       {/* Financial Roadmap Component */}
