@@ -26,8 +26,20 @@ class CustomCORSMiddleware(BaseHTTPMiddleware):
         "http://localhost:5173",
         "http://localhost:5174",
         "http://localhost:5175",
+        "http://localhost:5176",
+        "http://localhost:5177",
+        "http://localhost:5178",
+        "http://localhost:5179",
+        "http://localhost:5180",
+        "http://localhost:5181",
+        "http://localhost:5182",
+        "http://localhost:5183",
+        "http://localhost:5184",
+        "http://localhost:5185",
         "https://finedge360-claudecode.vercel.app",  # Vercel production
         "https://finedge360databuttonclaudecode-production.up.railway.app",  # Railway backend
+        "https://www.finedge360.com",  # Custom domain with www
+        "https://finedge360.com",  # Custom domain without www
     ]
 
     async def dispatch(self, request: Request, call_next):
