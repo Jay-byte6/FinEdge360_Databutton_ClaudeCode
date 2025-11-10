@@ -34,6 +34,8 @@ import DisclaimerAlert from "../components/DisclaimerAlert";
 import PrivacyPolicyModal from "../components/PrivacyPolicyModal";
 import GuidelineBox from "../components/GuidelineBox";
 import { illiquidAssetDescriptions, liquidAssetDescriptions, liabilityDescriptions } from "../utils/assetDescriptions";
+import { GoalCombobox, GoalOption } from "../components/ui/goal-combobox";
+import { shortTermGoals, midTermGoals, longTermGoals } from "../utils/financialGoals";
 // Assuming Tabs are used for layout, keep if already present or add if needed
 // import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -672,12 +674,18 @@ export default function EnterDetails() {
                       <div key={field.id} className="bg-blue-50 p-4 rounded-md border border-blue-100 mb-4">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <div>
-                            <label className="block text-sm font-medium text-gray-700">Goal Name</label>
-                            <input
-                              type="text"
-                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                              placeholder="e.g., Emergency Fund"
-                              {...goalsForm.register(`shortTermGoals.${index}.name`)}
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Goal Name</label>
+                            <GoalCombobox
+                              options={shortTermGoals.map(g => ({
+                                label: g.name,
+                                value: g.id,
+                                description: g.description,
+                                typicalAmount: g.typicalAmount,
+                                typicalYears: g.typicalYears
+                              }))}
+                              value={goalsForm.watch(`shortTermGoals.${index}.name`) || ""}
+                              onChange={(value) => goalsForm.setValue(`shortTermGoals.${index}.name`, value)}
+                              placeholder="Select or type a goal..."
                             />
                             {goalsForm.formState.errors.shortTermGoals?.[index]?.name && (
                               <p className="mt-1 text-sm text-red-600">{goalsForm.formState.errors.shortTermGoals[index].name.message}</p>
@@ -741,12 +749,18 @@ export default function EnterDetails() {
                       <div key={field.id} className="bg-green-50 p-4 rounded-md border border-green-100 mb-4">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <div>
-                            <label className="block text-sm font-medium text-gray-700">Goal Name</label>
-                            <input
-                              type="text"
-                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                              placeholder="e.g., Home Down Payment"
-                              {...goalsForm.register(`midTermGoals.${index}.name`)}
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Goal Name</label>
+                            <GoalCombobox
+                              options={midTermGoals.map(g => ({
+                                label: g.name,
+                                value: g.id,
+                                description: g.description,
+                                typicalAmount: g.typicalAmount,
+                                typicalYears: g.typicalYears
+                              }))}
+                              value={goalsForm.watch(`midTermGoals.${index}.name`) || ""}
+                              onChange={(value) => goalsForm.setValue(`midTermGoals.${index}.name`, value)}
+                              placeholder="Select or type a goal..."
                             />
                             {goalsForm.formState.errors.midTermGoals?.[index]?.name && (
                               <p className="mt-1 text-sm text-red-600">{goalsForm.formState.errors.midTermGoals[index].name.message}</p>
@@ -810,12 +824,18 @@ export default function EnterDetails() {
                       <div key={field.id} className="bg-teal-50 p-4 rounded-md border border-teal-100 mb-4">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <div>
-                            <label className="block text-sm font-medium text-gray-700">Goal Name</label>
-                            <input
-                              type="text"
-                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                              placeholder="e.g., Retirement"
-                              {...goalsForm.register(`longTermGoals.${index}.name`)}
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Goal Name</label>
+                            <GoalCombobox
+                              options={longTermGoals.map(g => ({
+                                label: g.name,
+                                value: g.id,
+                                description: g.description,
+                                typicalAmount: g.typicalAmount,
+                                typicalYears: g.typicalYears
+                              }))}
+                              value={goalsForm.watch(`longTermGoals.${index}.name`) || ""}
+                              onChange={(value) => goalsForm.setValue(`longTermGoals.${index}.name`, value)}
+                              placeholder="Select or type a goal..."
                             />
                             {goalsForm.formState.errors.longTermGoals?.[index]?.name && (
                               <p className="mt-1 text-sm text-red-600">{goalsForm.formState.errors.longTermGoals[index].name.message}</p>
