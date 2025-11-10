@@ -323,7 +323,15 @@ const PortfolioPage: React.FC = () => {
               </div>
 
               {/* Portfolio Comparison Component */}
-              <PortfolioComparison analysis={riskAnalysis} />
+              <PortfolioComparison
+                analysis={riskAnalysis}
+                userAssets={financialData?.assets}
+                totalAssetValue={financialData?.assets ?
+                  Object.values(financialData.assets.liquid || {}).reduce((sum: number, val) => sum + (Number(val) || 0), 0) +
+                  Object.values(financialData.assets.illiquid || {}).reduce((sum: number, val) => sum + (Number(val) || 0), 0)
+                  : 0
+                }
+              />
             </div>
           )}
         </>

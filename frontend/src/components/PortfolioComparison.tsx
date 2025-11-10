@@ -1,11 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { RiskAssessmentResult } from '../utils/portfolioAnalysis';
-import { Lightbulb, TrendingUp, AlertCircle } from 'lucide-react';
+import { Lightbulb, TrendingUp, AlertCircle, MousePointerClick } from 'lucide-react';
+import AssetAllocationDetailModal from './AssetAllocationDetailModal';
+import { Assets } from '../utils/formSchema';
 
 interface PortfolioComparisonProps {
   analysis: RiskAssessmentResult;
+  userAssets?: Assets;
+  totalAssetValue?: number;
 }
 
 const COLORS = {
@@ -14,9 +18,19 @@ const COLORS = {
   Gold: '#FFBB28',
   REITs: '#FF8042',
   Cash: '#AA336A',
+  Alternatives: '#FF8042',
 };
 
-const PortfolioComparison: React.FC<PortfolioComparisonProps> = ({ analysis }) => {
+const PortfolioComparison: React.FC<PortfolioComparisonProps> = ({ analysis, userAssets, totalAssetValue = 0 }) => {
+  const [selectedAssetClass, setSelectedAssetClass] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleAssetClassClick = (assetClass: string) => {
+    if (userAssets && totalAssetValue > 0) {
+      setSelectedAssetClass(assetClass);
+      setIsModalOpen(true);
+    }
+  };
   // Prepare data for comparison chart
   const comparisonData = Object.keys(analysis.idealPortfolio).map(key => ({
     category: key,
@@ -167,7 +181,9 @@ const PortfolioComparison: React.FC<PortfolioComparisonProps> = ({ analysis }) =
             Portfolio Adjustments Needed
           </CardTitle>
           <p className="text-sm text-gray-600 mt-1">
-            How your current allocation differs from the recommended allocation
+            {userAssets && totalAssetValue > 0
+              ? "Click on any asset class to see your detailed holdings"
+              : "How your current allocation differs from the recommended allocation"}
           </p>
         </CardHeader>
         <CardContent className="pt-6">
@@ -175,19 +191,27 @@ const PortfolioComparison: React.FC<PortfolioComparisonProps> = ({ analysis }) =
             {Object.entries(analysis.difference).map(([category, diff]) => {
               const isPositive = diff.startsWith('+');
               const isNeutral = diff === '0%';
+              const currentPercentage = analysis.currentPortfolio[category as keyof typeof analysis.currentPortfolio] || 0;
+              const idealPercentage = analysis.idealPortfolio[category as keyof typeof analysis.idealPortfolio] || 0;
+              const isClickable = userAssets && totalAssetValue > 0;
+
               return (
                 <div
                   key={category}
+                  onClick={() => isClickable && handleAssetClassClick(category)}
                   className={`p-4 rounded-lg border-2 ${
                     isNeutral
                       ? 'bg-gray-50 border-gray-300'
                       : isPositive
                       ? 'bg-green-50 border-green-300'
                       : 'bg-red-50 border-red-300'
-                  }`}
+                  } ${isClickable ? 'cursor-pointer hover:shadow-lg transition-all hover:scale-105' : ''}`}
                 >
                   <div className="text-center">
-                    <div className="text-sm font-medium text-gray-700 mb-1">{category}</div>
+                    <div className="flex items-center justify-center gap-1 text-sm font-medium text-gray-700 mb-1">
+                      {category}
+                      {isClickable && <MousePointerClick className="h-3 w-3" />}
+                    </div>
                     <div
                       className={`text-2xl font-bold ${
                         isNeutral ? 'text-gray-600' : isPositive ? 'text-green-600' : 'text-red-600'
@@ -198,6 +222,9 @@ const PortfolioComparison: React.FC<PortfolioComparisonProps> = ({ analysis }) =
                     <div className="text-xs text-gray-600 mt-1">
                       {isNeutral ? 'On track' : isPositive ? 'Increase' : 'Decrease'}
                     </div>
+                    {isClickable && (
+                      <div className="text-xs text-blue-600 mt-2 font-medium">Click for details</div>
+                    )}
                   </div>
                 </div>
               );
@@ -244,6 +271,19 @@ const PortfolioComparison: React.FC<PortfolioComparisonProps> = ({ analysis }) =
           </div>
         </CardContent>
       </Card>
+
+      {/* Asset Allocation Detail Modal */}
+      {selectedAssetClass && userAssets && (
+        <AssetAllocationDetailModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          assetClass={selectedAssetClass}
+          currentPercentage={analysis.currentPortfolio[selectedAssetClass as keyof typeof analysis.currentPortfolio] || 0}
+          idealPercentage={analysis.idealPortfolio[selectedAssetClass as keyof typeof analysis.idealPortfolio] || 0}
+          userAssets={userAssets}
+          totalAssetValue={totalAssetValue}
+        />
+      )}
     </div>
   );
 };
