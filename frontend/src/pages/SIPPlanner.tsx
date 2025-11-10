@@ -11,6 +11,7 @@ import useAuthStore from "utils/authStore";
 import FinancialRoadmap from "@/components/FinancialRoadmap";
 import FinancialLadder from "@/components/FinancialLadder";
 import GuidelineBox from "@/components/GuidelineBox";
+import { API_ENDPOINTS } from "@/config/api";
 
 // Define interfaces for goals and SIP data
 interface Goal {
@@ -53,7 +54,7 @@ const SIPPlanner: React.FC = () => {
       }
 
       try {
-        const response = await fetch(`http://localhost:8001/routes/get-sip-planner/${user.id}`);
+        const response = await fetch(API_ENDPOINTS.getSIPPlanner(user.id));
 
         if (response.ok) {
           const data = await response.json();
@@ -84,7 +85,7 @@ const SIPPlanner: React.FC = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:8001/routes/save-sip-planner', {
+      const response = await fetch(API_ENDPOINTS.saveSIPPlanner, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

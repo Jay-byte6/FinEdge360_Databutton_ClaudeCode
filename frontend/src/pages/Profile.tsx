@@ -13,6 +13,7 @@ import useAuthStore from '../utils/authStore';
 import useFinancialDataStore from '../utils/financialDataStore';
 import DeleteAccountDialog from '@/components/DeleteAccountDialog';
 import { generateFinancialProfilePDF } from '../utils/pdfExport';
+import { API_ENDPOINTS } from '@/config/api';
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -49,7 +50,7 @@ export default function Profile() {
 
           // Fetch risk analysis
           try {
-            const response = await fetch(`http://localhost:8001/routes/get-risk-assessment/${user.id}`);
+            const response = await fetch(API_ENDPOINTS.getRiskAssessment(user.id));
             if (response.ok) {
               const data = await response.json();
               setRiskAnalysis(data);

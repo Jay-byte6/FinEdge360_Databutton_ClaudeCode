@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { FinancialData } from 'types';
 import brain from 'brain';
 import { toast } from 'sonner';
+import { API_ENDPOINTS } from '@/config/api';
 
 // Define the store state
 interface FinancialDataState {
@@ -29,7 +30,7 @@ const useFinancialDataStore = create<FinancialDataState>((set, get) => ({
 
       // Direct fetch since Brain API client doesn't have the method yet
       // Using single /routes prefix (Bug #8 resolved)
-      const response = await fetch(`http://localhost:8001/routes/get-financial-data/${userId}`, {
+      const response = await fetch(API_ENDPOINTS.getFinancialData(userId), {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
         // credentials: 'include'  // Removed for local dev - CORS issue
@@ -67,7 +68,7 @@ const useFinancialDataStore = create<FinancialDataState>((set, get) => ({
 
       // Direct fetch since Brain API client doesn't have the method yet
       // Using single /routes prefix (Bug #8 resolved)
-      const response = await fetch('http://localhost:8001/routes/save-financial-data', {
+      const response = await fetch(API_ENDPOINTS.saveFinancialData, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         // credentials: 'include',  // Removed for local dev - CORS issue

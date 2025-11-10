@@ -11,6 +11,7 @@ import RiskAssessmentQuiz, { RiskQuizAnswer } from "@/components/RiskAssessmentQ
 import PortfolioComparison from "@/components/PortfolioComparison";
 import { performRiskAssessment, RiskAssessmentResult } from "@/utils/portfolioAnalysis";
 import { Target, TrendingUp } from "lucide-react";
+import { API_ENDPOINTS } from "@/config/api";
 
 const PORTFOLIO_ACCESS_KEY = 'portfolio_access_granted';
 
@@ -41,7 +42,7 @@ const PortfolioPage: React.FC = () => {
       }
 
       try {
-        const response = await fetch(`http://localhost:8001/routes/get-risk-assessment/${user.id}`);
+        const response = await fetch(API_ENDPOINTS.getRiskAssessment(user.id));
 
         if (response.ok) {
           const data = await response.json();
@@ -79,7 +80,7 @@ const PortfolioPage: React.FC = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:8001/routes/save-risk-assessment', {
+      const response = await fetch(API_ENDPOINTS.saveRiskAssessment, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -169,7 +170,7 @@ const PortfolioPage: React.FC = () => {
 
     try {
       // Delete from database
-      await fetch(`http://localhost:8001/routes/delete-risk-assessment/${user.id}`, {
+      await fetch(API_ENDPOINTS.deleteRiskAssessment(user.id), {
         method: 'DELETE',
       });
 

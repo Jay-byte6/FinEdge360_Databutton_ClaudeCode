@@ -15,6 +15,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { AlertTriangle } from 'lucide-react';
 import useAuthStore from '../utils/authStore';
+import { API_ENDPOINTS } from '@/config/api';
 
 interface DeleteAccountDialogProps {
   open: boolean;
@@ -44,7 +45,7 @@ export default function DeleteAccountDialog({ open, onClose }: DeleteAccountDial
       setIsDeleting(true);
 
       // Call delete account endpoint
-      const response = await fetch(`http://localhost:8001/routes/delete-user-account/${user?.id}`, {
+      const response = await fetch(API_ENDPOINTS.deleteUserAccount(user?.id || ''), {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
