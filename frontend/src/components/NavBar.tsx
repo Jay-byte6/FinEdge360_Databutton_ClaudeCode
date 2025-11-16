@@ -23,6 +23,8 @@ const NavBar: React.FC<NavBarProps> = ({ showFullNav = true }) => {
 
   const navItems = [
     { name: "Dashboard", path: "/dashboard" },
+    { name: "Journey Map 🗺️", path: "/journey" },
+    { name: "3D Journey 🌍", path: "/journey3d" },
     { name: "Enter Details", path: "/enter-details" },
     { name: "FIRE Calculator", path: "/fire-calculator" },
     { name: "Net Worth", path: "/net-worth" },

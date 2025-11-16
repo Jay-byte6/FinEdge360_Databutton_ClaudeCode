@@ -14,7 +14,6 @@ export default function Login() {
   
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [identifier, setIdentifier] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [emailConfirmationRequired, setEmailConfirmationRequired] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
@@ -106,29 +105,6 @@ export default function Login() {
         }
       }
       
-      // If identifier is provided and we're authenticated, update the profile
-      if (identifier && isAuthenticated) {
-        try {
-          const { updateProfile } = useAuthStore.getState();
-          
-          // Determine if it's a PAN or phone number
-          const isPAN = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(identifier);
-          const isPhone = /^\d{10}$/.test(identifier);
-          
-          if (isPAN) {
-            await updateProfile({ pan_number: identifier });
-            toast.success("PAN number saved for your account");
-          } else if (isPhone) {
-            await updateProfile({ phone_number: identifier });
-            toast.success("Phone number saved for your account");
-          } else {
-            toast.warning("Identifier format not recognized. Please use valid PAN or phone number format.");
-          }
-        } catch (profileError: any) {
-          console.error("Profile update error:", profileError);
-          toast.error("Failed to save your identifier. Please try again later.");
-        }
-      }
     } catch (error: any) {
       console.error("Login error:", error);
       toast.error(error.message || "An error occurred. Please try again.");
@@ -472,23 +448,6 @@ export default function Login() {
                   placeholder="Enter your password"
                   required
                 />
-              </div>
-              
-              <div className="mb-8">
-                <label htmlFor="identifier" className="block text-sm font-medium text-gray-700 mb-1">
-                  PAN Number or Phone Number (Optional)
-                </label>
-                <input
-                  id="identifier"
-                  type="text"
-                  value={identifier}
-                  onChange={(e) => setIdentifier(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Enter PAN or 10-digit phone number"
-                />
-                <p className="mt-1 text-xs text-gray-500">
-                  This helps personalize your experience
-                </p>
               </div>
               
               <button

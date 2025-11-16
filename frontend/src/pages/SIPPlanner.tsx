@@ -4,66 +4,107 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip as RechartsTooltip } from 'recharts';
 import { toast } from "sonner";
 import useFinancialDataStore from "utils/financialDataStore";
 import useAuthStore from "utils/authStore";
-import FinancialRoadmap from "@/components/FinancialRoadmap";
-import FinancialLadder from "@/components/FinancialLadder";
-import GuidelineBox from "@/components/GuidelineBox";
 import { API_ENDPOINTS } from "@/config/api";
+import { AlertCircle, Plus, Trash2, Calculator, X, Info } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
-// Define interfaces for goals and SIP data
-interface Goal {
+// Enhanced Goal interface with all required fields
+interface DetailedGoal {
   id: string;
   name: string;
-  amount: number;
-  deadline: number; // years
-  type: 'Short-Term' | 'Mid-Term' | 'Long-Term';
-}
-
-interface SipCalculation {
-  goalName: string;
-  monthlySip: number;
+  priority: number;
+  timeYears: number;
+  goalType: 'Short-Term' | 'Mid-Term' | 'Long-Term';
+  amountRequiredToday: number;
+  amountAvailableToday: number;
+  goalInflation: number;
+  stepUp: number;
+  amountRequiredFuture: number | null; // Calculated
+  sipRequired: number | null; // Calculated or null if not calculated yet
+  sipCalculated: boolean; // Track if SIP has been calculated for this goal
 }
 
 const SIP_PLANNER_ACCESS_KEY = 'sip_planner_access_granted';
 
+// Column header with tooltip component
+const ColumnHeader: React.FC<{ title: string; tooltip: string }> = ({ title, tooltip }) => (
+  <div className="flex items-center justify-center gap-1">
+    <span>{title}</span>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Info className="w-3.5 h-3.5 text-blue-300 hover:text-blue-100 cursor-help" />
+        </TooltipTrigger>
+        <TooltipContent className="max-w-xs bg-gray-900 text-white p-3">
+          <p className="text-sm">{tooltip}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  </div>
+);
+
 const SIPPlanner: React.FC = () => {
   const { user } = useAuthStore();
-  const { financialData } = useFinancialDataStore();
+  const { financialData, fetchFinancialData } = useFinancialDataStore();
 
-  // Check localStorage for persisted access
   const [hasAccess, setHasAccess] = useState(() => {
     return localStorage.getItem(SIP_PLANNER_ACCESS_KEY) === 'true';
   });
 
-  const [goals, setGoals] = useState<Goal[]>([]);
-  const [newGoal, setNewGoal] = useState<Omit<Goal, 'id'>>({ name: "", amount: 0, deadline: 0, type: 'Short-Term' });
-  const [sipCalculations, setSipCalculations] = useState<SipCalculation[]>([]);
+  const [goals, setGoals] = useState<DetailedGoal[]>([]);
   const [isLoadingData, setIsLoadingData] = useState(true);
+  const [monthlySavings, setMonthlySavings] = useState<number>(0);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
-  const ACCESS_CODE = "123456"; // Hardcoded access code
+  const ACCESS_CODE = "123456";
 
-  // Load SIP planner data from database on mount and when access is granted
+  // Expected returns based on goal type (industry standard)
+  const EXPECTED_RETURNS = {
+    'Short-Term': 0.06,  // 6% p.a.
+    'Mid-Term': 0.09,    // 9% p.a.
+    'Long-Term': 0.11,   // 11% p.a.
+  };
+
+  // Load financial data and calculate monthly savings
   useEffect(() => {
-    const loadSIPPlannerData = async () => {
+    const loadData = async () => {
       if (!user || !user.id || !hasAccess) {
         setIsLoadingData(false);
         return;
       }
 
       try {
+        // Fetch financial data to get monthly savings
+        await fetchFinancialData(user.id);
+
+        // Load SIP planner data
+        console.log('Loading SIP planner data for user:', user.id);
         const response = await fetch(API_ENDPOINTS.getSIPPlanner(user.id));
+        console.log('SIP planner response status:', response.status);
 
         if (response.ok) {
           const data = await response.json();
-          if (data && data.goals) {
+          console.log('SIP planner data loaded:', data);
+
+          if (data && data.goals && Array.isArray(data.goals) && data.goals.length > 0) {
+            console.log('Setting goals from database:', data.goals);
+            console.log('First goal structure:', JSON.stringify(data.goals[0], null, 2));
+            console.log('Number of goals loaded:', data.goals.length);
             setGoals(data.goals);
-            if (data.sipCalculations) {
-              setSipCalculations(data.sipCalculations);
-            }
+            console.log('Goals state after setGoals - should trigger re-render');
+          } else {
+            console.log('No goals found in database, starting fresh');
           }
+        } else {
+          console.log('Failed to load SIP planner data');
         }
       } catch (error) {
         console.error('Error loading SIP planner data:', error);
@@ -72,126 +113,295 @@ const SIPPlanner: React.FC = () => {
       }
     };
 
-    loadSIPPlannerData();
-  }, [user, hasAccess]);
+    loadData();
+  }, [user, hasAccess, fetchFinancialData]);
 
-  // Save SIP planner data to database
-  const saveSIPPlannerData = async (updatedGoals: Goal[], calculations: SipCalculation[]) => {
-    if (!user || !user.id) {
-      toast.error("Authentication required", {
-        description: "Please log in to save your SIP planner data.",
-      });
+  // Calculate monthly savings and total investable assets from financial data
+  const [totalInvestableAssets, setTotalInvestableAssets] = useState<number>(0);
+
+  useEffect(() => {
+    if (financialData?.personalInfo) {
+      const salary = financialData.personalInfo.monthlySalary || 0;
+      const expenses = financialData.personalInfo.monthlyExpenses || 0;
+      setMonthlySavings(salary - expenses);
+    }
+
+    // Calculate Current Investable Asset Allocation (same logic as NetWorth page)
+    if (financialData?.assets) {
+      const assets = financialData.assets;
+      const investableCategories = {
+        'Real Estate / REITs': assets.liquid?.reits || 0,
+        'Domestic Equity': (assets.liquid?.domestic_stock_market || 0) + (assets.liquid?.domestic_equity_mutual_funds || 0) + (assets.illiquid?.ulips || 0),
+        'Debt': (assets.liquid?.fixed_deposit || 0) + (assets.liquid?.debt_funds || 0) + (assets.illiquid?.epf_ppf_vpf || 0) + (assets.liquid?.liquid_savings_cash || 0) + (assets.liquid?.cash_from_equity_mutual_funds || 0),
+        'Gold': (assets.illiquid?.sgb || 0) + (assets.liquid?.gold_etf_digital_gold || 0), // Excludes jewellery
+        'Crypto': assets.liquid?.crypto || 0,
+      };
+
+      let total = 0;
+      for (const value of Object.values(investableCategories)) {
+        total += value;
+      }
+      setTotalInvestableAssets(total);
+    }
+  }, [financialData]);
+
+  const handleAccessGranted = () => {
+    setHasAccess(true);
+    localStorage.setItem(SIP_PLANNER_ACCESS_KEY, 'true');
+  };
+
+  // Calculate future value with inflation
+  const calculateFutureValue = (goal: DetailedGoal): number => {
+    // Validate inputs - return 0 for invalid inputs
+    const amountToday = parseFloat(String(goal.amountRequiredToday || 0));
+    const years = parseInt(String(goal.timeYears || 0));
+    const inflation = parseFloat(String(goal.goalInflation || 0));
+    const amountAvailable = parseFloat(String(goal.amountAvailableToday || 0));
+
+    if (isNaN(amountToday) || amountToday <= 0) return 0;
+    if (isNaN(years) || years <= 0) return 0;
+    if (isNaN(inflation)) return 0;
+
+    // Calculate future value of the goal with inflation
+    const futureGoal = amountToday * Math.pow(1 + inflation / 100, years);
+
+    // If amount available today, calculate its future value with expected returns
+    if (!isNaN(amountAvailable) && amountAvailable > 0) {
+      const expectedReturn = EXPECTED_RETURNS[goal.goalType];
+      const futureValueOfAvailable = amountAvailable * Math.pow(1 + expectedReturn, years);
+
+      // Actual gap after considering future value of available amount
+      return Math.max(0, futureGoal - futureValueOfAvailable);
+    }
+
+    // No amount available, so entire future goal needs to be funded
+    return futureGoal;
+  };
+
+  // Calculate SIP with step-up using correct formula
+  const calculateSIPWithStepUp = (
+    futureValue: number,
+    years: number,
+    annualReturn: number,
+    stepUpPercent: number
+  ): number => {
+    if (futureValue <= 0 || years <= 0) return 0;
+
+    const monthlyReturn = annualReturn / 12;
+    const months = years * 12;
+    const annualStepUp = stepUpPercent / 100;
+
+    // For step-up SIP calculation using formula:
+    // FV = P × [((1+r)^n - (1+s)^n) / (r-s)] where s is annual step-up rate converted to monthly
+
+    if (stepUpPercent === 0) {
+      // Standard SIP formula without step-up
+      const numerator = futureValue * monthlyReturn;
+      const denominator = Math.pow(1 + monthlyReturn, months) - 1;
+      return numerator / denominator;
+    }
+
+    // With step-up - using yearly compounding approach
+    let totalFV = 0;
+    let currentSIP = 0;
+
+    // Binary search to find the right SIP amount
+    let low = 0;
+    let high = futureValue / months;
+    let iterations = 0;
+    const maxIterations = 100;
+    const tolerance = 1; // ₹1 tolerance
+
+    while (low <= high && iterations < maxIterations) {
+      currentSIP = (low + high) / 2;
+      totalFV = 0;
+
+      // Calculate future value with step-up
+      for (let year = 0; year < years; year++) {
+        const yearSIP = currentSIP * Math.pow(1 + annualStepUp, year);
+        const monthsRemaining = (years - year) * 12;
+        const yearFV = yearSIP * 12 * ((Math.pow(1 + monthlyReturn, monthsRemaining / 12) - 1) / monthlyReturn);
+        totalFV += yearFV;
+      }
+
+      if (Math.abs(totalFV - futureValue) < tolerance) {
+        break;
+      } else if (totalFV < futureValue) {
+        low = currentSIP + 0.01;
+      } else {
+        high = currentSIP - 0.01;
+      }
+      iterations++;
+    }
+
+    return Math.round(currentSIP);
+  };
+
+  // Add new goal
+  const handleAddGoal = () => {
+    const newGoal: DetailedGoal = {
+      id: `goal_${Date.now()}`,
+      name: "",
+      priority: goals.length + 1,
+      timeYears: 1,
+      goalType: 'Short-Term',
+      amountRequiredToday: 0,
+      amountAvailableToday: 0,
+      goalInflation: 5,
+      stepUp: 5,
+      amountRequiredFuture: null,
+      sipRequired: null,
+      sipCalculated: false,
+    };
+    setGoals([...goals, newGoal]);
+    setHasUnsavedChanges(true);
+  };
+
+  // Delete goal
+  const handleDeleteGoal = (id: string) => {
+    setGoals(goals.filter(g => g.id !== id));
+    setHasUnsavedChanges(true);
+    toast.success("Goal deleted");
+  };
+
+  // Update goal field
+  const handleUpdateGoal = (id: string, field: keyof DetailedGoal, value: any) => {
+    setGoals(goals.map(goal => {
+      if (goal.id === id) {
+        const updated = { ...goal, [field]: value };
+
+        // Recalculate future value whenever relevant fields change
+        if (['amountRequiredToday', 'amountAvailableToday', 'goalInflation', 'timeYears', 'goalType'].includes(field)) {
+          updated.amountRequiredFuture = calculateFutureValue(updated);
+        }
+
+        return updated;
+      }
+      return goal;
+    }));
+    setHasUnsavedChanges(true);
+  };
+
+  // Calculate SIP for a specific goal
+  const handleCalculateSIP = (id: string) => {
+    setGoals(goals.map(goal => {
+      if (goal.id === id) {
+        const futureValue = calculateFutureValue(goal);
+        const expectedReturn = EXPECTED_RETURNS[goal.goalType];
+        const sip = calculateSIPWithStepUp(futureValue, goal.timeYears, expectedReturn, goal.stepUp);
+
+        return {
+          ...goal,
+          amountRequiredFuture: futureValue,
+          sipRequired: sip,
+          sipCalculated: true,
+        };
+      }
+      return goal;
+    }));
+    setHasUnsavedChanges(true);
+    toast.success("SIP calculated for goal");
+  };
+
+  // Remove SIP calculation for a goal
+  const handleRemoveSIP = (id: string) => {
+    setGoals(goals.map(goal => {
+      if (goal.id === id) {
+        return {
+          ...goal,
+          sipRequired: null,
+          sipCalculated: false,
+        };
+      }
+      return goal;
+    }));
+    setHasUnsavedChanges(true);
+    toast.info("SIP removed for goal");
+  };
+
+  // Sort goals by priority
+  useEffect(() => {
+    const sorted = [...goals].sort((a, b) => a.priority - b.priority);
+    if (JSON.stringify(sorted) !== JSON.stringify(goals)) {
+      setGoals(sorted);
+    }
+  }, [goals.map(g => g.priority).join(',')]);
+
+  // Debug: Track goals state changes
+  useEffect(() => {
+    console.log('Goals state changed. Current goals count:', goals.length);
+    console.log('Current goals:', goals);
+  }, [goals]);
+
+  // Save to database
+  const handleSave = async () => {
+    if (!user?.id) {
+      toast.error("Please log in to save");
       return;
     }
 
     try {
+      console.log('Saving SIP plan for user:', user.id);
+      console.log('Goals to save:', goals);
+
       const response = await fetch(API_ENDPOINTS.saveSIPPlanner, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           userId: user.id,
-          goals: updatedGoals,
-          sipCalculations: calculations,
+          goals: goals,
         }),
       });
 
+      console.log('Response status:', response.status);
+      const responseData = await response.json();
+      console.log('Response data:', responseData);
+
       if (!response.ok) {
-        throw new Error('Failed to save SIP planner data');
+        throw new Error(responseData.detail || 'Failed to save');
       }
 
-      toast.success("Data Saved!", {
-        description: "Your SIP planner data has been saved to your profile.",
-      });
-    } catch (error) {
-      console.error('Error saving SIP planner data:', error);
-      toast.error("Save Failed", {
-        description: "Could not save your SIP planner data. Please try again.",
-      });
+      setHasUnsavedChanges(false);
+      toast.success("SIP Plan saved successfully!");
+    } catch (error: any) {
+      console.error('Error saving SIP plan:', error);
+      console.error('Error message:', error.message);
+      toast.error(`Failed to save SIP plan: ${error.message}`);
     }
   };
 
-  const handleAccessGranted = () => {
-    setHasAccess(true);
-    // Persist access to localStorage
-    localStorage.setItem(SIP_PLANNER_ACCESS_KEY, 'true');
-  };
+  // Calculate totals with NaN protection
+  const totalAmountAvailableToday = goals.reduce((sum, g) => {
+    const val = g.amountAvailableToday || 0;
+    return sum + (isNaN(val) ? 0 : val);
+  }, 0);
 
-  const pmt = (rate: number, nper: number, pv: number, fv: number = 0, type: number = 0): number => {
-    if (rate === 0) return -(pv + fv) / nper;
-    const pvif = Math.pow(1 + rate, nper);
-    let pmtVal = rate / (pvif - 1) * -(pv * pvif + fv);
-    if (type === 1) {
-      pmtVal /= (1 + rate);
+  const totalSIPRequired = goals.reduce((sum, g) => {
+    if (g.sipCalculated && g.sipRequired) {
+      const val = g.sipRequired || 0;
+      return sum + (isNaN(val) ? 0 : val);
     }
-    return pmtVal;
-  };
+    return sum;
+  }, 0);
 
-  const calculateSip = async () => {
-    if (goals.length === 0) {
-      toast.info("No goals added", { description: "Please add at least one financial goal to calculate SIPs." });
-      return;
-    }
-    const calculations: SipCalculation[] = goals.map(goal => {
-      let annualRate = 0;
-      if (goal.type === 'Short-Term') annualRate = 0.06;
-      else if (goal.type === 'Mid-Term') annualRate = 0.09;
-      else if (goal.type === 'Long-Term') annualRate = 0.11;
-
-      const monthlyRate = annualRate / 12;
-      const nper = goal.deadline * 12; // months
-      const monthlySip = -pmt(monthlyRate, nper, 0, goal.amount);
-      return { goalName: goal.name, monthlySip: parseFloat(monthlySip.toFixed(2)) };
-    });
-    setSipCalculations(calculations);
-    toast.success("SIPs Calculated", { description: `Successfully calculated SIPs for ${calculations.length} goal(s).` });
-
-    // Save to database
-    await saveSIPPlannerData(goals, calculations);
-  };
-
-  const handleAddGoal = async () => {
-    if (!newGoal.name || newGoal.amount <= 0 || newGoal.deadline <= 0) {
-      toast.error("Invalid Goal Input", { description: "Please ensure all fields are filled correctly for the new goal." });
-      return;
-    }
-    const updatedGoals = [...goals, { ...newGoal, id: `goal${Date.now()}` }];
-    setGoals(updatedGoals);
-    setNewGoal({ name: "", amount: 0, deadline: 0, type: 'Short-Term' }); // Reset form
-    toast.success("Goal Added", { description: `Successfully added goal: ${newGoal.name}.` });
-
-    // Save to database (without calculations yet - those will be saved when user clicks "Calculate Required SIPs")
-    await saveSIPPlannerData(updatedGoals, sipCalculations);
-  };
-
-  const totalMonthlySip = sipCalculations.reduce((sum, sip) => sum + sip.monthlySip, 0);
-
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#AA336A', '#33AAAA'];
+  const availableToAllocate = totalInvestableAssets - totalAmountAvailableToday;
+  const sipSurplusOrDeficit = monthlySavings - totalSIPRequired;
 
   if (!hasAccess) {
     return (
       <AccessCodeForm expectedCode={ACCESS_CODE} onAccessGranted={handleAccessGranted}>
-        {/* Placeholder for teaser content for MYA-36 */}
         <div className="text-center p-4 border-t border-gray-200 mt-6">
-            <p className="text-lg font-semibold text-gray-700">Unlock Powerful Financial Planning Tools!</p>
-            <p className="text-sm text-gray-500">Enter the access code to discover your SIP requirements and optimal portfolio allocation.</p>
+          <p className="text-lg font-semibold text-gray-700">Unlock Powerful Financial Planning Tools!</p>
+          <p className="text-sm text-gray-500">Enter the access code to discover your detailed SIP requirements.</p>
         </div>
       </AccessCodeForm>
     );
   }
 
-  return (
-    <div className="container mx-auto p-4 md:p-6 lg:p-8">
-      <header className="mb-8 text-center">
-        <h1 className="text-4xl font-bold text-gray-800">SIP Goal Planner</h1>
-        <p className="text-lg text-gray-600">Plan your investments to achieve your financial goals.</p>
-      </header>
-
-      {/* Guideline Box */}
-      <GuidelineBox />
-
-      {/* Loading State */}
-      {isLoadingData && hasAccess && (
-        <Card className="mb-8 shadow-lg border-2 border-blue-300 bg-gradient-to-br from-blue-50 to-indigo-50">
+  if (isLoadingData) {
+    return (
+      <div className="container mx-auto p-4">
+        <Card className="mb-8 shadow-lg border-2 border-blue-300">
           <CardContent className="py-12">
             <div className="flex flex-col items-center justify-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
@@ -199,161 +409,393 @@ const SIPPlanner: React.FC = () => {
             </div>
           </CardContent>
         </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto p-4">
+      <header className="mb-6 text-center">
+        <h1 className="text-4xl font-bold text-gray-800">Detailed SIP Goal Planner</h1>
+        <p className="text-lg text-gray-600">Plan your investments with inflation-adjusted calculations</p>
+      </header>
+
+      {/* Unsaved Changes Warning */}
+      {hasUnsavedChanges && (
+        <div className="mb-4 p-4 bg-orange-100 border-l-4 border-orange-500 text-orange-700 animate-pulse">
+          <div className="flex items-center">
+            <AlertCircle className="w-5 h-5 mr-2" />
+            <p className="font-semibold">You have unsaved changes! Click the "⚠️ Save Changes" button to save your goals to the database.</p>
+          </div>
+        </div>
       )}
 
-      {/* Main Content - only show when not loading */}
-      {!isLoadingData && (
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <Card className="shadow-lg">
-              <CardHeader>
-                <CardTitle>Add New Financial Goal</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+      {/* Monthly Savings Info */}
+      <Card className="mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300">
+        <CardContent className="py-4">
+          <div className="flex justify-between items-center">
+            <div>
+              <p className="text-sm text-gray-600">Your Monthly Savings Available for Investment</p>
+              <p className="text-3xl font-bold text-blue-700">₹{monthlySavings.toLocaleString()}</p>
+            </div>
+            {totalSIPRequired > monthlySavings && (
+              <div className="flex items-center gap-2 bg-red-100 px-4 py-2 rounded-lg">
+                <AlertCircle className="w-5 h-5 text-red-600" />
                 <div>
-                  <label htmlFor="goalName" className="block text-sm font-medium text-gray-700 mb-1">Goal Name</label>
-                  <Input
-                    id="goalName"
-                    value={newGoal.name}
-                    onChange={(e) => setNewGoal({ ...newGoal, name: e.target.value })}
-                    placeholder="e.g., Dream Car, Europe Trip"
-                  />
+                  <p className="text-sm font-semibold text-red-700">Exceeds Budget!</p>
+                  <p className="text-xs text-red-600">Over by ₹{(totalSIPRequired - monthlySavings).toLocaleString()}</p>
                 </div>
-                <div>
-                  <label htmlFor="goalAmount" className="block text-sm font-medium text-gray-700 mb-1">Target Amount (₹)</label>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Action Buttons */}
+      <div className="flex gap-4 mb-6">
+        <Button onClick={handleAddGoal} className="bg-green-600 hover:bg-green-700">
+          <Plus className="w-4 h-4 mr-2" />
+          Add New Goal
+        </Button>
+        <Button
+          onClick={handleSave}
+          className={hasUnsavedChanges ? "bg-orange-600 hover:bg-orange-700 animate-pulse" : "bg-blue-600 hover:bg-blue-700"}
+        >
+          {hasUnsavedChanges ? "⚠️ Save Changes" : "Save SIP Plan"}
+        </Button>
+      </div>
+
+      {/* Goals Table */}
+      <div className="overflow-x-auto mb-6">
+        <table className="w-full border-collapse border border-gray-300 bg-white shadow-lg">
+          <thead>
+            <tr className="bg-blue-900 text-white">
+              <th className="border border-gray-300 px-3 py-2 text-sm">
+                <ColumnHeader
+                  title="Goal"
+                  tooltip="Enter a descriptive name for your financial goal (e.g., 'Emergency Fund', 'Home Down Payment')"
+                />
+              </th>
+              <th className="border border-gray-300 px-3 py-2 text-sm">
+                <ColumnHeader
+                  title="Priority"
+                  tooltip="Rank your goals by importance. Lower numbers = higher priority. Goals are auto-sorted by priority."
+                />
+              </th>
+              <th className="border border-gray-300 px-3 py-2 text-sm">
+                <ColumnHeader
+                  title="Time (Years)"
+                  tooltip="Number of years until you need to achieve this goal. This affects expected returns and calculations."
+                />
+              </th>
+              <th className="border border-gray-300 px-3 py-2 text-sm">
+                <ColumnHeader
+                  title="Goal Type"
+                  tooltip="Short-Term (6% return), Mid-Term (9% return), Long-Term (11% return). Based on time horizon and expected investment returns."
+                />
+              </th>
+              <th className="border border-gray-300 px-3 py-2 text-sm">
+                <ColumnHeader
+                  title="Amount Required (Today)"
+                  tooltip="The total amount you need for this goal in today's money (without inflation). This is what the goal would cost right now."
+                />
+              </th>
+              <th className="border border-gray-300 px-3 py-2 text-sm">
+                <ColumnHeader
+                  title="Amount Available (Today)"
+                  tooltip="Lump sum amount from your current investments/savings that you plan to allocate to this goal. Max available from your investable assets shown in summary."
+                />
+              </th>
+              <th className="border border-gray-300 px-3 py-2 text-sm">
+                <ColumnHeader
+                  title="Goal Inflation %"
+                  tooltip="Expected annual inflation rate for this specific goal. Typically 5-7% for general goals, higher for education/healthcare."
+                />
+              </th>
+              <th className="border border-gray-300 px-3 py-2 text-sm">
+                <ColumnHeader
+                  title="Amount Required (Future)"
+                  tooltip="Auto-calculated: Goal amount adjusted for inflation and reduced by the future value of amount available today. This is the gap you need to fill with SIP."
+                />
+              </th>
+              <th className="border border-gray-300 px-3 py-2 text-sm">
+                <ColumnHeader
+                  title="Step Up %"
+                  tooltip="Annual increase in your SIP amount (typically matches your expected salary increment). For example, 10% means you'll increase your SIP by 10% each year."
+                />
+              </th>
+              <th className="border border-gray-300 px-3 py-2 text-sm">
+                <ColumnHeader
+                  title="SIP Required"
+                  tooltip="Monthly SIP amount needed to achieve this goal. Click 'Calculate' to compute. Considers step-up, time horizon, and expected returns."
+                />
+              </th>
+              <th className="border border-gray-300 px-3 py-2 text-sm">
+                <ColumnHeader
+                  title="Actions"
+                  tooltip="Calculate SIP for this goal, Remove SIP calculation, or Delete the goal entirely."
+                />
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {goals.map((goal, index) => (
+              <tr key={goal.id} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
+                {/* Goal Name - Editable */}
+                <td className="border border-gray-300 px-2 py-1">
                   <Input
-                    id="goalAmount"
+                    value={goal.name}
+                    onChange={(e) => handleUpdateGoal(goal.id, 'name', e.target.value)}
+                    placeholder="Goal name"
+                    className="min-w-[150px] bg-green-50"
+                  />
+                </td>
+
+                {/* Priority - Editable */}
+                <td className="border border-gray-300 px-2 py-1">
+                  <Input
                     type="number"
-                    value={newGoal.amount}
-                    onChange={(e) => setNewGoal({ ...newGoal, amount: parseFloat(e.target.value) || 0 })}
-                    placeholder="e.g., 500000"
+                    value={goal.priority || ''}
+                    onChange={(e) => {
+                      const val = e.target.value === '' ? 1 : parseInt(e.target.value);
+                      handleUpdateGoal(goal.id, 'priority', isNaN(val) ? 1 : Math.max(1, val));
+                    }}
+                    className="w-20 bg-green-50"
+                    min="1"
                   />
-                </div>
-                <div>
-                  <label htmlFor="goalDeadline" className="block text-sm font-medium text-gray-700 mb-1">Deadline (Years)</label>
+                </td>
+
+                {/* Time (Years) - Editable */}
+                <td className="border border-gray-300 px-2 py-1">
                   <Input
-                    id="goalDeadline"
                     type="number"
-                    value={newGoal.deadline}
-                    onChange={(e) => setNewGoal({ ...newGoal, deadline: parseInt(e.target.value) || 0 })}
-                    placeholder="e.g., 5"
+                    value={goal.timeYears || ''}
+                    onChange={(e) => {
+                      const val = e.target.value === '' ? 1 : parseInt(e.target.value);
+                      handleUpdateGoal(goal.id, 'timeYears', isNaN(val) ? 1 : Math.max(1, val));
+                    }}
+                    className="w-20 bg-green-50"
+                    min="1"
                   />
-                </div>
-                <div>
-                  <label htmlFor="goalType" className="block text-sm font-medium text-gray-700 mb-1">Goal Type</label>
+                </td>
+
+                {/* Goal Type - Editable */}
+                <td className="border border-gray-300 px-2 py-1">
                   <Select
-                    value={newGoal.type}
-                    onValueChange={(value: 'Short-Term' | 'Mid-Term' | 'Long-Term') => setNewGoal({ ...newGoal, type: value })}
+                    value={goal.goalType}
+                    onValueChange={(value: 'Short-Term' | 'Mid-Term' | 'Long-Term') =>
+                      handleUpdateGoal(goal.id, 'goalType', value)
+                    }
                   >
-                    <SelectTrigger id="goalType">
-                      <SelectValue placeholder="Select goal term" />
+                    <SelectTrigger className="w-32 bg-green-50">
+                      <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Short-Term">Short-Term (6% p.a.)</SelectItem>
-                      <SelectItem value="Mid-Term">Mid-Term (9% p.a.)</SelectItem>
-                      <SelectItem value="Long-Term">Long-Term (11% p.a.)</SelectItem>
+                      <SelectItem value="Short-Term">Short Term</SelectItem>
+                      <SelectItem value="Mid-Term">Medium Term</SelectItem>
+                      <SelectItem value="Long-Term">Long Term</SelectItem>
                     </SelectContent>
                   </Select>
-                </div>
-                <Button onClick={handleAddGoal} className="w-full bg-green-600 hover:bg-green-700">
-                  Add Goal
-                </Button>
-              </CardContent>
-            </Card>
+                </td>
 
-            <Card className="shadow-lg">
-              <CardHeader>
-                <CardTitle>Your Financial Goals</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {goals.length === 0 ? (
-                  <p className="text-gray-500 italic">No goals added yet. Add some goals to get started!</p>
-                ) : (
-                  <ul className="space-y-3">
-                    {goals.map(goal => (
-                      <li key={goal.id} className="p-3 bg-gray-50 rounded-md shadow-sm">
-                        <p className="font-semibold text-gray-700">{goal.name}</p>
-                        <p className="text-sm text-gray-600">Amount: ₹{goal.amount.toLocaleString()}</p>
-                        <p className="text-sm text-gray-600">Deadline: {goal.deadline} years ({goal.type})</p>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-                {goals.length > 0 && (
-                    <Button onClick={calculateSip} className="w-full mt-4 bg-blue-600 hover:bg-blue-700">
-                        Calculate Required SIPs
+                {/* Amount Required (Today) - Editable */}
+                <td className="border border-gray-300 px-2 py-1">
+                  <Input
+                    type="number"
+                    value={goal.amountRequiredToday || ''}
+                    onChange={(e) => {
+                      const val = e.target.value === '' ? 0 : parseFloat(e.target.value);
+                      handleUpdateGoal(goal.id, 'amountRequiredToday', isNaN(val) ? 0 : val);
+                    }}
+                    className="w-32 bg-green-50"
+                    placeholder="0"
+                  />
+                </td>
+
+                {/* Amount Available (Today) - Editable */}
+                <td className="border border-gray-300 px-2 py-1">
+                  <Input
+                    type="number"
+                    value={goal.amountAvailableToday || ''}
+                    onChange={(e) => {
+                      const val = e.target.value === '' ? 0 : parseFloat(e.target.value);
+                      handleUpdateGoal(goal.id, 'amountAvailableToday', isNaN(val) ? 0 : val);
+                    }}
+                    className="w-32 bg-green-50"
+                    placeholder="0"
+                  />
+                </td>
+
+                {/* Goal Inflation % - Editable */}
+                <td className="border border-gray-300 px-2 py-1">
+                  <Input
+                    type="number"
+                    value={goal.goalInflation || ''}
+                    onChange={(e) => {
+                      const val = e.target.value === '' ? 0 : parseFloat(e.target.value);
+                      handleUpdateGoal(goal.id, 'goalInflation', isNaN(val) ? 0 : val);
+                    }}
+                    className="w-20 bg-green-50"
+                    min="0"
+                    max="100"
+                    step="0.1"
+                  />
+                </td>
+
+                {/* Amount Required (Future) - Calculated */}
+                <td className="border border-gray-300 px-2 py-1 bg-red-50">
+                  <span className="text-sm font-semibold text-gray-700">
+                    {goal.amountRequiredFuture !== null && !isNaN(goal.amountRequiredFuture) && goal.amountRequiredFuture > 0
+                      ? `₹${Math.round(goal.amountRequiredFuture).toLocaleString()}`
+                      : '₹0'}
+                  </span>
+                </td>
+
+                {/* Step Up % - Editable */}
+                <td className="border border-gray-300 px-2 py-1">
+                  <Input
+                    type="number"
+                    value={goal.stepUp || ''}
+                    onChange={(e) => {
+                      const val = e.target.value === '' ? 0 : parseFloat(e.target.value);
+                      handleUpdateGoal(goal.id, 'stepUp', isNaN(val) ? 0 : val);
+                    }}
+                    className="w-20 bg-green-50"
+                    min="0"
+                    max="100"
+                    step="1"
+                  />
+                </td>
+
+                {/* SIP Required - Calculated */}
+                <td className="border border-gray-300 px-2 py-1 bg-red-50">
+                  <span className="text-sm font-semibold text-gray-700">
+                    {goal.sipCalculated && goal.sipRequired !== null
+                      ? `₹${Math.round(goal.sipRequired).toLocaleString()}`
+                      : '-'}
+                  </span>
+                </td>
+
+                {/* Actions */}
+                <td className="border border-gray-300 px-2 py-1">
+                  <div className="flex gap-1">
+                    {!goal.sipCalculated ? (
+                      <Button
+                        size="sm"
+                        onClick={() => handleCalculateSIP(goal.id)}
+                        className="bg-blue-600 hover:bg-blue-700 text-xs"
+                      >
+                        <Calculator className="w-3 h-3 mr-1" />
+                        Calculate
+                      </Button>
+                    ) : (
+                      <Button
+                        size="sm"
+                        onClick={() => handleRemoveSIP(goal.id)}
+                        className="bg-orange-600 hover:bg-orange-700 text-xs"
+                      >
+                        <X className="w-3 h-3 mr-1" />
+                        Remove
+                      </Button>
+                    )}
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => handleDeleteGoal(goal.id)}
+                      className="text-xs"
+                    >
+                      <Trash2 className="w-3 h-3" />
                     </Button>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-
-          {sipCalculations.length > 0 && (
-            <Card className="shadow-lg mb-8">
-              <CardHeader>
-                <CardTitle>Monthly SIP Requirements</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-3 mb-6">
-                  {sipCalculations.map(sip => (
-                    <li key={sip.goalName} className="flex justify-between items-center p-3 bg-indigo-50 rounded-md">
-                      <span className="font-medium text-indigo-700">{sip.goalName}:</span>
-                      <span className="font-semibold text-indigo-900">₹{sip.monthlySip.toLocaleString()} per month</span>
-                    </li>
-                  ))}
-                  <li className="flex justify-between items-center p-3 bg-green-100 rounded-md mt-4 border-t-2 border-green-500">
-                    <span className="text-lg font-bold text-green-700">Total Monthly SIP:</span>
-                    <span className="text-lg font-bold text-green-900">₹{totalMonthlySip.toLocaleString()}</span>
-                  </li>
-                </ul>
-
-                {totalMonthlySip > 0 && (
-                  <div className="h-[400px] w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={sipCalculations}
-                          cx="50%"
-                          cy="50%"
-                          labelLine={false}
-                          label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                          outerRadius={120}
-                          fill="#8884d8"
-                          dataKey="monthlySip"
-                          nameKey="goalName"
-                        >
-                          {sipCalculations.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                          ))}
-                        </Pie>
-                        <RechartsTooltip formatter={(value: number) => `₹${value.toLocaleString()}`} />
-                        <Legend />
-                      </PieChart>
-                    </ResponsiveContainer>
                   </div>
-                )}
-                <p className="mt-6 text-xs text-gray-500 text-center">
-                  Disclaimer: Assumed returns are indicative: Short-Term @ 6% p.a., Mid-Term @ 9% p.a., Long-Term @ 11% p.a. Actual returns may vary. Please consult a financial advisor.
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Summary Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card className="shadow-lg">
+          <CardHeader>
+            <CardTitle>Lump Sum Summary</CardTitle>
+            <p className="text-sm text-gray-500">From Current Investable Asset Allocation (NetWorth page)</p>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="font-semibold">Total Investable Assets:</span>
+                <span className="font-bold text-blue-600">₹{totalInvestableAssets.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Already Allocated to Goals:</span>
+                <span className="font-bold">₹{totalAmountAvailableToday.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between border-t pt-2">
+                <span className="font-semibold">Still Available to Allocate:</span>
+                <span className={`font-bold text-xl ${availableToAllocate >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  ₹{availableToAllocate.toLocaleString()}
+                </span>
+              </div>
+            </div>
+            {availableToAllocate < 0 && (
+              <div className="mt-4 p-3 bg-red-50 border border-red-300 rounded-lg">
+                <p className="text-sm text-red-700 font-semibold flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4" />
+                  Warning: You've allocated more than your available investable assets!
                 </p>
-              </CardContent>
-            </Card>
-          )}
-        </>
-      )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
-      {/* Financial Roadmap Component */}
-      {!isLoadingData && financialData && Object.keys(financialData).length > 0 && (
-        <div className="mt-8">
-          <FinancialRoadmap financialData={financialData} />
-        </div>
-      )}
+        <Card className={`shadow-lg ${sipSurplusOrDeficit < 0 ? 'border-2 border-red-500' : 'border-2 border-green-500'}`}>
+          <CardHeader>
+            <CardTitle>Monthly SIP Summary</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="font-semibold">Total SIP Required:</span>
+                <span className="font-bold">₹{totalSIPRequired.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Max Monthly Capacity:</span>
+                <span className="font-bold">₹{monthlySavings.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between border-t pt-2">
+                <span className="font-semibold">
+                  {sipSurplusOrDeficit >= 0 ? 'Surplus:' : 'Deficit:'}
+                </span>
+                <span className={`font-bold text-xl ${sipSurplusOrDeficit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  ₹{Math.abs(sipSurplusOrDeficit).toLocaleString()}
+                </span>
+              </div>
+            </div>
+            {sipSurplusOrDeficit < 0 && (
+              <div className="mt-4 p-3 bg-red-50 border border-red-300 rounded-lg">
+                <p className="text-sm text-red-700 font-semibold flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4" />
+                  Warning: Your total SIP requirements exceed your monthly savings by ₹{Math.abs(sipSurplusOrDeficit).toLocaleString()}.
+                  You need to either increase your income, reduce expenses, or adjust your goals.
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
 
-      {/* Financial Ladder Component */}
-      {!isLoadingData && financialData && Object.keys(financialData).length > 0 && (
-        <div className="mt-8">
-          <FinancialLadder financialData={financialData} />
-        </div>
-      )}
+      {/* Disclaimer */}
+      <Card className="mt-6 bg-yellow-50 border-2 border-yellow-300">
+        <CardContent className="py-4">
+          <p className="text-sm text-gray-700">
+            <strong>Disclaimer:</strong> The calculations are based on assumed returns: Short-Term @ 6% p.a.,
+            Mid-Term @ 9% p.a., Long-Term @ 11% p.a. Actual returns may vary. All inflation and step-up
+            percentages are user-defined assumptions. Please consult a certified financial advisor before
+            making investment decisions.
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
 };

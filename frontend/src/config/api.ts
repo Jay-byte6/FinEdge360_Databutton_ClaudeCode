@@ -3,8 +3,8 @@
 
 // Get the API base URL from environment variables
 // In production (Vercel), this will be your deployed backend URL
-// In development, this will be localhost:8001
-export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001';
+// In development, this will be localhost:8000
+export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 // API Endpoints
 export const API_ENDPOINTS = {

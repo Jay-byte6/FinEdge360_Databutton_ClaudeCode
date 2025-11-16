@@ -119,14 +119,14 @@ export default function TaxPlanning() {
     const loadData = async () => {
       try {
         // Get the authenticated user's ID
-        if (!user || !user.sub) {
+        if (!user || !user.id) {
           if (!user) {
             console.log("No user logged in, redirecting to login");
             navigate('/login');
           }
           return;
         }
-        await fetchFinancialData(user.sub);
+        await fetchFinancialData(user.id);
       } catch (error) {
         console.error("Error loading financial data:", error);
       }

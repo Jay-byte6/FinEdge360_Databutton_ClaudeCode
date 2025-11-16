@@ -211,14 +211,14 @@ export default function NetWorth() {
     const loadData = async () => {
       try {
         // Get the authenticated user's ID
-        if (!user || !user.sub) {
+        if (!user || !user.id) {
           if (!user) {
             console.log("No user logged in, redirecting to login");
             navigate('/login');
           }
           return;
         }
-        await fetchFinancialData(user.sub);
+        await fetchFinancialData(user.id);
         setCalculationError('');
       } catch (error) {
         console.error("Error fetching financial data:", error);

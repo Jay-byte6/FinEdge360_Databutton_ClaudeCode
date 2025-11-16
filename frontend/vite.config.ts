@@ -44,11 +44,20 @@ const getExtensionConfig = (name: string): string => {
 const buildVariables = () => {
 	const appId = process.env.DATABUTTON_PROJECT_ID;
 
+	// Use localhost for development, Railway for production
+	const apiUrl = process.env.NODE_ENV === 'production'
+		? "https://finedge360databuttonclaudecode-production.up.railway.app"
+		: "http://localhost:8000";
+
+	const wsApiUrl = process.env.NODE_ENV === 'production'
+		? "wss://finedge360databuttonclaudecode-production.up.railway.app"
+		: "ws://localhost:8000";
+
 	const defines: Record<string, string> = {
 		__APP_ID__: JSON.stringify(appId),
 		__API_PATH__: JSON.stringify(""),
-		__API_URL__: JSON.stringify("https://finedge360databuttonclaudecode-production.up.railway.app"),
-		__WS_API_URL__: JSON.stringify("wss://finedge360databuttonclaudecode-production.up.railway.app"),
+		__API_URL__: JSON.stringify(apiUrl),
+		__WS_API_URL__: JSON.stringify(wsApiUrl),
 		__APP_BASE_PATH__: JSON.stringify("/"),
 		__APP_TITLE__: JSON.stringify("FinEdge360"),
 		__APP_FAVICON_LIGHT__: JSON.stringify("/favicon-light.svg"),
@@ -71,7 +80,7 @@ export default defineConfig({
 	server: {
 		proxy: {
 			"/routes": {
-				target: "http://127.0.0.1:8001/routes",  // Match backend's /routes/... paths on port 8001
+				target: "http://127.0.0.1:8000",  // Proxy /routes/* to backend on port 8000
 				changeOrigin: true,
 			},
 		},

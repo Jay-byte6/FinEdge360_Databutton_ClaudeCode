@@ -384,22 +384,14 @@ def get_financial_data(user_id: str) -> FinancialDataOutput:
             if not supabase:
                 raise Exception("Supabase client not initialized")
                 
-            # Get the user
-            user_email = f"{sanitize_storage_key(user_id)}@finnest.example.com"
-            user_response = supabase.from_("users")\
-                .select("id")\
-                .eq("email", user_email)\
-                .execute()
-            
-            if not user_response.data or len(user_response.data) == 0:
-                raise Exception("User not found in database")
-                
-            user_id_db = user_response.data[0]["id"]
-            
-            # Get personal info
+            # Use user_id directly - don't convert to email format
+            # This ensures we look up data for the actual authenticated user
+            print(f"Found user by UUID: {user_id}")
+
+            # Get personal info directly using the user_id
             pi_response = supabase.from_("personal_info")\
                 .select("*")\
-                .eq("user_id", user_id_db)\
+                .eq("user_id", user_id)\
                 .execute()
                 
             if not pi_response.data or len(pi_response.data) == 0:

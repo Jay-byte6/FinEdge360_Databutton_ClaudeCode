@@ -1,0 +1,55 @@
+npm warn   peerOptional @types/react-dom@">=18.2.12 || >=19.0.0-rc.0" from @stackframe/stack-ui@2.8.3
+npm warn   node_modules/@stackframe/stack-ui
+npm warn     @stackframe/stack-ui@"2.8.3" from @stackframe/react@2.8.3
+npm warn     node_modules/@stackframe/react
+npm error code ERESOLVE
+npm error ERESOLVE could not resolve
+npm error
+npm error While resolving: @stripe/react-stripe-js@2.9.0
+npm error Found: @stripe/stripe-js@5.0.0
+006:49:45.862 
+npm error node_modules/@stripe/stripe-js
+06:49:45.862 
+npm error   @stripe/stripe-js@"5.0.0" from the root project
+06:49:45.863 
+npm error
+06:49:45.863 
+npm error Could not resolve dependency:
+06:49:45.863 
+npm error peer @stripe/stripe-js@"^1.44.1 || ^2.0.0 || ^3.0.0 || ^4.0.0" from @stripe/react-stripe-js@2.9.0
+06:49:45.863 
+npm error node_modules/@stripe/react-stripe-js
+06:49:45.863 
+npm error   @stripe/react-stripe-js@"2.9.0" from the root project
+06:49:45.863 
+npm error
+06:49:45.863 
+npm error Conflicting peer dependency: @stripe/stripe-js@4.10.0
+06:49:45.863 
+npm error node_modules/@stripe/stripe-js
+06:49:45.863 
+npm error   peer @stripe/stripe-js@"^1.44.1 || ^2.0.0 || ^3.0.0 || ^4.0.0" from @stripe/react-stripe-js@2.9.0
+06:49:45.863 
+npm error   node_modules/@stripe/react-stripe-js
+06:49:45.863 
+npm error     @stripe/react-stripe-js@"2.9.0" from the root project
+06:49:45.863 
+npm error
+06:49:45.863 
+npm error Fix the upstream dependency conflict, or retry
+06:49:45.863 
+npm error this command with --force or --legacy-peer-deps
+06:49:45.863 
+npm error to accept an incorrect (and potentially broken) dependency resolution.
+06:49:45.863 
+npm error
+06:49:45.863 
+npm error
+06:49:45.863 
+npm error For a full report see:
+06:49:45.863 
+npm error /vercel/.npm/_logs/2025-11-08T01_19_34_371Z-eresolve-report.txt
+06:49:45.864 
+npm error A complete log of this run can be found in: /vercel/.npm/_logs/2025-11-08T01_19_34_371Z-debug-0.log
+06:49:45.906 
+Error: Command "cd frontend && npm install" exited with 1

@@ -17,6 +17,8 @@ const App = lazy(() => import("./pages/App.tsx"));
 const Dashboard = lazy(() => import("./pages/Dashboard.tsx"));
 const EnterDetails = lazy(() => import("./pages/EnterDetails.tsx"));
 const FIRECalculator = lazy(() => import("./pages/FIRECalculator.tsx"));
+const Journey = lazy(() => import("./pages/Journey.tsx"));
+const Journey3D = lazy(() => import("./pages/Journey3D.tsx"));
 const Login = lazy(() => import("./pages/Login.tsx"));
 const NetWorth = lazy(() => import("./pages/NetWorth.tsx"));
 const Portfolio = lazy(() => import("./pages/Portfolio.tsx"));
@@ -33,6 +35,8 @@ export const userRoutes: RouteObject[] = [
 	{ path: "/enterdetails", element: <Suspense fallback={<LoadingFallback />}><AppProvider><EnterDetails /></AppProvider></Suspense>},
 	{ path: "/fire-calculator", element: <Suspense fallback={<LoadingFallback />}><AppProvider><FIRECalculator /></AppProvider></Suspense>},
 	{ path: "/firecalculator", element: <Suspense fallback={<LoadingFallback />}><AppProvider><FIRECalculator /></AppProvider></Suspense>},
+	{ path: "/journey", element: <Suspense fallback={<LoadingFallback />}><AppProvider><Journey /></AppProvider></Suspense>},
+	{ path: "/journey3d", element: <Suspense fallback={<LoadingFallback />}><AppProvider><Journey3D /></AppProvider></Suspense>},
 	{ path: "/login", element: <Suspense fallback={<LoadingFallback />}><AppProvider><Login /></AppProvider></Suspense>},
 	{ path: "/net-worth", element: <Suspense fallback={<LoadingFallback />}><AppProvider><NetWorth /></AppProvider></Suspense>},
 	{ path: "/networth", element: <Suspense fallback={<LoadingFallback />}><AppProvider><NetWorth /></AppProvider></Suspense>},
