@@ -10,6 +10,7 @@ import { GoogleMapsJourney } from './GoogleMapsJourney';
 import { MilestoneModal } from './MilestoneModal';
 import { UserJourneyState, CompletionChecker, MilestoneData } from './types';
 import useAuthStore from '@/utils/authStore';
+import { API_ENDPOINTS } from '@/config/api';
 
 export const FinancialFreedomJourney: React.FC = () => {
   const { user } = useAuthStore();
@@ -41,7 +42,7 @@ export const FinancialFreedomJourney: React.FC = () => {
 
       while (retries > 0 && !data) {
         try {
-          const response = await fetch(`/routes/get-financial-data/${user.id}`);
+          const response = await fetch(API_ENDPOINTS.getFinancialData(user.id));
           if (response.ok) {
             // Check if response is JSON before parsing
             const contentType = response.headers.get('content-type');
@@ -77,7 +78,7 @@ export const FinancialFreedomJourney: React.FC = () => {
       // Fetch SIP planner data to check for actual SIP calculations
       let sipData = null;
       try {
-        const sipResponse = await fetch(`/routes/get-sip-planner/${user.id}`);
+        const sipResponse = await fetch(API_ENDPOINTS.getSIPPlanner(user.id));
         if (sipResponse.ok) {
           sipData = await sipResponse.json();
         }
@@ -88,7 +89,7 @@ export const FinancialFreedomJourney: React.FC = () => {
       // Fetch milestone completion data (user-confirmed completions)
       let milestoneCompletions: Record<number, boolean> = {};
       try {
-        const milestoneResponse = await fetch(`/routes/get-milestone-progress/${user.id}`);
+        const milestoneResponse = await fetch(API_ENDPOINTS.getMilestoneProgress(user.id));
         if (milestoneResponse.ok) {
           const milestoneData = await milestoneResponse.json();
           console.log('[Journey Map] Milestone progress data received:', milestoneData);
@@ -156,7 +157,7 @@ export const FinancialFreedomJourney: React.FC = () => {
       let riskRetries = 3;
       while (riskRetries > 0) {
         try {
-          const riskResponse = await fetch(`/routes/get-risk-assessment/${user.id}`);
+          const riskResponse = await fetch(API_ENDPOINTS.getRiskAssessment(user.id));
           if (riskResponse.ok) {
             const riskData = await riskResponse.json();
             completionChecker.hasRiskAssessment = !!(riskData?.riskType || riskData?.riskScore);

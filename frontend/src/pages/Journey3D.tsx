@@ -9,6 +9,7 @@ import useAuthStore from '@/utils/authStore';
 import { JourneyMapSimple } from '@/components/journey/JourneyMapSimple';
 import { MilestoneModal } from '@/components/journey/MilestoneModal';
 import { UserJourneyState, CompletionChecker, MilestoneData } from '@/components/journey/types';
+import { API_ENDPOINTS } from '@/config/api';
 
 export default function Journey3D() {
   const navigate = useNavigate();
@@ -43,7 +44,7 @@ export default function Journey3D() {
     try {
       // Fetch user's financial data
       console.log('Fetching financial data for user:', user.id);
-      const response = await fetch(`/routes/get-financial-data/${user.id}`);
+      const response = await fetch(API_ENDPOINTS.getFinancialData(user.id));
       console.log('Financial data response status:', response.status, response.ok);
 
       let data = null;
@@ -74,7 +75,7 @@ export default function Journey3D() {
       let sipData = null;
       try {
         console.log('Fetching SIP data for user:', user.id);
-        const sipResponse = await fetch(`/routes/get-sip-planner/${user.id}`);
+        const sipResponse = await fetch(API_ENDPOINTS.getSIPPlanner(user.id));
         console.log('SIP data response status:', sipResponse.status, sipResponse.ok);
 
         if (sipResponse.ok) {
@@ -91,7 +92,7 @@ export default function Journey3D() {
       let milestoneCompletions: Record<number, boolean> = {};
       try {
         console.log('Fetching milestone progress for user:', user.id);
-        const milestoneResponse = await fetch(`/routes/get-milestone-progress/${user.id}`);
+        const milestoneResponse = await fetch(API_ENDPOINTS.getMilestoneProgress(user.id));
         console.log('Milestone progress response status:', milestoneResponse.status, milestoneResponse.ok);
 
         if (milestoneResponse.ok) {
@@ -158,7 +159,7 @@ export default function Journey3D() {
 
       // Check risk assessment
       try {
-        const riskResponse = await fetch(`/routes/get-risk-assessment/${user.id}`);
+        const riskResponse = await fetch(API_ENDPOINTS.getRiskAssessment(user.id));
         if (riskResponse.ok) {
           const riskData = await riskResponse.json();
           completionChecker.hasRiskAssessment = !!(
