@@ -23,6 +23,8 @@ import { Progress } from "@/components/ui/progress"; // Added for progress bars
 import useFinancialDataStore from '../utils/financialDataStore';
 import useAuthStore from '../utils/authStore';
 import TaxTipsDisplay, { Tip as TaxTip } from '../components/TaxTipsDisplay'; // Added for tax tips
+import { MilestoneCompletionCard } from '@/components/journey/MilestoneCompletionCard';
+import { API_ENDPOINTS } from '../config/api';
 
 type DeductionItem = {
   name: string;
@@ -53,10 +55,13 @@ export default function TaxPlanning() {
 
   // Form states
   const [yearlyIncome, setYearlyIncome] = useState<number>(0);
+  const [otherIncome, setOtherIncome] = useState<number>(0); // NEW: Other income (interest, freelancing, etc.)
+  const [capitalGains, setCapitalGains] = useState<number>(0); // NEW: Capital gains from stocks, property, etc.
   const [selectedRegime, setSelectedRegime] = useState<string>('compare');
   const [deductions, setDeductions] = useState<DeductionItem[]>([
     { name: 'Standard Deduction', section: '16(ia)', amount: 50000, eligible: true },
     { name: 'Employee PF Contribution', section: '80C', amount: 0, maxLimit: 150000, eligible: true },
+    { name: 'Home Loan Principal', section: '80C', amount: 0, maxLimit: 150000, eligible: true }, // NEW: Added as per user request
     { name: 'Life Insurance Premium', section: '80C', amount: 0, maxLimit: 150000, eligible: true },
     { name: 'ELSS Investments', section: '80C', amount: 0, maxLimit: 150000, eligible: true },
     { name: 'PPF Investment', section: '80C', amount: 0, maxLimit: 150000, eligible: true },
@@ -85,6 +90,7 @@ export default function TaxPlanning() {
   const [rentPaid, setRentPaid] = useState<number>(0);
   const [isMetroCity, setIsMetroCity] = useState<boolean>(true); // Default to Metro
   const [hraExemption, setHraExemption] = useState<number>(0);
+  const [isSaving, setIsSaving] = useState<boolean>(false);
 
   // Helper function to calculate HRA Exemption
   const calculateHraExemptionLogic = (basic: number, hra: number, rent: number, metro: boolean): number => {
@@ -148,14 +154,67 @@ export default function TaxPlanning() {
         const basicEstimate = annualSalary * 0.5; // Assuming basic is about 50% of CTC
         const epfContribution = Math.min(basicEstimate * 0.12, 21600); // 1800 per month max
 
-        setDeductions(prev => prev.map(item => 
-          item.name === 'Employee PF Contribution' 
-            ? { ...item, amount: epfContribution } 
+        setDeductions(prev => prev.map(item =>
+          item.name === 'Employee PF Contribution'
+            ? { ...item, amount: epfContribution }
             : item
         ));
       }
     }
   }, [financialData]);
+
+  // NEW: Load saved tax plan data when available
+  useEffect(() => {
+    if (financialData?.taxPlan) {
+      const taxPlan = financialData.taxPlan;
+
+      console.log('[Tax Planning] Loading saved tax plan data:', taxPlan);
+
+      // Load saved income values
+      if (taxPlan.yearlyIncome) {
+        setYearlyIncome(taxPlan.yearlyIncome);
+      }
+
+      // Load other income and capital gains if available
+      if (taxPlan.otherIncome !== undefined) {
+        setOtherIncome(taxPlan.otherIncome);
+      }
+      if (taxPlan.capitalGains !== undefined) {
+        setCapitalGains(taxPlan.capitalGains);
+      }
+
+      // Load selected regime
+      if (taxPlan.selectedRegime) {
+        setSelectedRegime(taxPlan.selectedRegime);
+      }
+
+      // Load saved deductions
+      if (taxPlan.deductions && Array.isArray(taxPlan.deductions)) {
+        setDeductions(prev => {
+          // Create a map of saved deductions
+          const savedDeductionsMap = new Map(
+            taxPlan.deductions.map((d: DeductionItem) => [d.name, d])
+          );
+
+          // Update existing deductions with saved values, keeping the structure
+          return prev.map(item => {
+            const savedItem = savedDeductionsMap.get(item.name);
+            if (savedItem) {
+              return { ...item, amount: savedItem.amount, eligible: savedItem.eligible };
+            }
+            return item;
+          });
+        });
+      }
+
+      // Load HRA exemption data if available
+      if (taxPlan.hraExemption !== undefined) {
+        setHraExemption(taxPlan.hraExemption);
+      }
+
+      toast.success('Loaded your saved tax plan data');
+    }
+  }, [financialData?.taxPlan]);
 
   // Define general tips (can be moved to a util file later if extensive)
   const generalTaxTips: TaxTip[] = React.useMemo(() => [
@@ -175,7 +234,7 @@ export default function TaxPlanning() {
   // Calculate tax whenever income or deductions change
   useEffect(() => {
     calculateTax();
-  }, [yearlyIncome, deductions, hraExemption]); // Added hraExemption here
+  }, [yearlyIncome, otherIncome, capitalGains, deductions, hraExemption]); // Added otherIncome and capitalGains
 
   // Update displayed tips when relevant financial data changes
   useEffect(() => {
@@ -424,6 +483,9 @@ export default function TaxPlanning() {
 
   // Main function to calculate taxes
   const calculateTax = () => {
+    // Calculate total gross income (salary + other income + capital gains)
+    const totalGrossIncome = yearlyIncome + otherIncome + capitalGains;
+
     // First calculate total deductions
     const totalDeductionAmount = deductions.reduce((total, item) => {
       if (item.eligible) {
@@ -440,7 +502,7 @@ export default function TaxPlanning() {
     // For Old Regime, add HRA exemption to other deductions
     const totalDeductionsOldRegime = totalDeductionAmount + hraExemption;
     setTotalDeductionsOldRegimeForDisplay(totalDeductionsOldRegime); // Set for display
-    const calculatedTaxableIncomeOldRegime = Math.max(0, yearlyIncome - totalDeductionsOldRegime);
+    const calculatedTaxableIncomeOldRegime = Math.max(0, totalGrossIncome - totalDeductionsOldRegime);
     setTaxableIncomeOldRegime(calculatedTaxableIncomeOldRegime); // Set state
     const oldRegimeTax = calculateOldRegimeTax(calculatedTaxableIncomeOldRegime);
     setTaxUnderOldRegime(oldRegimeTax);
@@ -448,7 +510,7 @@ export default function TaxPlanning() {
     // Calculate tax for new regime (without most deductions, but with higher slabs)
     // In new regime, standard deduction of ₹75,000 is allowed (as per Union Budget 2025)
     const standardDeductionNewRegime = 75000;
-    const calculatedTaxableIncomeNewRegime = Math.max(0, yearlyIncome - standardDeductionNewRegime);
+    const calculatedTaxableIncomeNewRegime = Math.max(0, totalGrossIncome - standardDeductionNewRegime);
     setTaxableIncomeNewRegime(calculatedTaxableIncomeNewRegime); // Set state
     const newRegimeTax = calculateNewRegimeTax(calculatedTaxableIncomeNewRegime);
     setTaxUnderNewRegime(newRegimeTax);
@@ -475,6 +537,97 @@ export default function TaxPlanning() {
     const updatedDeductions = [...deductions];
     updatedDeductions[index].eligible = eligible;
     setDeductions(updatedDeductions);
+  };
+
+  // Handle save tax plan
+  const handleSaveTaxPlan = async () => {
+    if (!user || !user.id) {
+      toast.error('Please log in to save your tax plan');
+      return;
+    }
+
+    if (yearlyIncome <= 0) {
+      toast.error('Please enter your yearly income before saving');
+      return;
+    }
+
+    setIsSaving(true);
+
+    try {
+      // Format deductions to match backend TaxDeduction model
+      const formattedDeductions = deductions
+        .filter(d => d.eligible && d.amount > 0)
+        .map(d => ({
+          name: d.name,
+          section: d.section,
+          amount: d.amount,
+          maxLimit: d.maxLimit || null,
+          eligible: d.eligible
+        }));
+
+      // Use existing data from financialDataStore, with null fallbacks for optional fields
+      const taxPlanData = {
+        userId: user.id,
+        personalInfo: financialData?.personalInfo || null,
+        assetsLiabilities: financialData?.assetsLiabilities || null,
+        assets: financialData?.assets || null,
+        liabilities: financialData?.liabilities || null,
+        goals: financialData?.goals || null,  // Required by backend even though Optional
+        riskAppetite: financialData?.riskAppetite || null,  // Required by backend even though Optional
+        taxPlan: {
+          yearlyIncome: yearlyIncome,
+          otherIncome: otherIncome, // NEW: Include other income
+          capitalGains: capitalGains, // NEW: Include capital gains
+          selectedRegime: selectedRegime,
+          deductions: formattedDeductions,
+          taxUnderOldRegime: taxUnderOldRegime,
+          taxUnderNewRegime: taxUnderNewRegime,
+          moreBeneficialRegime: moreBeneficialRegime,
+          taxSavings: potentialRefund,
+          hraExemption: hraExemption,
+        }
+      };
+
+      console.log('Sending tax plan data:', JSON.stringify(taxPlanData, null, 2));
+
+      const response = await fetch(API_ENDPOINTS.saveFinancialData, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(taxPlanData),
+      });
+
+      if (!response.ok) {
+        let errorMessage = 'Failed to save tax plan';
+        try {
+          const errorData = await response.json();
+          console.error('Backend error response:', errorData);
+
+          // Format error message from FastAPI validation errors
+          if (errorData.detail && Array.isArray(errorData.detail)) {
+            errorMessage = errorData.detail.map((err: any) =>
+              `${err.loc.join('.')}: ${err.msg}`
+            ).join('; ');
+          } else if (errorData.detail) {
+            errorMessage = typeof errorData.detail === 'string' ? errorData.detail : JSON.stringify(errorData.detail);
+          }
+        } catch (e) {
+          console.error('Could not parse error response');
+        }
+        throw new Error(errorMessage);
+      }
+
+      toast.success('Tax plan saved successfully! Milestone 3 complete ✅');
+
+      // Refresh financial data to update Journey Map
+      await fetchFinancialData(user.id);
+    } catch (error) {
+      console.error('Error saving tax plan:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to save tax plan');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   // Prepare chart data
@@ -536,13 +689,66 @@ export default function TaxPlanning() {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-1 space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="yearly-income">Yearly Income (₹)</Label>
-                    <Input 
-                      id="yearly-income" 
-                      type="number" 
+                    <Label htmlFor="yearly-income">Yearly Salary Income (₹)</Label>
+                    <Input
+                      id="yearly-income"
+                      type="number"
                       value={yearlyIncome || ''}
-                      onChange={(e) => setYearlyIncome(Number(e.target.value))} 
+                      onChange={(e) => setYearlyIncome(Number(e.target.value))}
                       className="w-full"
+                      placeholder="e.g., 1200000"
+                    />
+                  </div>
+
+                  {/* NEW: Other Income Field */}
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <Label htmlFor="other-income">Other Income (₹)</Label>
+                      <TooltipProvider>
+                        <Tooltip delayDuration={300}>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-gray-500 cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent className="w-80 p-3 bg-gray-800 text-white rounded-md shadow-lg">
+                            <p className="font-semibold mb-1">Other Income:</p>
+                            <p className="text-sm">Include income from: Interest on savings accounts/FDs, Rental income, Freelancing income, or any other taxable income sources.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                    <Input
+                      id="other-income"
+                      type="number"
+                      value={otherIncome || ''}
+                      onChange={(e) => setOtherIncome(Number(e.target.value))}
+                      className="w-full"
+                      placeholder="e.g., 50000"
+                    />
+                  </div>
+
+                  {/* NEW: Capital Gains Field */}
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <Label htmlFor="capital-gains">Capital Gains (₹)</Label>
+                      <TooltipProvider>
+                        <Tooltip delayDuration={300}>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-gray-500 cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent className="w-80 p-3 bg-gray-800 text-white rounded-md shadow-lg">
+                            <p className="font-semibold mb-1">Capital Gains:</p>
+                            <p className="text-sm">Profits from the sale of capital assets like stocks, mutual funds, property, gold, etc. This is taxable income.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                    <Input
+                      id="capital-gains"
+                      type="number"
+                      value={capitalGains || ''}
+                      onChange={(e) => setCapitalGains(Number(e.target.value))}
+                      className="w-full"
+                      placeholder="e.g., 100000"
                     />
                   </div>
 
@@ -1305,11 +1511,53 @@ export default function TaxPlanning() {
           </div>
         </div>
 
-        <div className="flex justify-between mt-8">
+        <div className="flex justify-between items-center mt-8 gap-4">
           <Button variant="outline" onClick={() => navigate('/dashboard')}>
             Back to Dashboard
           </Button>
+          <Button
+            onClick={handleSaveTaxPlan}
+            disabled={isSaving || yearlyIncome <= 0}
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            {isSaving ? 'Saving...' : '💾 Save Tax Plan'}
+          </Button>
         </div>
+
+        {/* Milestone 3 Completion Card */}
+        <MilestoneCompletionCard
+          milestoneNumber={3}
+          title="Optimize Your Taxes"
+          completionCriteria={[
+            {
+              label: "Income entered",
+              checked: yearlyIncome > 0 || otherIncome > 0 || capitalGains > 0,
+              description: "Enter your salary, other income, and capital gains"
+            },
+            {
+              label: "Deductions considered",
+              checked: totalDeductions > 0 || hraExemption > 0,
+              description: "Add your tax-saving investments and deductions (80C, HRA, etc.)"
+            },
+            {
+              label: "Tax calculated",
+              checked: taxUnderOldRegime > 0 || taxUnderNewRegime > 0,
+              description: "Calculate tax liability under both old and new regimes"
+            },
+            {
+              label: "Best regime identified",
+              checked: moreBeneficialRegime !== '',
+              description: "Know which tax regime saves you more money"
+            }
+          ]}
+          helpResources={{
+            guide: "https://www.incometax.gov.in/",
+            tutorial: "https://youtu.be/example-tax-tutorial"
+          }}
+          onComplete={() => {
+            toast.success('Milestone 3 completed! Your tax planning is optimized.');
+          }}
+        />
       </div>
 
       {/* Footer */}

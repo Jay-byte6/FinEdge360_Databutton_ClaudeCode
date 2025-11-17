@@ -73,6 +73,33 @@ export default function Journey3D() {
         console.log('Error fetching SIP data:', error);
       }
 
+      // Fetch milestone completion data (user-confirmed completions)
+      let milestoneCompletions: Record<number, boolean> = {};
+      try {
+        console.log('Fetching milestone progress for user:', user.id);
+        const milestoneResponse = await fetch(`/routes/get-milestone-progress/${user.id}`);
+        console.log('Milestone progress response status:', milestoneResponse.status, milestoneResponse.ok);
+
+        if (milestoneResponse.ok) {
+          const milestoneData = await milestoneResponse.json();
+          console.log('[3D Journey Map] Milestone progress data received:', milestoneData);
+
+          // The API returns {user_id: string, milestones: array}
+          const milestonesArray = milestoneData.milestones || milestoneData;
+
+          // Convert array to object for easy lookup
+          if (Array.isArray(milestonesArray)) {
+            milestonesArray.forEach((item: any) => {
+              if (item.completed) {
+                milestoneCompletions[item.milestone_number] = true;
+              }
+            });
+          }
+        }
+      } catch (error) {
+        console.log('No milestone progress data found:', error);
+      }
+
       // Check completion status - matching actual API response structure
       const completionChecker: CompletionChecker = {
         // Milestone 1: Has entered financial data (assets/liabilities)
@@ -137,6 +164,7 @@ export default function Journey3D() {
       console.log('=== Journey State Debug ===');
       console.log('Financial Data:', data);
       console.log('SIP Data:', sipData);
+      console.log('User-Confirmed Milestones:', milestoneCompletions);
       console.log('Completion Checker:', completionChecker);
       console.log('========================');
 
@@ -145,8 +173,8 @@ export default function Journey3D() {
       const milestoneProgress: Record<number, number> = {};
 
       // Milestone 1: Know Your Reality - Enter all financial details
-      // User needs to have entered financial data (assets OR liabilities)
-      if (completionChecker.hasFinancialData) {
+      // User needs to have entered financial data (assets OR liabilities) OR manually confirmed
+      if (completionChecker.hasFinancialData || milestoneCompletions[1]) {
         completed.push(1);
         milestoneProgress[1] = 100;
       } else {
@@ -154,7 +182,7 @@ export default function Journey3D() {
       }
 
       // Milestone 2: Discover Your FIRE Number
-      if (completionChecker.hasFIRECalculation) {
+      if (completionChecker.hasFIRECalculation || milestoneCompletions[2]) {
         completed.push(2);
         milestoneProgress[2] = 100;
       } else {
@@ -162,7 +190,7 @@ export default function Journey3D() {
       }
 
       // Milestone 3: Master Tax Planning
-      if (completionChecker.hasTaxPlanning) {
+      if (completionChecker.hasTaxPlanning || milestoneCompletions[3]) {
         completed.push(3);
         milestoneProgress[3] = 100;
       } else {
@@ -170,7 +198,7 @@ export default function Journey3D() {
       }
 
       // Milestone 4: Financial Health Check (Risk Assessment)
-      if (completionChecker.hasRiskAssessment) {
+      if (completionChecker.hasRiskAssessment || milestoneCompletions[4]) {
         completed.push(4);
         milestoneProgress[4] = 100;
       } else {
@@ -178,7 +206,7 @@ export default function Journey3D() {
       }
 
       // Milestone 5: Design Your Portfolio
-      if (completionChecker.hasPortfolioDesign && completionChecker.hasRiskAssessment) {
+      if ((completionChecker.hasPortfolioDesign && completionChecker.hasRiskAssessment) || milestoneCompletions[5]) {
         completed.push(5);
         milestoneProgress[5] = 100;
       } else if (completionChecker.hasPortfolioDesign || completionChecker.hasRiskAssessment) {
@@ -188,7 +216,7 @@ export default function Journey3D() {
       }
 
       // Milestone 6: Set Financial Goals
-      if (completionChecker.hasGoals) {
+      if (completionChecker.hasGoals || milestoneCompletions[6]) {
         completed.push(6);
         milestoneProgress[6] = 100;
       } else {
@@ -196,7 +224,7 @@ export default function Journey3D() {
       }
 
       // Milestone 7: Build Your Financial Plan (Complete SIP Calculations)
-      if (completionChecker.hasFinancialPlan) {
+      if (completionChecker.hasFinancialPlan || milestoneCompletions[7]) {
         completed.push(7);
         milestoneProgress[7] = 100;
       } else if (completionChecker.hasGoals) {

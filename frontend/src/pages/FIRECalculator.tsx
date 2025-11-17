@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
 import useFinancialDataStore from '../utils/financialDataStore';
 import useAuthStore from '../utils/authStore';
+import { MilestoneCompletionCard } from '@/components/journey/MilestoneCompletionCard';
 
 type FIREMetrics = {
   annualExpenseInRetirement: number;
@@ -714,6 +715,43 @@ export default function FIRECalculator() {
             Update Financial Details
           </Button>
         </div>
+
+        {/* Milestone 2 Completion Card */}
+        {fireMetrics && (
+          <MilestoneCompletionCard
+            milestoneNumber={2}
+            title="Calculate Your FIRE Number"
+            completionCriteria={[
+              {
+                label: "FIRE number calculated",
+                checked: fireMetrics.requiredCorpus > 0,
+                description: "Your FIRE number represents the corpus needed for financial independence"
+              },
+              {
+                label: "Retirement age defined",
+                checked: fireMetrics.retirementAge > 0,
+                description: "Set your desired retirement age to plan your FIRE journey"
+              },
+              {
+                label: "Years to FIRE estimated",
+                checked: fireMetrics.yearsToFIRE > 0,
+                description: "Understand how long it will take to reach financial independence"
+              },
+              {
+                label: "Monthly SIP calculated",
+                checked: fireMetrics.monthlyInvestmentNeeded > 0,
+                description: "Know how much to invest monthly to achieve FIRE"
+              }
+            ]}
+            helpResources={{
+              guide: "https://www.investopedia.com/terms/f/financial-independence-retire-early-fire.asp",
+              tutorial: "https://youtu.be/example-fire-tutorial"
+            }}
+            onComplete={() => {
+              toast.success('Milestone 2 completed! Your FIRE journey is mapped out.');
+            }}
+          />
+        )}
       </div>
     </div>
   );

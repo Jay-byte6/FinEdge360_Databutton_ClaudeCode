@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import useFinancialDataStore from "utils/financialDataStore";
 import useAuthStore from "utils/authStore";
@@ -451,6 +452,17 @@ const SIPPlanner: React.FC = () => {
         </CardContent>
       </Card>
 
+      {/* Tabs for different views */}
+      <Tabs defaultValue="goals" className="w-full">
+        <TabsList className="grid w-full grid-cols-3 mb-6">
+          <TabsTrigger value="goals">Set Goals</TabsTrigger>
+          <TabsTrigger value="sipplan">SIP Plan</TabsTrigger>
+          <TabsTrigger value="summary">Summary</TabsTrigger>
+        </TabsList>
+
+        {/* TAB 1: Set Goals (existing goal planning table) */}
+        <TabsContent value="goals">
+
       {/* Action Buttons */}
       <div className="flex gap-4 mb-6">
         <Button onClick={handleAddGoal} className="bg-green-600 hover:bg-green-700">
@@ -713,7 +725,83 @@ const SIPPlanner: React.FC = () => {
           </tbody>
         </table>
       </div>
+        </TabsContent>
 
+        {/* TAB 2: SIP Plan (breakdown of each goal) */}
+        <TabsContent value="sipplan">
+          <div className="space-y-6">
+            {goals.filter(g => g.sipCalculated).length === 0 ? (
+              <Card className="bg-yellow-50 border-2 border-yellow-300">
+                <CardContent className="py-8 text-center">
+                  <p className="text-lg font-semibold text-gray-700">No SIP calculations yet</p>
+                  <p className="text-sm text-gray-600 mt-2">Go to "Set Goals" tab and calculate SIP for your goals</p>
+                </CardContent>
+              </Card>
+            ) : (
+              goals.filter(g => g.sipCalculated).map((goal) => (
+                <Card key={goal.id} className="shadow-lg border-2 border-blue-300">
+                  <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50">
+                    <CardTitle className="text-xl">{goal.name}</CardTitle>
+                    <p className="text-sm text-gray-600">{goal.goalType} Goal | Priority: {goal.priority}</p>
+                  </CardHeader>
+                  <CardContent className="pt-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-3">
+                        <h4 className="font-semibold text-gray-700 border-b pb-2">Goal Details</h4>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Time Horizon:</span>
+                          <span className="font-semibold">{goal.timeYears} years</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Amount Required (Today):</span>
+                          <span className="font-semibold">₹{goal.amountRequiredToday.toLocaleString()}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Goal Inflation:</span>
+                          <span className="font-semibold">{goal.goalInflation}% p.a.</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Amount Required (Future):</span>
+                          <span className="font-semibold text-blue-600">₹{goal.amountRequiredFuture?.toLocaleString() || '0'}</span>
+                        </div>
+                      </div>
+                      <div className="space-y-3">
+                        <h4 className="font-semibold text-gray-700 border-b pb-2">Investment Strategy</h4>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Lump Sum Allocated:</span>
+                          <span className="font-semibold">₹{goal.amountAvailableToday.toLocaleString()}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Expected Return:</span>
+                          <span className="font-semibold">{(EXPECTED_RETURNS[goal.goalType] * 100).toFixed(0)}% p.a.</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">SIP Step-Up:</span>
+                          <span className="font-semibold">{goal.stepUp}% annually</span>
+                        </div>
+                        <div className="flex justify-between border-t pt-2">
+                          <span className="text-gray-700 font-semibold">Monthly SIP Required:</span>
+                          <span className="font-bold text-xl text-green-600">₹{goal.sipRequired?.toLocaleString() || '0'}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+                      <p className="text-sm text-gray-700">
+                        <strong>Investment Plan:</strong> Start with a monthly SIP of ₹{goal.sipRequired?.toLocaleString() || '0'},
+                        increase it by {goal.stepUp}% every year, and invest the lump sum of ₹{goal.amountAvailableToday.toLocaleString()}
+                        today. This will help you accumulate ₹{goal.amountRequiredFuture?.toLocaleString() || '0'} in {goal.timeYears} years.
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </div>
+        </TabsContent>
+
+        {/* TAB 3: Summary (overall financial overview) */}
+        <TabsContent value="summary">
+      <div className="space-y-6">
       {/* Summary Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card className="shadow-lg">
@@ -796,6 +884,42 @@ const SIPPlanner: React.FC = () => {
           </p>
         </CardContent>
       </Card>
+
+      {/* Recommendations Section */}
+      {totalSIPRequired > 0 && (
+        <Card className="mt-6 bg-green-50 border-2 border-green-300">
+          <CardHeader>
+            <CardTitle>Financial Recommendations</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-2 text-sm text-gray-700">
+              <li className="flex items-start gap-2">
+                <span className="text-green-600 font-bold">✓</span>
+                <span>
+                  {sipSurplusOrDeficit >= 0
+                    ? `Great job! You have a surplus of ₹${sipSurplusOrDeficit.toLocaleString()} per month. Consider increasing your SIP amounts or adding new goals.`
+                    : `You need to find an additional ₹${Math.abs(sipSurplusOrDeficit).toLocaleString()} per month. Consider increasing your income, reducing expenses, or extending goal timelines.`}
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-green-600 font-bold">✓</span>
+                <span>Review and rebalance your portfolio annually to stay aligned with your goals.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-green-600 font-bold">✓</span>
+                <span>Prioritize high-priority goals and consider automating your SIP investments to ensure consistency.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-green-600 font-bold">✓</span>
+                <span>Build an emergency fund (3-6 months of expenses) before investing in long-term goals.</span>
+              </li>
+            </ul>
+          </CardContent>
+        </Card>
+      )}
+      </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

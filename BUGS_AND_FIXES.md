@@ -1,8 +1,607 @@
 # FinEdge360 - Bugs & Fixes Master Log
 
 **Purpose**: Consolidated tracking of all bugs, fixes, and root causes for future reference
-**Last Updated**: 2025-11-16 (Session 9)
+**Last Updated**: 2025-11-17 (Session 11)
 **Project**: FinEdge360 - Financial Planning Platform
+
+---
+
+## 🚨 SESSION 11 BUGS (Nov 17, 2025) - Milestone Completion System
+
+**Date**: 2025-11-17
+**Context**: Implementing and fixing milestone completion tracking system
+**Status**: ✅ COMPLETED - All bugs fixed, system fully functional
+
+### Session Summary
+
+Session 11 focused on implementing the milestone completion system that was approved in Session 9. The system allows users to manually mark milestones as "complete" after understanding the concepts, separate from automatic data-based completion tracking.
+
+**Total Bugs Fixed**: 2 major bugs
+**Features Implemented**: Complete milestone completion tracking system
+
+---
+
+## 🐛 BUG #22: Journey Map Not Displaying User-Confirmed Milestone Completions
+
+**Date**: 2025-11-17
+**Severity**: HIGH
+**Status**: ✅ FIXED
+**Reporter**: User
+**Session**: 11
+
+### Problem Description
+
+After implementing the milestone completion system and successfully marking milestones 2 and 3 as complete via the "Mark as Complete" button, the Journey Map (both regular and 3D versions) was not showing these milestones as completed. They remained displayed as locked/incomplete despite the data being saved correctly in the database.
+
+**User Report**: "I am getting this error while clicking on 'mark as complete' button" followed by "Still the same.. check the screenshot Error_Screenshot62"
+
+### Symptoms
+- User could click "Mark as Complete" button successfully
+- Data was being saved to `milestone_progress` table correctly
+- Backend API returned milestone completion data with HTTP 200
+- Console showed `User-Confirmed Milestones: {}` (empty object)
+- Journey Map showed Milestone 2 and 3 as not completed despite user confirmation
+- CompletionChecker showed `hasFIRECalculation: false` and `hasTaxPlanning: false`
+
+### Root Cause
+
+**Frontend API Response Parsing Issue**
+
+The frontend code was expecting the API to return a direct array of milestones:
+```typescript
+// Expected: [milestone1, milestone2, ...]
+```
+
+But the backend API was actually returning:
+```json
+{
+  "user_id": "711a5a16-5881-49fc-8929-99518ba35cf4",
+  "milestones": [milestone1, milestone2, ...]
+}
+```
+
+The frontend code was checking `if (Array.isArray(milestoneData))` which returned `false` because `milestoneData` was an object with a `milestones` property, not a direct array.
+
+### Files Affected
+- `frontend/src/components/journey/FinancialFreedomJourney.tsx:79-101`
+- `frontend/src/pages/Journey3D.tsx:76-101`
+
+### The Fix
+
+Updated both Journey Map components to correctly extract the milestones array from the nested response structure:
+
+**File**: `frontend/src/components/journey/FinancialFreedomJourney.tsx`
+
+```typescript
+// BEFORE (incorrect - lines 87-96)
+const milestoneData = await milestoneResponse.json();
+if (Array.isArray(milestoneData)) {
+  milestoneData.forEach((item: any) => {
+    if (item.completed) {
+      milestoneCompletions[item.milestone_number] = true;
+    }
+  });
+}
+
+// AFTER (correct - lines 87-97)
+const milestoneData = await milestoneResponse.json();
+
+// The API returns {user_id: string, milestones: array}
+const milestonesArray = milestoneData.milestones || milestoneData;
+
+if (Array.isArray(milestonesArray)) {
+  milestonesArray.forEach((item: any) => {
+    if (item.completed) {
+      milestoneCompletions[item.milestone_number] = true;
+    }
+  });
+}
+```
+
+**File**: `frontend/src/pages/Journey3D.tsx` (same fix at lines 87-97)
+
+### Testing Performed
+1. Verified API returns correct data structure via curl
+2. Confirmed milestones array is properly extracted
+3. Checked console logs show `User-Confirmed Milestones: {1: true, 2: true, 3: true}`
+4. Validated Journey Map displays milestones 1, 2, 3 as completed (green checkmarks)
+5. Verified 3D Journey Map also shows correct completion status
+
+### Result
+✅ Both Journey Maps now correctly display user-confirmed milestone completions
+✅ Console shows proper milestone completion object
+✅ Progress counter updated to "3/10 - 30% Complete"
+
+### Prevention
+- Document API response structures in OpenAPI/Swagger spec
+- Add TypeScript interfaces for all API responses
+- Include response structure examples in API documentation
+- Add unit tests for API response parsing
+
+---
+
+## 🐛 BUG #23: Missing Database Table Error on First Milestone Completion
+
+**Date**: 2025-11-17
+**Severity**: BLOCKER
+**Status**: ✅ FIXED
+**Reporter**: User
+**Session**: 11
+
+### Problem Description
+
+When users first tried to mark a milestone as complete, they received a 500 Internal Server Error. The "Mark as Complete" button would fail with an error message, preventing any milestone completions from being saved.
+
+**User Report**: "I am getting this error while clicking on 'mark as complete' button"
+
+**Error Message**:
+```
+POST http://localhost:8000/routes/save-milestone-progress/711a5a16-5881-49fc-8929-99518ba35cf4 500 (Internal Server Error)
+Error saving milestone progress: Error: Failed to save milestone progress
+```
+
+### Symptoms
+- First click on "Mark as Complete" button resulted in HTTP 500 error
+- Backend logs showed: `Error saving milestone progress: {'message': "Could not find the table 'public.milestone_progress' in the schema cache", 'code': 'PGRST205'}`
+- Frontend displayed error toast
+- No milestone progress was saved
+- Subsequent attempts also failed until table was created
+
+### Root Cause
+
+**Missing Database Table**
+
+The `milestone_progress` table did not exist in the Supabase database. While the backend API code and frontend components were all implemented correctly, they required a database table that needed to be created manually via SQL migration.
+
+This was a deployment/setup issue, not a code bug. The implementation was correct, but the database schema was not initialized.
+
+### Files Involved
+- `backend/migrations/create_milestone_progress_table.sql` - SQL migration file (existed but not executed)
+- `backend/app/apis/milestone_progress/__init__.py` - API implementation (working correctly)
+
+### The Fix
+
+**User Action Required**: Execute the SQL migration in Supabase dashboard
+
+**Steps Provided to User**:
+1. Open Supabase Dashboard (https://supabase.com/dashboard)
+2. Select FinEdge360 project
+3. Click "SQL Editor" in left sidebar
+4. Click "New query"
+5. Copy contents from `backend/migrations/create_milestone_progress_table.sql`
+6. Paste into SQL Editor
+7. Click "Run"
+
+**SQL Migration Creates**:
+```sql
+CREATE TABLE IF NOT EXISTS milestone_progress (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID NOT NULL,
+  milestone_number INT NOT NULL,
+  completed BOOLEAN DEFAULT false,
+  completed_at TIMESTAMP,
+  needs_help BOOLEAN DEFAULT false,
+  help_requested_at TIMESTAMP,
+  notes TEXT,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW(),
+  CONSTRAINT unique_user_milestone UNIQUE(user_id, milestone_number),
+  CONSTRAINT valid_milestone_number CHECK (milestone_number BETWEEN 1 AND 10)
+);
+```
+
+Plus:
+- Indexes for performance
+- RLS (Row Level Security) policies
+- Auto-update trigger for `updated_at` field
+
+### Testing Performed
+1. User executed SQL migration successfully
+2. Verified table exists in Supabase
+3. Tested "Mark as Complete" button - worked successfully
+4. Confirmed data persists in database
+5. Verified RLS policies work correctly (users can only see own data)
+
+### Result
+✅ Database table created successfully
+✅ Milestone completions now save without errors
+✅ HTTP 201 Created response on successful saves
+✅ Data persists correctly across page refreshes
+
+### Prevention
+- Add database migration automation to deployment pipeline
+- Create setup script that checks for required tables on startup
+- Add health check endpoint that verifies all required tables exist
+- Document all manual setup steps in deployment guide
+- Consider using database migration tools (Alembic, Flyway, etc.)
+
+---
+
+## 🚨 SESSION 10 ENHANCEMENTS (Nov 16, 2025) - Tax Planning Improvements
+
+**Date**: 2025-11-16
+**Context**: Continued from Session 9, implementing tax planning enhancements requested by user
+**Status**: ✅ COMPLETED - All 4 enhancements implemented successfully
+
+### Summary of Changes
+
+Session 10 focused on enhancing the Tax Planning module with additional income fields and data persistence improvements. All changes are backward compatible.
+
+---
+
+## ✨ ENHANCEMENT #1: Other Income Field Added to Tax Planning
+
+**Date**: 2025-11-16
+**Type**: Feature Enhancement
+**Status**: ✅ IMPLEMENTED
+**Impact**: Users can now include all income sources in tax calculations
+
+### What Was Added
+- New input field "Other Income (₹)" on Tax Planning page
+- Includes: Interest on savings/FDs, Rental income, Freelancing income, etc.
+- State variable `otherIncome` with default value 0
+- Tooltip with clear explanation of what to include
+
+### Files Modified
+- **Frontend**: `frontend/src/pages/TaxPlanning.tsx:57,697-721`
+  - Added state: `const [otherIncome, setOtherIncome] = useState<number>(0);`
+  - Added UI input field with tooltip
+  - Updated tax calculations to include other income
+
+- **Backend**: `backend/app/apis/financial_data/__init__.py:111`
+  - Added to TaxPlan model: `otherIncome: Optional[float] = 0`
+
+### Code Changes
+```typescript
+// Frontend - State variable (line 57)
+const [otherIncome, setOtherIncome] = useState<number>(0);
+
+// Frontend - UI Input (lines 697-721)
+<div className="space-y-2">
+  <div className="flex items-center space-x-2">
+    <Label htmlFor="other-income">Other Income (₹)</Label>
+    <TooltipProvider>
+      <Tooltip delayDuration={300}>
+        <TooltipTrigger asChild>
+          <Info className="h-4 w-4 text-gray-500 cursor-help" />
+        </TooltipTrigger>
+        <TooltipContent className="w-80 p-3 bg-gray-800 text-white rounded-md shadow-lg">
+          <p className="font-semibold mb-1">Other Income:</p>
+          <p className="text-sm">Include income from: Interest on savings accounts/FDs, Rental income, Freelancing income, or any other taxable income sources.</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  </div>
+  <Input
+    id="other-income"
+    type="number"
+    value={otherIncome || ''}
+    onChange={(e) => setOtherIncome(Number(e.target.value))}
+    className="w-full"
+    placeholder="e.g., 50000"
+  />
+</div>
+```
+
+```python
+# Backend - TaxPlan Model (line 111)
+class TaxPlan(BaseModel):
+    yearlyIncome: float
+    otherIncome: Optional[float] = 0  # NEW: Other income
+    capitalGains: Optional[float] = 0  # NEW: Capital gains
+    selectedRegime: str
+    # ... other fields
+```
+
+---
+
+## ✨ ENHANCEMENT #2: Capital Gains Field Added to Tax Planning
+
+**Date**: 2025-11-16
+**Type**: Feature Enhancement
+**Status**: ✅ IMPLEMENTED
+**Impact**: Users can now include capital gains in tax calculations
+
+### What Was Added
+- New input field "Capital Gains (₹)" on Tax Planning page
+- Includes: Profits from stocks, mutual funds, property, gold, etc.
+- State variable `capitalGains` with default value 0
+- Tooltip with clear explanation
+
+### Files Modified
+- **Frontend**: `frontend/src/pages/TaxPlanning.tsx:58,723-747`
+  - Added state: `const [capitalGains, setCapitalGains] = useState<number>(0);`
+  - Added UI input field with tooltip
+  - Updated tax calculations to include capital gains
+
+- **Backend**: `backend/app/apis/financial_data/__init__.py:112`
+  - Added to TaxPlan model: `capitalGains: Optional[float] = 0`
+
+### Code Changes
+```typescript
+// Frontend - State variable (line 58)
+const [capitalGains, setCapitalGains] = useState<number>(0);
+
+// Frontend - UI Input (lines 723-747)
+<div className="space-y-2">
+  <div className="flex items-center space-x-2">
+    <Label htmlFor="capital-gains">Capital Gains (₹)</Label>
+    <TooltipProvider>
+      <Tooltip delayDuration={300}>
+        <TooltipTrigger asChild>
+          <Info className="h-4 w-4 text-gray-500 cursor-help" />
+        </TooltipTrigger>
+        <TooltipContent className="w-80 p-3 bg-gray-800 text-white rounded-md shadow-lg">
+          <p className="font-semibold mb-1">Capital Gains:</p>
+          <p className="text-sm">Profits from the sale of capital assets like stocks, mutual funds, property, gold, etc. This is taxable income.</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  </div>
+  <Input
+    id="capital-gains"
+    type="number"
+    value={capitalGains || ''}
+    onChange={(e) => setCapitalGains(Number(e.target.value))}
+    className="w-full"
+    placeholder="e.g., 100000"
+  />
+</div>
+```
+
+---
+
+## ✨ ENHANCEMENT #3: Home Loan Principal Added to Section 80C
+
+**Date**: 2025-11-16
+**Type**: Feature Enhancement
+**Status**: ✅ IMPLEMENTED
+**Impact**: Users can now claim home loan principal repayment in 80C deductions
+
+### What Was Added
+- "Home Loan Principal" added to Section 80C deductions list
+- MaxLimit: ₹150,000 (shared with other 80C investments)
+- Eligible by default
+
+### Files Modified
+- **Frontend**: `frontend/src/pages/TaxPlanning.tsx:63`
+
+### Code Changes
+```typescript
+// Frontend - Deductions state (line 63)
+const [deductions, setDeductions] = useState<DeductionItem[]>([
+  { name: 'Standard Deduction', section: '16(ia)', amount: 50000, eligible: true },
+  { name: 'Employee PF Contribution', section: '80C', amount: 0, maxLimit: 150000, eligible: true },
+  { name: 'Home Loan Principal', section: '80C', amount: 0, maxLimit: 150000, eligible: true }, // NEW
+  { name: 'Life Insurance Premium', section: '80C', amount: 0, maxLimit: 150000, eligible: true },
+  // ... other deductions
+]);
+```
+
+---
+
+## ✨ ENHANCEMENT #4: Tax Calculations Updated for Total Gross Income
+
+**Date**: 2025-11-16
+**Type**: Feature Enhancement
+**Status**: ✅ IMPLEMENTED
+**Impact**: Accurate tax calculations across all income sources
+
+### What Was Changed
+- `calculateTax()` function now calculates total gross income
+- Formula: `totalGrossIncome = yearlyIncome + otherIncome + capitalGains`
+- Both Old and New regime calculations use total gross income
+
+### Files Modified
+- **Frontend**: `frontend/src/pages/TaxPlanning.tsx:484-525`
+
+### Code Changes
+```typescript
+// Frontend - calculateTax function (lines 484-525)
+const calculateTax = () => {
+  // Calculate total gross income (salary + other income + capital gains)
+  const totalGrossIncome = yearlyIncome + otherIncome + capitalGains;
+
+  // First calculate total deductions
+  const totalDeductionAmount = deductions.reduce((total, item) => {
+    if (item.eligible) {
+      const amount = item.maxLimit ? Math.min(item.amount, item.maxLimit) : item.amount;
+      return total + amount;
+    }
+    return total;
+  }, 0);
+
+  setTotalDeductions(totalDeductionAmount);
+
+  // Calculate taxable income for old regime (with deductions)
+  const totalDeductionsOldRegime = totalDeductionAmount + hraExemption;
+  setTotalDeductionsOldRegimeForDisplay(totalDeductionsOldRegime);
+  const calculatedTaxableIncomeOldRegime = Math.max(0, totalGrossIncome - totalDeductionsOldRegime);
+  setTaxableIncomeOldRegime(calculatedTaxableIncomeOldRegime);
+  const oldRegimeTax = calculateOldRegimeTax(calculatedTaxableIncomeOldRegime);
+  setTaxUnderOldRegime(oldRegimeTax);
+
+  // Calculate tax for new regime
+  const standardDeductionNewRegime = 75000;
+  const calculatedTaxableIncomeNewRegime = Math.max(0, totalGrossIncome - standardDeductionNewRegime);
+  setTaxableIncomeNewRegime(calculatedTaxableIncomeNewRegime);
+  const newRegimeTax = calculateNewRegimeTax(calculatedTaxableIncomeNewRegime);
+  setTaxUnderNewRegime(newRegimeTax);
+
+  // Determine which regime is more beneficial
+  if (oldRegimeTax < newRegimeTax) {
+    setMoreBeneficialRegime('old');
+    setPotentialRefund(newRegimeTax - oldRegimeTax);
+  } else {
+    setMoreBeneficialRegime('new');
+    setPotentialRefund(oldRegimeTax - newRegimeTax);
+  }
+};
+```
+
+---
+
+## ✨ ENHANCEMENT #5: Tax Data Persistence - Auto-Load on Page Refresh
+
+**Date**: 2025-11-16
+**Type**: Feature Enhancement
+**Status**: ✅ IMPLEMENTED
+**Impact**: Users no longer need to re-enter tax data every time
+
+### What Was Added
+- useEffect hook that loads saved tax plan data when page loads
+- Loads all fields: yearlyIncome, otherIncome, capitalGains, selectedRegime, deductions, hraExemption
+- Shows toast notification: "Loaded your saved tax plan data"
+
+### Files Modified
+- **Frontend**: `frontend/src/pages/TaxPlanning.tsx:165-216`
+
+### Code Changes
+```typescript
+// Frontend - Load saved tax plan data (lines 165-216)
+useEffect(() => {
+  if (financialData?.taxPlan) {
+    const taxPlan = financialData.taxPlan;
+
+    console.log('[Tax Planning] Loading saved tax plan data:', taxPlan);
+
+    // Load saved income values
+    if (taxPlan.yearlyIncome) {
+      setYearlyIncome(taxPlan.yearlyIncome);
+    }
+
+    // Load other income and capital gains if available
+    if (taxPlan.otherIncome !== undefined) {
+      setOtherIncome(taxPlan.otherIncome);
+    }
+    if (taxPlan.capitalGains !== undefined) {
+      setCapitalGains(taxPlan.capitalGains);
+    }
+
+    // Load selected regime
+    if (taxPlan.selectedRegime) {
+      setSelectedRegime(taxPlan.selectedRegime);
+    }
+
+    // Load saved deductions
+    if (taxPlan.deductions && Array.isArray(taxPlan.deductions)) {
+      setDeductions(prev => {
+        // Create a map of saved deductions
+        const savedDeductionsMap = new Map(
+          taxPlan.deductions.map((d: DeductionItem) => [d.name, d])
+        );
+
+        // Update existing deductions with saved values
+        return prev.map(item => {
+          const savedItem = savedDeductionsMap.get(item.name);
+          if (savedItem) {
+            return { ...item, amount: savedItem.amount, eligible: savedItem.eligible };
+          }
+          return item;
+        });
+      });
+    }
+
+    // Load HRA exemption data if available
+    if (taxPlan.hraExemption !== undefined) {
+      setHraExemption(taxPlan.hraExemption);
+    }
+
+    toast.success('Loaded your saved tax plan data');
+  }
+}, [financialData?.taxPlan]);
+```
+
+---
+
+## ✨ ENHANCEMENT #6: Save Handler Updated
+
+**Date**: 2025-11-16
+**Type**: Feature Enhancement
+**Status**: ✅ IMPLEMENTED
+**Impact**: New fields are saved to database
+
+### What Was Changed
+- Save handler (`handleSaveTaxPlan`) now includes otherIncome and capitalGains
+
+### Files Modified
+- **Frontend**: `frontend/src/pages/TaxPlanning.tsx:577-579`
+
+### Code Changes
+```typescript
+// Frontend - Save handler (lines 577-579)
+taxPlan: {
+  yearlyIncome: yearlyIncome,
+  otherIncome: otherIncome, // NEW
+  capitalGains: capitalGains, // NEW
+  selectedRegime: selectedRegime,
+  deductions: formattedDeductions,
+  taxUnderOldRegime: taxUnderOldRegime,
+  taxUnderNewRegime: taxUnderNewRegime,
+  moreBeneficialRegime: moreBeneficialRegime,
+  taxSavings: potentialRefund,
+  hraExemption: hraExemption,
+}
+```
+
+---
+
+## ✨ ENHANCEMENT #7: useEffect Dependency Updated
+
+**Date**: 2025-11-16
+**Type**: Bug Fix / Enhancement
+**Status**: ✅ IMPLEMENTED
+**Impact**: Tax recalculation triggers when other income or capital gains change
+
+### What Was Changed
+- Added `otherIncome` and `capitalGains` to tax calculation useEffect dependency array
+
+### Files Modified
+- **Frontend**: `frontend/src/pages/TaxPlanning.tsx:236`
+
+### Code Changes
+```typescript
+// Frontend - Tax calculation trigger (line 236)
+useEffect(() => {
+  calculateTax();
+}, [yearlyIncome, otherIncome, capitalGains, deductions, hraExemption]); // Added otherIncome and capitalGains
+```
+
+---
+
+## 📊 Session 10 Statistics
+
+| Metric | Count |
+|--------|-------|
+| **Enhancements Implemented** | 7 |
+| **Files Modified** | 2 (Frontend + Backend) |
+| **New Input Fields** | 2 |
+| **New Deduction Items** | 1 |
+| **Lines of Code Added** | ~150 |
+| **Backend Model Fields Added** | 2 |
+| **Backward Compatibility** | ✅ 100% |
+
+---
+
+## 🎯 What Users Can Now Do
+
+1. **Enter Complete Income Picture**
+   - Salary income (existing)
+   - Other income (interest, rental, freelancing) ✨ NEW
+   - Capital gains (stocks, property, gold) ✨ NEW
+
+2. **Claim All 80C Deductions**
+   - Home Loan Principal repayment ✨ NEW
+   - Employee PF, Life Insurance, ELSS, PPF (existing)
+
+3. **Get Accurate Tax Calculations**
+   - Total gross income = Salary + Other Income + Capital Gains
+   - Both Old and New regime calculations use complete income
+
+4. **Data Persistence**
+   - Tax planning data auto-loads on page refresh ✨ NEW
+   - No need to re-enter data every visit
+   - Toast notification confirms data loaded
 
 ---
 

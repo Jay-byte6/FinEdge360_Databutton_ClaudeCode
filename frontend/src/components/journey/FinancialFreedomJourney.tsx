@@ -65,20 +65,68 @@ export const FinancialFreedomJourney: React.FC = () => {
         }
       }
 
+      // Fetch SIP planner data to check for actual SIP calculations
+      let sipData = null;
+      try {
+        const sipResponse = await fetch(`/routes/get-sip-planner/${user.id}`);
+        if (sipResponse.ok) {
+          sipData = await sipResponse.json();
+        }
+      } catch (error) {
+        console.log('No SIP planner data found');
+      }
+
+      // Fetch milestone completion data (user-confirmed completions)
+      let milestoneCompletions: Record<number, boolean> = {};
+      try {
+        const milestoneResponse = await fetch(`/routes/get-milestone-progress/${user.id}`);
+        if (milestoneResponse.ok) {
+          const milestoneData = await milestoneResponse.json();
+          console.log('[Journey Map] Milestone progress data received:', milestoneData);
+
+          // The API returns {user_id: string, milestones: array}
+          const milestonesArray = milestoneData.milestones || milestoneData;
+
+          // Convert array to object for easy lookup
+          if (Array.isArray(milestonesArray)) {
+            milestonesArray.forEach((item: any) => {
+              if (item.completed) {
+                milestoneCompletions[item.milestone_number] = true;
+              }
+            });
+          }
+        }
+      } catch (error) {
+        console.log('No milestone progress data found:', error);
+      }
+
+      // DEBUG: Log the data received from API
+      console.log('[Journey Map] Financial data received:', {
+        hasAssets: !!data?.assets,
+        hasLiabilities: !!data?.liabilities,
+        hasTaxPlan: !!data?.taxPlan,
+        taxPlanData: data?.taxPlan,
+        userConfirmedMilestones: milestoneCompletions,
+        fullData: data
+      });
+
       // Check which milestones are completed
       const completionChecker: CompletionChecker = {
         hasFinancialData: !!(data?.assets || data?.liabilities),
         hasNetWorth: !!(data?.assets && data?.liabilities),
         hasFIRECalculation: !!(data?.fireNumber || data?.retirementAge),
-        hasTaxPlanning: !!(data?.taxPlan || data?.incomeTax),
+        hasTaxPlanning: !!(data?.taxPlan),  // Only check for taxPlan now
         hasRiskAssessment: false, // We'll check this separately
         hasPortfolioDesign: !!(data?.assets?.liquid || data?.assets?.illiquid),
         hasGoals: !!(data?.goals?.shortTermGoals?.length || data?.goals?.midTermGoals?.length || data?.goals?.longTermGoals?.length),
-        hasFinancialPlan: !!(data?.goals && data?.sipCalculations),
+        // Milestone 7 now requires ACTUAL SIP calculations (not just goals)
+        hasFinancialPlan: !!(sipData && sipData.totalMonthlySIP && data?.goals),
         hasAutomatedSIP: false, // Future feature
         hasActiveMonitoring: false, // Future feature
         hasAchievedFreedom: false, // Calculated based on income vs expenses
       };
+
+      console.log('[Journey Map] Completion checker:', completionChecker);
 
       // Check risk assessment separately with retry logic
       let riskRetries = 3;
@@ -110,80 +158,48 @@ export const FinancialFreedomJourney: React.FC = () => {
         }
       }
 
-      // Calculate completed milestones
+      // Calculate completed milestones with SEQUENTIAL LOGIC (prevents gaps)
       const completed: number[] = [];
       const milestoneProgress: Record<number, number> = {};
 
-      // Milestone 1: Know Your Reality (Net Worth)
-      if (completionChecker.hasNetWorth) {
-        completed.push(1);
-        milestoneProgress[1] = 100;
-      } else if (completionChecker.hasFinancialData) {
-        milestoneProgress[1] = 50;
-      } else {
-        milestoneProgress[1] = 0;
+      // Define milestone completion conditions
+      const milestoneConditions = [
+        { id: 1, check: () => completionChecker.hasNetWorth, partial: () => completionChecker.hasFinancialData ? 50 : 0 },
+        { id: 2, check: () => completionChecker.hasFIRECalculation, partial: () => 0 },
+        { id: 3, check: () => completionChecker.hasTaxPlanning, partial: () => 0 },
+        { id: 4, check: () => completionChecker.hasRiskAssessment, partial: () => 0 },
+        { id: 5, check: () => completionChecker.hasRiskAssessment && completionChecker.hasPortfolioDesign, partial: () => completionChecker.hasPortfolioDesign ? 50 : 0 },
+        { id: 6, check: () => completionChecker.hasGoals, partial: () => 0 },
+        { id: 7, check: () => completionChecker.hasFinancialPlan, partial: () => completionChecker.hasGoals ? 50 : 0 },
+        { id: 8, check: () => completionChecker.hasAutomatedSIP, partial: () => 0 },
+        { id: 9, check: () => completionChecker.hasActiveMonitoring, partial: () => 0 },
+        { id: 10, check: () => completionChecker.hasAchievedFreedom, partial: () => 0 },
+      ];
+
+      // Process milestones SEQUENTIALLY - a milestone can only be completed if all previous milestones are completed
+      for (let i = 0; i < milestoneConditions.length; i++) {
+        const milestone = milestoneConditions[i];
+
+        // Check if all previous milestones are completed
+        const allPreviousCompleted = i === 0 || completed.length === i;
+
+        // Check if user manually marked this milestone as complete OR data shows it's complete
+        const isDataComplete = milestone.check();
+        const isUserConfirmed = milestoneCompletions[milestone.id] === true;
+        const isMilestoneComplete = isDataComplete || isUserConfirmed;
+
+        if (allPreviousCompleted && isMilestoneComplete) {
+          // Current milestone is completed (either by data or user confirmation) AND all previous milestones are completed
+          completed.push(milestone.id);
+          milestoneProgress[milestone.id] = 100;
+        } else if (allPreviousCompleted) {
+          // Current milestone is NOT completed but all previous ones are - show partial progress if available
+          milestoneProgress[milestone.id] = milestone.partial();
+        } else {
+          // Previous milestones not completed - lock this milestone at 0%
+          milestoneProgress[milestone.id] = 0;
+        }
       }
-
-      // Milestone 2: FIRE Number
-      if (completionChecker.hasFIRECalculation) {
-        completed.push(2);
-        milestoneProgress[2] = 100;
-      } else {
-        milestoneProgress[2] = 0;
-      }
-
-      // Milestone 3: Tax Planning
-      if (completionChecker.hasTaxPlanning) {
-        completed.push(3);
-        milestoneProgress[3] = 100;
-      } else {
-        milestoneProgress[3] = 0;
-      }
-
-      // Milestone 4: Financial Health Check (Risk Assessment)
-      if (completionChecker.hasRiskAssessment) {
-        completed.push(4);
-        milestoneProgress[4] = 100;
-      } else {
-        milestoneProgress[4] = 0;
-      }
-
-      // Milestone 5: Portfolio Design
-      if (completionChecker.hasRiskAssessment && completionChecker.hasPortfolioDesign) {
-        completed.push(5);
-        milestoneProgress[5] = 100;
-      } else if (completionChecker.hasPortfolioDesign) {
-        milestoneProgress[5] = 50;
-      } else {
-        milestoneProgress[5] = 0;
-      }
-
-      // Milestone 6: Set Goals
-      if (completionChecker.hasGoals) {
-        completed.push(6);
-        milestoneProgress[6] = 100;
-      } else {
-        milestoneProgress[6] = 0;
-      }
-
-      // Milestone 7: Financial Plan
-      if (completionChecker.hasFinancialPlan) {
-        completed.push(7);
-        milestoneProgress[7] = 100;
-      } else if (completionChecker.hasGoals) {
-        milestoneProgress[7] = 50;
-      } else {
-        milestoneProgress[7] = 0;
-      }
-
-      // Milestone 8: Automate (Future feature)
-      milestoneProgress[8] = 0;
-
-      // Milestone 9: Monitor (Future feature)
-      milestoneProgress[9] = 0;
-
-      // Milestone 10: Financial Freedom
-      milestoneProgress[10] = 0;
 
       // Determine current milestone (first incomplete one)
       let currentMilestone = 1;

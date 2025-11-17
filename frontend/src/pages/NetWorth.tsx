@@ -8,6 +8,7 @@ import useFinancialDataStore from '../utils/financialDataStore';
 import useAuthStore from '../utils/authStore';
 import { FinancialData } from 'types'; // Added import for FinancialData
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"; // Import Table components
+import { MilestoneCompletionCard } from '@/components/journey/MilestoneCompletionCard';
 
 // Define color constants
 const COLORS = {
@@ -557,6 +558,36 @@ export default function NetWorth() {
             Update Financial Details
           </Button>
         </div>
+
+        {/* Milestone 1 Completion Card */}
+        <MilestoneCompletionCard
+          milestoneNumber={1}
+          title="Track Your Net Worth"
+          completionCriteria={[
+            {
+              label: "Assets added",
+              checked: totalAssets > 0,
+              description: "Add your illiquid assets (home, gold, etc.) and liquid assets (FD, stocks, etc.)"
+            },
+            {
+              label: "Liabilities recorded",
+              checked: totalLiabilities >= 0, // >= 0 because zero liabilities is valid
+              description: "Record any loans or debts you have (home loan, car loan, credit card, etc.)"
+            },
+            {
+              label: "Net worth calculated",
+              checked: netWorth !== 0 || (totalAssets > 0 && totalLiabilities === 0),
+              description: "Your net worth is automatically calculated as Assets - Liabilities"
+            }
+          ]}
+          helpResources={{
+            guide: "https://www.investopedia.com/terms/n/networth.asp",
+            tutorial: "https://youtu.be/example-networth-tutorial"
+          }}
+          onComplete={() => {
+            toast.success('Milestone 1 completed! Moving to your Journey Map...');
+          }}
+        />
       </div>
     </div>
   );

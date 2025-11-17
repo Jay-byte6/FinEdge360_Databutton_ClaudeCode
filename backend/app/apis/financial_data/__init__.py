@@ -99,14 +99,34 @@ class RiskAppetite(BaseModel):
     riskQuestion1: Optional[str] = ""
     riskQuestion2: Optional[str] = ""
 
+class TaxDeduction(BaseModel):
+    name: str
+    section: str
+    amount: float
+    maxLimit: Optional[float] = None
+    eligible: bool = True
+
+class TaxPlan(BaseModel):
+    yearlyIncome: float
+    otherIncome: Optional[float] = 0  # NEW: Other income (interest, rental, freelancing, etc.)
+    capitalGains: Optional[float] = 0  # NEW: Capital gains from stocks, property, etc.
+    selectedRegime: str  # "old" or "new" or "compare"
+    deductions: Optional[List[TaxDeduction]] = []
+    taxUnderOldRegime: Optional[float] = 0
+    taxUnderNewRegime: Optional[float] = 0
+    moreBeneficialRegime: Optional[str] = ""
+    taxSavings: Optional[float] = 0
+    hraExemption: Optional[float] = 0
+
 class FinancialDataInput(BaseModel):
-    personalInfo: PersonalInfo
+    personalInfo: Optional[PersonalInfo] = None
     # Support both legacy and new detailed structures
     assetsLiabilities: Optional[AssetsLiabilities] = None
     assets: Optional[Assets] = None
     liabilities: Optional[Liabilities] = None
-    goals: Goals
-    riskAppetite: RiskAppetite
+    goals: Optional[Goals] = None
+    riskAppetite: Optional[RiskAppetite] = None
+    taxPlan: Optional[TaxPlan] = None  # NEW: Tax planning data
     userId: Optional[str] = Field(default="anonymous")
 
 class FinancialDataOutput(BaseModel):
@@ -117,6 +137,7 @@ class FinancialDataOutput(BaseModel):
     liabilities: Liabilities
     goals: Goals
     riskAppetite: RiskAppetite
+    taxPlan: Optional[TaxPlan] = None  # NEW: Tax planning data
     userId: str
 
 class SaveFinancialDataResponse(BaseModel):
@@ -161,10 +182,12 @@ def save_financial_data(data: FinancialDataInput) -> SaveFinancialDataResponse:
             if not supabase:
                 print("Supabase client not initialized, using local storage")
                 raise Exception("Supabase client not initialized")
-                
+
             # Create or get user
+            # Handle case where personalInfo might be None (e.g., when only saving taxPlan)
+            user_name = data.personalInfo.name if data.personalInfo else "FinEdge User"
             user_data = {
-                "name": data.personalInfo.name,
+                "name": user_name,
                 "email": f"{sanitize_storage_key(data.userId)}@finnest.example.com"  # Generate a pseudonymous email
             }
             
@@ -187,11 +210,20 @@ def save_financial_data(data: FinancialDataInput) -> SaveFinancialDataResponse:
             # Now create or update personal_info
             personal_info_data = {
                 "user_id": user_id,
-                "name": data.personalInfo.name,
-                "age": data.personalInfo.age,
-                "monthly_salary": data.personalInfo.monthlySalary,
-                "monthly_expenses": data.personalInfo.monthlyExpenses,
             }
+
+            # Add personal info if provided
+            if data.personalInfo:
+                personal_info_data.update({
+                    "name": data.personalInfo.name,
+                    "age": data.personalInfo.age,
+                    "monthly_salary": data.personalInfo.monthlySalary,
+                    "monthly_expenses": data.personalInfo.monthlyExpenses,
+                })
+
+            # Add tax plan if provided (stored as JSONB)
+            if data.taxPlan:
+                personal_info_data["tax_plan"] = data.taxPlan.dict()
             
             # Check if personal info already exists
             pi_response = supabase.from_("personal_info")\
@@ -284,77 +316,79 @@ def save_financial_data(data: FinancialDataInput) -> SaveFinancialDataResponse:
                     .insert(assets_liabilities_data)\
                     .execute()
             
-            # Save risk appetite
-            risk_appetite_data = {
-                "user_id": user_id,
-                "personal_info_id": personal_info_id,
-                "risk_tolerance": data.riskAppetite.risk_tolerance if data.riskAppetite.risk_tolerance is not None else data.riskAppetite.riskTolerance,
-                "inflation_rate": data.riskAppetite.inflationRate if hasattr(data.riskAppetite, 'inflationRate') else 5,
-                "retirement_age": data.riskAppetite.retirementAge if hasattr(data.riskAppetite, 'retirementAge') else 55,
-                "risk_question1": data.riskAppetite.riskQuestion1,
-                "risk_question2": data.riskAppetite.riskQuestion2,
-            }
-            
-            # Check if risk appetite already exists
-            ra_response = supabase.from_("risk_appetite")\
-                .select("id")\
-                .eq("personal_info_id", personal_info_id)\
-                .execute()
-            
-            if ra_response.data and len(ra_response.data) > 0:
-                # Update existing record
-                ra_id = ra_response.data[0]["id"]
-                supabase.from_("risk_appetite")\
-                    .update(risk_appetite_data)\
-                    .eq("id", ra_id)\
+            # Save risk appetite (only if provided)
+            if data.riskAppetite:
+                risk_appetite_data = {
+                    "user_id": user_id,
+                    "personal_info_id": personal_info_id,
+                    "risk_tolerance": data.riskAppetite.risk_tolerance if data.riskAppetite.risk_tolerance is not None else data.riskAppetite.riskTolerance,
+                    "inflation_rate": data.riskAppetite.inflationRate if hasattr(data.riskAppetite, 'inflationRate') else 5,
+                    "retirement_age": data.riskAppetite.retirementAge if hasattr(data.riskAppetite, 'retirementAge') else 55,
+                    "risk_question1": data.riskAppetite.riskQuestion1,
+                    "risk_question2": data.riskAppetite.riskQuestion2,
+                }
+
+                # Check if risk appetite already exists
+                ra_response = supabase.from_("risk_appetite")\
+                    .select("id")\
+                    .eq("personal_info_id", personal_info_id)\
                     .execute()
-            else:
-                # Create new record
-                supabase.from_("risk_appetite")\
-                    .insert(risk_appetite_data)\
+
+                if ra_response.data and len(ra_response.data) > 0:
+                    # Update existing record
+                    ra_id = ra_response.data[0]["id"]
+                    supabase.from_("risk_appetite")\
+                        .update(risk_appetite_data)\
+                        .eq("id", ra_id)\
+                        .execute()
+                else:
+                    # Create new record
+                    supabase.from_("risk_appetite")\
+                        .insert(risk_appetite_data)\
+                        .execute()
+            
+            # Delete existing goals and create new ones (only if goals provided)
+            if data.goals:
+                supabase.from_("goals")\
+                    .delete()\
+                    .eq("personal_info_id", personal_info_id)\
                     .execute()
-            
-            # Delete existing goals and create new ones
-            supabase.from_("goals")\
-                .delete()\
-                .eq("personal_info_id", personal_info_id)\
-                .execute()
-            
-            # Add short-term goals
-            for goal in data.goals.shortTermGoals:
-                goal_data = {
-                    "user_id": user_id,
-                    "personal_info_id": personal_info_id,
-                    "name": goal.name,
-                    "amount": goal.amount,
-                    "years": goal.years,
-                    "goal_type": "short_term"
-                }
-                supabase.from_("goals").insert(goal_data).execute()
-            
-            # Add mid-term goals
-            for goal in data.goals.midTermGoals:
-                goal_data = {
-                    "user_id": user_id,
-                    "personal_info_id": personal_info_id,
-                    "name": goal.name,
-                    "amount": goal.amount,
-                    "years": goal.years,
-                    "goal_type": "mid_term"
-                }
-                supabase.from_("goals").insert(goal_data).execute()
-            
-            # Add long-term goals
-            for goal in data.goals.longTermGoals:
-                goal_data = {
-                    "user_id": user_id,
-                    "personal_info_id": personal_info_id,
-                    "name": goal.name,
-                    "amount": goal.amount,
-                    "years": goal.years,
-                    "goal_type": "long_term"
-                }
-                supabase.from_("goals").insert(goal_data).execute()
+
+                # Add short-term goals
+                for goal in data.goals.shortTermGoals:
+                    goal_data = {
+                        "user_id": user_id,
+                        "personal_info_id": personal_info_id,
+                        "name": goal.name,
+                        "amount": goal.amount,
+                        "years": goal.years,
+                        "goal_type": "short_term"
+                    }
+                    supabase.from_("goals").insert(goal_data).execute()
+
+                # Add mid-term goals
+                for goal in data.goals.midTermGoals:
+                    goal_data = {
+                        "user_id": user_id,
+                        "personal_info_id": personal_info_id,
+                        "name": goal.name,
+                        "amount": goal.amount,
+                        "years": goal.years,
+                        "goal_type": "mid_term"
+                    }
+                    supabase.from_("goals").insert(goal_data).execute()
+
+                # Add long-term goals
+                for goal in data.goals.longTermGoals:
+                    goal_data = {
+                        "user_id": user_id,
+                        "personal_info_id": personal_info_id,
+                        "name": goal.name,
+                        "amount": goal.amount,
+                        "years": goal.years,
+                        "goal_type": "long_term"
+                    }
+                    supabase.from_("goals").insert(goal_data).execute()
             
             return SaveFinancialDataResponse(
                 success=True,
@@ -486,6 +520,15 @@ def get_financial_data(user_id: str) -> FinancialDataOutput:
                 elif goal["goal_type"] == "long_term":
                     long_term_goals.append(goal_obj)
             
+            # Extract tax_plan if available (stored as JSONB in personal_info table)
+            tax_plan_data = None
+            if "tax_plan" in personal_info and personal_info["tax_plan"]:
+                try:
+                    tax_plan_data = TaxPlan(**personal_info["tax_plan"])
+                except Exception as tax_error:
+                    print(f"Error parsing tax_plan: {tax_error}")
+                    tax_plan_data = None
+
             # Create the response object
             response_data = {
                 "personalInfo": {
@@ -521,6 +564,7 @@ def get_financial_data(user_id: str) -> FinancialDataOutput:
                     "riskQuestion1": risk_appetite["risk_question1"] or "",
                     "riskQuestion2": risk_appetite["risk_question2"] or ""
                 },
+                "taxPlan": tax_plan_data,  # NEW: Include tax plan data if available
                 "userId": user_id
             }
             
