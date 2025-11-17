@@ -9,7 +9,7 @@ import { MilestoneData, UserJourneyState } from './types';
 import { MILESTONES } from './milestoneData';
 import {
   MapPin, Sparkles, Clock, CheckCircle, Lock, Flag, Navigation, Zap,
-  Home, Car, Plane, GraduationCap, TrendingUp, Trophy, ArrowRight
+  Home, Car, Plane, GraduationCap, TrendingUp, Trophy, ArrowRight, LayoutDashboard
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -37,20 +37,27 @@ export const JourneyMapSimple: React.FC<JourneyMapSimpleProps> = ({ journeyState
     { x: 550, y: 80 },    // 10. Top RIGHT - FREEDOM!
   ];
 
-  // Background achievements - repositioned away from milestone labels
+  // Background achievements - repositioned scattered near the road, away from milestone labels
   const achievements = [
-    { icon: Home, label: 'Dream Home', x: 100, y: 480, milestone: 5, color: '#3b82f6' },
-    { icon: Car, label: 'Dream Car', x: 700, y: 560, milestone: 4, color: '#ef4444' },
-    { icon: Plane, label: 'Vacation', x: 80, y: 280, milestone: 6, color: '#8b5cf6' },
-    { icon: GraduationCap, label: 'Education', x: 720, y: 340, milestone: 7, color: '#10b981' },
-    { icon: TrendingUp, label: 'Investments', x: 100, y: 180, milestone: 8, color: '#f59e0b' },
-    { icon: Trophy, label: 'Freedom!', x: 700, y: 100, milestone: 10, color: '#eab308' },
+    { icon: Home, label: 'Dream Home', x: 150, y: 500, milestone: 5, color: '#3b82f6' },
+    { icon: Car, label: 'Dream Car', x: 650, y: 600, milestone: 4, color: '#ef4444' },
+    { icon: Plane, label: 'Vacation', x: 120, y: 360, milestone: 6, color: '#8b5cf6' },
+    { icon: GraduationCap, label: 'Education', x: 680, y: 280, milestone: 7, color: '#10b981' },
+    { icon: TrendingUp, label: 'Investments', x: 160, y: 200, milestone: 8, color: '#f59e0b' },
+    { icon: Trophy, label: 'Freedom!', x: 660, y: 120, milestone: 10, color: '#eab308' },
   ];
 
   const getMilestoneStatus = (id: number) => {
     if (journeyState.completedMilestones.includes(id)) return 'completed';
     if (id === journeyState.currentMilestone) return 'current';
     return 'locked';
+  };
+
+  const navigateToCurrentMilestone = () => {
+    const currentMilestone = MILESTONES[journeyState.currentMilestone - 1];
+    if (currentMilestone?.actions?.[0]?.link) {
+      navigate(currentMilestone.actions[0].link);
+    }
   };
 
   // Auto zoom to current milestone
@@ -78,15 +85,26 @@ export const JourneyMapSimple: React.FC<JourneyMapSimpleProps> = ({ journeyState
                 <span className="text-blue-600 font-bold ml-2">{journeyState.financialFreedomProgress}% Complete</span>
               </p>
             </div>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setViewScale(1.3)}
-              className="px-5 py-2.5 bg-blue-600 text-white rounded-xl font-bold shadow-lg flex items-center gap-2"
-            >
-              <Zap className="w-5 h-5" />
-              Focus Current
-            </motion.button>
+            <div className="flex items-center gap-3">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate('/dashboard')}
+                className="px-5 py-2.5 bg-gray-600 text-white rounded-xl font-bold shadow-lg flex items-center gap-2"
+              >
+                <LayoutDashboard className="w-5 h-5" />
+                Go to Dashboard
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={navigateToCurrentMilestone}
+                className="px-5 py-2.5 bg-blue-600 text-white rounded-xl font-bold shadow-lg flex items-center gap-2"
+              >
+                <Zap className="w-5 h-5" />
+                Focus Current
+              </motion.button>
+            </div>
           </div>
         </div>
       </div>
@@ -103,13 +121,13 @@ export const JourneyMapSimple: React.FC<JourneyMapSimpleProps> = ({ journeyState
             transformOrigin: 'center center',
           }}
         >
-          {/* Subtle background elements - minimal */}
+          {/* Subtle background elements - transparent */}
           {[...Array(3)].map((_, i) => (
             <motion.div
               key={i}
               animate={{ x: ['-10%', '110%'] }}
               transition={{ duration: 40 + i * 15, repeat: Infinity, ease: 'linear' }}
-              className="absolute w-24 h-12 bg-blue-100/20 rounded-full blur-xl"
+              className="absolute w-24 h-12 bg-blue-100/5 rounded-full blur-xl"
               style={{ top: `${15 + i * 25}%` }}
             />
           ))}
@@ -188,7 +206,7 @@ export const JourneyMapSimple: React.FC<JourneyMapSimpleProps> = ({ journeyState
             })}
           </svg>
 
-          {/* Background Achievements */}
+          {/* Background Achievements - Slightly Visible */}
           {achievements.map((achievement, index) => {
             const isUnlocked = journeyState.completedMilestones.includes(achievement.milestone);
 
@@ -196,32 +214,32 @@ export const JourneyMapSimple: React.FC<JourneyMapSimpleProps> = ({ journeyState
               <motion.div
                 key={index}
                 initial={{ opacity: 0, scale: 0 }}
-                animate={{ opacity: isUnlocked ? 1 : 0.3, scale: 1 }}
+                animate={{ opacity: isUnlocked ? 0.5 : 0.25, scale: 1 }}
                 transition={{ delay: 0.5 + index * 0.1 }}
-                className="absolute z-40"
+                className="absolute z-0"
                 style={{ left: achievement.x, top: achievement.y }}
               >
                 <motion.div
-                  animate={{ y: [0, -10, 0] }}
+                  animate={{ y: [0, -8, 0] }}
                   transition={{ duration: 3, repeat: Infinity, delay: index * 0.5 }}
                   className={isUnlocked ? '' : 'grayscale'}
                 >
                   <div
-                    className="w-16 h-16 rounded-2xl shadow-2xl flex items-center justify-center"
+                    className="w-14 h-14 rounded-xl shadow-md flex items-center justify-center"
                     style={{
                       background: isUnlocked
-                        ? `linear-gradient(135deg, ${achievement.color}, ${achievement.color}dd)`
-                        : 'linear-gradient(135deg, #9ca3af, #6b7280)',
+                        ? `linear-gradient(135deg, ${achievement.color}66, ${achievement.color}44)`
+                        : 'linear-gradient(135deg, #9ca3af44, #6b728033)',
                     }}
                   >
-                    <achievement.icon className="w-8 h-8 text-white" />
+                    <achievement.icon className="w-7 h-7 text-white opacity-70" />
                   </div>
-                  <div className="absolute -bottom-7 left-1/2 -translate-x-1/2 whitespace-nowrap bg-white/90 px-2 py-1 rounded-lg shadow-lg text-xs font-bold">
+                  <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap bg-white/60 px-1.5 py-0.5 rounded-md shadow-md text-xs font-semibold opacity-70">
                     {achievement.label}
                   </div>
                   {isUnlocked && (
-                    <div className="absolute -top-2 -right-2 w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center shadow-lg">
-                      <CheckCircle className="w-4 h-4 text-white" />
+                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-emerald-500/70 rounded-full flex items-center justify-center shadow-md">
+                      <CheckCircle className="w-3 h-3 text-white" />
                     </div>
                   )}
                 </motion.div>
@@ -325,16 +343,43 @@ export const JourneyMapSimple: React.FC<JourneyMapSimpleProps> = ({ journeyState
                     </motion.div>
                   )}
 
-                  {/* "YOU ARE HERE" */}
+                  {/* "YOU ARE HERE" with 3D Map Pin */}
                   {isCurrent && !isFinal && (
                     <motion.div
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1, y: [-2, 2, -2] }}
                       transition={{ y: { duration: 1.5, repeat: Infinity } }}
-                      className="absolute -top-16 left-1/2 -translate-x-1/2 whitespace-nowrap z-50"
+                      className="absolute -top-20 left-1/2 -translate-x-1/2 whitespace-nowrap z-50 flex flex-col items-center"
                     >
+                      {/* 3D Map Pin Icon */}
+                      <motion.div
+                        animate={{
+                          rotateY: [0, 360],
+                          scale: [1, 1.1, 1]
+                        }}
+                        transition={{
+                          rotateY: { duration: 3, repeat: Infinity, ease: "linear" },
+                          scale: { duration: 1.5, repeat: Infinity }
+                        }}
+                        className="mb-1"
+                        style={{ transformStyle: 'preserve-3d' }}
+                      >
+                        <div className="relative">
+                          {/* Pin shadow for 3D effect */}
+                          <div className="absolute inset-0 blur-sm opacity-50">
+                            <MapPin className="w-8 h-8 text-yellow-600 fill-yellow-600" />
+                          </div>
+                          {/* Main pin */}
+                          <MapPin
+                            className="w-8 h-8 text-yellow-400 fill-yellow-400 relative"
+                            style={{
+                              filter: 'drop-shadow(2px 2px 4px rgba(0,0,0,0.3))',
+                            }}
+                          />
+                        </div>
+                      </motion.div>
                       <div className="bg-yellow-400 text-black font-black px-4 py-1.5 rounded-lg shadow-2xl text-xs">
-                        ⭐ YOU ARE HERE
+                        YOU ARE HERE
                       </div>
                       <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-yellow-400" />
                     </motion.div>

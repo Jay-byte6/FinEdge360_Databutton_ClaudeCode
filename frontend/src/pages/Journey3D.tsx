@@ -48,8 +48,22 @@ export default function Journey3D() {
 
       let data = null;
       if (response.ok) {
-        data = await response.json();
-        console.log('Financial data received:', data);
+        try {
+          // Check if response is JSON before parsing
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            data = await response.json();
+            console.log('Financial data received:', data);
+          } else {
+            console.error('Expected JSON but got:', contentType);
+            const text = await response.text();
+            console.error('Response text:', text.substring(0, 200));
+          }
+        } catch (error) {
+          console.error('Error parsing financial data JSON:', error);
+          // Set data to null to trigger default state
+          data = null;
+        }
       } else {
         console.error('Failed to fetch financial data:', response.status, response.statusText);
         const errorText = await response.text();
@@ -101,18 +115,22 @@ export default function Journey3D() {
       }
 
       // Check completion status - matching actual API response structure
+      // Defensive: ensure data exists before checking properties
+      const safeData = data || {};
+      const safeSipData = sipData || {};
+
       const completionChecker: CompletionChecker = {
         // Milestone 1: Has entered financial data (assets/liabilities)
         hasFinancialData: !!(
-          data?.assetsLiabilities ||
-          data?.assets ||
-          data?.liabilities ||
-          data?.personalInfo
+          safeData?.assetsLiabilities ||
+          safeData?.assets ||
+          safeData?.liabilities ||
+          safeData?.personalInfo
         ),
         // Net worth - has both assets AND liabilities
-        hasNetWorth: !!(data?.assets && data?.liabilities),
+        hasNetWorth: !!(safeData?.assets && safeData?.liabilities),
         // Milestone 2: FIRE calculation (retirement age from risk appetite)
-        hasFIRECalculation: !!(data?.riskAppetite?.retirementAge),
+        hasFIRECalculation: !!(safeData?.riskAppetite?.retirementAge),
         // Milestone 3: Tax planning - check if we have tax data saved
         // For now, we'll assume tax planning is done if user completed previous milestones
         // This can be enhanced when tax planning endpoint is created
@@ -120,18 +138,18 @@ export default function Journey3D() {
         // Milestone 4: Risk assessment
         hasRiskAssessment: false,
         // Milestone 5: Portfolio design (has asset allocation)
-        hasPortfolioDesign: !!(data?.assets?.liquid || data?.assets?.illiquid),
+        hasPortfolioDesign: !!(safeData?.assets?.liquid || safeData?.assets?.illiquid),
         // Milestone 6: Has set goals (from SIP planner)
         hasGoals: !!(
-          sipData?.goals?.shortTerm?.length ||
-          sipData?.goals?.midTerm?.length ||
-          sipData?.goals?.longTerm?.length ||
-          data?.goals?.shortTermGoals?.length ||
-          data?.goals?.midTermGoals?.length ||
-          data?.goals?.longTermGoals?.length
+          safeSipData?.goals?.shortTerm?.length ||
+          safeSipData?.goals?.midTerm?.length ||
+          safeSipData?.goals?.longTerm?.length ||
+          safeData?.goals?.shortTermGoals?.length ||
+          safeData?.goals?.midTermGoals?.length ||
+          safeData?.goals?.longTermGoals?.length
         ),
         // Milestone 7: Financial plan with SIP calculations
-        hasFinancialPlan: !!(sipData?.sipCalculations),
+        hasFinancialPlan: !!(safeSipData?.sipCalculations),
         // Future milestones
         hasAutomatedSIP: false,
         hasActiveMonitoring: false,

@@ -1,12 +1,200 @@
 # FinEdge360 - Development Progress & Conversation History
 
-**Last Updated**: 2025-11-17 (Session 11 - Completed)
+**Last Updated**: 2025-11-17 (Session 12 - Completed)
 **Project**: FinEdge360 - Financial Planning & Investment Platform
 **Tech Stack**: React + TypeScript (Frontend) | FastAPI + Python (Backend) | Supabase (Auth & DB)
 
 ---
 
 ## 📋 Current Session Summary
+
+### Session 12 (Nov 17, 2025) - UI/UX Refinements & Navigation Improvements ✅ COMPLETED
+
+**Session Goal**: Improve navigation structure, enhance FIRE-Map page interactivity, and integrate asset allocation display into profile
+
+**Status**: 🎉 **COMPLETED** - All UI/UX improvements implemented successfully
+
+### Work Completed This Session
+
+#### 1. Navigation Menu Restructure ✅
+**What**: Reorganized profile dropdown menu to align with milestone-based user journey
+**Impact**: Clearer navigation flow, better user experience, logical step progression
+
+**Changes Made** (`frontend/src/components/NavBar.tsx`):
+
+**Profile Section**:
+- 👤 My Profile → `/profile`
+- 📊 Dashboard → `/dashboard`
+- 🗺️ Your FIRE Map → `/journey3d`
+
+**Your Financial Journey (Milestones)**:
+- Step 0: Enter Your Details → `/enter-details`
+- Step 1: Know Your Net Worth → `/net-worth`
+- Step 2: Calculate Your FIRE Number → `/fire-calculator`
+- Step 3: Optimize Your Taxes → `/tax-planning`
+- Step 4: Assess Yourself → `/portfolio`
+- Step 5: Set your Goals → `/sip-planner?tab=set-goals`
+- Step 6: Design Asset Allocation → `/sip-planner?tab=asset-allocation`
+- Step 7: Plan Your SIPs → `/sip-planner?tab=sip-plan`
+
+**Support & Community**:
+- 💬 Talk to Expert
+- 👥 Join Community
+- 📝 My Feedback
+- 🚪 Log Out
+
+**Files Modified**:
+- `frontend/src/components/NavBar.tsx:77-135` - Complete menu restructure
+
+---
+
+#### 2. Asset Allocation Integration ✅
+**What**: Added user's saved asset allocation strategy to Profile page and PDF export
+**Impact**: Users can view and download their customized asset allocation preferences
+
+**Profile Page Display** (`frontend/src/pages/Profile.tsx`):
+- Added state management for asset allocations (line 24)
+- Fetched allocation data from API (lines 63-72)
+- Created visual card component with progress bars (lines 347-490)
+- Color-coded progress bars for each asset class:
+  - Indian Equity (Blue)
+  - US Equity (Purple)
+  - Debt (Green)
+  - Gold (Yellow)
+  - REITs (Orange)
+  - Crypto (Indigo)
+  - Cash (Gray)
+- Displays expected CAGR ranges for each goal type
+
+**PDF Export Enhancement** (`frontend/src/utils/pdfExport.ts`):
+- Updated function signature to accept asset allocations (line 58)
+- Added "ASSET ALLOCATION STRATEGY" section (lines 741-795)
+- Generated bar charts for each asset class
+- Included expected returns display
+
+**Files Modified**:
+- `frontend/src/pages/Profile.tsx` - Lines 24, 63-72, 149, 347-490
+- `frontend/src/utils/pdfExport.ts` - Lines 58, 741-795
+
+---
+
+#### 3. FIRE-Map Page Enhancements ✅
+**What**: Improved FIRE-Map interactivity with new navigation buttons and visual refinements
+**Impact**: Better user engagement, easier navigation, cleaner visual design
+
+**Button Additions** (`frontend/src/components/journey/JourneyMapSimple.tsx`):
+
+1. **"Go to Dashboard" Button** (lines 89-97)
+   - Gray button in header
+   - Quick navigation back to main dashboard
+   - Consistent styling with header design
+
+2. **"Focus Current" Button Enhancement** (lines 98-106, 56-61)
+   - Now navigates to current milestone's action page
+   - Function: `navigateToCurrentMilestone()`
+   - Takes user directly to pending tasks
+   - Makes it easy to complete in-progress work
+
+**Visual Improvements**:
+
+3. **3D Map Pin for "YOU ARE HERE"** (lines 346-386)
+   - Replaced star emoji with animated 3D MapPin icon
+   - Rotating animation for 3D effect (360° rotation)
+   - Scaling pulse animation
+   - Shadow layer for depth
+   - Yellow color scheme maintained
+   - Filter drop-shadow for enhanced 3D look
+
+4. **Transparent Background Elements** (lines 124-133, 209-248)
+   - Animated blur elements: `bg-blue-100/20` → `bg-blue-100/5`
+   - Achievement icons repositioned away from milestone labels
+   - Opacity adjustments:
+     - Unlocked achievements: 50% opacity
+     - Locked achievements: 25% opacity
+   - Background transparency: `${color}66/${color}44`
+   - Icon opacity: 70%
+   - Label background: `bg-white/60` with 70% opacity
+   - Size reduced: 16x16 → 14x14
+   - Z-index: 0 (background layer)
+   - Shadow reduced: `shadow-2xl` → `shadow-md`
+
+**Achievement Icon Repositioning**:
+```javascript
+Dream Home: x: 150, y: 500
+Dream Car: x: 650, y: 600
+Vacation: x: 120, y: 360
+Education: x: 680, y: 280
+Investments: x: 160, y: 200
+Freedom!: x: 660, y: 120
+```
+
+**Files Modified**:
+- `frontend/src/components/journey/JourneyMapSimple.tsx` - Lines 11-12, 40-48, 56-61, 88-107, 124-133, 209-248, 346-386
+
+---
+
+#### 4. Dashboard Download Fix ✅
+**What**: Fixed "Download Report" button to navigate to Profile page where PDF generation exists
+**Impact**: Download functionality now works correctly
+
+**Changes Made** (`frontend/src/pages/Dashboard.tsx`):
+- Changed path from `/report` to `/profile` (line 143)
+- Removed "coming soon" toast notification (lines 149-151)
+
+**Files Modified**:
+- `frontend/src/pages/Dashboard.tsx:143, 149-151`
+
+---
+
+### Session Statistics
+
+**Files Modified**: 4
+- `frontend/src/components/NavBar.tsx`
+- `frontend/src/pages/Profile.tsx`
+- `frontend/src/utils/pdfExport.ts`
+- `frontend/src/components/journey/JourneyMapSimple.tsx`
+- `frontend/src/pages/Dashboard.tsx`
+
+**Lines Changed**: ~250 lines
+- Navigation menu: ~60 lines
+- Profile asset allocation: ~150 lines
+- PDF export: ~55 lines
+- FIRE-Map enhancements: ~80 lines
+- Dashboard fix: ~5 lines
+
+**New Features**: 4
+1. Restructured navigation menu with milestone progression
+2. Asset allocation display in Profile and PDF
+3. Enhanced FIRE-Map with navigation buttons
+4. 3D animated map pin indicator
+
+**Bug Fixes**: 0 (All enhancements, no bugs encountered)
+
+---
+
+### Technical Highlights
+
+**UI/UX Improvements**:
+- Logical milestone-based navigation flow
+- Visual asset allocation with progress bars
+- Interactive FIRE-Map with contextual navigation
+- 3D animations using Framer Motion
+- Transparency effects for subtle background elements
+
+**Navigation Enhancements**:
+- Profile menu organized into 3 sections
+- Step-by-step journey guidance
+- Query parameter navigation (`?tab=...`)
+- Direct milestone action links
+
+**Visual Design**:
+- Color-coded progress bars
+- 3D rotating map pin
+- Layered transparency effects
+- Consistent shadow styling
+- Responsive opacity adjustments
+
+---
 
 ### Session 11 (Nov 17, 2025) - Milestone Completion System ✅ COMPLETED
 

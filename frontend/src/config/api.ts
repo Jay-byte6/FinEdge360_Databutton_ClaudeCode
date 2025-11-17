@@ -33,6 +33,15 @@ export const API_ENDPOINTS = {
   saveSIPPlanner: `${API_BASE_URL}/routes/save-sip-planner`,
   getSIPPlanner: (userId: string) => `${API_BASE_URL}/routes/get-sip-planner/${userId}`,
 
+  // Asset Allocation
+  saveAssetAllocation: `${API_BASE_URL}/routes/save-asset-allocation`,
+  getAssetAllocation: (userId: string) => `${API_BASE_URL}/routes/get-asset-allocation/${userId}`,
+  deleteAssetAllocation: (userId: string, goalType: string) => `${API_BASE_URL}/routes/delete-asset-allocation/${userId}/${goalType}`,
+
+  // Milestone Progress
+  saveMilestoneProgress: (userId: string) => `${API_BASE_URL}/routes/save-milestone-progress/${userId}`,
+  getMilestoneProgress: (userId: string) => `${API_BASE_URL}/routes/get-milestone-progress/${userId}`,
+
   // Privacy & Consent
   saveUserConsent: `${API_BASE_URL}/routes/save-user-consent`,
   getUserConsents: (userId: string) => `${API_BASE_URL}/routes/get-user-consents/${userId}`,

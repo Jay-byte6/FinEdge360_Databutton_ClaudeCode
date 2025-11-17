@@ -21,6 +21,7 @@ export default function Profile() {
   const { financialData, fetchFinancialData } = useFinancialDataStore();
   const [isLoading, setIsLoading] = useState(true);
   const [riskAnalysis, setRiskAnalysis] = useState<any>(null);
+  const [assetAllocations, setAssetAllocations] = useState<any>(null);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
@@ -57,6 +58,17 @@ export default function Profile() {
             }
           } catch (error) {
             console.error("Error loading risk analysis:", error);
+          }
+
+          // Fetch asset allocations
+          try {
+            const response = await fetch(API_ENDPOINTS.getAssetAllocation(user.id));
+            if (response.ok) {
+              const data = await response.json();
+              setAssetAllocations(data);
+            }
+          } catch (error) {
+            console.error("Error loading asset allocations:", error);
           }
         } catch (error) {
           console.error("Error loading data:", error);
@@ -134,7 +146,7 @@ export default function Profile() {
   const handleDownloadPDF = async () => {
     try {
       setIsGeneratingPDF(true);
-      await generateFinancialProfilePDF(financialData, riskAnalysis, user);
+      await generateFinancialProfilePDF(financialData, riskAnalysis, user, assetAllocations);
       toast.success('PDF downloaded successfully!');
     } catch (error) {
       console.error('Error generating PDF:', error);
@@ -324,6 +336,151 @@ export default function Profile() {
                       <span className="text-sm font-medium text-gray-800 w-12 text-right">
                         {percentage}%
                       </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Your Desired Asset Allocation Strategy */}
+        {assetAllocations && assetAllocations.allocations && assetAllocations.allocations.length > 0 && (
+          <Card className="bg-white mb-8">
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <Target className="h-5 w-5 text-purple-600" />
+                <CardTitle>Your Desired Asset Allocation Strategy</CardTitle>
+              </div>
+              <CardDescription>Your customized allocation for different goal types</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                {assetAllocations.allocations.map((allocation: any, index: number) => (
+                  <div key={index} className="border-b last:border-b-0 pb-4 last:pb-0">
+                    <h3 className="font-semibold text-lg mb-3 text-gray-800">{allocation.goal_type}</h3>
+                    <div className="space-y-2">
+                      {allocation.equity_pct > 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-700 text-sm">Indian Equity</span>
+                          <div className="flex items-center gap-2">
+                            <div className="w-32 bg-gray-200 rounded-full h-2">
+                              <div
+                                className="bg-blue-600 h-2 rounded-full"
+                                style={{ width: `${allocation.equity_pct}%` }}
+                              ></div>
+                            </div>
+                            <span className="text-sm font-medium text-gray-800 w-12 text-right">
+                              {allocation.equity_pct}%
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                      {allocation.us_equity_pct > 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-700 text-sm">US Equity</span>
+                          <div className="flex items-center gap-2">
+                            <div className="w-32 bg-gray-200 rounded-full h-2">
+                              <div
+                                className="bg-blue-400 h-2 rounded-full"
+                                style={{ width: `${allocation.us_equity_pct}%` }}
+                              ></div>
+                            </div>
+                            <span className="text-sm font-medium text-gray-800 w-12 text-right">
+                              {allocation.us_equity_pct}%
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                      {allocation.debt_pct > 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-700 text-sm">Debt</span>
+                          <div className="flex items-center gap-2">
+                            <div className="w-32 bg-gray-200 rounded-full h-2">
+                              <div
+                                className="bg-green-600 h-2 rounded-full"
+                                style={{ width: `${allocation.debt_pct}%` }}
+                              ></div>
+                            </div>
+                            <span className="text-sm font-medium text-gray-800 w-12 text-right">
+                              {allocation.debt_pct}%
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                      {allocation.gold_pct > 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-700 text-sm">Gold</span>
+                          <div className="flex items-center gap-2">
+                            <div className="w-32 bg-gray-200 rounded-full h-2">
+                              <div
+                                className="bg-yellow-500 h-2 rounded-full"
+                                style={{ width: `${allocation.gold_pct}%` }}
+                              ></div>
+                            </div>
+                            <span className="text-sm font-medium text-gray-800 w-12 text-right">
+                              {allocation.gold_pct}%
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                      {allocation.reits_pct > 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-700 text-sm">REITs</span>
+                          <div className="flex items-center gap-2">
+                            <div className="w-32 bg-gray-200 rounded-full h-2">
+                              <div
+                                className="bg-purple-600 h-2 rounded-full"
+                                style={{ width: `${allocation.reits_pct}%` }}
+                              ></div>
+                            </div>
+                            <span className="text-sm font-medium text-gray-800 w-12 text-right">
+                              {allocation.reits_pct}%
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                      {allocation.crypto_pct > 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-700 text-sm">Crypto</span>
+                          <div className="flex items-center gap-2">
+                            <div className="w-32 bg-gray-200 rounded-full h-2">
+                              <div
+                                className="bg-red-600 h-2 rounded-full"
+                                style={{ width: `${allocation.crypto_pct}%` }}
+                              ></div>
+                            </div>
+                            <span className="text-sm font-medium text-gray-800 w-12 text-right">
+                              {allocation.crypto_pct}%
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                      {allocation.cash_pct > 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-700 text-sm">Cash/Liquid</span>
+                          <div className="flex items-center gap-2">
+                            <div className="w-32 bg-gray-200 rounded-full h-2">
+                              <div
+                                className="bg-gray-600 h-2 rounded-full"
+                                style={{ width: `${allocation.cash_pct}%` }}
+                              ></div>
+                            </div>
+                            <span className="text-sm font-medium text-gray-800 w-12 text-right">
+                              {allocation.cash_pct}%
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                      {allocation.expected_cagr_min && allocation.expected_cagr_max && (
+                        <div className="mt-3 pt-3 border-t">
+                          <p className="text-sm text-gray-600">
+                            Expected Returns: <span className="font-semibold text-green-600">
+                              {allocation.expected_cagr_min}% - {allocation.expected_cagr_max}% CAGR
+                            </span>
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}

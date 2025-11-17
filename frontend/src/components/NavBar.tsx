@@ -23,14 +23,13 @@ const NavBar: React.FC<NavBarProps> = ({ showFullNav = true }) => {
 
   const navItems = [
     { name: "Dashboard", path: "/dashboard" },
-    { name: "Journey Map 🗺️", path: "/journey" },
-    { name: "3D Journey 🌍", path: "/journey3d" },
+    { name: "FIRE-Map", path: "/journey3d" },
     { name: "Enter Details", path: "/enter-details" },
-    { name: "FIRE Calculator", path: "/fire-calculator" },
     { name: "Net Worth", path: "/net-worth" },
-    { name: "SIP Planner", path: "/sip-planner" },
-    { name: "Portfolio", path: "/portfolio" },
+    { name: "FIRE Calculator", path: "/fire-calculator" },
     { name: "Tax Planning", path: "/tax-planning" },
+    { name: "Portfolio", path: "/portfolio" },
+    { name: "SIP Planner", path: "/sip-planner" },
   ];
 
   return (
@@ -76,44 +75,62 @@ const NavBar: React.FC<NavBarProps> = ({ showFullNav = true }) => {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
+                  {/* Profile Section */}
                   <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/profile")}>
-                    Profile
+                    👤 My Profile
                   </DropdownMenuItem>
                   <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/dashboard")}>
-                    Dashboard
+                    📊 Dashboard
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/enter-details")}>
-                    Enter Details
+                  <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/journey3d")}>
+                    🗺️ Your FIRE Map
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
+                  {/* Your Financial Journey (Milestones) */}
+                  <DropdownMenuLabel className="text-xs font-semibold text-gray-600 px-2">
+                    Your Financial Journey
+                  </DropdownMenuLabel>
+                  <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/enter-details")}>
+                    Step 0: Enter Your Details
+                  </DropdownMenuItem>
                   <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/net-worth")}>
-                    Step1: Know your reality
+                    Step 1: Know Your Net Worth
                   </DropdownMenuItem>
                   <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/fire-calculator")}>
-                    Step2: FIRE Calculator
+                    Step 2: Calculate Your FIRE Number
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/tax-planning")}>
+                    Step 3: Optimize Your Taxes
                   </DropdownMenuItem>
                   <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/portfolio")}>
-                    Step3: Diversify Portfolio
+                    Step 4: Assess Yourself
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/sip-planner")}>
-                    Step4: Plan your SIP
+                  <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/sip-planner?tab=set-goals")}>
+                    Step 5: Set your Goals
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/sip-planner?tab=asset-allocation")}>
+                    Step 6: Design Asset Allocation
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/sip-planner?tab=sip-plan")}>
+                    Step 7: Plan Your SIPs
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/tax-planning")}>
-                    Tax Planning & ITR Filing
-                  </DropdownMenuItem>
+                  {/* Support & Community */}
+                  <DropdownMenuLabel className="text-xs font-semibold text-gray-600 px-2">
+                    Support & Community
+                  </DropdownMenuLabel>
                   <DropdownMenuItem className="cursor-pointer" onClick={() => window.open("https://wa.me/yourwhatsapplink", "_blank")}>
-                    Talk to Expert
+                    💬 Talk to Expert
                   </DropdownMenuItem>
                   <DropdownMenuItem className="cursor-pointer" onClick={() => window.open("https://chat.whatsapp.com/yourcommunitylink", "_blank")}>
-                    Join WA Community
+                    👥 Join Community
                   </DropdownMenuItem>
                   <DropdownMenuItem className="cursor-pointer" onClick={() => window.open("https://form.typeform.com/to/euTwDCwt", "_blank")}>
-                    Here's My Feedback
+                    📝 My Feedback
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem className="cursor-pointer" onClick={handleLogout}>
-                    Log Out
+                    🚪 Log Out
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

@@ -54,7 +54,8 @@ const drawBarChart = (
 export const generateFinancialProfilePDF = async (
   financialData: any,
   riskAnalysis: any,
-  user: any
+  user: any,
+  assetAllocations?: any
 ) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
@@ -735,6 +736,62 @@ export const generateFinancialProfilePDF = async (
     renderGoals(financialData.goals.shortTermGoals, 'Short-Term Goals (0-3 years)');
     renderGoals(financialData.goals.midTermGoals, 'Mid-Term Goals (3-7 years)');
     renderGoals(financialData.goals.longTermGoals, 'Long-Term Goals (7+ years)');
+  }
+
+  // ============= ASSET ALLOCATION STRATEGY =============
+  if (assetAllocations && assetAllocations.allocations && assetAllocations.allocations.length > 0) {
+    checkPageBreak(80);
+    yPosition += 5;
+    addSectionHeader('ASSET ALLOCATION STRATEGY', [128, 0, 128]);
+
+    addLine('Your customized asset allocation for different goal types:', 0, 9);
+    yPosition += 3;
+
+    assetAllocations.allocations.forEach((allocation: any) => {
+      checkPageBreak(35);
+
+      // Goal type header
+      addLine(`${allocation.goal_type}:`, 0, 10, true);
+      yPosition += 2;
+
+      // Draw allocation bars
+      if (allocation.equity_pct > 0) {
+        drawBarChart(doc, margin + 5, yPosition, 80, 4, allocation.equity_pct, [37, 99, 235], 'Indian Equity');
+        yPosition += 6;
+      }
+      if (allocation.us_equity_pct > 0) {
+        drawBarChart(doc, margin + 5, yPosition, 80, 4, allocation.us_equity_pct, [59, 130, 246], 'US Equity');
+        yPosition += 6;
+      }
+      if (allocation.debt_pct > 0) {
+        drawBarChart(doc, margin + 5, yPosition, 80, 4, allocation.debt_pct, [34, 197, 94], 'Debt');
+        yPosition += 6;
+      }
+      if (allocation.gold_pct > 0) {
+        drawBarChart(doc, margin + 5, yPosition, 80, 4, allocation.gold_pct, [251, 191, 36], 'Gold');
+        yPosition += 6;
+      }
+      if (allocation.reits_pct > 0) {
+        drawBarChart(doc, margin + 5, yPosition, 80, 4, allocation.reits_pct, [168, 85, 247], 'REITs');
+        yPosition += 6;
+      }
+      if (allocation.crypto_pct > 0) {
+        drawBarChart(doc, margin + 5, yPosition, 80, 4, allocation.crypto_pct, [239, 68, 68], 'Crypto');
+        yPosition += 6;
+      }
+      if (allocation.cash_pct > 0) {
+        drawBarChart(doc, margin + 5, yPosition, 80, 4, allocation.cash_pct, [107, 114, 128], 'Cash');
+        yPosition += 6;
+      }
+
+      // Expected returns
+      if (allocation.expected_cagr_min && allocation.expected_cagr_max) {
+        yPosition += 2;
+        addLine(`Expected Returns: ${allocation.expected_cagr_min}% - ${allocation.expected_cagr_max}% CAGR`, 5, 9);
+      }
+
+      yPosition += 5;
+    });
   }
 
   // ============= SMART SAVING TIPS =============

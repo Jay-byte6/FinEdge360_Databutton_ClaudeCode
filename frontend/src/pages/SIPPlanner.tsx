@@ -16,6 +16,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { AssetAllocationStrategy } from "@/components/AssetAllocationStrategy";
 
 // Enhanced Goal interface with all required fields
 interface DetailedGoal {
@@ -93,19 +94,29 @@ const SIPPlanner: React.FC = () => {
 
         if (response.ok) {
           const data = await response.json();
-          console.log('SIP planner data loaded:', data);
+          console.log('[SIP Planner] Data loaded from database:', data);
 
           if (data && data.goals && Array.isArray(data.goals) && data.goals.length > 0) {
-            console.log('Setting goals from database:', data.goals);
-            console.log('First goal structure:', JSON.stringify(data.goals[0], null, 2));
-            console.log('Number of goals loaded:', data.goals.length);
-            setGoals(data.goals);
-            console.log('Goals state after setGoals - should trigger re-render');
+            console.log('[SIP Planner] ✅ Loading', data.goals.length, 'goals from database');
+            console.log('[SIP Planner] Goals data:', JSON.stringify(data.goals, null, 2));
+
+            // Ensure all goal fields are properly initialized
+            const loadedGoals = data.goals.map((goal: any) => ({
+              ...goal,
+              // Ensure all required fields exist with defaults
+              sipCalculated: goal.sipCalculated ?? false,
+              sipRequired: goal.sipRequired ?? null,
+              amountRequiredFuture: goal.amountRequiredFuture ?? null,
+            }));
+
+            setGoals(loadedGoals);
+            console.log('[SIP Planner] ✅ Goals loaded successfully into state');
           } else {
-            console.log('No goals found in database, starting fresh');
+            console.log('[SIP Planner] ⚠️ No goals found in database response');
+            console.log('[SIP Planner] Response data:', data);
           }
         } else {
-          console.log('Failed to load SIP planner data');
+          console.log('[SIP Planner] ❌ Failed to load - HTTP', response.status);
         }
       } catch (error) {
         console.error('Error loading SIP planner data:', error);
@@ -385,8 +396,9 @@ const SIPPlanner: React.FC = () => {
     return sum;
   }, 0);
 
-  const availableToAllocate = totalInvestableAssets - totalAmountAvailableToday;
-  const sipSurplusOrDeficit = monthlySavings - totalSIPRequired;
+  // Ensure values are always numbers (never undefined/null/NaN)
+  const availableToAllocate = (totalInvestableAssets || 0) - (totalAmountAvailableToday || 0);
+  const sipSurplusOrDeficit = (monthlySavings || 0) - (totalSIPRequired || 0);
 
   if (!hasAccess) {
     return (
@@ -457,7 +469,7 @@ const SIPPlanner: React.FC = () => {
         <TabsList className="grid w-full grid-cols-3 mb-6">
           <TabsTrigger value="goals">Set Goals</TabsTrigger>
           <TabsTrigger value="sipplan">SIP Plan</TabsTrigger>
-          <TabsTrigger value="summary">Summary</TabsTrigger>
+          <TabsTrigger value="allocation">Asset Allocation</TabsTrigger>
         </TabsList>
 
         {/* TAB 1: Set Goals (existing goal planning table) */}
@@ -725,6 +737,125 @@ const SIPPlanner: React.FC = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Summary Section - Now on the same page */}
+      <div className="space-y-6 mt-8">
+        {/* Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle>Lump Sum Summary</CardTitle>
+              <p className="text-sm text-gray-500">From Current Investable Asset Allocation (NetWorth page)</p>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span className="font-semibold">Total Investable Assets:</span>
+                  <span className="font-bold text-blue-600">₹{(totalInvestableAssets || 0).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-semibold">Already Allocated to Goals:</span>
+                  <span className="font-bold">₹{(totalAmountAvailableToday || 0).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between border-t pt-2">
+                  <span className="font-semibold">Still Available to Allocate:</span>
+                  <span className={`font-bold text-xl ${availableToAllocate >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    ₹{(availableToAllocate || 0).toLocaleString()}
+                  </span>
+                </div>
+              </div>
+              {availableToAllocate < 0 && (
+                <div className="mt-4 p-3 bg-red-50 border border-red-300 rounded-lg">
+                  <p className="text-sm text-red-700 font-semibold flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4" />
+                    Warning: You've allocated more than your available investable assets!
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className={`shadow-lg ${sipSurplusOrDeficit < 0 ? 'border-2 border-red-500' : 'border-2 border-green-500'}`}>
+            <CardHeader>
+              <CardTitle>Monthly SIP Summary</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span className="font-semibold">Total SIP Required:</span>
+                  <span className="font-bold">₹{(totalSIPRequired || 0).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-semibold">Max Monthly Capacity:</span>
+                  <span className="font-bold">₹{(monthlySavings || 0).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between border-t pt-2">
+                  <span className="font-semibold">
+                    {sipSurplusOrDeficit >= 0 ? 'Surplus:' : 'Deficit:'}
+                  </span>
+                  <span className={`font-bold text-xl ${sipSurplusOrDeficit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    ₹{Math.abs(sipSurplusOrDeficit || 0).toLocaleString()}
+                  </span>
+                </div>
+              </div>
+              {sipSurplusOrDeficit < 0 && (
+                <div className="mt-4 p-3 bg-red-50 border border-red-300 rounded-lg">
+                  <p className="text-sm text-red-700 font-semibold flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4" />
+                    Warning: Your total SIP requirements exceed your monthly savings by ₹{Math.abs(sipSurplusOrDeficit || 0).toLocaleString()}.
+                    You need to either increase your income, reduce expenses, or adjust your goals.
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Disclaimer */}
+        <Card className="bg-yellow-50 border-2 border-yellow-300">
+          <CardContent className="py-4">
+            <p className="text-sm text-gray-700">
+              <strong>Disclaimer:</strong> The calculations are based on assumed returns: Short-Term @ 6% p.a.,
+              Mid-Term @ 9% p.a., Long-Term @ 11% p.a. Actual returns may vary. All inflation and step-up
+              percentages are user-defined assumptions. Please consult a certified financial advisor before
+              making investment decisions.
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Recommendations Section */}
+        {totalSIPRequired > 0 && (
+          <Card className="bg-green-50 border-2 border-green-300">
+            <CardHeader>
+              <CardTitle>Financial Recommendations</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-2 text-sm text-gray-700">
+                <li className="flex items-start gap-2">
+                  <span className="text-green-600 font-bold">✓</span>
+                  <span>
+                    {sipSurplusOrDeficit >= 0
+                      ? `Great job! You have a surplus of ₹${(sipSurplusOrDeficit || 0).toLocaleString()} per month. Consider increasing your SIP amounts or adding new goals.`
+                      : `You need to find an additional ₹${Math.abs(sipSurplusOrDeficit || 0).toLocaleString()} per month. Consider increasing your income, reducing expenses, or extending goal timelines.`}
+                  </span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-600 font-bold">✓</span>
+                  <span>Review and rebalance your portfolio annually to stay aligned with your goals.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-600 font-bold">✓</span>
+                  <span>Prioritize high-priority goals and consider automating your SIP investments to ensure consistency.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-600 font-bold">✓</span>
+                  <span>Build an emergency fund (3-6 months of expenses) before investing in long-term goals.</span>
+                </li>
+              </ul>
+            </CardContent>
+          </Card>
+        )}
+      </div>
         </TabsContent>
 
         {/* TAB 2: SIP Plan (breakdown of each goal) */}
@@ -750,46 +881,46 @@ const SIPPlanner: React.FC = () => {
                         <h4 className="font-semibold text-gray-700 border-b pb-2">Goal Details</h4>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Time Horizon:</span>
-                          <span className="font-semibold">{goal.timeYears} years</span>
+                          <span className="font-semibold">{goal.timeYears || 0} years</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Amount Required (Today):</span>
-                          <span className="font-semibold">₹{goal.amountRequiredToday.toLocaleString()}</span>
+                          <span className="font-semibold">₹{(goal.amountRequiredToday || 0).toLocaleString()}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Goal Inflation:</span>
-                          <span className="font-semibold">{goal.goalInflation}% p.a.</span>
+                          <span className="font-semibold">{goal.goalInflation || 0}% p.a.</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Amount Required (Future):</span>
-                          <span className="font-semibold text-blue-600">₹{goal.amountRequiredFuture?.toLocaleString() || '0'}</span>
+                          <span className="font-semibold text-blue-600">₹{(goal.amountRequiredFuture || 0).toLocaleString()}</span>
                         </div>
                       </div>
                       <div className="space-y-3">
                         <h4 className="font-semibold text-gray-700 border-b pb-2">Investment Strategy</h4>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Lump Sum Allocated:</span>
-                          <span className="font-semibold">₹{goal.amountAvailableToday.toLocaleString()}</span>
+                          <span className="font-semibold">₹{(goal.amountAvailableToday || 0).toLocaleString()}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Expected Return:</span>
-                          <span className="font-semibold">{(EXPECTED_RETURNS[goal.goalType] * 100).toFixed(0)}% p.a.</span>
+                          <span className="font-semibold">{((EXPECTED_RETURNS[goal.goalType] || 0) * 100).toFixed(0)}% p.a.</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">SIP Step-Up:</span>
-                          <span className="font-semibold">{goal.stepUp}% annually</span>
+                          <span className="font-semibold">{goal.stepUp || 0}% annually</span>
                         </div>
                         <div className="flex justify-between border-t pt-2">
                           <span className="text-gray-700 font-semibold">Monthly SIP Required:</span>
-                          <span className="font-bold text-xl text-green-600">₹{goal.sipRequired?.toLocaleString() || '0'}</span>
+                          <span className="font-bold text-xl text-green-600">₹{(goal.sipRequired || 0).toLocaleString()}</span>
                         </div>
                       </div>
                     </div>
                     <div className="mt-4 p-4 bg-blue-50 rounded-lg">
                       <p className="text-sm text-gray-700">
-                        <strong>Investment Plan:</strong> Start with a monthly SIP of ₹{goal.sipRequired?.toLocaleString() || '0'},
-                        increase it by {goal.stepUp}% every year, and invest the lump sum of ₹{goal.amountAvailableToday.toLocaleString()}
-                        today. This will help you accumulate ₹{goal.amountRequiredFuture?.toLocaleString() || '0'} in {goal.timeYears} years.
+                        <strong>Investment Plan:</strong> Start with a monthly SIP of ₹{(goal.sipRequired || 0).toLocaleString()},
+                        increase it by {goal.stepUp || 0}% every year, and invest the lump sum of ₹{(goal.amountAvailableToday || 0).toLocaleString()}
+                        today. This will help you accumulate ₹{(goal.amountRequiredFuture || 0).toLocaleString()} in {goal.timeYears || 0} years.
                       </p>
                     </div>
                   </CardContent>
@@ -799,125 +930,9 @@ const SIPPlanner: React.FC = () => {
           </div>
         </TabsContent>
 
-        {/* TAB 3: Summary (overall financial overview) */}
-        <TabsContent value="summary">
-      <div className="space-y-6">
-      {/* Summary Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle>Lump Sum Summary</CardTitle>
-            <p className="text-sm text-gray-500">From Current Investable Asset Allocation (NetWorth page)</p>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span className="font-semibold">Total Investable Assets:</span>
-                <span className="font-bold text-blue-600">₹{totalInvestableAssets.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">Already Allocated to Goals:</span>
-                <span className="font-bold">₹{totalAmountAvailableToday.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between border-t pt-2">
-                <span className="font-semibold">Still Available to Allocate:</span>
-                <span className={`font-bold text-xl ${availableToAllocate >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  ₹{availableToAllocate.toLocaleString()}
-                </span>
-              </div>
-            </div>
-            {availableToAllocate < 0 && (
-              <div className="mt-4 p-3 bg-red-50 border border-red-300 rounded-lg">
-                <p className="text-sm text-red-700 font-semibold flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4" />
-                  Warning: You've allocated more than your available investable assets!
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card className={`shadow-lg ${sipSurplusOrDeficit < 0 ? 'border-2 border-red-500' : 'border-2 border-green-500'}`}>
-          <CardHeader>
-            <CardTitle>Monthly SIP Summary</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span className="font-semibold">Total SIP Required:</span>
-                <span className="font-bold">₹{totalSIPRequired.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">Max Monthly Capacity:</span>
-                <span className="font-bold">₹{monthlySavings.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between border-t pt-2">
-                <span className="font-semibold">
-                  {sipSurplusOrDeficit >= 0 ? 'Surplus:' : 'Deficit:'}
-                </span>
-                <span className={`font-bold text-xl ${sipSurplusOrDeficit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  ₹{Math.abs(sipSurplusOrDeficit).toLocaleString()}
-                </span>
-              </div>
-            </div>
-            {sipSurplusOrDeficit < 0 && (
-              <div className="mt-4 p-3 bg-red-50 border border-red-300 rounded-lg">
-                <p className="text-sm text-red-700 font-semibold flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4" />
-                  Warning: Your total SIP requirements exceed your monthly savings by ₹{Math.abs(sipSurplusOrDeficit).toLocaleString()}.
-                  You need to either increase your income, reduce expenses, or adjust your goals.
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Disclaimer */}
-      <Card className="mt-6 bg-yellow-50 border-2 border-yellow-300">
-        <CardContent className="py-4">
-          <p className="text-sm text-gray-700">
-            <strong>Disclaimer:</strong> The calculations are based on assumed returns: Short-Term @ 6% p.a.,
-            Mid-Term @ 9% p.a., Long-Term @ 11% p.a. Actual returns may vary. All inflation and step-up
-            percentages are user-defined assumptions. Please consult a certified financial advisor before
-            making investment decisions.
-          </p>
-        </CardContent>
-      </Card>
-
-      {/* Recommendations Section */}
-      {totalSIPRequired > 0 && (
-        <Card className="mt-6 bg-green-50 border-2 border-green-300">
-          <CardHeader>
-            <CardTitle>Financial Recommendations</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-2 text-sm text-gray-700">
-              <li className="flex items-start gap-2">
-                <span className="text-green-600 font-bold">✓</span>
-                <span>
-                  {sipSurplusOrDeficit >= 0
-                    ? `Great job! You have a surplus of ₹${sipSurplusOrDeficit.toLocaleString()} per month. Consider increasing your SIP amounts or adding new goals.`
-                    : `You need to find an additional ₹${Math.abs(sipSurplusOrDeficit).toLocaleString()} per month. Consider increasing your income, reducing expenses, or extending goal timelines.`}
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-green-600 font-bold">✓</span>
-                <span>Review and rebalance your portfolio annually to stay aligned with your goals.</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-green-600 font-bold">✓</span>
-                <span>Prioritize high-priority goals and consider automating your SIP investments to ensure consistency.</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-green-600 font-bold">✓</span>
-                <span>Build an emergency fund (3-6 months of expenses) before investing in long-term goals.</span>
-              </li>
-            </ul>
-          </CardContent>
-        </Card>
-      )}
-      </div>
+        {/* TAB 3: Asset Allocation Strategy */}
+        <TabsContent value="allocation">
+          <AssetAllocationStrategy />
         </TabsContent>
       </Tabs>
     </div>

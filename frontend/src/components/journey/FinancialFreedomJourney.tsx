@@ -43,8 +43,17 @@ export const FinancialFreedomJourney: React.FC = () => {
         try {
           const response = await fetch(`/routes/get-financial-data/${user.id}`);
           if (response.ok) {
-            data = await response.json();
-            break;
+            // Check if response is JSON before parsing
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+              data = await response.json();
+              break;
+            } else {
+              console.error('Expected JSON but got:', contentType);
+              const text = await response.text();
+              console.error('Response text:', text.substring(0, 200));
+              break; // Don't retry if content-type is wrong
+            }
           } else if (response.status === 500 && retries > 1) {
             // Retry on 500 errors (server disconnected)
             console.log(`Retrying financial data fetch... (${retries - 1} retries left)`);
@@ -111,16 +120,31 @@ export const FinancialFreedomJourney: React.FC = () => {
       });
 
       // Check which milestones are completed
+      // Defensive: ensure data exists before checking properties
+      const safeData = data || {};
+      const safeSipData = sipData || {};
+
+      // Defensive: Add extra safety checks to prevent crashes from malformed data
       const completionChecker: CompletionChecker = {
-        hasFinancialData: !!(data?.assets || data?.liabilities),
-        hasNetWorth: !!(data?.assets && data?.liabilities),
-        hasFIRECalculation: !!(data?.fireNumber || data?.retirementAge),
-        hasTaxPlanning: !!(data?.taxPlan),  // Only check for taxPlan now
+        hasFinancialData: !!(safeData?.assets || safeData?.liabilities),
+        hasNetWorth: !!(safeData?.assets && safeData?.liabilities),
+        hasFIRECalculation: !!(safeData?.fireNumber || safeData?.retirementAge || safeData?.riskAppetite?.retirementAge),
+        hasTaxPlanning: !!(safeData?.taxPlan || safeData?.tax_plan),  // Check both formats
         hasRiskAssessment: false, // We'll check this separately
-        hasPortfolioDesign: !!(data?.assets?.liquid || data?.assets?.illiquid),
-        hasGoals: !!(data?.goals?.shortTermGoals?.length || data?.goals?.midTermGoals?.length || data?.goals?.longTermGoals?.length),
+        hasPortfolioDesign: !!(safeData?.assets?.liquid || safeData?.assets?.illiquid),
+        hasGoals: !!(
+          safeData?.goals?.shortTermGoals?.length ||
+          safeData?.goals?.midTermGoals?.length ||
+          safeData?.goals?.longTermGoals?.length ||
+          safeData?.goals?.shortTerm?.length ||
+          safeData?.goals?.midTerm?.length ||
+          safeData?.goals?.longTerm?.length
+        ),
         // Milestone 7 now requires ACTUAL SIP calculations (not just goals)
-        hasFinancialPlan: !!(sipData && sipData.totalMonthlySIP && data?.goals),
+        hasFinancialPlan: !!(
+          (safeSipData?.totalMonthlySIP || safeSipData?.sipCalculations) &&
+          safeData?.goals
+        ),
         hasAutomatedSIP: false, // Future feature
         hasActiveMonitoring: false, // Future feature
         hasAchievedFreedom: false, // Calculated based on income vs expenses
