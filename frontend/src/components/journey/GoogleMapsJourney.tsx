@@ -7,7 +7,8 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MilestoneData, UserJourneyState } from './types';
 import { MILESTONES } from './milestoneData';
-import { MapPin, Sparkles, Clock, CheckCircle, Lock, Flag, Navigation, Zap } from 'lucide-react';
+import { MapPin, Sparkles, Clock, CheckCircle, Lock, Flag, Navigation, Zap, Info } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface GoogleMapsJourneyProps {
   journeyState: UserJourneyState;
@@ -110,6 +111,24 @@ export const GoogleMapsJourney: React.FC<GoogleMapsJourneyProps> = ({ journeySta
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Guidance Card */}
+      <div className="relative z-20 max-w-7xl mx-auto px-6 pt-4">
+        <Card className="bg-gradient-to-r from-teal-50 to-cyan-50 border-2 border-teal-300">
+          <CardContent className="py-3">
+            <div className="flex items-start gap-3">
+              <Info className="w-5 h-5 text-teal-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <h3 className="font-semibold text-teal-900 mb-1">Your Journey to Financial Freedom</h3>
+                <p className="text-sm text-teal-700">
+                  This map shows your progress through 7 key milestones from financial stability to complete
+                  independence. Complete each milestone to unlock the next step in your journey!
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Map Container */}

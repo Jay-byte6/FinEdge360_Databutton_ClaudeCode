@@ -8,10 +8,11 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { CheckCircle, Circle, HelpCircle, PlayCircle, BookOpen, MessageCircle, Loader2 } from 'lucide-react';
+import { CheckCircle, Circle, HelpCircle, PlayCircle, BookOpen, MessageCircle, Loader2, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 import useAuthStore from '@/utils/authStore';
 import { API_BASE_URL } from '@/config/api';
@@ -38,6 +39,17 @@ interface MilestoneProgressState {
   notes?: string;
 }
 
+// Mapping of milestone numbers to their page routes
+const MILESTONE_ROUTES: Record<number, string> = {
+  1: '/net-worth',
+  2: '/fire-calculator',
+  3: '/tax-planning',
+  4: '/portfolio',
+  5: '/sip-planner?tab=set-goals',
+  6: '/sip-planner?tab=asset-allocation',
+  7: '/sip-planner?tab=sip-plan',
+};
+
 export const MilestoneCompletionCard: React.FC<MilestoneCompletionProps> = ({
   milestoneNumber,
   title,
@@ -46,6 +58,7 @@ export const MilestoneCompletionCard: React.FC<MilestoneCompletionProps> = ({
   onComplete,
 }) => {
   const { user } = useAuthStore();
+  const navigate = useNavigate();
   const [progressState, setProgressState] = useState<MilestoneProgressState>({
     completed: false,
     needs_help: false,
@@ -159,6 +172,21 @@ export const MilestoneCompletionCard: React.FC<MilestoneCompletionProps> = ({
     }
   };
 
+  const handleGoToNextMilestone = () => {
+    const nextMilestoneNumber = milestoneNumber + 1;
+    const nextMilestoneRoute = MILESTONE_ROUTES[nextMilestoneNumber];
+
+    if (nextMilestoneRoute) {
+      navigate(nextMilestoneRoute);
+    } else {
+      // If there's no next milestone, go to Journey Map
+      navigate('/journey');
+      toast.success('Congratulations! You\'ve completed all milestones!', {
+        description: 'Review your complete journey on the FIRE Map.',
+      });
+    }
+  };
+
   if (loading) {
     return (
       <Card className="w-full mt-8">
@@ -269,32 +297,44 @@ export const MilestoneCompletionCard: React.FC<MilestoneCompletionProps> = ({
         )}
       </CardContent>
 
-      <CardFooter className="flex items-center justify-between border-t pt-6">
+      <CardFooter className="flex flex-col md:flex-row items-center justify-between border-t pt-6 gap-4">
         <p className="text-sm text-gray-600">
           {isFullyCompleted
             ? 'All criteria met! You can now mark this milestone as complete.'
             : `Complete ${totalCount - completedCount} more ${totalCount - completedCount === 1 ? 'criterion' : 'criteria'} to unlock completion.`}
         </p>
-        <Button
-          size="lg"
-          onClick={handleMarkAsComplete}
-          disabled={!isFullyCompleted || progressState.completed || saving}
-          className={`${isFullyCompleted && !progressState.completed ? 'bg-green-600 hover:bg-green-700' : ''}`}
-        >
-          {saving ? (
-            <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Saving...
-            </>
-          ) : progressState.completed ? (
-            <>
-              <CheckCircle className="h-4 w-4 mr-2" />
-              Completed
-            </>
-          ) : (
-            'Mark as Complete & Continue'
-          )}
-        </Button>
+        <div className="flex gap-3">
+          <Button
+            size="lg"
+            variant="outline"
+            onClick={handleGoToNextMilestone}
+            disabled={!progressState.completed}
+            className="flex items-center"
+          >
+            Go to Next Milestone
+            <ArrowRight className="h-4 w-4 ml-2" />
+          </Button>
+          <Button
+            size="lg"
+            onClick={handleMarkAsComplete}
+            disabled={!isFullyCompleted || progressState.completed || saving}
+            className={`${isFullyCompleted && !progressState.completed ? 'bg-green-600 hover:bg-green-700' : ''}`}
+          >
+            {saving ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Saving...
+              </>
+            ) : progressState.completed ? (
+              <>
+                <CheckCircle className="h-4 w-4 mr-2" />
+                Completed
+              </>
+            ) : (
+              'Mark as Complete'
+            )}
+          </Button>
+        </div>
       </CardFooter>
     </Card>
   );

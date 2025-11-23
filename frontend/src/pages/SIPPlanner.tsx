@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { AccessCodeForm } from "components/AccessCodeForm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import useFinancialDataStore from "utils/financialDataStore";
 import useAuthStore from "utils/authStore";
 import { API_ENDPOINTS } from "@/config/api";
-import { AlertCircle, Plus, Trash2, Calculator, X, Info } from "lucide-react";
+import { AlertCircle, Plus, Trash2, Calculator, X, Info, RotateCcw } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -65,6 +65,7 @@ const SIPPlanner: React.FC = () => {
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [monthlySavings, setMonthlySavings] = useState<number>(0);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [assetAllocations, setAssetAllocations] = useState<any[]>([]);
 
   const ACCESS_CODE = "123456";
 
@@ -86,6 +87,16 @@ const SIPPlanner: React.FC = () => {
       try {
         // Fetch financial data to get monthly savings
         await fetchFinancialData(user.id);
+
+        // Load asset allocations first
+        const allocResponse = await fetch(API_ENDPOINTS.getAssetAllocation(user.id));
+        if (allocResponse.ok) {
+          const allocData = await allocResponse.json();
+          if (allocData && allocData.allocations) {
+            setAssetAllocations(allocData.allocations);
+            console.log('[SIP Planner] Loaded asset allocations:', allocData.allocations);
+          }
+        }
 
         // Load SIP planner data
         console.log('Loading SIP planner data for user:', user.id);
@@ -259,10 +270,10 @@ const SIPPlanner: React.FC = () => {
       goalType: 'Short-Term',
       amountRequiredToday: 0,
       amountAvailableToday: 0,
-      goalInflation: 5,
-      stepUp: 5,
-      amountRequiredFuture: null,
-      sipRequired: null,
+      goalInflation: 6, // Default 6% inflation
+      stepUp: 10, // Default 10% step-up (typical salary increment)
+      amountRequiredFuture: 0,
+      sipRequired: 0,
       sipCalculated: false,
     };
     setGoals([...goals, newGoal]);
@@ -276,11 +287,30 @@ const SIPPlanner: React.FC = () => {
     toast.success("Goal deleted");
   };
 
+  // Auto-determine goal type based on years
+  const determineGoalType = (years: number): 'Short-Term' | 'Mid-Term' | 'Long-Term' => {
+    if (years <= 3) return 'Short-Term';
+    if (years <= 7) return 'Mid-Term';
+    return 'Long-Term';
+  };
+
   // Update goal field
   const handleUpdateGoal = (id: string, field: keyof DetailedGoal, value: any) => {
     setGoals(goals.map(goal => {
       if (goal.id === id) {
-        const updated = { ...goal, [field]: value };
+        // Convert empty string to 0 for numeric fields
+        let processedValue = value;
+        if (['amountRequiredToday', 'amountAvailableToday', 'goalInflation', 'stepUp', 'timeYears', 'priority'].includes(field)) {
+          processedValue = value === '' ? 0 : value;
+        }
+
+        const updated = { ...goal, [field]: processedValue };
+
+        // Auto-determine goal type when years change
+        if (field === 'timeYears') {
+          const years = parseInt(String(processedValue)) || 1;
+          updated.goalType = determineGoalType(years);
+        }
 
         // Recalculate future value whenever relevant fields change
         if (['amountRequiredToday', 'amountAvailableToday', 'goalInflation', 'timeYears', 'goalType'].includes(field)) {
@@ -356,12 +386,30 @@ const SIPPlanner: React.FC = () => {
       console.log('Saving SIP plan for user:', user.id);
       console.log('Goals to save:', goals);
 
+      // Clean up goals data - ensure all required fields are present and properly formatted
+      const cleanedGoals = goals.map(goal => ({
+        id: goal.id,
+        name: goal.name || '',
+        priority: goal.priority || 1,
+        timeYears: goal.timeYears || 1,
+        goalType: goal.goalType || 'Short-Term',
+        amountRequiredToday: goal.amountRequiredToday || 0,
+        amountAvailableToday: goal.amountAvailableToday || 0,
+        goalInflation: goal.goalInflation || 0,
+        stepUp: goal.stepUp || 0,
+        amountRequiredFuture: goal.amountRequiredFuture || 0,
+        sipRequired: goal.sipRequired || 0,
+        sipCalculated: goal.sipCalculated || false,
+      }));
+
+      console.log('Cleaned goals to save:', cleanedGoals);
+
       const response = await fetch(API_ENDPOINTS.saveSIPPlanner, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           userId: user.id,
-          goals: goals,
+          goals: cleanedGoals,
         }),
       });
 
@@ -370,6 +418,14 @@ const SIPPlanner: React.FC = () => {
       console.log('Response data:', responseData);
 
       if (!response.ok) {
+        // Better error handling for validation errors
+        if (Array.isArray(responseData.detail)) {
+          const errorMessages = responseData.detail.map((err: any) =>
+            `${err.loc?.join('.') || 'unknown'}: ${err.msg}`
+          ).join('\n');
+          console.error('Validation errors:', errorMessages);
+          throw new Error(`Validation failed:\n${errorMessages}`);
+        }
         throw new Error(responseData.detail || 'Failed to save');
       }
 
@@ -399,6 +455,61 @@ const SIPPlanner: React.FC = () => {
   // Ensure values are always numbers (never undefined/null/NaN)
   const availableToAllocate = (totalInvestableAssets || 0) - (totalAmountAvailableToday || 0);
   const sipSurplusOrDeficit = (monthlySavings || 0) - (totalSIPRequired || 0);
+
+  // Calculate SIP Plan with Asset Allocation Breakdown - memoized to prevent re-computation
+  const sipPlanData = useMemo(() => {
+    // Calculate asset breakdown for each goal
+    const goalsWithBreakdown = goals
+      .filter(g => g.sipCalculated && g.sipRequired && g.sipRequired > 0)
+      .map(goal => {
+        const allocation = assetAllocations.find(a => a.goal_type === goal.goalType);
+        if (!allocation) {
+          return {
+            ...goal,
+            assetBreakdown: null
+          };
+        }
+
+        return {
+          ...goal,
+          assetBreakdown: {
+            equity: Math.round((goal.sipRequired || 0) * (allocation.equity_pct / 100)),
+            us_equity: Math.round((goal.sipRequired || 0) * (allocation.us_equity_pct / 100)),
+            debt: Math.round((goal.sipRequired || 0) * (allocation.debt_pct / 100)),
+            gold: Math.round((goal.sipRequired || 0) * (allocation.gold_pct / 100)),
+            reits: Math.round((goal.sipRequired || 0) * (allocation.reits_pct / 100)),
+            crypto: Math.round((goal.sipRequired || 0) * (allocation.crypto_pct / 100)),
+            cash: Math.round((goal.sipRequired || 0) * (allocation.cash_pct / 100)),
+          }
+        };
+      });
+
+    // Calculate totals
+    const totals = goalsWithBreakdown.reduce((acc, goal) => {
+      if (!goal.assetBreakdown) return acc;
+      return {
+        totalSIP: acc.totalSIP + (goal.sipRequired || 0),
+        equity: acc.equity + goal.assetBreakdown.equity,
+        us_equity: acc.us_equity + goal.assetBreakdown.us_equity,
+        debt: acc.debt + goal.assetBreakdown.debt,
+        gold: acc.gold + goal.assetBreakdown.gold,
+        reits: acc.reits + goal.assetBreakdown.reits,
+        crypto: acc.crypto + goal.assetBreakdown.crypto,
+        cash: acc.cash + goal.assetBreakdown.cash,
+      };
+    }, {
+      totalSIP: 0,
+      equity: 0,
+      us_equity: 0,
+      debt: 0,
+      gold: 0,
+      reits: 0,
+      crypto: 0,
+      cash: 0,
+    });
+
+    return { goalsWithBreakdown, totals };
+  }, [goals, assetAllocations]);
 
   if (!hasAccess) {
     return (
@@ -438,7 +549,7 @@ const SIPPlanner: React.FC = () => {
         <div className="mb-4 p-4 bg-orange-100 border-l-4 border-orange-500 text-orange-700 animate-pulse">
           <div className="flex items-center">
             <AlertCircle className="w-5 h-5 mr-2" />
-            <p className="font-semibold">You have unsaved changes! Click the "⚠️ Save Changes" button to save your goals to the database.</p>
+            <p className="font-semibold">You have unsaved changes! Click the "⚠️ Save Goals" button to save your goals to the database.</p>
           </div>
         </div>
       )}
@@ -465,15 +576,56 @@ const SIPPlanner: React.FC = () => {
       </Card>
 
       {/* Tabs for different views */}
-      <Tabs defaultValue="goals" className="w-full">
+      <Tabs defaultValue="goals" className="w-full" onValueChange={(value) => {
+        // Refresh asset allocations when switching to Goal Planning tab
+        if (value === 'sipplan' && user?.id) {
+          fetch(API_ENDPOINTS.getAssetAllocation(user.id))
+            .then(response => response.json())
+            .then(data => {
+              if (data && data.allocations) {
+                setAssetAllocations(data.allocations);
+                console.log('[SIP Planner] ✅ Refreshed asset allocations for Goal Planning tab');
+              }
+            })
+            .catch(error => console.error('[SIP Planner] Error refreshing allocations:', error));
+        }
+      }}>
         <TabsList className="grid w-full grid-cols-3 mb-6">
-          <TabsTrigger value="goals">Set Goals</TabsTrigger>
-          <TabsTrigger value="sipplan">SIP Plan</TabsTrigger>
-          <TabsTrigger value="allocation">Asset Allocation</TabsTrigger>
+          <TabsTrigger value="goals">
+            <span className="flex items-center gap-1">
+              Step 1: Set Goals
+            </span>
+          </TabsTrigger>
+          <TabsTrigger value="allocation">
+            <span className="flex items-center gap-1">
+              Step 2: Asset Allocation
+            </span>
+          </TabsTrigger>
+          <TabsTrigger value="sipplan">
+            <span className="flex items-center gap-1">
+              Step 3: Goal Planning
+            </span>
+          </TabsTrigger>
         </TabsList>
 
         {/* TAB 1: Set Goals (existing goal planning table) */}
         <TabsContent value="goals">
+
+        {/* Step-by-step Guide */}
+        <Card className="mb-4 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300">
+          <CardContent className="py-3">
+            <div className="flex items-start gap-3">
+              <Info className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <h3 className="font-semibold text-green-900 mb-1">Step 1: Define Your Financial Goals</h3>
+                <p className="text-sm text-green-700">
+                  Add your goals (house, education, vacation, etc.), enter the amount needed and timeline.
+                  Click <strong>Calculate</strong> to see monthly SIP required. Click <strong>Save Goals</strong> when done.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
       {/* Action Buttons */}
       <div className="flex gap-4 mb-6">
@@ -485,7 +637,7 @@ const SIPPlanner: React.FC = () => {
           onClick={handleSave}
           className={hasUnsavedChanges ? "bg-orange-600 hover:bg-orange-700 animate-pulse" : "bg-blue-600 hover:bg-blue-700"}
         >
-          {hasUnsavedChanges ? "⚠️ Save Changes" : "Save SIP Plan"}
+          {hasUnsavedChanges ? "⚠️ Save Goals" : "Save Goals"}
         </Button>
       </div>
 
@@ -515,7 +667,7 @@ const SIPPlanner: React.FC = () => {
               <th className="border border-gray-300 px-3 py-2 text-sm">
                 <ColumnHeader
                   title="Goal Type"
-                  tooltip="Short-Term (6% return), Mid-Term (9% return), Long-Term (11% return). Based on time horizon and expected investment returns."
+                  tooltip="Auto-determined based on years: ≤3 years = Short-Term (6% return), 4-7 years = Mid-Term (9% return), 8+ years = Long-Term (11% return)."
                 />
               </th>
               <th className="border border-gray-300 px-3 py-2 text-sm">
@@ -603,23 +755,14 @@ const SIPPlanner: React.FC = () => {
                   />
                 </td>
 
-                {/* Goal Type - Editable */}
-                <td className="border border-gray-300 px-2 py-1">
-                  <Select
-                    value={goal.goalType}
-                    onValueChange={(value: 'Short-Term' | 'Mid-Term' | 'Long-Term') =>
-                      handleUpdateGoal(goal.id, 'goalType', value)
-                    }
-                  >
-                    <SelectTrigger className="w-32 bg-green-50">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Short-Term">Short Term</SelectItem>
-                      <SelectItem value="Mid-Term">Medium Term</SelectItem>
-                      <SelectItem value="Long-Term">Long Term</SelectItem>
-                    </SelectContent>
-                  </Select>
+                {/* Goal Type - Auto-determined (read-only display) */}
+                <td className="border border-gray-300 px-2 py-1 bg-blue-50">
+                  <div className="text-sm font-semibold text-gray-700 text-center">
+                    {goal.goalType ? goal.goalType.replace('-', ' ') : 'Short Term'}
+                  </div>
+                  <div className="text-xs text-gray-500 text-center">
+                    (Auto)
+                  </div>
                 </td>
 
                 {/* Amount Required (Today) - Editable */}
@@ -654,7 +797,7 @@ const SIPPlanner: React.FC = () => {
                 <td className="border border-gray-300 px-2 py-1">
                   <Input
                     type="number"
-                    value={goal.goalInflation || ''}
+                    value={goal.goalInflation === 0 ? '' : goal.goalInflation}
                     onChange={(e) => {
                       const val = e.target.value === '' ? 0 : parseFloat(e.target.value);
                       handleUpdateGoal(goal.id, 'goalInflation', isNaN(val) ? 0 : val);
@@ -663,6 +806,7 @@ const SIPPlanner: React.FC = () => {
                     min="0"
                     max="100"
                     step="0.1"
+                    placeholder="6%"
                   />
                 </td>
 
@@ -679,7 +823,7 @@ const SIPPlanner: React.FC = () => {
                 <td className="border border-gray-300 px-2 py-1">
                   <Input
                     type="number"
-                    value={goal.stepUp || ''}
+                    value={goal.stepUp === 0 ? '' : goal.stepUp}
                     onChange={(e) => {
                       const val = e.target.value === '' ? 0 : parseFloat(e.target.value);
                       handleUpdateGoal(goal.id, 'stepUp', isNaN(val) ? 0 : val);
@@ -688,6 +832,7 @@ const SIPPlanner: React.FC = () => {
                     min="0"
                     max="100"
                     step="1"
+                    placeholder="10%"
                   />
                 </td>
 
@@ -858,81 +1003,250 @@ const SIPPlanner: React.FC = () => {
       </div>
         </TabsContent>
 
-        {/* TAB 2: SIP Plan (breakdown of each goal) */}
+        {/* TAB 2: Asset Allocation Strategy */}
+        <TabsContent value="allocation">
+          {/* Step-by-step Guide */}
+          <Card className="mb-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300">
+            <CardContent className="py-3">
+              <div className="flex items-start gap-3">
+                <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <h3 className="font-semibold text-blue-900 mb-1">Step 2: Set Your Investment Strategy</h3>
+                  <p className="text-sm text-blue-700">
+                    Choose how to split your investments across Equity, Debt, Gold, etc. for each goal type.
+                    Ideal allocations are shown based on your risk profile. Customize if needed, then <strong>Save</strong>.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <AssetAllocationStrategy />
+        </TabsContent>
+
+        {/* TAB 3: Goal Planning (SIP Plan with Asset Allocation Breakdown) */}
         <TabsContent value="sipplan">
           <div className="space-y-6">
-            {goals.filter(g => g.sipCalculated).length === 0 ? (
+            {/* Check if asset allocations exist */}
+            {assetAllocations.length === 0 ? (
               <Card className="bg-yellow-50 border-2 border-yellow-300">
                 <CardContent className="py-8 text-center">
-                  <p className="text-lg font-semibold text-gray-700">No SIP calculations yet</p>
-                  <p className="text-sm text-gray-600 mt-2">Go to "Set Goals" tab and calculate SIP for your goals</p>
+                  <AlertCircle className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
+                  <p className="text-xl font-bold mb-2">Asset Allocation Required</p>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Please set your asset allocation strategy before viewing your SIP plan.
+                  </p>
+                  <Button onClick={() => {
+                    const tab = document.querySelector('[value="allocation"]') as HTMLElement;
+                    if (tab) tab.click();
+                  }} className="bg-blue-600 hover:bg-blue-700">
+                    Set Asset Allocation
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : goals.filter(g => g.sipCalculated).length === 0 ? (
+              <Card className="bg-blue-50 border-2 border-blue-300">
+                <CardContent className="py-8 text-center">
+                  <Info className="w-16 h-16 text-blue-500 mx-auto mb-4" />
+                  <p className="text-xl font-bold mb-2">No Goals Found</p>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Add your financial goals to see your personalized SIP plan.
+                  </p>
+                  <Button onClick={() => {
+                    const tab = document.querySelector('[value="goals"]') as HTMLElement;
+                    if (tab) tab.click();
+                  }} className="bg-green-600 hover:bg-green-700">
+                    Add Goals
+                  </Button>
                 </CardContent>
               </Card>
             ) : (
-              goals.filter(g => g.sipCalculated).map((goal) => (
-                <Card key={goal.id} className="shadow-lg border-2 border-blue-300">
-                  <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50">
-                    <CardTitle className="text-xl">{goal.name}</CardTitle>
-                    <p className="text-sm text-gray-600">{goal.goalType} Goal | Priority: {goal.priority}</p>
-                  </CardHeader>
-                  <CardContent className="pt-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-3">
-                        <h4 className="font-semibold text-gray-700 border-b pb-2">Goal Details</h4>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Time Horizon:</span>
-                          <span className="font-semibold">{goal.timeYears || 0} years</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Amount Required (Today):</span>
-                          <span className="font-semibold">₹{(goal.amountRequiredToday || 0).toLocaleString()}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Goal Inflation:</span>
-                          <span className="font-semibold">{goal.goalInflation || 0}% p.a.</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Amount Required (Future):</span>
-                          <span className="font-semibold text-blue-600">₹{(goal.amountRequiredFuture || 0).toLocaleString()}</span>
+              <>
+                {/* Step-by-step Guide */}
+                <Card className="bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-300">
+                  <CardContent className="py-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-3">
+                        <Info className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <h3 className="font-semibold text-purple-900 mb-1">Step 3: Your Complete Investment Plan</h3>
+                          <p className="text-sm text-purple-700">
+                            See exactly how much to invest in Equity, Debt, Gold, etc. for each goal.
+                            Use this as your investment roadmap! <strong>Next:</strong> Start your SIPs and track progress.
+                          </p>
                         </div>
                       </div>
-                      <div className="space-y-3">
-                        <h4 className="font-semibold text-gray-700 border-b pb-2">Investment Strategy</h4>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Lump Sum Allocated:</span>
-                          <span className="font-semibold">₹{(goal.amountAvailableToday || 0).toLocaleString()}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Expected Return:</span>
-                          <span className="font-semibold">{((EXPECTED_RETURNS[goal.goalType] || 0) * 100).toFixed(0)}% p.a.</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">SIP Step-Up:</span>
-                          <span className="font-semibold">{goal.stepUp || 0}% annually</span>
-                        </div>
-                        <div className="flex justify-between border-t pt-2">
-                          <span className="text-gray-700 font-semibold">Monthly SIP Required:</span>
-                          <span className="font-bold text-xl text-green-600">₹{(goal.sipRequired || 0).toLocaleString()}</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-                      <p className="text-sm text-gray-700">
-                        <strong>Investment Plan:</strong> Start with a monthly SIP of ₹{(goal.sipRequired || 0).toLocaleString()},
-                        increase it by {goal.stepUp || 0}% every year, and invest the lump sum of ₹{(goal.amountAvailableToday || 0).toLocaleString()}
-                        today. This will help you accumulate ₹{(goal.amountRequiredFuture || 0).toLocaleString()} in {goal.timeYears || 0} years.
-                      </p>
+                      <Button
+                        onClick={() => {
+                          if (user?.id) {
+                            fetch(API_ENDPOINTS.getAssetAllocation(user.id))
+                              .then(response => response.json())
+                              .then(data => {
+                                if (data && data.allocations) {
+                                  setAssetAllocations(data.allocations);
+                                  toast.success("Asset allocations refreshed!");
+                                }
+                              })
+                              .catch(error => {
+                                console.error('[SIP Planner] Error refreshing allocations:', error);
+                                toast.error("Failed to refresh allocations");
+                              });
+                          }
+                        }}
+                        variant="outline"
+                        size="sm"
+                        className="flex-shrink-0"
+                      >
+                        <RotateCcw className="h-4 w-4 mr-1" />
+                        Refresh
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
-              ))
+
+                {/* Capacity Warning if exceeded */}
+                {totalSIPRequired > monthlySavings && (
+                  <Card className="bg-red-50 border-2 border-red-300">
+                    <CardContent className="py-4">
+                      <div className="flex items-center gap-3">
+                        <AlertCircle className="w-6 h-6 text-red-600 flex-shrink-0" />
+                        <div>
+                          <p className="font-bold text-red-900">Investment Capacity Exceeded</p>
+                          <p className="text-sm text-red-700">
+                            Your total monthly SIP (₹{totalSIPRequired.toLocaleString()}) exceeds your available monthly capacity (₹{monthlySavings.toLocaleString()}) by ₹{(totalSIPRequired - monthlySavings).toLocaleString()}.
+                            Please adjust your goals or increase your monthly savings.
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* SIP Plan Table with Asset Class Breakdown */}
+                <Card className="shadow-lg">
+                  <CardHeader>
+                    <CardTitle>SIP Plan with Asset Class Breakdown</CardTitle>
+                    <p className="text-sm text-gray-600">Monthly investment split by asset class for each goal</p>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="overflow-x-auto">
+                      <table className="w-full border-collapse border border-gray-300 text-sm">
+                        <thead>
+                          <tr className="bg-gray-900 text-white">
+                            <th className="border border-gray-300 px-3 py-2 text-left sticky left-0 bg-gray-900">Goal</th>
+                            <th className="border border-gray-300 px-3 py-2">Years</th>
+                            <th className="border border-gray-300 px-3 py-2">Type</th>
+                            <th className="border border-gray-300 px-3 py-2">Future Value</th>
+                            <th className="border border-gray-300 px-3 py-2 bg-gray-800">Total SIP</th>
+                            <th className="border border-gray-300 px-3 py-2 bg-blue-600">Equity</th>
+                            <th className="border border-gray-300 px-3 py-2 bg-purple-600">US Equity</th>
+                            <th className="border border-gray-300 px-3 py-2 bg-green-600">Debt</th>
+                            <th className="border border-gray-300 px-3 py-2 bg-yellow-600">Gold</th>
+                            <th className="border border-gray-300 px-3 py-2 bg-orange-600">REITs</th>
+                            <th className="border border-gray-300 px-3 py-2 bg-indigo-600">Crypto</th>
+                            <th className="border border-gray-300 px-3 py-2 bg-gray-600">Cash</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {sipPlanData.goalsWithBreakdown.map((goal, index) => (
+                            <tr key={goal.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                              <td className="border border-gray-300 px-3 py-2 font-semibold sticky left-0 bg-inherit">{goal.name}</td>
+                              <td className="border border-gray-300 px-3 py-2 text-center">{goal.timeYears}</td>
+                              <td className="border border-gray-300 px-3 py-2 text-center text-xs">{goal.goalType.replace('-', ' ')}</td>
+                              <td className="border border-gray-300 px-3 py-2 text-right">₹{(goal.amountRequiredFuture || 0).toLocaleString()}</td>
+                              <td className="border border-gray-300 px-3 py-2 text-right font-bold bg-gray-100">₹{(goal.sipRequired || 0).toLocaleString()}</td>
+                              {goal.assetBreakdown ? (
+                                <>
+                                  <td className="border border-gray-300 px-3 py-2 text-right bg-blue-50">₹{goal.assetBreakdown.equity.toLocaleString()}</td>
+                                  <td className="border border-gray-300 px-3 py-2 text-right bg-purple-50">₹{goal.assetBreakdown.us_equity.toLocaleString()}</td>
+                                  <td className="border border-gray-300 px-3 py-2 text-right bg-green-50">₹{goal.assetBreakdown.debt.toLocaleString()}</td>
+                                  <td className="border border-gray-300 px-3 py-2 text-right bg-yellow-50">₹{goal.assetBreakdown.gold.toLocaleString()}</td>
+                                  <td className="border border-gray-300 px-3 py-2 text-right bg-orange-50">₹{goal.assetBreakdown.reits.toLocaleString()}</td>
+                                  <td className="border border-gray-300 px-3 py-2 text-right bg-indigo-50">₹{goal.assetBreakdown.crypto.toLocaleString()}</td>
+                                  <td className="border border-gray-300 px-3 py-2 text-right bg-gray-50">₹{goal.assetBreakdown.cash.toLocaleString()}</td>
+                                </>
+                              ) : (
+                                <td colSpan={7} className="border border-gray-300 px-3 py-2 text-center text-red-600 text-xs">
+                                  No allocation found for {goal.goalType}
+                                </td>
+                              )}
+                            </tr>
+                          ))}
+                          {/* Totals Row */}
+                          <tr className="bg-gray-800 text-white font-bold">
+                            <td className="border border-gray-300 px-3 py-2 sticky left-0 bg-gray-800">TOTAL</td>
+                            <td colSpan={3} className="border border-gray-300 px-3 py-2"></td>
+                            <td className="border border-gray-300 px-3 py-2 text-right text-lg">₹{sipPlanData.totals.totalSIP.toLocaleString()}</td>
+                            <td className="border border-gray-300 px-3 py-2 text-right bg-blue-700">₹{sipPlanData.totals.equity.toLocaleString()}</td>
+                            <td className="border border-gray-300 px-3 py-2 text-right bg-purple-700">₹{sipPlanData.totals.us_equity.toLocaleString()}</td>
+                            <td className="border border-gray-300 px-3 py-2 text-right bg-green-700">₹{sipPlanData.totals.debt.toLocaleString()}</td>
+                            <td className="border border-gray-300 px-3 py-2 text-right bg-yellow-700">₹{sipPlanData.totals.gold.toLocaleString()}</td>
+                            <td className="border border-gray-300 px-3 py-2 text-right bg-orange-700">₹{sipPlanData.totals.reits.toLocaleString()}</td>
+                            <td className="border border-gray-300 px-3 py-2 text-right bg-indigo-700">₹{sipPlanData.totals.crypto.toLocaleString()}</td>
+                            <td className="border border-gray-300 px-3 py-2 text-right bg-gray-700">₹{sipPlanData.totals.cash.toLocaleString()}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Capacity Summary */}
+                    <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="p-4 bg-blue-50 rounded-lg">
+                        <p className="text-sm text-gray-600">Monthly Capacity</p>
+                        <p className="text-2xl font-bold text-blue-600">₹{monthlySavings.toLocaleString()}</p>
+                      </div>
+                      <div className="p-4 bg-green-50 rounded-lg">
+                        <p className="text-sm text-gray-600">Total SIP Used</p>
+                        <p className="text-2xl font-bold text-green-600">₹{totalSIPRequired.toLocaleString()}</p>
+                        <p className="text-xs text-gray-500">{Math.round((totalSIPRequired / monthlySavings) * 100)}% of capacity</p>
+                      </div>
+                      <div className={`p-4 rounded-lg ${sipSurplusOrDeficit >= 0 ? 'bg-green-50' : 'bg-red-50'}`}>
+                        <p className="text-sm text-gray-600">{sipSurplusOrDeficit >= 0 ? 'Remaining' : 'Deficit'}</p>
+                        <p className={`text-2xl font-bold ${sipSurplusOrDeficit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                          ₹{Math.abs(sipSurplusOrDeficit).toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Investment Recommendations */}
+                <Card className="bg-green-50 border-2 border-green-300">
+                  <CardHeader>
+                    <CardTitle className="text-green-900">Next Steps</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="space-y-2 text-sm text-gray-700">
+                      <li className="flex items-start gap-2">
+                        <span className="text-green-600 font-bold text-lg">✓</span>
+                        <span>
+                          <strong>Diversify within asset classes:</strong> Don't put all your money in one fund. Spread your equity allocation across large-cap, mid-cap, and small-cap funds.
+                        </span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-green-600 font-bold text-lg">✓</span>
+                        <span>
+                          <strong>Review annually:</strong> Rebalance your portfolio if allocation drifts by more than 5% from your target.
+                        </span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-green-600 font-bold text-lg">✓</span>
+                        <span>
+                          <strong>Automate your SIPs:</strong> Set up automatic payments to ensure consistent investing regardless of market conditions.
+                        </span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-green-600 font-bold text-lg">✓</span>
+                        <span>
+                          <strong>Tax optimization:</strong> Consider ELSS funds for equity allocation to save tax under Section 80C (up to ₹1.5L annually).
+                        </span>
+                      </li>
+                    </ul>
+                  </CardContent>
+                </Card>
+              </>
             )}
           </div>
-        </TabsContent>
-
-        {/* TAB 3: Asset Allocation Strategy */}
-        <TabsContent value="allocation">
-          <AssetAllocationStrategy />
         </TabsContent>
       </Tabs>
     </div>

@@ -7,6 +7,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import useFinancialDataStore from '../utils/financialDataStore';
 import useAuthStore from '../utils/authStore';
 import { MilestoneCompletionCard } from '@/components/journey/MilestoneCompletionCard';
+import { InfoTooltip } from '@/components/InfoTooltip';
 
 type FIREMetrics = {
   annualExpenseInRetirement: number;
@@ -274,7 +275,10 @@ export default function FIRECalculator() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 py-12 px-4">
       <div className="container mx-auto max-w-6xl">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">FIRE Calculator</h1>
+          <h1 className="text-3xl font-bold text-gray-800 flex items-center">
+            FIRE Calculator
+            <InfoTooltip content="FIRE stands for Financial Independence, Retire Early. It's a movement focused on saving and investing to retire much earlier than traditional retirement age." />
+          </h1>
           <p className="text-gray-600">Track your journey to Financial Independence and Retire Early</p>
         </div>
 
@@ -287,12 +291,15 @@ export default function FIRECalculator() {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
-                <label htmlFor="inflationRate" className="block text-sm font-medium text-gray-700 mb-1">Inflation Rate (%)</label>
+                <label htmlFor="inflationRate" className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                  Inflation Rate (%)
+                  <InfoTooltip content="The rate at which the general level of prices for goods and services rises, reducing purchasing power. In India, average inflation is around 5-6%." />
+                </label>
                 <div className="flex items-center">
-                  <input 
-                    type="range" 
-                    id="inflationRate" 
-                    min="1" 
+                  <input
+                    type="range"
+                    id="inflationRate"
+                    min="1"
                     max="10"
                     step="0.5"
                     value={inflationRate}
@@ -303,12 +310,15 @@ export default function FIRECalculator() {
                 </div>
               </div>
               <div>
-                <label htmlFor="retirementAge" className="block text-sm font-medium text-gray-700 mb-1">Retirement Age</label>
+                <label htmlFor="retirementAge" className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                  Retirement Age
+                  <InfoTooltip content="The age at which you want to retire and live off your investments. Traditional retirement is 60-65, but FIRE aims for much earlier." />
+                </label>
                 <div className="flex items-center">
-                  <input 
-                    type="range" 
-                    id="retirementAge" 
-                    min="40" 
+                  <input
+                    type="range"
+                    id="retirementAge"
+                    min="40"
                     max="70"
                     step="1"
                     value={retirementAge}
@@ -319,7 +329,10 @@ export default function FIRECalculator() {
                 </div>
               </div>
               <div>
-                <label htmlFor="coastAge" className="block text-sm font-medium text-gray-700 mb-1">Coast FIRE Age</label>
+                <label htmlFor="coastAge" className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                  Coast FIRE Age
+                  <InfoTooltip content="Coast FIRE: The age when you've saved enough that compound growth will reach your FIRE goal by retirement. You can stop saving and just 'coast' on investment returns." />
+                </label>
                 <div className="flex items-center">
                   <input 
                     type="range" 
@@ -433,7 +446,10 @@ export default function FIRECalculator() {
                 <div className="space-y-4">
                   <div>
                     <div className="flex justify-between items-center mb-1">
-                      <span className="text-sm text-gray-600">Lean FIRE (80% expenses)</span>
+                      <span className="text-sm text-gray-600 flex items-center">
+                        Lean FIRE (80% expenses)
+                        <InfoTooltip content="Lean FIRE: Achieve financial independence with a more frugal lifestyle, requiring only 80% of your standard expenses. Faster to achieve but requires disciplined spending." />
+                      </span>
                       <span className="text-sm font-medium">{formatIndianCurrency(fireMetrics.leanFIRE)}</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2.5">
@@ -451,7 +467,10 @@ export default function FIRECalculator() {
                   </div>
                   <div>
                     <div className="flex justify-between items-center mb-1">
-                      <span className="text-sm text-gray-600">Fat FIRE (200% expenses)</span>
+                      <span className="text-sm text-gray-600 flex items-center">
+                        Fat FIRE (200% expenses)
+                        <InfoTooltip content="Fat FIRE: Retire with a luxurious lifestyle, requiring 200% of your standard expenses. Takes longer to achieve but provides maximum financial comfort." />
+                      </span>
                       <span className="text-sm font-medium">{formatIndianCurrency(fireMetrics.fatFIRE)}</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2.5">

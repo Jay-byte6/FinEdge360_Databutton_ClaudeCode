@@ -9,6 +9,7 @@ import useAuthStore from '../utils/authStore';
 import { FinancialData } from 'types'; // Added import for FinancialData
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"; // Import Table components
 import { MilestoneCompletionCard } from '@/components/journey/MilestoneCompletionCard';
+import { InfoTooltip } from '@/components/InfoTooltip';
 
 // Define color constants
 const COLORS = {
@@ -298,7 +299,10 @@ export default function NetWorth() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 py-12 px-4">
       <div className="container mx-auto max-w-6xl">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">Net Worth Tracker</h1>
+          <h1 className="text-3xl font-bold text-gray-800 flex items-center">
+            Net Worth Tracker
+            <InfoTooltip content="Net Worth = Total Assets - Total Liabilities. It represents your true financial position. A positive net worth means you own more than you owe." />
+          </h1>
           <p className="text-gray-600">Visualize your assets and liabilities to track your financial health</p>
         </div>
 
@@ -316,11 +320,17 @@ export default function NetWorth() {
                 </div>
                 <div className="flex flex-col sm:flex-row gap-4">
                   <div className="bg-green-50 border border-green-100 p-4 rounded-lg text-center min-w-36">
-                    <p className="text-green-700 text-sm font-medium">Total Assets</p>
+                    <p className="text-green-700 text-sm font-medium flex items-center justify-center">
+                      Total Assets
+                      <InfoTooltip content="Assets are everything you own that has value: property, investments, savings, jewelry, etc." />
+                    </p>
                     <p className="text-green-800 text-xl font-bold">{formatIndianCurrency(totalAssets)}</p>
                   </div>
                   <div className="bg-red-50 border border-red-100 p-4 rounded-lg text-center min-w-36">
-                    <p className="text-red-700 text-sm font-medium">Total Liabilities</p>
+                    <p className="text-red-700 text-sm font-medium flex items-center justify-center">
+                      Total Liabilities
+                      <InfoTooltip content="Liabilities are all your debts and financial obligations: loans, mortgages, credit card debt, etc." />
+                    </p>
                     <p className="text-red-800 text-xl font-bold">{formatIndianCurrency(totalLiabilities)}</p>
                   </div>
                 </div>

@@ -12,6 +12,19 @@ const NavBar: React.FC<NavBarProps> = ({ showFullNav = true }) => {
   const navigate = useNavigate();
   const { user, profile, signOut, isAuthenticated } = useAuthStore();
 
+  // Extract first name from profile or email
+  const getFirstName = () => {
+    if (profile?.full_name) {
+      return profile.full_name.split(' ')[0];
+    }
+    if (user?.email) {
+      return user.email.split('@')[0];
+    }
+    return 'User';
+  };
+
+  const firstName = getFirstName();
+
   const handleLogout = async () => {
     try {
       await signOut();
@@ -62,15 +75,19 @@ const NavBar: React.FC<NavBarProps> = ({ showFullNav = true }) => {
             {isAuthenticated ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-9 w-9 rounded-full">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100 text-blue-600">
-                      {profile?.full_name ? profile.full_name.charAt(0).toUpperCase() : user?.email?.charAt(0).toUpperCase() || "U"}
+                  <Button variant="ghost" className="relative h-9 rounded-full px-3">
+                    <div className="flex items-center gap-2">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100 text-blue-600 font-semibold">
+                        {firstName.charAt(0).toUpperCase()}
+                      </div>
+                      <span className="text-sm font-medium text-gray-700 hidden sm:block">Hi, {firstName}</span>
                     </div>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-semibold text-gray-900">{firstName}</p>
                       <p className="text-xs text-gray-500">{user?.email || "User"}</p>
                     </div>
                   </DropdownMenuLabel>
@@ -97,7 +114,7 @@ const NavBar: React.FC<NavBarProps> = ({ showFullNav = true }) => {
                     Step 1: Know Your Net Worth
                   </DropdownMenuItem>
                   <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/fire-calculator")}>
-                    Step 2: Calculate Your FIRE Number
+                    Step 2: Discover Your FIRE
                   </DropdownMenuItem>
                   <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/tax-planning")}>
                     Step 3: Optimize Your Taxes
@@ -112,7 +129,7 @@ const NavBar: React.FC<NavBarProps> = ({ showFullNav = true }) => {
                     Step 6: Design Asset Allocation
                   </DropdownMenuItem>
                   <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/sip-planner?tab=sip-plan")}>
-                    Step 7: Plan Your SIPs
+                    Step 7: FIRE Planning
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   {/* Support & Community */}
