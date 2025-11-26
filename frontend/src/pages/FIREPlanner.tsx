@@ -516,54 +516,105 @@ const FIREPlanner: React.FC = () => {
   if (!hasAccess) {
     return (
       <AccessCodeForm expectedCode={ACCESS_CODE} onAccessGranted={handleAccessGranted}>
-        <div className="p-6 border-t border-gray-200 mt-6 bg-gradient-to-r from-blue-50 to-purple-50">
-          <div className="text-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">🎯 Unlock Advanced SIP Planning</h2>
-            <p className="text-gray-600">Get instant access to powerful goal-based investment planning</p>
+        {/* Preview Content - Now renders OUTSIDE the access code box */}
+        <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl shadow-lg p-8 border-2 border-blue-200">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 mb-3">
+              🎯 Unlock Advanced FIRE Planning
+            </h2>
+            <p className="text-lg text-gray-700">Get instant access to powerful goal-based investment planning</p>
           </div>
 
-          {/* Preview of what they'll get */}
-          <div className="grid md:grid-cols-3 gap-4 mb-6">
-            <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-blue-500">
-              <h3 className="font-semibold text-blue-700 mb-1">📊 Goal Planning</h3>
+          {/* Preview Features - 3 Boxes */}
+          <div className="grid md:grid-cols-3 gap-6 mb-8">
+            <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-blue-500 hover:shadow-xl transition-shadow">
+              <div className="text-4xl mb-3">📊</div>
+              <h3 className="font-bold text-blue-700 mb-2 text-lg">Goal Planning</h3>
               <p className="text-sm text-gray-600">Set short, mid & long-term financial goals with inflation-adjusted calculations</p>
             </div>
-            <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-green-500">
-              <h3 className="font-semibold text-green-700 mb-1">💰 SIP Calculator</h3>
+            <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-green-500 hover:shadow-xl transition-shadow">
+              <div className="text-4xl mb-3">💰</div>
+              <h3 className="font-bold text-green-700 mb-2 text-lg">SIP Calculator</h3>
               <p className="text-sm text-gray-600">Calculate exact monthly SIP needed for each goal with step-up strategy</p>
             </div>
-            <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-purple-500">
-              <h3 className="font-semibold text-purple-700 mb-1">🎯 Asset Allocation</h3>
+            <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-purple-500 hover:shadow-xl transition-shadow">
+              <div className="text-4xl mb-3">🎯</div>
+              <h3 className="font-bold text-purple-700 mb-2 text-lg">Asset Allocation</h3>
               <p className="text-sm text-gray-600">Smart asset allocation across Equity, Debt, Gold & more based on your risk profile</p>
             </div>
           </div>
 
-          {/* Demo Code Display */}
-          <div className="bg-yellow-50 border-2 border-yellow-400 rounded-lg p-4 mb-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-semibold text-yellow-800 mb-1">🎁 Try Demo Mode:</p>
-                <p className="text-xs text-yellow-700">Use code <span className="font-mono font-bold text-lg">FIREDEMO</span> to explore sample data</p>
+          {/* FOMO: Limited Free Access */}
+          <div className="relative bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 border-3 border-red-400 rounded-xl p-6 mb-6 shadow-xl overflow-hidden">
+            {/* Animated Pulse Background */}
+            <div className="absolute inset-0 bg-gradient-to-r from-red-400/10 to-orange-400/10 animate-pulse"></div>
+
+            <div className="relative">
+              {/* Urgency Badge */}
+              <div className="flex items-center gap-2 mb-4">
+                <span className="bg-red-600 text-white text-xs font-black px-3 py-1 rounded-full uppercase tracking-wide animate-pulse">
+                  🔥 Limited Time Only
+                </span>
+                <span className="bg-orange-600 text-white text-xs font-black px-3 py-1 rounded-full uppercase tracking-wide">
+                  ⚡ First 50 Users
+                </span>
               </div>
-              <div className="bg-yellow-200 px-4 py-2 rounded-md">
-                <code className="text-2xl font-bold text-yellow-900">FIREDEMO</code>
+
+              {/* Main Headline */}
+              <h3 className="text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-orange-600 to-yellow-600 mb-3">
+                🎁 Grab Your FREE Access Code NOW!
+              </h3>
+
+              <p className="text-base md:text-lg text-gray-800 font-semibold mb-4">
+                We're giving away <span className="text-red-600 font-black">EXCLUSIVE FREE ACCESS</span> to the first <span className="text-orange-600 font-black underline">50 early adopters</span> who want to experience the full power of advanced FIRE Planning!
+              </p>
+
+              {/* The Code - Prominent */}
+              <div className="bg-white border-4 border-orange-400 rounded-2xl p-6 mb-4 shadow-2xl transform hover:scale-105 transition-all">
+                <div className="text-center">
+                  <p className="text-sm font-bold text-gray-600 mb-2 uppercase tracking-wide">Your FREE Access Code:</p>
+                  <div className="bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 px-8 py-4 rounded-xl inline-block shadow-xl">
+                    <code className="text-4xl md:text-5xl font-black text-white tracking-widest">FIREDEMO</code>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-3 font-medium">👆 Copy this code and unlock instantly!</p>
+                </div>
+              </div>
+
+              {/* Urgency Footer */}
+              <div className="flex items-center justify-between bg-red-100 border-2 border-red-300 rounded-lg p-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">⏰</span>
+                  <div>
+                    <p className="text-sm font-black text-red-900">Hurry! Limited Spots Remaining</p>
+                    <p className="text-xs text-red-700">Once 50 users claim this code, it's GONE forever!</p>
+                  </div>
+                </div>
+                <div className="bg-red-600 text-white px-4 py-2 rounded-lg">
+                  <p className="text-xs font-bold">Spots Left:</p>
+                  <p className="text-2xl font-black">42/50</p>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* How to get access code */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <p className="text-sm font-semibold text-blue-800 mb-2">💎 Get Your Personal Access Code:</p>
-            <ol className="text-xs text-blue-700 space-y-1 ml-4 list-decimal">
-              <li>Subscribe to <strong>Premium (₹2,999 one-time)</strong> or <strong>Expert Plus (₹3,999/month)</strong></li>
-              <li>Your unique access code will be sent to your email instantly</li>
-              <li>Use the code to unlock all advanced features forever</li>
-            </ol>
+          {/* Get Access Code */}
+          <div className="bg-white border-2 border-blue-300 rounded-xl p-6 shadow-md">
+            <div className="flex items-start gap-3 mb-4">
+              <span className="text-3xl">💎</span>
+              <div>
+                <p className="text-lg font-bold text-blue-900 mb-2">Get Your Personal Access Code:</p>
+                <ol className="text-sm text-blue-800 space-y-2 ml-5 list-decimal">
+                  <li>Subscribe to <strong>Premium (₹2,999 one-time)</strong> or <strong>Expert Plus (₹3,999/month)</strong></li>
+                  <li>Your <strong>unique access code</strong> will be sent to your email instantly</li>
+                  <li>Use the code to unlock all advanced features <strong>forever</strong></li>
+                </ol>
+              </div>
+            </div>
             <button
               onClick={() => window.location.href = '/pricing'}
-              className="mt-3 w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 px-4 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all"
+              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 px-6 rounded-xl font-bold text-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl transform hover:scale-105"
             >
-              View Pricing Plans →
+              🚀 View Pricing Plans & Subscribe →
             </button>
           </div>
         </div>
