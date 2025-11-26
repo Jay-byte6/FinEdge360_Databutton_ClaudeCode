@@ -14,7 +14,9 @@ const LoadingFallback = () => (
 );
 
 const App = lazy(() => import("./pages/App.tsx"));
+const Consultation = lazy(() => import("./pages/Consultation.tsx"));
 const Dashboard = lazy(() => import("./pages/Dashboard.tsx"));
+const Disclaimer = lazy(() => import("./pages/Disclaimer.tsx"));
 const EnterDetails = lazy(() => import("./pages/EnterDetails.tsx"));
 const FIRECalculator = lazy(() => import("./pages/FIRECalculator.tsx"));
 const Journey = lazy(() => import("./pages/Journey.tsx"));
@@ -22,15 +24,22 @@ const Journey3D = lazy(() => import("./pages/Journey3D.tsx"));
 const Login = lazy(() => import("./pages/Login.tsx"));
 const NetWorth = lazy(() => import("./pages/NetWorth.tsx"));
 const Portfolio = lazy(() => import("./pages/Portfolio.tsx"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy.tsx"));
 const Profile = lazy(() => import("./pages/Profile.tsx"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword.tsx"));
-const SIPPlanner = lazy(() => import("./pages/SIPPlanner.tsx"));
+const FIREPlanner = lazy(() => import("./pages/FIREPlanner.tsx"));
 const TaxPlanning = lazy(() => import("./pages/TaxPlanning.tsx"));
+const TermsOfService = lazy(() => import("./pages/TermsOfService.tsx"));
+const PromoShowcase = lazy(() => import("./pages/PromoShowcase.tsx"));
+const ConsultationNew = lazy(() => import("./pages/ConsultationNew.tsx"));
+const Pricing = lazy(() => import("./pages/Pricing.tsx"));
 
 export const userRoutes: RouteObject[] = [
 
 	{ path: "/", element: <Suspense fallback={<LoadingFallback />}><AppProvider><App /></AppProvider></Suspense>},
+	{ path: "/consultation", element: <Suspense fallback={<LoadingFallback />}><AppProvider><Consultation /></AppProvider></Suspense>},
 	{ path: "/dashboard", element: <Suspense fallback={<LoadingFallback />}><AppProvider><Dashboard /></AppProvider></Suspense>},
+	{ path: "/disclaimer", element: <Suspense fallback={<LoadingFallback />}><AppProvider><Disclaimer /></AppProvider></Suspense>},
 	{ path: "/enter-details", element: <Suspense fallback={<LoadingFallback />}><AppProvider><EnterDetails /></AppProvider></Suspense>},
 	{ path: "/enterdetails", element: <Suspense fallback={<LoadingFallback />}><AppProvider><EnterDetails /></AppProvider></Suspense>},
 	{ path: "/fire-calculator", element: <Suspense fallback={<LoadingFallback />}><AppProvider><FIRECalculator /></AppProvider></Suspense>},
@@ -41,12 +50,23 @@ export const userRoutes: RouteObject[] = [
 	{ path: "/net-worth", element: <Suspense fallback={<LoadingFallback />}><AppProvider><NetWorth /></AppProvider></Suspense>},
 	{ path: "/networth", element: <Suspense fallback={<LoadingFallback />}><AppProvider><NetWorth /></AppProvider></Suspense>},
 	{ path: "/portfolio", element: <Suspense fallback={<LoadingFallback />}><AppProvider><Portfolio /></AppProvider></Suspense>},
+	{ path: "/privacy-policy", element: <Suspense fallback={<LoadingFallback />}><AppProvider><PrivacyPolicy /></AppProvider></Suspense>},
+	{ path: "/privacypolicy", element: <Suspense fallback={<LoadingFallback />}><AppProvider><PrivacyPolicy /></AppProvider></Suspense>},
 	{ path: "/profile", element: <Suspense fallback={<LoadingFallback />}><AppProvider><Profile /></AppProvider></Suspense>},
 	{ path: "/reset-password", element: <Suspense fallback={<LoadingFallback />}><AppProvider><ResetPassword /></AppProvider></Suspense>},
 	{ path: "/resetpassword", element: <Suspense fallback={<LoadingFallback />}><AppProvider><ResetPassword /></AppProvider></Suspense>},
-	{ path: "/sip-planner", element: <Suspense fallback={<LoadingFallback />}><AppProvider><SIPPlanner /></AppProvider></Suspense>},
-	{ path: "/sipplanner", element: <Suspense fallback={<LoadingFallback />}><AppProvider><SIPPlanner /></AppProvider></Suspense>},
+	{ path: "/fire-planner", element: <Suspense fallback={<LoadingFallback />}><AppProvider><FIREPlanner /></AppProvider></Suspense>},
+	{ path: "/fireplanner", element: <Suspense fallback={<LoadingFallback />}><AppProvider><FIREPlanner /></AppProvider></Suspense>},
+	{ path: "/sip-planner", element: <Suspense fallback={<LoadingFallback />}><AppProvider><FIREPlanner /></AppProvider></Suspense>},
+	{ path: "/sipplanner", element: <Suspense fallback={<LoadingFallback />}><AppProvider><FIREPlanner /></AppProvider></Suspense>},
 	{ path: "/tax-planning", element: <Suspense fallback={<LoadingFallback />}><AppProvider><TaxPlanning /></AppProvider></Suspense>},
 	{ path: "/taxplanning", element: <Suspense fallback={<LoadingFallback />}><AppProvider><TaxPlanning /></AppProvider></Suspense>},
+	{ path: "/terms-of-service", element: <Suspense fallback={<LoadingFallback />}><AppProvider><TermsOfService /></AppProvider></Suspense>},
+	{ path: "/termsofservice", element: <Suspense fallback={<LoadingFallback />}><AppProvider><TermsOfService /></AppProvider></Suspense>},
+	{ path: "/terms", element: <Suspense fallback={<LoadingFallback />}><AppProvider><TermsOfService /></AppProvider></Suspense>},
+	{ path: "/promo", element: <Suspense fallback={<LoadingFallback />}><AppProvider><PromoShowcase /></AppProvider></Suspense>},
+	{ path: "/promo-showcase", element: <Suspense fallback={<LoadingFallback />}><AppProvider><PromoShowcase /></AppProvider></Suspense>},
+	{ path: "/consultation-new", element: <Suspense fallback={<LoadingFallback />}><AppProvider><ConsultationNew /></AppProvider></Suspense>},
+	{ path: "/pricing", element: <Suspense fallback={<LoadingFallback />}><AppProvider><Pricing /></AppProvider></Suspense>},
 
 ];
