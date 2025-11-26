@@ -715,9 +715,16 @@ def delete_risk_assessment(user_id: str) -> Dict[str, str]:
 class SIPGoal(BaseModel):
     id: str
     name: str
-    amount: float
-    deadline: int
-    type: str  # 'Short-Term', 'Mid-Term', 'Long-Term'
+    priority: int
+    timeYears: int
+    goalType: str  # 'Short-Term', 'Mid-Term', 'Long-Term'
+    amountRequiredToday: float
+    amountAvailableToday: float
+    goalInflation: float
+    stepUp: float
+    amountRequiredFuture: Optional[float] = None
+    sipRequired: Optional[float] = None
+    sipCalculated: bool = False
 
 class SIPCalculation(BaseModel):
     goalName: str

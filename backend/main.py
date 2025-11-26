@@ -3,6 +3,7 @@ import pathlib
 import json
 import dotenv
 import logging
+# Consultation API added
 from fastapi import FastAPI, APIRouter, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -197,3 +198,4 @@ def create_app() -> FastAPI:
 
 app = create_app()
 
+# Trigger reload
