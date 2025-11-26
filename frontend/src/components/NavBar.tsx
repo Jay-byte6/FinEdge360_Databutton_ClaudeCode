@@ -42,7 +42,7 @@ const NavBar: React.FC<NavBarProps> = ({ showFullNav = true }) => {
     { name: "FIRE Calculator", path: "/fire-calculator" },
     { name: "Tax Planning", path: "/tax-planning" },
     { name: "Portfolio", path: "/portfolio" },
-    { name: "SIP Planner", path: "/sip-planner" },
+    { name: "FIRE Planner", path: "/fire-planner" },
   ];
 
   return (
@@ -122,13 +122,13 @@ const NavBar: React.FC<NavBarProps> = ({ showFullNav = true }) => {
                   <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/portfolio")}>
                     Step 4: Assess Yourself
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/sip-planner?tab=set-goals")}>
+                  <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/fire-planner?tab=set-goals")}>
                     Step 5: Set your Goals
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/sip-planner?tab=asset-allocation")}>
+                  <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/fire-planner?tab=asset-allocation")}>
                     Step 6: Design Asset Allocation
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/sip-planner?tab=sip-plan")}>
+                  <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/fire-planner?tab=sip-plan")}>
                     Step 7: FIRE Planning
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
@@ -136,6 +136,12 @@ const NavBar: React.FC<NavBarProps> = ({ showFullNav = true }) => {
                   <DropdownMenuLabel className="text-xs font-semibold text-gray-600 px-2">
                     Support & Community
                   </DropdownMenuLabel>
+                  <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/pricing")}>
+                    💎 View Plans & Pricing
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/consultation-new")}>
+                    📞 Book Expert Consultation
+                  </DropdownMenuItem>
                   <DropdownMenuItem className="cursor-pointer" onClick={() => window.open("https://wa.me/yourwhatsapplink", "_blank")}>
                     💬 Talk to Expert
                   </DropdownMenuItem>
