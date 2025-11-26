@@ -1462,7 +1462,7 @@ const FIREPlanner: React.FC = () => {
 
                       {/* CTA Button */}
                       <Button
-                        onClick={() => navigate('/consultation-new')}
+                        onClick={() => navigate('/consultation')}
                         className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-bold text-lg px-8 py-6 rounded-xl shadow-2xl transform hover:scale-105 transition-all duration-200"
                         size="lg"
                       >
