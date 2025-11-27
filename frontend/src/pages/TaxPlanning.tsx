@@ -16,7 +16,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
-import { Info, Flame } from 'lucide-react'; // Added for Info and Flame icons
+import { Info, Flame, Target, TrendingUp, Wallet, Zap, Shield, Heart, Activity, AlertTriangle, Users } from 'lucide-react'; // Added for icons
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'; // Added for shadcn tooltip
 import { Badge } from "@/components/ui/badge"; // Added for regime labels
 import { Progress } from "@/components/ui/progress"; // Added for progress bars
