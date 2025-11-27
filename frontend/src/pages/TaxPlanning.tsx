@@ -1603,15 +1603,15 @@ export default function TaxPlanning() {
                 </h3>
                 <div className="space-y-2 text-sm">
                   <p className="text-gray-700">
-                    <strong>Unused 80C:</strong> ₹{formatCurrency(150000 - (income.section80C || 0))}
+                    <strong>Unused 80C:</strong> ₹{formatCurrency(150000 - (deductions.filter(d => d.section === '80C').reduce((sum, item) => sum + (item.eligible ? item.amount : 0), 0)))}
                   </p>
                   <div className="bg-blue-50 p-3 rounded border border-blue-200">
                     <p className="font-semibold text-blue-900">Tax saved by using full 80C:</p>
                     <p className="text-2xl font-bold text-blue-600 my-1">
-                      ₹{formatCurrency((150000 - (income.section80C || 0)) * 0.3)} /year
+                      ₹{formatCurrency((150000 - (deductions.filter(d => d.section === '80C').reduce((sum, item) => sum + (item.eligible ? item.amount : 0), 0))) * 0.3)} /year
                     </p>
                     <p className="text-blue-800 text-xs mt-1">
-                      Over 10 years @ 12%: <strong>₹{formatCurrency((150000 - (income.section80C || 0)) * 0.3 * ((Math.pow(1 + 0.12, 10) - 1) / 0.12))}</strong>
+                      Over 10 years @ 12%: <strong>₹{formatCurrency((150000 - (deductions.filter(d => d.section === '80C').reduce((sum, item) => sum + (item.eligible ? item.amount : 0), 0))) * 0.3 * ((Math.pow(1 + 0.12, 10) - 1) / 0.12))}</strong>
                     </p>
                   </div>
                 </div>
@@ -1630,13 +1630,13 @@ export default function TaxPlanning() {
                   <div className="bg-purple-50 p-3 rounded border border-purple-200">
                     <p className="font-semibold text-purple-900">Extra savings per month:</p>
                     <p className="text-2xl font-bold text-purple-600 my-1">
-                      ₹{formatCurrency((income.monthlySalary - income.monthlyExpenses) * 0.1)} /mo
+                      ₹{formatCurrency(((financialData?.personalInfo?.monthlySalary || 0) - (financialData?.personalInfo?.monthlyExpenses || 0)) * 0.1)} /mo
                     </p>
                     <p className="text-purple-800 text-xs">
-                      Invested @ 12% for 10 years: <strong>₹{formatCurrency((income.monthlySalary - income.monthlyExpenses) * 0.1 * 12 * ((Math.pow(1 + 0.12, 10) - 1) / 0.12))}</strong>
+                      Invested @ 12% for 10 years: <strong>₹{formatCurrency(((financialData?.personalInfo?.monthlySalary || 0) - (financialData?.personalInfo?.monthlyExpenses || 0)) * 0.1 * 12 * ((Math.pow(1 + 0.12, 10) - 1) / 0.12))}</strong>
                     </p>
                     <p className="text-purple-800 text-xs mt-1">
-                      <strong>Impact on FIRE:</strong> Lowers your FIRE number by ₹{formatCurrency((income.monthlyExpenses * 0.1) * 12 * 25)}!
+                      <strong>Impact on FIRE:</strong> Lowers your FIRE number by ₹{formatCurrency(((financialData?.personalInfo?.monthlyExpenses || 0) * 0.1) * 12 * 25)}!
                     </p>
                   </div>
                 </div>
@@ -1675,8 +1675,8 @@ export default function TaxPlanning() {
                   <p className="text-2xl font-bold">
                     ₹{formatCurrency(
                       (Math.max(taxUnderOldRegime - taxUnderNewRegime, 0) / 12) +
-                      ((150000 - (income.section80C || 0)) * 0.3 / 12) +
-                      ((income.monthlySalary - income.monthlyExpenses) * 0.1) +
+                      ((150000 - (deductions.filter(d => d.section === '80C').reduce((sum, item) => sum + (item.eligible ? item.amount : 0), 0))) * 0.3 / 12) +
+                      (((financialData?.personalInfo?.monthlySalary || 0) - (financialData?.personalInfo?.monthlyExpenses || 0)) * 0.1) +
                       10000
                     )}
                   </p>
@@ -1686,8 +1686,8 @@ export default function TaxPlanning() {
                   <p className="text-3xl font-bold">
                     ₹{(
                       ((Math.max(taxUnderOldRegime - taxUnderNewRegime, 0) / 12) +
-                      ((150000 - (income.section80C || 0)) * 0.3 / 12) +
-                      ((income.monthlySalary - income.monthlyExpenses) * 0.1) +
+                      ((150000 - (deductions.filter(d => d.section === '80C').reduce((sum, item) => sum + (item.eligible ? item.amount : 0), 0))) * 0.3 / 12) +
+                      (((financialData?.personalInfo?.monthlySalary || 0) - (financialData?.personalInfo?.monthlyExpenses || 0)) * 0.1) +
                       10000) * ((Math.pow(1 + 0.12/12, 10*12) - 1) / (0.12/12)) / 10000000
                     ).toFixed(2)}Cr 🎉
                   </p>
@@ -1728,7 +1728,7 @@ export default function TaxPlanning() {
                     </p>
                     <div className="bg-blue-50 p-3 rounded border border-blue-200">
                       <p className="text-2xl font-bold text-blue-900">
-                        ₹{formatCurrency(income.monthlySalary * 12 * 15)}
+                        ₹{formatCurrency((financialData?.personalInfo?.monthlySalary || 0) * 12 * 15)}
                       </p>
                       <p className="text-xs text-gray-600 mt-1">15x your annual income</p>
                     </div>
@@ -1783,7 +1783,7 @@ export default function TaxPlanning() {
                     <ul className="text-xs text-blue-800 space-y-1">
                       <li>• ₹25,000 deduction (self & family)</li>
                       <li>• ₹50,000 for senior citizens</li>
-                      <li>• Already included in your 80D: ₹{formatCurrency(income.section80D || 0)}</li>
+                      <li>• Already included in your 80D: ₹{formatCurrency(deductions.filter(d => d.section === '80D').reduce((sum, item) => sum + (item.eligible ? item.amount : 0), 0))}</li>
                     </ul>
                   </div>
                   <div className="bg-green-50 p-3 rounded border border-green-200">
@@ -1809,7 +1809,7 @@ export default function TaxPlanning() {
                     <div className="bg-orange-50 p-3 rounded border border-orange-200">
                       <p className="text-xs text-gray-600 mb-1">Recommended Coverage</p>
                       <p className="text-2xl font-bold text-orange-900">
-                        ₹{formatCurrency(income.monthlySalary * 12 * 5)}
+                        ₹{formatCurrency((financialData?.personalInfo?.monthlySalary || 0) * 12 * 5)}
                       </p>
                       <p className="text-xs text-gray-600 mt-1">5x annual income</p>
                     </div>
@@ -1831,7 +1831,7 @@ export default function TaxPlanning() {
                     <div className="bg-purple-50 p-3 rounded border border-purple-200">
                       <p className="text-xs text-gray-600 mb-1">Monthly Replacement Income</p>
                       <p className="text-2xl font-bold text-purple-900">
-                        ₹{formatCurrency(income.monthlySalary * 0.6)}
+                        ₹{formatCurrency((financialData?.personalInfo?.monthlySalary || 0) * 0.6)}
                       </p>
                       <p className="text-xs text-gray-600 mt-1">60% of current salary</p>
                     </div>
