@@ -11,10 +11,25 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { MilestoneCompletionCard } from '@/components/journey/MilestoneCompletionCard';
 import { InfoTooltip } from '@/components/InfoTooltip';
 
-// Define color constants
+// Define color constants - Vibrant, distinct colors for better visibility
 const COLORS = {
-  ASSETS: ['#4ade80', '#86efac', '#a7f3d0', '#6ee7b7'],  // Green variants
-  LIABILITIES: ['#f87171', '#fca5a5', '#fecaca'],         // Red variants
+  ASSETS: [
+    '#3b82f6', // Blue - Primary asset
+    '#10b981', // Green - Growth
+    '#f59e0b', // Amber - Gold/Investments
+    '#8b5cf6', // Purple - Stocks
+    '#ec4899', // Pink - Real Estate
+    '#06b6d4', // Cyan - Cash
+    '#f97316', // Orange - Other assets
+    '#6366f1', // Indigo - Bonds
+  ],
+  LIABILITIES: [
+    '#ef4444', // Red - Primary liability
+    '#dc2626', // Dark Red - High-interest debt
+    '#f87171', // Light Red - Credit cards
+    '#fca5a5', // Lighter Red - Personal loans
+    '#fee2e2', // Pale Red - Other liabilities
+  ],
 };
 
 type AssetLiabilityItem = {
