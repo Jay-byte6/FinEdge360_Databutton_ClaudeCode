@@ -48,6 +48,7 @@ type AuthState = {
   
   // Actions
   signIn: (email: string, password: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   signUp: (email: string, password: string) => Promise<{ requiresEmailConfirmation: boolean }>;
   signOut: () => Promise<void>;
   updateProfile: (data: Partial<ProfileData>) => Promise<void>;
@@ -135,7 +136,43 @@ const useAuthStore = create<AuthState>((set, get) => ({
       set({ isLoading: false });
     }
   },
-  
+
+  // Sign in with Google
+  signInWithGoogle: async () => {
+    try {
+      set({ isLoading: true, error: null });
+
+      console.log('Attempting to sign in with Google...');
+
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+        },
+      });
+
+      if (error) {
+        console.error('Google sign-in error:', error);
+        throw error;
+      }
+
+      // Note: The actual session will be established after redirect
+      // The auth state change listener will handle the session update
+      console.log('Redirecting to Google for authentication...');
+
+    } catch (error: any) {
+      console.error('Google sign-in error:', error);
+      set({ error: error.message || 'Failed to sign in with Google' });
+      toast.error(error.message || 'Failed to sign in with Google');
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
   // Reset password (forgot password)
   resetPassword: async (email: string) => {
     try {

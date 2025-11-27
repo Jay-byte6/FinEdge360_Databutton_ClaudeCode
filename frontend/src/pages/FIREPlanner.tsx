@@ -660,14 +660,14 @@ const FIREPlanner: React.FC = () => {
           <div className="flex justify-between items-center">
             <div>
               <p className="text-sm text-gray-600">Your Monthly Savings Available for Investment</p>
-              <p className="text-3xl font-bold text-blue-700">₹{monthlySavings.toLocaleString()}</p>
+              <p className="text-3xl font-bold text-blue-700">₹{Math.round(monthlySavings).toLocaleString()}</p>
             </div>
             {totalSIPRequired > monthlySavings && (
               <div className="flex items-center gap-2 bg-red-100 px-4 py-2 rounded-lg">
                 <AlertCircle className="w-5 h-5 text-red-600" />
                 <div>
                   <p className="text-sm font-semibold text-red-700">Exceeds Budget!</p>
-                  <p className="text-xs text-red-600">Over by ₹{(totalSIPRequired - monthlySavings).toLocaleString()}</p>
+                  <p className="text-xs text-red-600">Over by ₹{Math.round(totalSIPRequired - monthlySavings).toLocaleString()}</p>
                 </div>
               </div>
             )}
@@ -996,16 +996,16 @@ const FIREPlanner: React.FC = () => {
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span className="font-semibold">Total Investable Assets:</span>
-                  <span className="font-bold text-blue-600">₹{(totalInvestableAssets || 0).toLocaleString()}</span>
+                  <span className="font-bold text-blue-600">₹{Math.round(totalInvestableAssets || 0).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="font-semibold">Already Allocated to Goals:</span>
-                  <span className="font-bold">₹{(totalAmountAvailableToday || 0).toLocaleString()}</span>
+                  <span className="font-bold">₹{Math.round(totalAmountAvailableToday || 0).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between border-t pt-2">
                   <span className="font-semibold">Still Available to Allocate:</span>
                   <span className={`font-bold text-xl ${availableToAllocate >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    ₹{(availableToAllocate || 0).toLocaleString()}
+                    ₹{Math.round(availableToAllocate || 0).toLocaleString()}
                   </span>
                 </div>
               </div>
@@ -1028,18 +1028,18 @@ const FIREPlanner: React.FC = () => {
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span className="font-semibold">Total SIP Required:</span>
-                  <span className="font-bold">₹{(totalSIPRequired || 0).toLocaleString()}</span>
+                  <span className="font-bold">₹{Math.round(totalSIPRequired || 0).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="font-semibold">Max Monthly Capacity:</span>
-                  <span className="font-bold">₹{(monthlySavings || 0).toLocaleString()}</span>
+                  <span className="font-bold">₹{Math.round(monthlySavings || 0).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between border-t pt-2">
                   <span className="font-semibold">
                     {sipSurplusOrDeficit >= 0 ? 'Surplus:' : 'Deficit:'}
                   </span>
                   <span className={`font-bold text-xl ${sipSurplusOrDeficit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    ₹{Math.abs(sipSurplusOrDeficit || 0).toLocaleString()}
+                    ₹{Math.round(Math.abs(sipSurplusOrDeficit || 0)).toLocaleString()}
                   </span>
                 </div>
               </div>
@@ -1047,7 +1047,7 @@ const FIREPlanner: React.FC = () => {
                 <div className="mt-4 p-3 bg-red-50 border border-red-300 rounded-lg">
                   <p className="text-sm text-red-700 font-semibold flex items-center gap-2">
                     <AlertCircle className="w-4 h-4" />
-                    Warning: Your total SIP requirements exceed your monthly savings by ₹{Math.abs(sipSurplusOrDeficit || 0).toLocaleString()}.
+                    Warning: Your total SIP requirements exceed your monthly savings by ₹{Math.round(Math.abs(sipSurplusOrDeficit || 0)).toLocaleString()}.
                     You need to either increase your income, reduce expenses, or adjust your goals.
                   </p>
                 </div>
@@ -1080,8 +1080,8 @@ const FIREPlanner: React.FC = () => {
                   <span className="text-green-600 font-bold">✓</span>
                   <span>
                     {sipSurplusOrDeficit >= 0
-                      ? `Great job! You have a surplus of ₹${(sipSurplusOrDeficit || 0).toLocaleString()} per month. Consider increasing your SIP amounts or adding new goals.`
-                      : `You need to find an additional ₹${Math.abs(sipSurplusOrDeficit || 0).toLocaleString()} per month. Consider increasing your income, reducing expenses, or extending goal timelines.`}
+                      ? `Great job! You have a surplus of ₹${Math.round(sipSurplusOrDeficit || 0).toLocaleString()} per month. Consider increasing your SIP amounts or adding new goals.`
+                      : `You need to find an additional ₹${Math.round(Math.abs(sipSurplusOrDeficit || 0)).toLocaleString()} per month. Consider increasing your income, reducing expenses, or extending goal timelines.`}
                   </span>
                 </li>
                 <li className="flex items-start gap-2">
@@ -1262,8 +1262,8 @@ const FIREPlanner: React.FC = () => {
                                       ₹{(inflationAdjustedFIRE / 10000000).toFixed(2)} Cr
                                     </p>
                                     <p className="text-xs opacity-80">
-                                      At retirement in {yearsToRetirement} years (₹{financialData.personalInfo.monthlyExpenses.toLocaleString()}/month today,
-                                      ₹{(yearlyExpensesRetirement / 12).toFixed(0).toLocaleString()}/month future @ {inflationRate}% inflation)
+                                      At retirement in {yearsToRetirement} years (₹{Math.round(financialData.personalInfo.monthlyExpenses).toLocaleString()}/month today,
+                                      ₹{Math.round(yearlyExpensesRetirement / 12).toLocaleString()}/month future @ {inflationRate}% inflation)
                                     </p>
                                   </>
                                 );
@@ -1285,7 +1285,7 @@ const FIREPlanner: React.FC = () => {
                         <div>
                           <p className="font-bold text-red-900">Investment Capacity Exceeded</p>
                           <p className="text-sm text-red-700">
-                            Your total monthly SIP (₹{totalSIPRequired.toLocaleString()}) exceeds your available monthly capacity (₹{monthlySavings.toLocaleString()}) by ₹{(totalSIPRequired - monthlySavings).toLocaleString()}.
+                            Your total monthly SIP (₹{Math.round(totalSIPRequired).toLocaleString()}) exceeds your available monthly capacity (₹{Math.round(monthlySavings).toLocaleString()}) by ₹{Math.round(totalSIPRequired - monthlySavings).toLocaleString()}.
                             Please adjust your goals or increase your monthly savings.
                           </p>
                         </div>
@@ -1325,17 +1325,17 @@ const FIREPlanner: React.FC = () => {
                               <td className="border border-gray-300 px-3 py-2 font-semibold sticky left-0 bg-inherit">{goal.name}</td>
                               <td className="border border-gray-300 px-3 py-2 text-center">{goal.timeYears}</td>
                               <td className="border border-gray-300 px-3 py-2 text-center text-xs">{goal.goalType.replace('-', ' ')}</td>
-                              <td className="border border-gray-300 px-3 py-2 text-right">₹{(goal.amountRequiredFuture || 0).toLocaleString()}</td>
-                              <td className="border border-gray-300 px-3 py-2 text-right font-bold bg-gray-100">₹{(goal.sipRequired || 0).toLocaleString()}</td>
+                              <td className="border border-gray-300 px-3 py-2 text-right">₹{Math.round(goal.amountRequiredFuture || 0).toLocaleString()}</td>
+                              <td className="border border-gray-300 px-3 py-2 text-right font-bold bg-gray-100">₹{Math.round(goal.sipRequired || 0).toLocaleString()}</td>
                               {goal.assetBreakdown ? (
                                 <>
-                                  <td className="border border-gray-300 px-3 py-2 text-right bg-blue-50">₹{goal.assetBreakdown.equity.toLocaleString()}</td>
-                                  <td className="border border-gray-300 px-3 py-2 text-right bg-purple-50">₹{goal.assetBreakdown.us_equity.toLocaleString()}</td>
-                                  <td className="border border-gray-300 px-3 py-2 text-right bg-green-50">₹{goal.assetBreakdown.debt.toLocaleString()}</td>
-                                  <td className="border border-gray-300 px-3 py-2 text-right bg-yellow-50">₹{goal.assetBreakdown.gold.toLocaleString()}</td>
-                                  <td className="border border-gray-300 px-3 py-2 text-right bg-orange-50">₹{goal.assetBreakdown.reits.toLocaleString()}</td>
-                                  <td className="border border-gray-300 px-3 py-2 text-right bg-indigo-50">₹{goal.assetBreakdown.crypto.toLocaleString()}</td>
-                                  <td className="border border-gray-300 px-3 py-2 text-right bg-gray-50">₹{goal.assetBreakdown.cash.toLocaleString()}</td>
+                                  <td className="border border-gray-300 px-3 py-2 text-right bg-blue-50">₹{Math.round(goal.assetBreakdown.equity).toLocaleString()}</td>
+                                  <td className="border border-gray-300 px-3 py-2 text-right bg-purple-50">₹{Math.round(goal.assetBreakdown.us_equity).toLocaleString()}</td>
+                                  <td className="border border-gray-300 px-3 py-2 text-right bg-green-50">₹{Math.round(goal.assetBreakdown.debt).toLocaleString()}</td>
+                                  <td className="border border-gray-300 px-3 py-2 text-right bg-yellow-50">₹{Math.round(goal.assetBreakdown.gold).toLocaleString()}</td>
+                                  <td className="border border-gray-300 px-3 py-2 text-right bg-orange-50">₹{Math.round(goal.assetBreakdown.reits).toLocaleString()}</td>
+                                  <td className="border border-gray-300 px-3 py-2 text-right bg-indigo-50">₹{Math.round(goal.assetBreakdown.crypto).toLocaleString()}</td>
+                                  <td className="border border-gray-300 px-3 py-2 text-right bg-gray-50">₹{Math.round(goal.assetBreakdown.cash).toLocaleString()}</td>
                                 </>
                               ) : (
                                 <td colSpan={7} className="border border-gray-300 px-3 py-2 text-center text-red-600 text-xs">
@@ -1348,14 +1348,14 @@ const FIREPlanner: React.FC = () => {
                           <tr className="bg-gray-800 text-white font-bold">
                             <td className="border border-gray-300 px-3 py-2 sticky left-0 bg-gray-800">TOTAL</td>
                             <td colSpan={3} className="border border-gray-300 px-3 py-2"></td>
-                            <td className="border border-gray-300 px-3 py-2 text-right text-lg">₹{sipPlanData.totals.totalSIP.toLocaleString()}</td>
-                            <td className="border border-gray-300 px-3 py-2 text-right bg-blue-700">₹{sipPlanData.totals.equity.toLocaleString()}</td>
-                            <td className="border border-gray-300 px-3 py-2 text-right bg-purple-700">₹{sipPlanData.totals.us_equity.toLocaleString()}</td>
-                            <td className="border border-gray-300 px-3 py-2 text-right bg-green-700">₹{sipPlanData.totals.debt.toLocaleString()}</td>
-                            <td className="border border-gray-300 px-3 py-2 text-right bg-yellow-700">₹{sipPlanData.totals.gold.toLocaleString()}</td>
-                            <td className="border border-gray-300 px-3 py-2 text-right bg-orange-700">₹{sipPlanData.totals.reits.toLocaleString()}</td>
-                            <td className="border border-gray-300 px-3 py-2 text-right bg-indigo-700">₹{sipPlanData.totals.crypto.toLocaleString()}</td>
-                            <td className="border border-gray-300 px-3 py-2 text-right bg-gray-700">₹{sipPlanData.totals.cash.toLocaleString()}</td>
+                            <td className="border border-gray-300 px-3 py-2 text-right text-lg">₹{Math.round(sipPlanData.totals.totalSIP).toLocaleString()}</td>
+                            <td className="border border-gray-300 px-3 py-2 text-right bg-blue-700">₹{Math.round(sipPlanData.totals.equity).toLocaleString()}</td>
+                            <td className="border border-gray-300 px-3 py-2 text-right bg-purple-700">₹{Math.round(sipPlanData.totals.us_equity).toLocaleString()}</td>
+                            <td className="border border-gray-300 px-3 py-2 text-right bg-green-700">₹{Math.round(sipPlanData.totals.debt).toLocaleString()}</td>
+                            <td className="border border-gray-300 px-3 py-2 text-right bg-yellow-700">₹{Math.round(sipPlanData.totals.gold).toLocaleString()}</td>
+                            <td className="border border-gray-300 px-3 py-2 text-right bg-orange-700">₹{Math.round(sipPlanData.totals.reits).toLocaleString()}</td>
+                            <td className="border border-gray-300 px-3 py-2 text-right bg-indigo-700">₹{Math.round(sipPlanData.totals.crypto).toLocaleString()}</td>
+                            <td className="border border-gray-300 px-3 py-2 text-right bg-gray-700">₹{Math.round(sipPlanData.totals.cash).toLocaleString()}</td>
                           </tr>
                         </tbody>
                       </table>
@@ -1365,17 +1365,17 @@ const FIREPlanner: React.FC = () => {
                     <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div className="p-4 bg-blue-50 rounded-lg">
                         <p className="text-sm text-gray-600">Monthly Capacity</p>
-                        <p className="text-2xl font-bold text-blue-600">₹{monthlySavings.toLocaleString()}</p>
+                        <p className="text-2xl font-bold text-blue-600">₹{Math.round(monthlySavings).toLocaleString()}</p>
                       </div>
                       <div className="p-4 bg-green-50 rounded-lg">
                         <p className="text-sm text-gray-600">Total SIP Used</p>
-                        <p className="text-2xl font-bold text-green-600">₹{totalSIPRequired.toLocaleString()}</p>
+                        <p className="text-2xl font-bold text-green-600">₹{Math.round(totalSIPRequired).toLocaleString()}</p>
                         <p className="text-xs text-gray-500">{Math.round((totalSIPRequired / monthlySavings) * 100)}% of capacity</p>
                       </div>
                       <div className={`p-4 rounded-lg ${sipSurplusOrDeficit >= 0 ? 'bg-green-50' : 'bg-red-50'}`}>
                         <p className="text-sm text-gray-600">{sipSurplusOrDeficit >= 0 ? 'Remaining' : 'Deficit'}</p>
                         <p className={`text-2xl font-bold ${sipSurplusOrDeficit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                          ₹{Math.abs(sipSurplusOrDeficit).toLocaleString()}
+                          ₹{Math.round(Math.abs(sipSurplusOrDeficit)).toLocaleString()}
                         </p>
                       </div>
                     </div>

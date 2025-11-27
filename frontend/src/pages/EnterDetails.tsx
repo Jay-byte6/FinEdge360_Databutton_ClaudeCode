@@ -33,6 +33,8 @@ import { Info } from "lucide-react";
 import DisclaimerAlert from "../components/DisclaimerAlert";
 import PrivacyPolicyModal from "../components/PrivacyPolicyModal";
 import GuidelineBox from "../components/GuidelineBox";
+import { PrivacyTipPopup } from "../components/PrivacyTipPopup";
+import { useGuidelines } from "../hooks/useGuidelines";
 import { illiquidAssetDescriptions, liquidAssetDescriptions, liabilityDescriptions } from "../utils/assetDescriptions";
 import { GoalCombobox, GoalOption } from "../components/ui/goal-combobox";
 import { shortTermGoals, midTermGoals, longTermGoals } from "../utils/financialGoals";
@@ -79,9 +81,12 @@ export default function EnterDetails() {
   const [isInitialDataLoaded, setIsInitialDataLoaded] = useState(false);
   const [privacyConsent, setPrivacyConsent] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+  const [showPrivacyTip, setShowPrivacyTip] = useState(false);
+  const [hasShownPrivacyTip, setHasShownPrivacyTip] = useState(false);
 
   // Get store functions and state
   const { user } = useAuthStore(); // Get the authenticated user
+  const { shouldShowGuideline, markGuidelineAsSeen, loading: guidelinesLoading } = useGuidelines(user?.id || null);
   const { fetchFinancialData, saveFinancialData, financialData, isLoading, error } =
     useFinancialDataStore();
 
@@ -201,6 +206,31 @@ export default function EnterDetails() {
     }
     // Dependency array includes financialData and loaded flag, plus form instances
   }, [financialData, isInitialDataLoaded, personalInfoForm, assetsForm, liabilitiesForm, goalsForm, riskAppetiteForm]);
+
+  // Check if we should show privacy tip (separate from guidelines)
+  useEffect(() => {
+    if (!guidelinesLoading && isInitialDataLoaded && !hasShownPrivacyTip) {
+      const shouldShow = shouldShowGuideline('privacy_tip');
+      if (shouldShow) {
+        // Don't show immediately, wait for user to focus on first input
+        // We'll trigger it with onFocus on the first financial input field
+      }
+    }
+  }, [guidelinesLoading, isInitialDataLoaded, hasShownPrivacyTip, shouldShowGuideline]);
+
+  const handlePrivacyTipConfirm = async (dontShowAgain: boolean) => {
+    await markGuidelineAsSeen('privacy_tip', dontShowAgain);
+    setShowPrivacyTip(false);
+    setHasShownPrivacyTip(true);
+  };
+
+  // Function to show privacy tip when user focuses on financial input
+  const handleFinancialInputFocus = () => {
+    if (!hasShownPrivacyTip && !guidelinesLoading && shouldShowGuideline('privacy_tip')) {
+      setShowPrivacyTip(true);
+      setHasShownPrivacyTip(true);
+    }
+  };
 
 // Save current tab's data (validate only)
   const saveCurrentTabData = async (tabIndex: number) => {
@@ -454,6 +484,7 @@ export default function EnterDetails() {
                         className="pl-7 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                         placeholder="0.00"
                         {...personalInfoForm.register("monthlySalary")}
+                        onFocus={handleFinancialInputFocus}
                       />
                     </div>
                     {personalInfoForm.formState.errors.monthlySalary && (
@@ -1141,6 +1172,13 @@ export default function EnterDetails() {
 
       {/* Privacy Policy Modal */}
       <PrivacyPolicyModal open={showPrivacyModal} onOpenChange={setShowPrivacyModal} />
+
+      {/* Privacy Tip Popup - Small, compact popup for privacy protection */}
+      <PrivacyTipPopup
+        onClose={() => setShowPrivacyTip(false)}
+        onConfirm={handlePrivacyTipConfirm}
+        isOpen={showPrivacyTip}
+      />
     </div>
   );
 }

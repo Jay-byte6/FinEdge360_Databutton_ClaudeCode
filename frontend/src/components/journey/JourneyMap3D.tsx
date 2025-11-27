@@ -228,7 +228,7 @@ export const JourneyMap3D: React.FC<JourneyMap3DProps> = ({ journeyState }) => {
                       }}
                       className="relative"
                       style={{
-                        transform Style: 'preserve-3d',
+                        transformStyle: 'preserve-3d',
                       }}
                     >
                       {/* Main Monument */}

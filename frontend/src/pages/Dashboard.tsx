@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Shield, Check } from 'lucide-react';
 import useAuthStore from '../utils/authStore';
 import useFinancialDataStore from '../utils/financialDataStore';
 import FinancialRoadmap from '@/components/FinancialRoadmap';
@@ -74,11 +75,11 @@ export default function Dashboard() {
         // Handle the case where user.id is not yet available or user is not fully authenticated
         setIsLoading(false); // Stop loading if no user.id
         // Optionally, clear existing financial data if user logs out or ID changes to undefined
-        // useFinancialDataStore.getState().clearFinancialData(); 
+        // useFinancialDataStore.getState().clearFinancialData();
         // For now, just ensuring we don't fetch with 'anonymous' or undefined
       }
     };
-    
+
     loadData();
   }, [user?.id, fetchFinancialData]); // Add user.id to dependency array and fetchFinancialData
 
@@ -117,9 +118,9 @@ export default function Dashboard() {
       color: "bg-teal-50 text-teal-600 border-teal-100"
     },
     {
-      title: "SIP Planner",
+      title: "FIRE Planner",
       description: "Plan for goals with systematic investments",
-      path: "/sip-planner",
+      path: "/fire-planner",
       icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>,
       color: "bg-purple-50 text-purple-600 border-purple-100"
     },
@@ -154,6 +155,28 @@ export default function Dashboard() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
       {/* Dashboard Header/Navigation - Now removed since we use global NavBar */}
       <main className="container mx-auto max-w-6xl py-8 px-4">
+        {/* SEBI Compliance Badge */}
+        <div className="mb-6">
+          <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-500">
+            <CardContent className="py-4">
+              <div className="flex items-center justify-center gap-3">
+                <Shield className="w-6 h-6 text-green-600" />
+                <div className="text-center">
+                  <div className="flex items-center gap-2">
+                    <Check className="w-5 h-5 text-green-600" />
+                    <span className="text-lg font-bold text-green-900">
+                      COMPLIANT WITH SEBI REGULATIONS
+                    </span>
+                  </div>
+                  <p className="text-sm text-green-700 mt-1">
+                    Educational Tool • No Advisory Services • Self-Service Platform
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
         {/* Welcome Section */}
         <section className="mb-10">
           <h2 className="text-2xl font-bold text-gray-800 mb-2">
@@ -275,6 +298,28 @@ export default function Dashboard() {
             <FinancialRoadmap financialData={financialData} />
           </div>
         )}
+
+        {/* Legal Disclaimer */}
+        <div className="mt-10 mb-6">
+          <Card className="bg-amber-50 border-amber-300">
+            <CardContent className="py-3">
+              <p className="text-xs text-amber-900 text-center">
+                <strong>DISCLAIMER:</strong> FinEdge360 is an educational financial planning tool.
+                We do NOT provide investment advice, recommend specific securities, or manage investments.
+                All calculations are for educational purposes only. Please consult a{' '}
+                <a
+                  href="https://www.sebi.gov.in/sebiweb/other/OtherAction.do?doRecognisedFpi=yes&intmId=13"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline hover:text-amber-700"
+                >
+                  SEBI Registered Investment Advisor
+                </a>{' '}
+                for personalized investment advice.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
       </main>
     </div>
   );

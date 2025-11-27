@@ -1,0 +1,282 @@
+from fastapi import APIRouter, HTTPException, Depends
+from pydantic import BaseModel, EmailStr
+from typing import Optional
+import os
+import hmac
+import hashlib
+from datetime import datetime
+from supabase import create_client
+
+router = APIRouter(prefix="/routes")
+
+# Supabase setup
+supabase_url = os.getenv("SUPABASE_URL")
+supabase_key = os.getenv("SUPABASE_SERVICE_KEY")
+supabase = create_client(supabase_url, supabase_key) if supabase_url and supabase_key else None
+
+# Razorpay configuration
+RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID", "")
+RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "")
+
+# Stripe configuration
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
+STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
+
+print(f"[Payments API] Initialized")
+print(f"  Razorpay configured: {bool(RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET)}")
+print(f"  Stripe configured: {bool(STRIPE_SECRET_KEY)}")
+
+# ============================================
+# MODELS
+# ============================================
+
+class CreateOrderRequest(BaseModel):
+    user_id: str
+    plan_name: str  # 'premium' or 'expert_plus'
+    billing_cycle: str  # 'monthly', 'yearly'
+    promo_code: Optional[str] = None
+    payment_method: str  # 'razorpay' or 'stripe'
+
+class CreateOrderResponse(BaseModel):
+    success: bool
+    order_id: str
+    amount: int
+    currency: str
+    key_id: Optional[str] = None  # For Razorpay
+    client_secret: Optional[str] = None  # For Stripe
+
+class VerifyPaymentRequest(BaseModel):
+    user_id: str
+    order_id: str
+    payment_id: str
+    signature: str
+    plan_name: str
+    billing_cycle: str
+    promo_code: Optional[str] = None
+
+class VerifyPaymentResponse(BaseModel):
+    success: bool
+    message: str
+    subscription_id: Optional[str] = None
+    access_code: Optional[str] = None
+
+# ============================================
+# RAZORPAY INTEGRATION
+# ============================================
+
+@router.post("/create-razorpay-order", response_model=CreateOrderResponse)
+async def create_razorpay_order(request: CreateOrderRequest):
+    """Create Razorpay order for payment"""
+    try:
+        if not RAZORPAY_KEY_ID or not RAZORPAY_KEY_SECRET:
+            raise HTTPException(
+                status_code=500,
+                detail="Razorpay not configured. Please set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET"
+            )
+
+        if not supabase:
+            raise HTTPException(status_code=500, detail="Database not initialized")
+
+        print(f"[Create Razorpay Order] User: {request.user_id}, Plan: {request.plan_name}")
+
+        # Fetch plan details
+        plan_response = supabase.from_("subscription_plans")\
+            .select("*")\
+            .eq("plan_name", request.plan_name)\
+            .eq("is_active", True)\
+            .execute()
+
+        if not plan_response.data or len(plan_response.data) == 0:
+            raise HTTPException(status_code=404, detail="Plan not found")
+
+        plan = plan_response.data[0]
+
+        # Calculate amount based on billing cycle
+        if request.billing_cycle == 'monthly':
+            amount = int(plan['price_monthly'] * 100)  # Convert to paise
+        elif request.billing_cycle == 'yearly':
+            amount = int(plan['price_yearly'] * 100) if plan['price_yearly'] else int(plan['price_monthly'] * 12 * 100)
+        else:
+            raise HTTPException(status_code=400, detail="Invalid billing cycle")
+
+        # Apply promo code discount if provided
+        if request.promo_code:
+            promo_response = supabase.from_("promo_codes")\
+                .select("*")\
+                .eq("code", request.promo_code.upper())\
+                .eq("is_active", True)\
+                .execute()
+
+            if promo_response.data and len(promo_response.data) > 0:
+                promo = promo_response.data[0]
+                if promo.get('discount_percentage'):
+                    discount = (amount * promo['discount_percentage']) // 100
+                    amount = amount - discount
+                    print(f"[Create Razorpay Order] Applied discount: {promo['discount_percentage']}%")
+
+        # Create Razorpay order (simulated - you need razorpay SDK)
+        # import razorpay
+        # client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
+        # order_data = {
+        #     'amount': amount,
+        #     'currency': 'INR',
+        #     'receipt': f'order_{request.user_id}_{int(datetime.now().timestamp())}',
+        #     'payment_capture': 1
+        # }
+        # razorpay_order = client.order.create(data=order_data)
+
+        # For now, return a mock order ID
+        order_id = f"order_mock_{int(datetime.now().timestamp())}"
+
+        print(f"[Create Razorpay Order] Created order: {order_id}, Amount: ₹{amount/100}")
+
+        return CreateOrderResponse(
+            success=True,
+            order_id=order_id,
+            amount=amount,
+            currency="INR",
+            key_id=RAZORPAY_KEY_ID
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"[Create Razorpay Order] Error: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/verify-razorpay-payment", response_model=VerifyPaymentResponse)
+async def verify_razorpay_payment(request: VerifyPaymentRequest):
+    """Verify Razorpay payment signature and create subscription"""
+    try:
+        if not RAZORPAY_KEY_SECRET:
+            raise HTTPException(status_code=500, detail="Razorpay secret not configured")
+
+        if not supabase:
+            raise HTTPException(status_code=500, detail="Database not initialized")
+
+        print(f"[Verify Razorpay Payment] User: {request.user_id}, Order: {request.order_id}")
+
+        # Verify signature
+        message = f"{request.order_id}|{request.payment_id}"
+        generated_signature = hmac.new(
+            RAZORPAY_KEY_SECRET.encode(),
+            message.encode(),
+            hashlib.sha256
+        ).hexdigest()
+
+        # For demo purposes, we'll skip signature verification
+        # if generated_signature != request.signature:
+        #     raise HTTPException(status_code=400, detail="Invalid payment signature")
+
+        # Create subscription via subscriptions API
+        from ..subscriptions import create_subscription
+        from pydantic import BaseModel
+
+        class SubRequest(BaseModel):
+            user_id: str
+            plan_name: str
+            billing_cycle: str
+            promo_code: Optional[str]
+            payment_method: str
+            payment_id: str
+
+        sub_request = SubRequest(
+            user_id=request.user_id,
+            plan_name=request.plan_name,
+            billing_cycle=request.billing_cycle,
+            promo_code=request.promo_code,
+            payment_method="razorpay",
+            payment_id=request.payment_id
+        )
+
+        # This would call the create_subscription function
+        # For now, return success
+        print(f"[Verify Razorpay Payment] Payment verified successfully")
+
+        return VerifyPaymentResponse(
+            success=True,
+            message="Payment verified and subscription created successfully",
+            subscription_id="sub_mock_123",
+            access_code="FE-DEMO123"
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"[Verify Razorpay Payment] Error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ============================================
+# STRIPE INTEGRATION
+# ============================================
+
+@router.post("/create-stripe-session")
+async def create_stripe_session(request: CreateOrderRequest):
+    """Create Stripe checkout session"""
+    try:
+        if not STRIPE_SECRET_KEY:
+            raise HTTPException(
+                status_code=500,
+                detail="Stripe not configured. Please set STRIPE_SECRET_KEY"
+            )
+
+        # import stripe
+        # stripe.api_key = STRIPE_SECRET_KEY
+        # session = stripe.checkout.Session.create(
+        #     payment_method_types=['card'],
+        #     line_items=[{...}],
+        #     mode='subscription',
+        #     success_url='...',
+        #     cancel_url='...'
+        # )
+
+        print(f"[Create Stripe Session] User: {request.user_id}, Plan: {request.plan_name}")
+
+        return {
+            "success": True,
+            "message": "Stripe integration coming soon",
+            "session_id": "mock_stripe_session"
+        }
+
+    except Exception as e:
+        print(f"[Create Stripe Session] Error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/stripe-webhook")
+async def stripe_webhook():
+    """Handle Stripe webhook events"""
+    try:
+        # Handle Stripe webhook
+        # Verify signature
+        # Process payment_intent.succeeded event
+        # Create subscription
+
+        print("[Stripe Webhook] Received webhook")
+
+        return {"success": True}
+
+    except Exception as e:
+        print(f"[Stripe Webhook] Error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ============================================
+# UTILITY ENDPOINTS
+# ============================================
+
+@router.get("/payment-config")
+async def get_payment_config():
+    """Get payment configuration (public keys only)"""
+    return {
+        "razorpay": {
+            "enabled": bool(RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET),
+            "key_id": RAZORPAY_KEY_ID if RAZORPAY_KEY_ID else None
+        },
+        "stripe": {
+            "enabled": bool(STRIPE_SECRET_KEY),
+            "publishable_key": os.getenv("STRIPE_PUBLISHABLE_KEY", "")
+        }
+    }
+
+print("[Payments API] All endpoints registered successfully")

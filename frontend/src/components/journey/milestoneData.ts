@@ -255,41 +255,41 @@ export const MILESTONES: MilestoneData[] = [
     progress: 0,
     xpReward: 200,
     benefits: [
-      'SIP Planner for systematic investing',
+      'FIRE Planner for systematic investing',
       'Calculate needed savings for short-term goals (1-3 years)',
       'Medium-term goals (3-7 years)',
       'Long-term goals (7+ years)',
-      'See exact monthly SIP amounts needed',
+      'See exact monthly FIRE amounts needed',
       'Timeline to achieve each goal',
     ],
     completionCriteria: [
       'At least 3 goals set (short/medium/long)',
-      'SIP amounts calculated',
+      'FIRE amounts calculated',
       'Timeline for each goal set',
     ],
     actions: [
       {
         title: 'Set Short-Term Goals',
         description: 'Define goals for the next 1-3 years',
-        link: '/sip-planner',
+        link: '/fire-planner',
         completed: false,
       },
       {
         title: 'Set Medium-Term Goals',
         description: 'Plan for 3-7 years ahead',
-        link: '/sip-planner',
+        link: '/fire-planner',
         completed: false,
       },
       {
         title: 'Set Long-Term Goals',
         description: 'Dream big for 7+ years',
-        link: '/sip-planner',
+        link: '/fire-planner',
         completed: false,
       },
       {
-        title: 'Calculate SIP Amounts',
+        title: 'Calculate FIRE Amounts',
         description: 'Know exactly how much to invest',
-        link: '/sip-planner',
+        link: '/fire-planner',
         completed: false,
       },
     ],
@@ -325,13 +325,13 @@ export const MILESTONES: MilestoneData[] = [
       {
         title: 'Map Goals to Assets',
         description: 'Assign investment types to each goal',
-        link: '/sip-planner',
+        link: '/fire-planner',
         completed: false,
       },
       {
         title: 'Review Investment Products',
         description: 'See recommended mutual funds and assets',
-        link: '/sip-planner',
+        link: '/fire-planner',
         completed: false,
       },
       {
@@ -359,22 +359,22 @@ export const MILESTONES: MilestoneData[] = [
     xpReward: 250,
     benefits: [
       'Automated goal-based investing setup',
-      'Auto-SIP configuration for each goal',
+      'Auto-FIRE configuration for each goal',
       'Auto-rebalancing triggers',
       'Smart notifications when action needed',
       'Remove emotional investing decisions',
       '"Set it and forget it" peace of mind',
     ],
     completionCriteria: [
-      'At least 1 SIP automated',
+      'At least 1 FIRE automated',
       'Auto-rebalancing enabled',
       'Notifications configured',
     ],
     actions: [
       {
-        title: 'Set Up Auto-SIP',
+        title: 'Set Up Auto-FIRE',
         description: 'Automate monthly investments',
-        link: '/sip-planner',
+        link: '/fire-planner',
         completed: false,
       },
       {

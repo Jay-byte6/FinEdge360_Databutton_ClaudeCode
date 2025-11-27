@@ -31,7 +31,7 @@ const PortfolioPage: React.FC = () => {
   const [analysisGenerated, setAnalysisGenerated] = useState(false);
   const [isLoadingAnalysis, setIsLoadingAnalysis] = useState(true);
 
-  const ACCESS_CODE = "123456";
+  const ACCESS_CODE = "FIREDEMO"; // Demo code for everyone to try
 
   // Load risk assessment from database on mount and when access is granted
   useEffect(() => {
@@ -196,9 +196,56 @@ const PortfolioPage: React.FC = () => {
   if (!hasAccess) {
     return (
       <AccessCodeForm expectedCode={ACCESS_CODE} onAccessGranted={handleAccessGranted}>
-        <div className="text-center p-4 border-t border-gray-200 mt-6">
-          <p className="text-lg font-semibold text-gray-700">Unlock Your Personalized Portfolio Strategy!</p>
-          <p className="text-sm text-gray-500">Enter the access code to view your suggested asset allocation based on your risk profile.</p>
+        <div className="p-6 border-t border-gray-200 mt-6 bg-gradient-to-r from-purple-50 to-blue-50">
+          <div className="text-center mb-6">
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">🎯 Unlock AI-Powered Portfolio Analysis</h2>
+            <p className="text-gray-600">Get personalized risk assessment and portfolio recommendations</p>
+          </div>
+
+          {/* Preview of what they'll get */}
+          <div className="grid md:grid-cols-3 gap-4 mb-6">
+            <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-purple-500">
+              <h3 className="font-semibold text-purple-700 mb-1">🧠 Risk Assessment</h3>
+              <p className="text-sm text-gray-600">Take a 10-question quiz to determine your risk profile and investment personality</p>
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-blue-500">
+              <h3 className="font-semibold text-blue-700 mb-1">📊 Portfolio Analysis</h3>
+              <p className="text-sm text-gray-600">Compare your current portfolio with ideal asset allocation based on your risk score</p>
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-green-500">
+              <h3 className="font-semibold text-green-700 mb-1">💡 Actionable Insights</h3>
+              <p className="text-sm text-gray-600">Get educational recommendations and rebalancing strategies for your portfolio</p>
+            </div>
+          </div>
+
+          {/* Demo Code Display */}
+          <div className="bg-yellow-50 border-2 border-yellow-400 rounded-lg p-4 mb-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold text-yellow-800 mb-1">🎁 Try Demo Mode:</p>
+                <p className="text-xs text-yellow-700">Use code <span className="font-mono font-bold text-lg">FIREDEMO</span> to explore sample analysis</p>
+              </div>
+              <div className="bg-yellow-200 px-4 py-2 rounded-md">
+                <code className="text-2xl font-bold text-yellow-900">FIREDEMO</code>
+              </div>
+            </div>
+          </div>
+
+          {/* How to get access code */}
+          <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+            <p className="text-sm font-semibold text-purple-800 mb-2">💎 Get Your Personal Access Code:</p>
+            <ol className="text-xs text-purple-700 space-y-1 ml-4 list-decimal">
+              <li>Subscribe to <strong>Premium (₹2,999 one-time)</strong> or <strong>Expert Plus (₹3,999/month)</strong></li>
+              <li>Your unique access code will be sent to your email instantly</li>
+              <li>Use the code to unlock all advanced features forever</li>
+            </ol>
+            <button
+              onClick={() => window.location.href = '/pricing'}
+              className="mt-3 w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-2 px-4 rounded-lg font-semibold hover:from-purple-700 hover:to-blue-700 transition-all"
+            >
+              View Pricing Plans →
+            </button>
+          </div>
         </div>
       </AccessCodeForm>
     );

@@ -168,6 +168,17 @@ export default function App() {
     navigate("/login");
   };
 
+  const handleBookConsultation = () => {
+    // Require authentication before booking consultation
+    if (isAuthenticated) {
+      // Navigate to consultation booking
+      navigate("/consultation");
+    } else {
+      // Redirect to login with return URL
+      navigate("/login");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
       {/* Hero Section */}
@@ -186,13 +197,23 @@ export default function App() {
               <p className="text-lg text-blue-200 mb-12 max-w-2xl mx-auto md:mx-0">
                 FinEdge360 empowers <span className="font-semibold text-white">Salaried & IT Professionals</span> with intelligent tools for goal planning, investment tracking, and tax optimization – all designed for your dynamic career.
               </p>
-              <Button
-                size="lg"
-                onClick={handleGetStarted}
-                className="bg-white text-blue-700 hover:bg-blue-50 font-semibold text-lg px-12 py-5 shadow-xl hover:shadow-2xl rounded-lg transform transition-all duration-300 ease-in-out hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300"
-              >
-                Start My Financial Plan {/* MODIFIED: Button text confirmed */}
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+                <Button
+                  size="lg"
+                  onClick={handleGetStarted}
+                  className="bg-white text-blue-700 hover:bg-blue-50 font-semibold text-lg px-12 py-5 shadow-xl hover:shadow-2xl rounded-lg transform transition-all duration-300 ease-in-out hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300"
+                >
+                  Start My Financial Plan
+                </Button>
+                <Button
+                  size="lg"
+                  onClick={handleBookConsultation}
+                  variant="outline"
+                  className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-blue-700 font-semibold text-lg px-8 py-5 shadow-xl hover:shadow-2xl rounded-lg transform transition-all duration-300 ease-in-out hover:scale-105 focus:outline-none focus:ring-4 focus:ring-white"
+                >
+                  📞 Book FREE Consultation
+                </Button>
+              </div>
             </div>
             {/* Image Content */}
             <div className="md:w-2/5 flex justify-center md:justify-end mt-10 md:mt-0">
