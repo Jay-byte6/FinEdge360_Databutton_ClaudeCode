@@ -1582,14 +1582,14 @@ export default function TaxPlanning() {
                 </h3>
                 <div className="space-y-2 text-sm">
                   <p className="text-gray-700">
-                    <strong>Scenario:</strong> You saved ₹{formatCurrency(Math.max(calculations.oldRegime.totalTax - calculations.newRegime.totalTax, 0))} in tax this year.
+                    <strong>Scenario:</strong> You saved ₹{formatCurrency(Math.max(taxUnderOldRegime - taxUnderNewRegime, 0))} in tax this year.
                   </p>
                   <div className="bg-green-50 p-3 rounded border border-green-200">
                     <p className="font-semibold text-green-900">If you invest this in SIP @ 12% return:</p>
                     <ul className="mt-1 space-y-1 text-green-800">
-                      <li>• <strong>5 years:</strong> ₹{formatCurrency(Math.max(calculations.oldRegime.totalTax - calculations.newRegime.totalTax, 0) * ((Math.pow(1 + 0.12, 5) - 1) / 0.12))}</li>
-                      <li>• <strong>10 years:</strong> ₹{formatCurrency(Math.max(calculations.oldRegime.totalTax - calculations.newRegime.totalTax, 0) * ((Math.pow(1 + 0.12, 10) - 1) / 0.12))}</li>
-                      <li>• <strong>15 years:</strong> ₹{formatCurrency(Math.max(calculations.oldRegime.totalTax - calculations.newRegime.totalTax, 0) * ((Math.pow(1 + 0.12, 15) - 1) / 0.12))}</li>
+                      <li>• <strong>5 years:</strong> ₹{formatCurrency(Math.max(taxUnderOldRegime - taxUnderNewRegime, 0) * ((Math.pow(1 + 0.12, 5) - 1) / 0.12))}</li>
+                      <li>• <strong>10 years:</strong> ₹{formatCurrency(Math.max(taxUnderOldRegime - taxUnderNewRegime, 0) * ((Math.pow(1 + 0.12, 10) - 1) / 0.12))}</li>
+                      <li>• <strong>15 years:</strong> ₹{formatCurrency(Math.max(taxUnderOldRegime - taxUnderNewRegime, 0) * ((Math.pow(1 + 0.12, 15) - 1) / 0.12))}</li>
                     </ul>
                   </div>
                 </div>
@@ -1674,7 +1674,7 @@ export default function TaxPlanning() {
                   <p className="font-semibold">Extra Monthly Investment:</p>
                   <p className="text-2xl font-bold">
                     ₹{formatCurrency(
-                      (Math.max(calculations.oldRegime.totalTax - calculations.newRegime.totalTax, 0) / 12) +
+                      (Math.max(taxUnderOldRegime - taxUnderNewRegime, 0) / 12) +
                       ((150000 - (income.section80C || 0)) * 0.3 / 12) +
                       ((income.monthlySalary - income.monthlyExpenses) * 0.1) +
                       10000
@@ -1685,7 +1685,7 @@ export default function TaxPlanning() {
                   <p className="font-semibold">Corpus in 10 Years @ 12%:</p>
                   <p className="text-3xl font-bold">
                     ₹{(
-                      ((Math.max(calculations.oldRegime.totalTax - calculations.newRegime.totalTax, 0) / 12) +
+                      ((Math.max(taxUnderOldRegime - taxUnderNewRegime, 0) / 12) +
                       ((150000 - (income.section80C || 0)) * 0.3 / 12) +
                       ((income.monthlySalary - income.monthlyExpenses) * 0.1) +
                       10000) * ((Math.pow(1 + 0.12/12, 10*12) - 1) / (0.12/12)) / 10000000
