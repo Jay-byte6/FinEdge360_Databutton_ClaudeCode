@@ -6,6 +6,7 @@ import hmac
 import hashlib
 from datetime import datetime
 from supabase import create_client
+import razorpay
 
 router = APIRouter(prefix="/routes")
 
@@ -96,6 +97,10 @@ async def create_razorpay_order(request: CreateOrderRequest):
             amount = int(plan['price_monthly'] * 100)  # Convert to paise
         elif request.billing_cycle == 'yearly':
             amount = int(plan['price_yearly'] * 100) if plan['price_yearly'] else int(plan['price_monthly'] * 12 * 100)
+        elif request.billing_cycle == 'lifetime':
+            # For Premium plan, always use the plan's monthly price (which is lifetime price)
+            # This gives ₹2,999 for Premium and ₹3,999 for Expert Plus
+            amount = int(plan['price_monthly'] * 100)  # Convert to paise
         else:
             raise HTTPException(status_code=400, detail="Invalid billing cycle")
 
@@ -114,21 +119,23 @@ async def create_razorpay_order(request: CreateOrderRequest):
                     amount = amount - discount
                     print(f"[Create Razorpay Order] Applied discount: {promo['discount_percentage']}%")
 
-        # Create Razorpay order (simulated - you need razorpay SDK)
-        # import razorpay
-        # client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
-        # order_data = {
-        #     'amount': amount,
-        #     'currency': 'INR',
-        #     'receipt': f'order_{request.user_id}_{int(datetime.now().timestamp())}',
-        #     'payment_capture': 1
-        # }
-        # razorpay_order = client.order.create(data=order_data)
+        # Create Razorpay order
+        client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
+        # Receipt must be max 40 characters - use short user ID and timestamp
+        short_user_id = request.user_id[:8]  # First 8 chars of user_id
+        timestamp = int(datetime.now().timestamp())
+        receipt = f'ord_{short_user_id}_{timestamp}'[:40]  # Ensure max 40 chars
 
-        # For now, return a mock order ID
-        order_id = f"order_mock_{int(datetime.now().timestamp())}"
+        order_data = {
+            'amount': amount,
+            'currency': 'INR',
+            'receipt': receipt,
+            'payment_capture': 1
+        }
+        razorpay_order = client.order.create(data=order_data)
+        order_id = razorpay_order['id']
 
-        print(f"[Create Razorpay Order] Created order: {order_id}, Amount: ₹{amount/100}")
+        print(f"[Create Razorpay Order] Created order: {order_id}, Amount: Rs.{amount/100}")
 
         return CreateOrderResponse(
             success=True,
@@ -158,17 +165,19 @@ async def verify_razorpay_payment(request: VerifyPaymentRequest):
 
         print(f"[Verify Razorpay Payment] User: {request.user_id}, Order: {request.order_id}")
 
-        # Verify signature
-        message = f"{request.order_id}|{request.payment_id}"
-        generated_signature = hmac.new(
-            RAZORPAY_KEY_SECRET.encode(),
-            message.encode(),
-            hashlib.sha256
-        ).hexdigest()
+        # Verify signature using Razorpay utility
+        client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
 
-        # For demo purposes, we'll skip signature verification
-        # if generated_signature != request.signature:
-        #     raise HTTPException(status_code=400, detail="Invalid payment signature")
+        try:
+            client.utility.verify_payment_signature({
+                'razorpay_order_id': request.order_id,
+                'razorpay_payment_id': request.payment_id,
+                'razorpay_signature': request.signature
+            })
+            print(f"[Verify Razorpay Payment] Signature verified successfully")
+        except razorpay.errors.SignatureVerificationError:
+            print(f"[Verify Razorpay Payment] Signature verification failed")
+            raise HTTPException(status_code=400, detail="Invalid payment signature")
 
         # Create subscription via subscriptions API
         from ..subscriptions import create_subscription

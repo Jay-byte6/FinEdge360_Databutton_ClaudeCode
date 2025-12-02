@@ -418,7 +418,7 @@ export default function App() {
               {
                 name: "Ramesh Narayan",
                 title: "Senior Wealth Advisor & Financial Coach",
-                image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=300&h=300&fit=crop&crop=faces",
+                image: "/experts/Ramesh_Narayan_FinPlanner_image.jpg",
                 credentials: [
                   "20+ years in Financial Planning, Analysis & Technology.",
                   "Experience at Volvo, HP, NetApp.",
@@ -430,7 +430,7 @@ export default function App() {
               {
                 name: "V Arun Menon",
                 title: "Financial Wellness Coach & Founder of VAM FinProServ",
-                image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&h=300&fit=crop&crop=faces",
+                image: "/experts/Arun_FinExpert_image.jpg",
                 credentials: [
                   "32+ years of overall experience, 22+ insurance.",
                   "Manages AUM of ₹50 Crore+ in Mutual Funds.",
@@ -439,19 +439,20 @@ export default function App() {
                 ]
               },
               {
-                name: "Chetan Bhagvat",
-                title: "Chartered Accountant",
-                image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=300&h=300&fit=crop&crop=faces",
+                name: "Sai Santhosh",
+                title: "Chartered Accountant & Startup Management Partner",
+                image: "/experts/Santhosh_CA_edited.png",
                 credentials: [
-                  "12+ years in accounting, corporate tax (TDS, GST, ITR), and financial consulting.",
-                  "Expert in ITR filing for individuals (salary, property, capital gains).",
-                  "Advises on tax planning and bank loan documentation."
+                  "VCFO (6+ Years): Your financial co-pilot.",
+                  "Investment & Planning: Growth-focused strategies.",
+                  "Compliance Pro: GST, ITR, ROC simplified.",
+                  "Funding Facilitator: End-to-end support. Both Private and Banks."
                 ]
               },
               {
                 name: "Sameer Heda",
                 title: "CA turned Credit Card Expert",
-                image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=faces",
+                image: "/experts/Sameer_CA.png",
                 credentials: [
                   "8+ years in business finance, tax, & credit card strategy.",
                   "Founder of Mera Mai Card (AI-powered credit card optimization).",
@@ -464,7 +465,7 @@ export default function App() {
                 <img
                   src={expert.image}
                   alt={expert.name}
-                  className="w-28 h-28 rounded-full mb-4 border-3 border-gray-200"
+                  className="w-28 h-28 rounded-full mb-4 border-3 border-gray-200 object-cover"
                 />
                 <h3 className="text-lg font-bold text-gray-900 mb-2">{expert.name}</h3>
                 <p className="text-sm text-blue-600 font-medium mb-4">{expert.title}</p>

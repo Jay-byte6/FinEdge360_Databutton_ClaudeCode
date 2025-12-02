@@ -7,7 +7,7 @@ import brain from "brain";
 import { toast } from "sonner";
 import NavBar from "./NavBar";
 import Footer from "./Footer";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 interface Props {
   children: ReactNode;
@@ -22,9 +22,10 @@ interface Props {
  * Note: ThemeProvider is already included in AppWrapper.tsx and does not need to be added here.
  */
 export const AppProvider = ({ children }: Props) => {
-  const { refreshSession } = useAuthStore();
+  const { refreshSession, isAuthenticated } = useAuthStore();
   const location = useLocation();
-  
+  const navigate = useNavigate();
+
   // Set document title
   useEffect(() => {
     document.title = "FinEdge360";
@@ -55,17 +56,61 @@ export const AppProvider = ({ children }: Props) => {
 
     initAuth();
 
-    // Set up auth state change listener
-    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+    // Set up auth state change listener for OAuth callbacks
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('=== AUTH STATE CHANGE DEBUG ===');
+      console.log('Event:', event);
+      console.log('Session exists:', !!session);
+      if (session?.user) {
+        console.log('User ID:', session.user.id);
+        console.log('User Email:', session.user.email);
+      }
+      console.log('Current path:', location.pathname);
+      console.log('=============================');
+
+      // Handle all cases where we have a session
       if (session) {
-        refreshSession();
+        console.log(`Processing ${event} event with session`);
+
+        // Update the auth store immediately with the session
+        const { user } = useAuthStore.getState();
+        if (!user || user.id !== session.user.id) {
+          console.log('Updating auth store with new session');
+          useAuthStore.setState({
+            session,
+            user: session.user,
+            isAuthenticated: true,
+            isLoading: false,
+            error: null,
+          });
+        }
+
+        // Refresh to get profile
+        await refreshSession();
+
+        // Navigate to dashboard on sign in
+        if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && location.pathname === '/login') {
+          console.log('Redirecting to dashboard after sign in');
+          setTimeout(() => {
+            toast.success('Signed in successfully!');
+            navigate('/dashboard');
+          }, 100);
+        }
+      } else if (event === 'SIGNED_OUT') {
+        console.log('User signed out');
+        useAuthStore.setState({
+          session: null,
+          user: null,
+          profile: null,
+          isAuthenticated: false,
+        });
       }
     });
 
     return () => {
-      data.subscription.unsubscribe();
+      authListener.subscription.unsubscribe();
     };
-  }, [refreshSession]);
+  }, [refreshSession, navigate, location.pathname]);
 
   return (
     <div className="flex flex-col min-h-screen">

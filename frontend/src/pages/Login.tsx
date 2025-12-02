@@ -10,8 +10,8 @@ console.log("useAuthStore imported:", typeof useAuthStore);
 export default function Login() {
   console.log("####### Login() COMPONENT RENDERING #######");
   const navigate = useNavigate();
-  const { signIn, signInWithGoogle, signUp, isAuthenticated, isLoading, error, isRegistering, toggleAuthMode, resetPassword } = useAuthStore();
-  
+  const { signIn, signInWithGoogle, signUp, isAuthenticated, isLoading, error, isRegistering, toggleAuthMode, resetPassword, refreshSession } = useAuthStore();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -22,26 +22,48 @@ export default function Login() {
   const [resetCode, setResetCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
-  
+
   // Get stored password reset data
   const [storedData, setStoredData] = useState(() => {
     const data = localStorage.getItem('resetPasswordData');
     return data ? JSON.parse(data) : null;
   });
-  
+
   // Refresh stored data when needed
   const refreshStoredData = () => {
     const data = localStorage.getItem('resetPasswordData');
     setStoredData(data ? JSON.parse(data) : null);
   };
-  
+
+  // Handle OAuth callback on page load
+  useEffect(() => {
+    const handleOAuthCallback = async () => {
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const searchParams = new URLSearchParams(window.location.search);
+
+      console.log('=== LOGIN PAGE OAUTH CHECK ===');
+      console.log('Hash params:', window.location.hash);
+      console.log('Search params:', window.location.search);
+      console.log('Has access_token:', hashParams.has('access_token'));
+      console.log('Has code:', searchParams.has('code'));
+
+      if (hashParams.has('access_token') || searchParams.has('code')) {
+        console.log('OAuth callback detected, refreshing session...');
+        await refreshSession();
+      }
+    };
+
+    handleOAuthCallback();
+  }, [refreshSession]);
+
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
+      console.log('User is authenticated, redirecting to dashboard');
       navigate("/dashboard");
     }
   }, [isAuthenticated, navigate]);
-  
+
   // Display error toast if authentication fails
   useEffect(() => {
     if (error) {

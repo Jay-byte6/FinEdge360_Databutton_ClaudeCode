@@ -143,7 +143,9 @@ const useAuthStore = create<AuthState>((set, get) => ({
       set({ isLoading: true, error: null });
 
       console.log('Attempting to sign in with Google...');
+      console.log('Current origin:', window.location.origin);
 
+      // Use implicit flow instead of PKCE to avoid 401 errors
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -152,6 +154,7 @@ const useAuthStore = create<AuthState>((set, get) => ({
             access_type: 'offline',
             prompt: 'consent',
           },
+          skipBrowserRedirect: false,
         },
       });
 
@@ -425,7 +428,7 @@ const useAuthStore = create<AuthState>((set, get) => ({
   refreshSession: async () => {
     try {
       set({ isLoading: true, error: null });
-      
+
       // Note: init-auth-tables endpoint doesn't exist - auth handled by Supabase
       // Removed to prevent 404 errors and CORS issues
 
@@ -438,18 +441,19 @@ const useAuthStore = create<AuthState>((set, get) => ({
         console.error('Session error:', sessionError);
         throw sessionError;
       }
-      
+
       // Get user from session
       const user = session?.user || null;
-      
+
       // Log session status
       console.log('Session status:', user ? 'User is logged in' : 'No active session');
-      
-      // Update auth state
+
+      // Update auth state immediately to prevent auth loops
       set({
         session,
         user,
         isAuthenticated: !!user,
+        isLoading: false,  // Set loading to false right away
       });
       
       // Fetch profile if user exists

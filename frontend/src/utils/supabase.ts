@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 
 // The environmental variables should be already in your app
+// SWITCHED BACK TO OLD PROJECT WHERE DATA EXISTS
 const supabaseUrl = 'https://gzkuoojfoaovnzoczibc.supabase.co';
 const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd6a3Vvb2pmb2Fvdm56b2N6aWJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDYxOTg1MjcsImV4cCI6MjA2MTc3NDUyN30.LWbuf6pa5G3fbAkfBv23vGT6xk685TrFqZD1gZ08IDM';
 
@@ -9,7 +10,7 @@ const getSiteUrl = () => {
   const currentUrl = window.location.origin;
   if (currentUrl.includes('databutton.app')) {
     return 'https://vaaniai.databutton.app/finedge360';
-  } 
+  }
   return currentUrl;
 };
 
@@ -19,8 +20,6 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true,
-    // Set global site URL for auth redirects
-    site_url: getSiteUrl()
   }
 });
 

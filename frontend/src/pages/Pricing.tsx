@@ -86,7 +86,7 @@ const Pricing: React.FC = () => {
       id: 'premium',
       name: 'premium',
       displayName: 'Premium',
-      tagline: 'One-time unlock + 1 Free Consultation',
+      tagline: 'Lifetime access + 1 Free Consultation',
       icon: TrendingUp,
       price: { monthly: 2999, yearly: 2999 },
       popular: true,
@@ -111,7 +111,7 @@ const Pricing: React.FC = () => {
       displayName: 'Expert Plus',
       tagline: 'Complete financial management',
       icon: Crown,
-      price: { monthly: 3999, yearly: 3999 },
+      price: { monthly: 3999, yearly: 39999 },
       featured: true,
       features: [
         { text: 'Everything in Premium', included: true },
