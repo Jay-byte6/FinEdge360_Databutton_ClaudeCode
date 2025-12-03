@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AccessCodeForm } from "components/AccessCodeForm";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import useFinancialDataStore from "utils/financialDataStore";
@@ -10,7 +10,7 @@ import FinancialLadder from "@/components/FinancialLadder";
 import RiskAssessmentQuiz, { RiskQuizAnswer } from "@/components/RiskAssessmentQuiz";
 import PortfolioComparison from "@/components/PortfolioComparison";
 import { performRiskAssessment, RiskAssessmentResult } from "@/utils/portfolioAnalysis";
-import { Target, TrendingUp } from "lucide-react";
+import { Target, TrendingUp, Flame, Wallet, Zap, Shield, Heart, Activity, AlertTriangle, Users } from "lucide-react";
 import { API_ENDPOINTS } from "@/config/api";
 
 const PORTFOLIO_ACCESS_KEY = 'portfolio_access_granted';
@@ -383,6 +383,373 @@ const PortfolioPage: React.FC = () => {
             </div>
           )}
         </>
+      )}
+
+      {/* PowerFIRE Tips - Savings Scenarios */}
+      {financialData && Object.keys(financialData).length > 0 && (
+        <div className="mt-8">
+          <Card className="bg-gradient-to-r from-orange-50 to-red-50 border-2 border-orange-300 shadow-lg">
+            <CardHeader>
+              <CardTitle className="text-2xl text-orange-900 flex items-center gap-2">
+                <Flame className="w-6 h-6" />
+                🔥 PowerFIRE Tips: Accelerate Your FIRE Journey
+              </CardTitle>
+              <CardDescription className="text-orange-700">
+                Smart savings scenarios to boost your path to Financial Independence
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* Scenario 1: Increase Savings Rate */}
+                <div className="bg-white p-4 rounded-lg border-2 border-orange-200">
+                  <h3 className="font-bold text-orange-900 mb-2 flex items-center gap-2">
+                    <Target className="w-5 h-5" />
+                    💰 Increase Your Savings Rate
+                  </h3>
+                  <div className="space-y-2 text-sm">
+                    <p className="text-gray-700">
+                      <strong>Current Monthly Savings:</strong> ₹{((financialData?.personalInfo?.monthlySalary || 0) - (financialData?.personalInfo?.monthlyExpenses || 0)).toLocaleString('en-IN')}
+                    </p>
+                    <div className="bg-green-50 p-3 rounded border border-green-200">
+                      <p className="font-semibold text-green-900">Save 20% more monthly (₹{(((financialData?.personalInfo?.monthlySalary || 0) - (financialData?.personalInfo?.monthlyExpenses || 0)) * 0.2).toLocaleString('en-IN')}):</p>
+                      <ul className="mt-1 space-y-1 text-green-800">
+                        <li>• <strong>5 years:</strong> ₹{((((financialData?.personalInfo?.monthlySalary || 0) - (financialData?.personalInfo?.monthlyExpenses || 0)) * 0.2) * ((Math.pow(1 + 0.12/12, 5*12) - 1) / (0.12/12))).toLocaleString('en-IN')}</li>
+                        <li>• <strong>10 years:</strong> ₹{((((financialData?.personalInfo?.monthlySalary || 0) - (financialData?.personalInfo?.monthlyExpenses || 0)) * 0.2) * ((Math.pow(1 + 0.12/12, 10*12) - 1) / (0.12/12))).toLocaleString('en-IN')}</li>
+                        <li>• <strong>15 years:</strong> ₹{((((financialData?.personalInfo?.monthlySalary || 0) - (financialData?.personalInfo?.monthlyExpenses || 0)) * 0.2) * ((Math.pow(1 + 0.12/12, 15*12) - 1) / (0.12/12))).toLocaleString('en-IN')}</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Scenario 2: Tax Optimization */}
+                <div className="bg-white p-4 rounded-lg border-2 border-orange-200">
+                  <h3 className="font-bold text-orange-900 mb-2 flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5" />
+                    📈 Optimize Tax Savings (₹1.5L under 80C)
+                  </h3>
+                  <div className="space-y-2 text-sm">
+                    <p className="text-gray-700">
+                      <strong>Potential annual tax savings:</strong> ₹45,000
+                    </p>
+                    <div className="bg-blue-50 p-3 rounded border border-blue-200">
+                      <p className="font-semibold text-blue-900">Invest tax savings @ 12% return:</p>
+                      <p className="text-2xl font-bold text-blue-600 my-1">
+                        ₹45,000/year
+                      </p>
+                      <p className="text-blue-800 text-xs mt-1">
+                        Over 10 years: <strong>₹{(45000 * ((Math.pow(1 + 0.12, 10) - 1) / 0.12)).toLocaleString('en-IN')}</strong>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Scenario 3: Expense Reduction */}
+                <div className="bg-white p-4 rounded-lg border-2 border-orange-200">
+                  <h3 className="font-bold text-orange-900 mb-2 flex items-center gap-2">
+                    <Wallet className="w-5 h-5" />
+                    💳 Cut Expenses by 10%
+                  </h3>
+                  <div className="space-y-2 text-sm">
+                    <p className="text-gray-700">
+                      <strong>Scenario:</strong> Reduce monthly expenses by just 10%
+                    </p>
+                    <div className="bg-purple-50 p-3 rounded border border-purple-200">
+                      <p className="font-semibold text-purple-900">Extra savings per month:</p>
+                      <p className="text-2xl font-bold text-purple-600 my-1">
+                        ₹{((financialData?.personalInfo?.monthlyExpenses || 0) * 0.1).toLocaleString('en-IN')} /mo
+                      </p>
+                      <p className="text-purple-800 text-xs">
+                        Invested @ 12% for 10 years: <strong>₹{((financialData?.personalInfo?.monthlyExpenses || 0) * 0.1 * ((Math.pow(1 + 0.12/12, 10*12) - 1) / (0.12/12))).toLocaleString('en-IN')}</strong>
+                      </p>
+                      <p className="text-purple-800 text-xs mt-1">
+                        <strong>Impact on FIRE:</strong> Lowers your FIRE number by ₹{(((financialData?.personalInfo?.monthlyExpenses || 0) * 0.1) * 12 * 25).toLocaleString('en-IN')}!
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Scenario 4: Side Hustle */}
+                <div className="bg-white p-4 rounded-lg border-2 border-orange-200">
+                  <h3 className="font-bold text-orange-900 mb-2 flex items-center gap-2">
+                    <Zap className="w-5 h-5" />
+                    ⚡ Start a Side Hustle (₹10K/mo)
+                  </h3>
+                  <div className="space-y-2 text-sm">
+                    <p className="text-gray-700">
+                      <strong>Scenario:</strong> Earn extra ₹10,000/month
+                    </p>
+                    <div className="bg-amber-50 p-3 rounded border border-amber-200">
+                      <p className="font-semibold text-amber-900">Annual side income:</p>
+                      <p className="text-2xl font-bold text-amber-600 my-1">₹1,20,000 /year</p>
+                      <p className="text-amber-800 text-xs">
+                        Invested @ 12% for 5 years: <strong>₹{(10000 * ((Math.pow(1 + 0.12/12, 5*12) - 1) / (0.12/12))).toLocaleString('en-IN')}</strong>
+                      </p>
+                      <p className="text-amber-800 text-xs mt-1">
+                        Invested @ 12% for 10 years: <strong>₹{(10000 * ((Math.pow(1 + 0.12/12, 10*12) - 1) / (0.12/12))).toLocaleString('en-IN')}</strong>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Combined Power */}
+              <div className="mt-6 p-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg">
+                <h3 className="font-bold text-xl mb-2">🚀 Combine All 4 Strategies:</h3>
+                <div className="grid md:grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <p className="font-semibold">Extra Monthly Investment:</p>
+                    <p className="text-2xl font-bold">
+                      ₹{(
+                        (((financialData?.personalInfo?.monthlySalary || 0) - (financialData?.personalInfo?.monthlyExpenses || 0)) * 0.2) +
+                        (45000 / 12) +
+                        ((financialData?.personalInfo?.monthlyExpenses || 0) * 0.1) +
+                        10000
+                      ).toLocaleString('en-IN')}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="font-semibold">Corpus in 10 Years @ 12%:</p>
+                    <p className="text-3xl font-bold">
+                      ₹{(
+                        ((((financialData?.personalInfo?.monthlySalary || 0) - (financialData?.personalInfo?.monthlyExpenses || 0)) * 0.2) +
+                        (45000 / 12) +
+                        ((financialData?.personalInfo?.monthlyExpenses || 0) * 0.1) +
+                        10000) * ((Math.pow(1 + 0.12/12, 10*12) - 1) / (0.12/12)) / 10000000
+                      ).toFixed(2)}Cr 🎉
+                    </p>
+                  </div>
+                </div>
+                <p className="mt-2 text-sm opacity-90">
+                  ⏰ <strong>Reach FIRE ~5-7 years faster</strong> by implementing all these strategies!
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Risk Coverage Tips */}
+      {financialData && Object.keys(financialData).length > 0 && (
+        <div className="mt-8">
+          <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 shadow-lg">
+            <CardHeader>
+              <CardTitle className="text-2xl text-blue-900 flex items-center gap-2">
+                <Shield className="w-6 h-6" />
+                🛡️ Risk Coverage: Protect Your FIRE Journey
+              </CardTitle>
+              <CardDescription className="text-blue-700">
+                Essential insurance coverage to safeguard your financial independence plan
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                {/* Life Insurance Coverage */}
+                <div className="bg-white p-4 rounded-lg border-2 border-blue-200">
+                  <h3 className="font-bold text-blue-900 mb-3 flex items-center gap-2 text-lg">
+                    <Heart className="w-5 h-5" />
+                    1. Life Insurance (Term Plan)
+                  </h3>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <p className="text-sm text-gray-700">
+                        <strong>Recommended Coverage:</strong>
+                      </p>
+                      <div className="bg-blue-50 p-3 rounded border border-blue-200">
+                        <p className="text-2xl font-bold text-blue-900">
+                          ₹{((financialData?.personalInfo?.monthlySalary || 0) * 12 * 15).toLocaleString('en-IN')}
+                        </p>
+                        <p className="text-xs text-gray-600 mt-1">15x your annual income</p>
+                      </div>
+                      <p className="text-xs text-gray-600">
+                        This ensures your family can maintain their lifestyle for 15+ years
+                      </p>
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-sm font-semibold text-gray-700">Why Term Insurance?</p>
+                      <ul className="text-xs text-gray-600 space-y-1">
+                        <li>✅ <strong>10-15x cheaper</strong> than traditional plans</li>
+                        <li>✅ <strong>Pure protection</strong>, no investment mixing</li>
+                        <li>✅ <strong>High coverage</strong> at low premium</li>
+                        <li>✅ <strong>Tax benefit</strong> under Section 80C (premium)</li>
+                        <li>✅ <strong>Tax-free payout</strong> to nominees</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div className="mt-3 p-3 bg-yellow-50 rounded border border-yellow-200">
+                    <p className="text-xs text-yellow-800">
+                      ⚠️ <strong>Avoid:</strong> Traditional endowment or money-back policies. They give poor returns (~4-6%) and low coverage.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Health Insurance */}
+                <div className="bg-white p-4 rounded-lg border-2 border-green-200">
+                  <h3 className="font-bold text-green-900 mb-3 flex items-center gap-2 text-lg">
+                    <Activity className="w-5 h-5" />
+                    2. Health Insurance
+                  </h3>
+                  <div className="grid md:grid-cols-3 gap-4">
+                    <div className="bg-green-50 p-3 rounded border border-green-200">
+                      <p className="text-xs text-gray-600 mb-1">Base Coverage</p>
+                      <p className="text-xl font-bold text-green-900">₹10-15 Lakh</p>
+                      <p className="text-xs text-gray-600 mt-1">Family floater policy</p>
+                    </div>
+                    <div className="bg-green-50 p-3 rounded border border-green-200">
+                      <p className="text-xs text-gray-600 mb-1">Super Top-up</p>
+                      <p className="text-xl font-bold text-green-900">₹50 Lakh+</p>
+                      <p className="text-xs text-gray-600 mt-1">After ₹5L deductible</p>
+                    </div>
+                    <div className="bg-green-50 p-3 rounded border border-green-200">
+                      <p className="text-xs text-gray-600 mb-1">Parents Coverage</p>
+                      <p className="text-xl font-bold text-green-900">₹5-10 Lakh</p>
+                      <p className="text-xs text-gray-600 mt-1">Separate policy</p>
+                    </div>
+                  </div>
+                  <div className="mt-3 grid md:grid-cols-2 gap-3">
+                    <div className="bg-blue-50 p-3 rounded border border-blue-200">
+                      <p className="text-sm font-semibold text-blue-900 mb-1">Tax Benefits:</p>
+                      <ul className="text-xs text-blue-800 space-y-1">
+                        <li>• ₹25,000 deduction (self & family) under 80D</li>
+                        <li>• ₹50,000 for senior citizens under 80D</li>
+                        <li>• Additional ₹25,000 for parents' premium</li>
+                      </ul>
+                    </div>
+                    <div className="bg-green-50 p-3 rounded border border-green-200">
+                      <p className="text-sm font-semibold text-green-900 mb-1">Why Critical:</p>
+                      <ul className="text-xs text-green-800 space-y-1">
+                        <li>• Medical inflation ~14% per year</li>
+                        <li>• ICU costs: ₹15K-50K per day</li>
+                        <li>• Major surgery: ₹5-20 Lakh</li>
+                        <li>• Protects your FIRE corpus</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Critical Illness & Disability */}
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="bg-white p-4 rounded-lg border-2 border-orange-200">
+                    <h3 className="font-bold text-orange-900 mb-2 flex items-center gap-2">
+                      <AlertTriangle className="w-5 h-5" />
+                      3. Critical Illness Cover
+                    </h3>
+                    <div className="space-y-2">
+                      <div className="bg-orange-50 p-3 rounded border border-orange-200">
+                        <p className="text-xs text-gray-600 mb-1">Recommended Coverage</p>
+                        <p className="text-2xl font-bold text-orange-900">
+                          ₹{((financialData?.personalInfo?.monthlySalary || 0) * 12 * 5).toLocaleString('en-IN')}
+                        </p>
+                        <p className="text-xs text-gray-600 mt-1">5x annual income</p>
+                      </div>
+                      <ul className="text-xs text-gray-600 space-y-1">
+                        <li>• Covers 30+ critical illnesses</li>
+                        <li>• Lump sum payout on diagnosis</li>
+                        <li>• Use for treatment & recovery</li>
+                        <li>• Premium: ₹5K-15K/year</li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div className="bg-white p-4 rounded-lg border-2 border-purple-200">
+                    <h3 className="font-bold text-purple-900 mb-2 flex items-center gap-2">
+                      <Users className="w-5 h-5" />
+                      4. Disability Insurance
+                    </h3>
+                    <div className="space-y-2">
+                      <div className="bg-purple-50 p-3 rounded border border-purple-200">
+                        <p className="text-xs text-gray-600 mb-1">Monthly Replacement Income</p>
+                        <p className="text-2xl font-bold text-purple-900">
+                          ₹{((financialData?.personalInfo?.monthlySalary || 0) * 0.6).toLocaleString('en-IN')}
+                        </p>
+                        <p className="text-xs text-gray-600 mt-1">60% of current salary</p>
+                      </div>
+                      <ul className="text-xs text-gray-600 space-y-1">
+                        <li>• Pays if unable to work</li>
+                        <li>• Short-term & long-term options</li>
+                        <li>• Often included with term plans</li>
+                        <li>• Protects income continuity</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Total Investment & Impact */}
+                <div className="p-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg">
+                  <h3 className="font-bold text-xl mb-3">💰 Total Risk Coverage Investment</h3>
+                  <div className="grid md:grid-cols-3 gap-4 text-sm">
+                    <div>
+                      <p className="opacity-90 mb-1">Term Insurance (₹1Cr)</p>
+                      <p className="text-2xl font-bold">~₹12K/year</p>
+                    </div>
+                    <div>
+                      <p className="opacity-90 mb-1">Health Insurance (₹15L+50L)</p>
+                      <p className="text-2xl font-bold">~₹25K/year</p>
+                    </div>
+                    <div>
+                      <p className="opacity-90 mb-1">Critical Illness</p>
+                      <p className="text-2xl font-bold">~₹10K/year</p>
+                    </div>
+                  </div>
+                  <div className="mt-4 pt-4 border-t border-white/20">
+                    <div className="flex justify-between items-center">
+                      <span className="text-lg font-semibold">Total Annual Investment:</span>
+                      <span className="text-3xl font-bold">~₹47K/year</span>
+                    </div>
+                    <p className="text-sm mt-2 opacity-90">
+                      💡 <strong>Just ₹4,000/month</strong> to protect your entire financial future!
+                    </p>
+                  </div>
+                </div>
+
+                {/* Action Items */}
+                <div className="bg-white p-4 rounded-lg border-2 border-green-300">
+                  <h3 className="font-bold text-green-900 mb-3 flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5" />
+                    ✅ Action Checklist
+                  </h3>
+                  <div className="grid md:grid-cols-2 gap-3 text-sm">
+                    <div className="space-y-2">
+                      <label className="flex items-center gap-2">
+                        <input type="checkbox" className="w-4 h-4" />
+                        <span>Get term insurance (15x income)</span>
+                      </label>
+                      <label className="flex items-center gap-2">
+                        <input type="checkbox" className="w-4 h-4" />
+                        <span>Buy base health insurance (₹15L)</span>
+                      </label>
+                      <label className="flex items-center gap-2">
+                        <input type="checkbox" className="w-4 h-4" />
+                        <span>Add super top-up (₹50L)</span>
+                      </label>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="flex items-center gap-2">
+                        <input type="checkbox" className="w-4 h-4" />
+                        <span>Parents' health insurance</span>
+                      </label>
+                      <label className="flex items-center gap-2">
+                        <input type="checkbox" className="w-4 h-4" />
+                        <span>Consider critical illness cover</span>
+                      </label>
+                      <label className="flex items-center gap-2">
+                        <input type="checkbox" className="w-4 h-4" />
+                        <span>Review coverage annually</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Warning */}
+                <div className="p-3 bg-red-50 rounded border border-red-200">
+                  <p className="text-sm text-red-800">
+                    ⚠️ <strong>Warning:</strong> Without adequate insurance, one medical emergency can wipe out years of FIRE savings.
+                    Insurance is NOT an expense—it's the foundation of your financial plan.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       )}
 
       {/* Financial Ladder Component */}
