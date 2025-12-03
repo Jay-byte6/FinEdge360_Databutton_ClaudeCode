@@ -385,6 +385,13 @@ const PortfolioPage: React.FC = () => {
         </>
       )}
 
+      {/* Financial Ladder Component */}
+      {financialData && Object.keys(financialData).length > 0 && (
+        <div className="mt-8">
+          <FinancialLadder financialData={financialData} />
+        </div>
+      )}
+
       {/* PowerFIRE Tips - Savings Scenarios */}
       {financialData && Object.keys(financialData).length > 0 && (
         <div className="mt-8">
@@ -749,13 +756,6 @@ const PortfolioPage: React.FC = () => {
               </div>
             </CardContent>
           </Card>
-        </div>
-      )}
-
-      {/* Financial Ladder Component */}
-      {financialData && Object.keys(financialData).length > 0 && (
-        <div className="mt-8">
-          <FinancialLadder financialData={financialData} />
         </div>
       )}
     </div>
