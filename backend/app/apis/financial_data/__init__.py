@@ -176,6 +176,12 @@ class RiskAssessmentResponse(BaseModel):
 
 @router.post("/save-financial-data")
 def save_financial_data(data: FinancialDataInput) -> SaveFinancialDataResponse:
+    print(f"===== [SAVE FINANCIAL DATA] START =====")
+    print(f"User ID: {data.userId}")
+    print(f"Has Personal Info: {data.personalInfo is not None}")
+    print(f"Has Assets: {data.assets is not None}")
+    print(f"Has Liabilities: {data.liabilities is not None}")
+
     try:
         # First try to save to Supabase if available
         try:
@@ -190,6 +196,7 @@ def save_financial_data(data: FinancialDataInput) -> SaveFinancialDataResponse:
                 "name": user_name,
                 "email": f"{sanitize_storage_key(data.userId)}@finnest.example.com"  # Generate a pseudonymous email
             }
+            print(f"Saving for user: {user_name}")
             
             # First try to get the user
             user_response = supabase.from_("users")\

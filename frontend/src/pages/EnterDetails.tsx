@@ -335,7 +335,7 @@ export default function EnterDetails() {
 
       const assetsData = assetsForm.getValues();
       const liabilitiesData = liabilitiesForm.getValues();
-      
+
       // Data for API should now include the detailed assets and liabilities objects
       const dataForApi = {
         personalInfo: personalInfoForm.getValues(),
@@ -347,6 +347,19 @@ export default function EnterDetails() {
       };
 
       console.log("Data prepared for API:", JSON.stringify(dataForApi, null, 2));
+      console.log("Assets illiquid:", assetsData.illiquid);
+      console.log("Assets liquid:", assetsData.liquid);
+      console.log("Liabilities:", liabilitiesData);
+
+      // Check if user has entered ANY asset or liability data
+      const hasAssetData = Object.values(assetsData.illiquid || {}).some(v => v > 0) ||
+                          Object.values(assetsData.liquid || {}).some(v => v > 0);
+      const hasLiabilityData = Object.values(liabilitiesData || {}).some(v => v > 0);
+
+      if (!hasAssetData && !hasLiabilityData) {
+        console.warn("WARNING: No assets or liabilities entered! User is saving empty financial data.");
+        toast.warning("You haven't entered any assets or liabilities. Your Net Worth will show as ₹0. Please go back and enter your financial details.");
+      }
 
       try {
         console.log("Calling saveFinancialData from store with transformed data...");
