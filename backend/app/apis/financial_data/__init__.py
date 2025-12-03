@@ -189,31 +189,11 @@ def save_financial_data(data: FinancialDataInput) -> SaveFinancialDataResponse:
                 print("Supabase client not initialized, using local storage")
                 raise Exception("Supabase client not initialized")
 
-            # Create or get user
-            # Handle case where personalInfo might be None (e.g., when only saving taxPlan)
-            user_name = data.personalInfo.name if data.personalInfo else "FinEdge User"
-            user_data = {
-                "name": user_name,
-                "email": f"{sanitize_storage_key(data.userId)}@finnest.example.com"  # Generate a pseudonymous email
-            }
-            print(f"Saving for user: {user_name}")
-            
-            # First try to get the user
-            user_response = supabase.from_("users")\
-                .select("id")\
-                .eq("email", user_data["email"])\
-                .execute()
-            
-            user_id = None
-            if user_response.data and len(user_response.data) > 0:
-                user_id = user_response.data[0]["id"]
-            else:
-                # Create user if not exists
-                user_response = supabase.from_("users")\
-                    .insert(user_data)\
-                    .execute()
-                user_id = user_response.data[0]["id"]
-            
+            # Use the authenticated user's ID directly
+            # The data.userId comes from the authenticated user session in the frontend
+            user_id = data.userId
+            print(f"Saving for authenticated user_id: {user_id}")
+
             # Now create or update personal_info
             personal_info_data = {
                 "user_id": user_id,
@@ -458,31 +438,59 @@ def get_financial_data(user_id: str) -> FinancialDataOutput:
             
             # Check if we have detailed JSON data
             if "assets_detail" in assets_liabilities and assets_liabilities["assets_detail"]:
-                detailed_assets = Assets(**assets_liabilities["assets_detail"])
+                try:
+                    detailed_assets = Assets(**assets_liabilities["assets_detail"])
+                except Exception as asset_parse_error:
+                    print(f"Error parsing assets_detail: {asset_parse_error}")
+                    print(f"assets_detail value: {assets_liabilities['assets_detail']}")
+                    # Create default assets structure as fallback
+                    illiquid_assets = IlliquidAssets(
+                        home=float(assets_liabilities.get("real_estate_value", 0)) / 2,  # Estimate
+                        other_real_estate=float(assets_liabilities.get("real_estate_value", 0)) / 2,  # Estimate
+                        epf_ppf_vpf=float(assets_liabilities.get("epf_balance", 0))  # Direct map
+                    )
+
+                    liquid_assets = LiquidAssets(
+                        debt_funds=float(assets_liabilities.get("mutual_funds_value", 0)) / 2,  # Estimate
+                        domestic_equity_mutual_funds=float(assets_liabilities.get("mutual_funds_value", 0)) / 2  # Estimate
+                    )
+
+                    detailed_assets = Assets(illiquid=illiquid_assets, liquid=liquid_assets)
             else:
                 # Create default assets structure
                 illiquid_assets = IlliquidAssets(
-                    home=assets_liabilities["real_estate_value"] / 2,  # Estimate
-                    other_real_estate=assets_liabilities["real_estate_value"] / 2,  # Estimate
-                    epf_ppf_vpf=assets_liabilities["epf_balance"]  # Direct map
+                    home=float(assets_liabilities.get("real_estate_value", 0)) / 2,  # Estimate
+                    other_real_estate=float(assets_liabilities.get("real_estate_value", 0)) / 2,  # Estimate
+                    epf_ppf_vpf=float(assets_liabilities.get("epf_balance", 0))  # Direct map
                 )
-                
+
                 liquid_assets = LiquidAssets(
-                    debt_funds=assets_liabilities["mutual_funds_value"] / 2,  # Estimate
-                    domestic_equity_mutual_funds=assets_liabilities["mutual_funds_value"] / 2  # Estimate
+                    debt_funds=float(assets_liabilities.get("mutual_funds_value", 0)) / 2,  # Estimate
+                    domestic_equity_mutual_funds=float(assets_liabilities.get("mutual_funds_value", 0)) / 2  # Estimate
                 )
-                
+
                 detailed_assets = Assets(illiquid=illiquid_assets, liquid=liquid_assets)
             
             if "liabilities_detail" in assets_liabilities and assets_liabilities["liabilities_detail"]:
-                detailed_liabilities = Liabilities(**assets_liabilities["liabilities_detail"])
+                try:
+                    detailed_liabilities = Liabilities(**assets_liabilities["liabilities_detail"])
+                except Exception as liab_parse_error:
+                    print(f"Error parsing liabilities_detail: {liab_parse_error}")
+                    print(f"liabilities_detail value: {assets_liabilities['liabilities_detail']}")
+                    # Create default liabilities structure as fallback
+                    detailed_liabilities = Liabilities(
+                        home_loan=float(assets_liabilities.get("home_loan", 0)),
+                        car_loan=float(assets_liabilities.get("car_loan", 0)),
+                        personal_gold_loan=float(assets_liabilities.get("personal_loan", 0)),
+                        other_liabilities=float(assets_liabilities.get("other_loans", 0))
+                    )
             else:
                 # Create default liabilities structure
                 detailed_liabilities = Liabilities(
-                    home_loan=assets_liabilities["home_loan"],
-                    car_loan=assets_liabilities["car_loan"],
-                    personal_gold_loan=assets_liabilities["personal_loan"],
-                    other_liabilities=assets_liabilities["other_loans"]
+                    home_loan=float(assets_liabilities.get("home_loan", 0)),
+                    car_loan=float(assets_liabilities.get("car_loan", 0)),
+                    personal_gold_loan=float(assets_liabilities.get("personal_loan", 0)),
+                    other_liabilities=float(assets_liabilities.get("other_loans", 0))
                 )
             
             # Get risk appetite

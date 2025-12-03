@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { FinancialData } from 'types';
-import brain from 'brain';
+// import brain from 'brain'; // REMOVED - Unused Databutton API client
 import { toast } from 'sonner';
 import { API_ENDPOINTS } from '@/config/api';
 
@@ -26,15 +26,29 @@ const useFinancialDataStore = create<FinancialDataState>((set, get) => ({
     try {
       set({ isLoading: true, error: null });
 
-      console.log('[Store fetchFinancialData] Attempting to fetch financial data for user:', userId);
+      console.log('========== [FETCH FINANCIAL DATA] START ==========');
+      console.log('[Store fetchFinancialData] User ID:', userId);
+      console.log('[Store fetchFinancialData] User ID type:', typeof userId);
+      console.log('[Store fetchFinancialData] User ID is undefined?', userId === undefined);
+      console.log('[Store fetchFinancialData] User ID is null?', userId === null);
+
+      const apiUrl = API_ENDPOINTS.getFinancialData(userId);
+      console.log('[Store fetchFinancialData] Full API URL:', apiUrl);
+
+      if (!userId || userId === 'undefined' || userId === 'null') {
+        console.error('[Store fetchFinancialData] INVALID USER ID - Aborting fetch');
+        throw new Error('Invalid user ID provided');
+      }
 
       // Direct fetch since Brain API client doesn't have the method yet
       // Using single /routes prefix (Bug #8 resolved)
-      const response = await fetch(API_ENDPOINTS.getFinancialData(userId), {
+      console.log('[Store fetchFinancialData] Calling fetch() now...');
+      const response = await fetch(apiUrl, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
         // credentials: 'include'  // Removed for local dev - CORS issue
       });
+      console.log('[Store fetchFinancialData] Fetch completed. Response status:', response.status);
 
       if (!response.ok) {
         console.error('[Store fetchFinancialData] API returned error:', response.status, response.statusText);
@@ -64,16 +78,26 @@ const useFinancialDataStore = create<FinancialDataState>((set, get) => ({
     try {
       set({ isLoading: true, error: null });
 
-      console.log('[Store saveFinancialData] Saving financial data:', data);
+      console.log('========== [SAVE FINANCIAL DATA] START ==========');
+      console.log('[Store saveFinancialData] Full data object:', data);
+      console.log('[Store saveFinancialData] User ID from data:', data.userId);
+      console.log('[Store saveFinancialData] API URL:', API_ENDPOINTS.saveFinancialData);
+
+      if (!data.userId || data.userId === 'undefined' || data.userId === 'null') {
+        console.error('[Store saveFinancialData] INVALID USER ID IN DATA - Aborting save');
+        throw new Error('Invalid user ID in data');
+      }
 
       // Direct fetch since Brain API client doesn't have the method yet
       // Using single /routes prefix (Bug #8 resolved)
+      console.log('[Store saveFinancialData] Calling fetch() now...');
       const response = await fetch(API_ENDPOINTS.saveFinancialData, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         // credentials: 'include',  // Removed for local dev - CORS issue
         body: JSON.stringify(data)
       });
+      console.log('[Store saveFinancialData] Fetch completed. Response status:', response.status);
 
       if (!response.ok) {
         console.error('[Store saveFinancialData] API returned error:', response.status, response.statusText);
