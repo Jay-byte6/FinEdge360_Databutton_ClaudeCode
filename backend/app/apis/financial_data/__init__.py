@@ -194,6 +194,26 @@ def save_financial_data(data: FinancialDataInput) -> SaveFinancialDataResponse:
             user_id = data.userId
             print(f"Saving for authenticated user_id: {user_id}")
 
+            # CRITICAL: Ensure user exists in users table before saving to personal_info
+            # This prevents foreign key constraint violations
+            try:
+                user_check = supabase.from_("users").select("id").eq("id", user_id).execute()
+                if not user_check.data or len(user_check.data) == 0:
+                    # User doesn't exist in users table, create it
+                    print(f"[CRITICAL FIX] User {user_id} not found in users table, creating entry...")
+                    user_name = data.personalInfo.name if data.personalInfo else "User"
+                    user_email = f"{user_id}@finedge360.com"  # Temporary email, will be updated by profile
+
+                    supabase.from_("users").insert({
+                        "id": user_id,
+                        "email": user_email,
+                        "name": user_name
+                    }).execute()
+                    print(f"[CRITICAL FIX] User {user_id} created successfully in users table")
+            except Exception as user_create_error:
+                print(f"[ERROR] Failed to create user in users table: {user_create_error}")
+                # Continue anyway - the insert might fail but at least we logged it
+
             # Now create or update personal_info
             personal_info_data = {
                 "user_id": user_id,
