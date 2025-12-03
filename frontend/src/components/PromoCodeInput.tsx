@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Check, X, Loader2, Tag, AlertCircle } from 'lucide-react';
+import { API_ENDPOINTS } from '@/config/api';
 
 interface PromoCodeInputProps {
   onValidCode?: (code: string, details: PromoCodeDetails) => void;
@@ -52,7 +53,7 @@ const PromoCodeInput: React.FC<PromoCodeInputProps> = ({
     setValidationResult({ status: 'idle', message: '' });
 
     try {
-      const response = await fetch('http://localhost:8000/routes/validate-promo-code', {
+      const response = await fetch(API_ENDPOINTS.validatePromoCode, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

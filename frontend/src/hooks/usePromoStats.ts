@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { API_ENDPOINTS, API_BASE_URL } from '@/config/api';
 
 interface PromoStats {
   code: string;
@@ -34,7 +35,7 @@ export const usePromoStats = (
       setError(null);
 
       const response = await fetch(
-        `http://localhost:8000/routes/promo-stats/${promoCode.toUpperCase()}`
+        `${API_BASE_URL}/routes/promo-stats/${promoCode.toUpperCase()}`
       );
 
       if (!response.ok) {
@@ -108,7 +109,7 @@ export const useActivePromos = (
       setLoading(true);
       setError(null);
 
-      const response = await fetch('http://localhost:8000/routes/active-promos');
+      const response = await fetch(`${API_BASE_URL}/routes/active-promos`);
 
       if (!response.ok) {
         throw new Error('Failed to fetch active promos');

@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 import useAuthStore from '@/utils/authStore';
+import { API_ENDPOINTS } from '@/config/api';
 
 interface RazorpayCheckoutProps {
   planName: string; // 'premium' or 'expert_plus'
@@ -103,7 +104,7 @@ const RazorpayCheckout: React.FC<RazorpayCheckoutProps> = ({
 
   const fetchPaymentConfig = async () => {
     try {
-      const response = await fetch('http://localhost:8000/routes/payment-config');
+      const response = await fetch(API_ENDPOINTS.paymentConfig);
       const data = await response.json();
       setPaymentConfig(data);
     } catch (error) {
@@ -135,7 +136,7 @@ const RazorpayCheckout: React.FC<RazorpayCheckoutProps> = ({
 
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:8000/routes/validate-promo-code', {
+      const response = await fetch(API_ENDPOINTS.validatePromoCode, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code: promoCode.toUpperCase() })
@@ -178,7 +179,7 @@ const RazorpayCheckout: React.FC<RazorpayCheckoutProps> = ({
 
     try {
       // Step 1: Create Razorpay order
-      const orderResponse = await fetch('http://localhost:8000/routes/create-razorpay-order', {
+      const orderResponse = await fetch(API_ENDPOINTS.createRazorpayOrder, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -237,7 +238,7 @@ const RazorpayCheckout: React.FC<RazorpayCheckoutProps> = ({
     setVerifying(true);
 
     try {
-      const response = await fetch('http://localhost:8000/routes/verify-razorpay-payment', {
+      const response = await fetch(API_ENDPOINTS.verifyRazorpayPayment, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

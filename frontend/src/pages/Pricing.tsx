@@ -10,6 +10,7 @@ import SpotsMeter from '../components/SpotsMeter';
 import { toast } from 'sonner';
 import useAuthStore from '@/utils/authStore';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '@/config/api';
 
 interface PlanFeature {
   text: string;
@@ -50,7 +51,7 @@ const Pricing: React.FC = () => {
 
   const fetchFounder50Stats = async () => {
     try {
-      const response = await fetch('http://localhost:8000/routes/promo-stats/FOUNDER50');
+      const response = await fetch(`${API_BASE_URL}/routes/promo-stats/FOUNDER50`);
       const data = await response.json();
       setFounder50Stats(data);
     } catch (error) {

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import useAuthStore from '@/utils/authStore';
+import { API_ENDPOINTS } from '@/config/api';
 
 export interface UserSubscription {
   id: string;
@@ -57,7 +58,7 @@ export const useSubscription = (): SubscriptionHook => {
 
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:8000/routes/user-subscription/${user.id}`);
+      const response = await fetch(API_ENDPOINTS.getSubscription(user.id));
 
       if (response.ok) {
         const data = await response.json();

@@ -50,6 +50,17 @@ export const API_ENDPOINTS = {
   getInactiveUsers: `${API_BASE_URL}/routes/inactive-users`,
   logPdfExport: (userId: string) => `${API_BASE_URL}/routes/log-pdf-export/${userId}`,
   privacyHealth: `${API_BASE_URL}/routes/privacy-health`,
+
+  // Payments
+  paymentConfig: `${API_BASE_URL}/routes/payment-config`,
+  createRazorpayOrder: `${API_BASE_URL}/routes/create-razorpay-order`,
+  verifyRazorpayPayment: `${API_BASE_URL}/routes/verify-razorpay-payment`,
+  validatePromoCode: `${API_BASE_URL}/routes/validate-promo-code`,
+
+  // Subscriptions
+  getSubscription: (userId: string) => `${API_BASE_URL}/routes/subscription/${userId}`,
+  getGuidelines: `${API_BASE_URL}/routes/subscription/guidelines`,
+  getPromoStats: `${API_BASE_URL}/routes/promo-stats`,
 };
 
 // Helper function to check if we're in production
