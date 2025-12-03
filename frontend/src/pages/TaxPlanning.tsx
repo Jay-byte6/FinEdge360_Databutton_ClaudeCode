@@ -25,6 +25,7 @@ import useAuthStore from '../utils/authStore';
 import TaxTipsDisplay, { Tip as TaxTip } from '../components/TaxTipsDisplay'; // Added for tax tips
 import { MilestoneCompletionCard } from '@/components/journey/MilestoneCompletionCard';
 import { API_ENDPOINTS } from '../config/api';
+import { FormattedNumberDisplay } from '@/components/ui/formatted-number-display';
 
 type DeductionItem = {
   name: string;
@@ -698,6 +699,7 @@ export default function TaxPlanning() {
                       className="w-full"
                       placeholder="e.g., 1200000"
                     />
+                    <FormattedNumberDisplay value={yearlyIncome || 0} />
                   </div>
 
                   {/* NEW: Other Income Field */}
@@ -724,6 +726,7 @@ export default function TaxPlanning() {
                       className="w-full"
                       placeholder="e.g., 50000"
                     />
+                    <FormattedNumberDisplay value={otherIncome || 0} />
                   </div>
 
                   {/* NEW: Capital Gains Field */}
@@ -750,6 +753,7 @@ export default function TaxPlanning() {
                       className="w-full"
                       placeholder="e.g., 100000"
                     />
+                    <FormattedNumberDisplay value={capitalGains || 0} />
                   </div>
 
                   <div className="space-y-2">
@@ -954,36 +958,39 @@ export default function TaxPlanning() {
                                 </div>
                                 <div className="space-y-2">
                                   <Label htmlFor="basic-salary-acc">Basic Salary (Yearly)</Label>
-                                  <Input 
-                                    id="basic-salary-acc" 
-                                    type="number" 
+                                  <Input
+                                    id="basic-salary-acc"
+                                    type="number"
                                     value={basicSalary || ''}
-                                    onChange={(e) => setBasicSalary(Number(e.target.value))} 
+                                    onChange={(e) => setBasicSalary(Number(e.target.value))}
                                     className="w-full"
                                     placeholder="e.g., 600000"
                                   />
+                                  <FormattedNumberDisplay value={basicSalary || 0} />
                                 </div>
                                 <div className="space-y-2">
                                   <Label htmlFor="hra-received-acc">HRA Received (Yearly)</Label>
-                                  <Input 
-                                    id="hra-received-acc" 
-                                    type="number" 
+                                  <Input
+                                    id="hra-received-acc"
+                                    type="number"
                                     value={hraReceived || ''}
-                                    onChange={(e) => setHraReceived(Number(e.target.value))} 
+                                    onChange={(e) => setHraReceived(Number(e.target.value))}
                                     className="w-full"
                                     placeholder="e.g., 300000"
                                   />
+                                  <FormattedNumberDisplay value={hraReceived || 0} />
                                 </div>
                                 <div className="space-y-2">
                                   <Label htmlFor="rent-paid-acc">Rent Paid (Yearly)</Label>
-                                  <Input 
-                                    id="rent-paid-acc" 
-                                    type="number" 
+                                  <Input
+                                    id="rent-paid-acc"
+                                    type="number"
                                     value={rentPaid || ''}
-                                    onChange={(e) => setRentPaid(Number(e.target.value))} 
+                                    onChange={(e) => setRentPaid(Number(e.target.value))}
                                     className="w-full"
                                     placeholder="e.g., 240000"
                                   />
+                                  <FormattedNumberDisplay value={rentPaid || 0} />
                                 </div>
                                 <div className="space-y-2">
                                   <Label>City Type</Label>

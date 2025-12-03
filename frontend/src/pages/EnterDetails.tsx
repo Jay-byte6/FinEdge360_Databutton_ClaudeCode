@@ -38,6 +38,7 @@ import { useGuidelines } from "../hooks/useGuidelines";
 import { illiquidAssetDescriptions, liquidAssetDescriptions, liabilityDescriptions } from "../utils/assetDescriptions";
 import { GoalCombobox, GoalOption } from "../components/ui/goal-combobox";
 import { shortTermGoals, midTermGoals, longTermGoals } from "../utils/financialGoals";
+import { FormattedNumberDisplay } from "../components/ui/formatted-number-display";
 // Assuming Tabs are used for layout, keep if already present or add if needed
 // import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -500,6 +501,7 @@ export default function EnterDetails() {
                         onFocus={handleFinancialInputFocus}
                       />
                     </div>
+                    <FormattedNumberDisplay value={personalInfoForm.watch("monthlySalary") || 0} />
                     {personalInfoForm.formState.errors.monthlySalary && (
                       <p className="mt-1 text-sm text-red-600">{personalInfoForm.formState.errors.monthlySalary.message}</p>
                     )}
@@ -517,6 +519,7 @@ export default function EnterDetails() {
                         {...personalInfoForm.register("monthlyExpenses")}
                       />
                     </div>
+                    <FormattedNumberDisplay value={personalInfoForm.watch("monthlyExpenses") || 0} />
                     {personalInfoForm.formState.errors.monthlyExpenses && (
                       <p className="mt-1 text-sm text-red-600">{personalInfoForm.formState.errors.monthlyExpenses.message}</p>
                     )}
@@ -577,6 +580,7 @@ export default function EnterDetails() {
                                 {...assetsForm.register(`illiquid.${key}`, { valueAsNumber: true })}
                               />
                             </div>
+                            <FormattedNumberDisplay value={assetsForm.watch(`illiquid.${key}`) || 0} />
                             {assetsForm.formState.errors.illiquid?.[key] && (
                               <p className="mt-1 text-sm text-red-600">{assetsForm.formState.errors.illiquid[key]?.message}</p>
                             )}
@@ -629,6 +633,7 @@ export default function EnterDetails() {
                                 {...assetsForm.register(`liquid.${key}`, { valueAsNumber: true })}
                               />
                             </div>
+                            <FormattedNumberDisplay value={assetsForm.watch(`liquid.${key}`) || 0} />
                             {assetsForm.formState.errors.liquid?.[key] && (
                               <p className="mt-1 text-sm text-red-600">{assetsForm.formState.errors.liquid[key]?.message}</p>
                             )}
@@ -691,6 +696,7 @@ export default function EnterDetails() {
                               {...liabilitiesForm.register(key, { valueAsNumber: true })}
                             />
                           </div>
+                          <FormattedNumberDisplay value={liabilitiesForm.watch(key) || 0} />
                           {liabilitiesForm.formState.errors[key] && (
                             <p className="mt-1 text-sm text-red-600">{liabilitiesForm.formState.errors[key]?.message}</p>
                           )}
@@ -748,6 +754,7 @@ export default function EnterDetails() {
                                 {...goalsForm.register(`shortTermGoals.${index}.amount`)}
                               />
                             </div>
+                            <FormattedNumberDisplay value={goalsForm.watch(`shortTermGoals.${index}.amount`) || 0} />
                             {goalsForm.formState.errors.shortTermGoals?.[index]?.amount && (
                               <p className="mt-1 text-sm text-red-600">{goalsForm.formState.errors.shortTermGoals[index].amount.message}</p>
                             )}
@@ -823,6 +830,7 @@ export default function EnterDetails() {
                                 {...goalsForm.register(`midTermGoals.${index}.amount`)}
                               />
                             </div>
+                            <FormattedNumberDisplay value={goalsForm.watch(`midTermGoals.${index}.amount`) || 0} />
                             {goalsForm.formState.errors.midTermGoals?.[index]?.amount && (
                               <p className="mt-1 text-sm text-red-600">{goalsForm.formState.errors.midTermGoals[index].amount.message}</p>
                             )}
@@ -898,6 +906,7 @@ export default function EnterDetails() {
                                 {...goalsForm.register(`longTermGoals.${index}.amount`)}
                               />
                             </div>
+                            <FormattedNumberDisplay value={goalsForm.watch(`longTermGoals.${index}.amount`) || 0} />
                             {goalsForm.formState.errors.longTermGoals?.[index]?.amount && (
                               <p className="mt-1 text-sm text-red-600">{goalsForm.formState.errors.longTermGoals[index].amount.message}</p>
                             )}

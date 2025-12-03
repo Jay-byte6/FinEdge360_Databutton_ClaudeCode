@@ -18,6 +18,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { AssetAllocationStrategy } from "@/components/AssetAllocationStrategy";
+import { FormattedNumberDisplay } from "@/components/ui/formatted-number-display";
 
 // Enhanced Goal interface with all required fields
 interface DetailedGoal {
@@ -877,6 +878,7 @@ const FIREPlanner: React.FC = () => {
                     className="w-32 bg-green-50"
                     placeholder="0"
                   />
+                  <FormattedNumberDisplay value={goal.amountRequiredToday || 0} />
                 </td>
 
                 {/* Amount Available (Today) - Editable */}
@@ -891,6 +893,7 @@ const FIREPlanner: React.FC = () => {
                     className="w-32 bg-green-50"
                     placeholder="0"
                   />
+                  <FormattedNumberDisplay value={goal.amountAvailableToday || 0} />
                 </td>
 
                 {/* Goal Inflation % - Editable */}
