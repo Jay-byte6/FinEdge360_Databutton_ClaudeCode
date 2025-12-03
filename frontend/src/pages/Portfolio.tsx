@@ -12,6 +12,7 @@ import PortfolioComparison from "@/components/PortfolioComparison";
 import { performRiskAssessment, RiskAssessmentResult } from "@/utils/portfolioAnalysis";
 import { Target, TrendingUp, Flame, Wallet, Zap, Shield, Heart, Activity, AlertTriangle, Users } from "lucide-react";
 import { API_ENDPOINTS } from "@/config/api";
+import { MilestoneCompletionCard } from "@/components/journey/MilestoneCompletionCard";
 
 const PORTFOLIO_ACCESS_KEY = 'portfolio_access_granted';
 
@@ -382,6 +383,55 @@ const PortfolioPage: React.FC = () => {
               />
             </div>
           )}
+
+          {/* Milestone 4 Completion Card */}
+          <MilestoneCompletionCard
+            milestoneNumber={4}
+            title="Complete Your Financial Health Check"
+            completionCriteria={[
+              {
+                label: "Risk assessment quiz completed",
+                checked: analysisGenerated && !!riskAnalysis,
+                description: "Complete the 10-question risk assessment quiz to determine your investor profile"
+              },
+              {
+                label: "Risk score calculated",
+                checked: !!riskAnalysis?.riskScore,
+                description: "Your risk tolerance score has been calculated based on your answers"
+              },
+              {
+                label: "Portfolio recommendations generated",
+                checked: !!riskAnalysis?.idealPortfolio,
+                description: "Receive personalized asset allocation recommendations based on your risk profile"
+              },
+              {
+                label: "Risk profile understood",
+                checked: !!riskAnalysis?.riskType,
+                description: "Understand your risk category (Conservative, Moderate, or Aggressive)"
+              }
+            ]}
+            xpReward={250}
+            benefits={[
+              "🎯 Know your exact investor personality",
+              "📊 Get personalized portfolio allocation",
+              "💡 Understand risk vs returns for your profile",
+              "🛡️ Make informed investment decisions",
+              "📈 Align investments with your risk tolerance"
+            ]}
+            nextSteps={[
+              "Review your risk assessment results",
+              "Compare your current portfolio with ideal allocation",
+              "Note the gaps and rebalancing recommendations",
+              "Proceed to implement portfolio adjustments"
+            ]}
+            helpResources={{
+              guide: "https://www.investopedia.com/terms/r/risktolerance.asp",
+              tutorial: "https://youtu.be/risk-assessment-tutorial"
+            }}
+            onComplete={() => {
+              toast.success('Milestone 4 completed! Your risk profile is now established.');
+            }}
+          />
         </>
       )}
 

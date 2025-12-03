@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import useAuthStore from '../utils/authStore';
@@ -10,6 +10,7 @@ export interface NavBarProps {
 
 const NavBar: React.FC<NavBarProps> = ({ showFullNav = true }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, profile, signOut, isAuthenticated } = useAuthStore();
 
   // Extract first name from profile or email
@@ -59,15 +60,22 @@ const NavBar: React.FC<NavBarProps> = ({ showFullNav = true }) => {
           
           {showFullNav && (
             <nav className="hidden md:flex space-x-6">
-              {navItems.map((item, index) => (
-                <button 
-                  key={index}
-                  onClick={() => navigate(item.path)}
-                  className="text-gray-600 hover:text-blue-600 text-sm font-medium"
-                >
-                  {item.name}
-                </button>
-              ))}
+              {navItems.map((item, index) => {
+                const isActive = location.pathname === item.path;
+                return (
+                  <button
+                    key={index}
+                    onClick={() => navigate(item.path)}
+                    className={`text-sm font-medium transition-colors ${
+                      isActive
+                        ? 'text-blue-600 border-b-2 border-blue-600 pb-1'
+                        : 'text-gray-600 hover:text-blue-600'
+                    }`}
+                  >
+                    {item.name}
+                  </button>
+                );
+              })}
             </nav>
           )}
           
