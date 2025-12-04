@@ -526,22 +526,37 @@ const FIREPlanner: React.FC = () => {
             <p className="text-lg text-gray-700">Get instant access to powerful goal-based investment planning</p>
           </div>
 
-          {/* Preview Features - 3 Boxes */}
+          {/* Preview Features - 6 Boxes */}
           <div className="grid md:grid-cols-3 gap-6 mb-8">
             <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-blue-500 hover:shadow-xl transition-shadow">
               <div className="text-4xl mb-3">📊</div>
-              <h3 className="font-bold text-blue-700 mb-2 text-lg">Goal Planning</h3>
-              <p className="text-sm text-gray-600">Set short, mid & long-term financial goals with inflation-adjusted calculations</p>
+              <h3 className="font-bold text-blue-700 mb-2 text-lg">Multi-Goal Planning</h3>
+              <p className="text-sm text-gray-600">Set unlimited short, mid & long-term financial goals with inflation-adjusted calculations</p>
             </div>
             <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-green-500 hover:shadow-xl transition-shadow">
               <div className="text-4xl mb-3">💰</div>
-              <h3 className="font-bold text-green-700 mb-2 text-lg">SIP Calculator</h3>
-              <p className="text-sm text-gray-600">Calculate exact monthly SIP needed for each goal with step-up strategy</p>
+              <h3 className="font-bold text-green-700 mb-2 text-lg">Smart SIP Calculator</h3>
+              <p className="text-sm text-gray-600">Calculate exact monthly SIP needed for each goal with intelligent step-up strategy</p>
             </div>
             <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-purple-500 hover:shadow-xl transition-shadow">
               <div className="text-4xl mb-3">🎯</div>
-              <h3 className="font-bold text-purple-700 mb-2 text-lg">Asset Allocation</h3>
-              <p className="text-sm text-gray-600">Smart asset allocation across Equity, Debt, Gold & more based on your risk profile</p>
+              <h3 className="font-bold text-purple-700 mb-2 text-lg">Asset Allocation Designer</h3>
+              <p className="text-sm text-gray-600">Smart asset allocation across Equity, Debt, Gold & Hybrid based on your risk profile</p>
+            </div>
+            <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-orange-500 hover:shadow-xl transition-shadow">
+              <div className="text-4xl mb-3">🔥</div>
+              <h3 className="font-bold text-orange-700 mb-2 text-lg">FIRE Number Calculator</h3>
+              <p className="text-sm text-gray-600">Calculate your Financial Independence number and track progress towards early retirement</p>
+            </div>
+            <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-pink-500 hover:shadow-xl transition-shadow">
+              <div className="text-4xl mb-3">📈</div>
+              <h3 className="font-bold text-pink-700 mb-2 text-lg">Investment Tracking</h3>
+              <p className="text-sm text-gray-600">Monitor your investment journey with visual charts and milestone completion tracking</p>
+            </div>
+            <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-teal-500 hover:shadow-xl transition-shadow">
+              <div className="text-4xl mb-3">💡</div>
+              <h3 className="font-bold text-teal-700 mb-2 text-lg">Tax Planning Insights</h3>
+              <p className="text-sm text-gray-600">Get tax optimization strategies and Section 80C recommendations to maximize savings</p>
             </div>
           </div>
 

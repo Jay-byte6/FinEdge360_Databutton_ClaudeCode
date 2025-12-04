@@ -206,16 +206,28 @@ const PortfolioPage: React.FC = () => {
           {/* Preview of what they'll get */}
           <div className="grid md:grid-cols-3 gap-4 mb-6">
             <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-purple-500">
-              <h3 className="font-semibold text-purple-700 mb-1">🧠 Risk Assessment</h3>
+              <h3 className="font-semibold text-purple-700 mb-1">🧠 Risk Assessment Quiz</h3>
               <p className="text-sm text-gray-600">Take a 10-question quiz to determine your risk profile and investment personality</p>
             </div>
             <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-blue-500">
-              <h3 className="font-semibold text-blue-700 mb-1">📊 Portfolio Analysis</h3>
+              <h3 className="font-semibold text-blue-700 mb-1">📊 AI Portfolio Analysis</h3>
               <p className="text-sm text-gray-600">Compare your current portfolio with ideal asset allocation based on your risk score</p>
             </div>
             <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-green-500">
-              <h3 className="font-semibold text-green-700 mb-1">💡 Actionable Insights</h3>
-              <p className="text-sm text-gray-600">Get educational recommendations and rebalancing strategies for your portfolio</p>
+              <h3 className="font-semibold text-green-700 mb-1">💡 Rebalancing Strategy</h3>
+              <p className="text-sm text-gray-600">Get educational recommendations and step-by-step rebalancing strategies</p>
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-orange-500">
+              <h3 className="font-semibold text-orange-700 mb-1">🎯 Asset Allocation</h3>
+              <p className="text-sm text-gray-600">Smart allocation across Equity, Debt, Gold & Hybrid based on your goals</p>
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-pink-500">
+              <h3 className="font-semibold text-pink-700 mb-1">📈 Performance Tracking</h3>
+              <p className="text-sm text-gray-600">Visualize portfolio performance with interactive charts and milestone tracking</p>
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-teal-500">
+              <h3 className="font-semibold text-teal-700 mb-1">🔒 Risk Coverage Tips</h3>
+              <p className="text-sm text-gray-600">Identify gaps in insurance coverage and get recommendations to protect your wealth</p>
             </div>
           </div>
 
