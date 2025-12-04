@@ -546,17 +546,52 @@ export const generateFinancialProfilePDF = async (
   doc.setFont('helvetica', 'italic');
   addLine('Note: Tax calculations are estimates. Consult a CA for accurate filing.', 0, 7);
 
-  // ============= FIRE STRATEGY =============
-  checkPageBreak(60);
+  // ============= YOUR NEW FIRE NUMBER (PREMIUM) =============
+  checkPageBreak(70);
   yPosition += 5;
-  addSectionHeader('FIRE STRATEGY DASHBOARD', [220, 20, 60]);
+  addSectionHeader('YOUR NEW FIRE NUMBER 🔥', [255, 140, 0]);
+
+  // Premium badge explanation
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'italic');
+  doc.setTextColor(220, 100, 0);
+  addLine('✨ PREMIUM: This NEW FIRE number is calculated based on your desired asset allocation and expected portfolio CAGR.', 0, 8);
+  yPosition += 3;
 
   doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
-  addLine(`Your FIRE Number: ${formatCurrency(fireNumber)}`, 0, 10, true);
+  doc.setTextColor(50, 50, 50);
+  addLine(`Your NEW FIRE Number: ${formatCurrency(fireNumber)}`, 0, 10, true);
   addLine(`Current Net Worth: ${formatCurrency(netWorth)}`, 0, 10, false);
   addLine(`Progress to FIRE: ${formatPercentage(fireProgress)}`, 0, 10, false);
   yPosition += 5;
+
+  // NEW FIRE Number explanation box
+  doc.setFillColor(255, 248, 240);
+  doc.setDrawColor(255, 140, 0);
+  doc.setLineWidth(0.5);
+  doc.rect(margin, yPosition, contentWidth, 22, 'FD');
+
+  yPosition += 6;
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(220, 100, 0);
+  doc.text('What makes this FIRE Number "NEW"?', margin + 3, yPosition);
+
+  yPosition += 5;
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+  doc.setTextColor(100, 60, 0);
+  const newFireExplanation = doc.splitTextToSize(
+    'Unlike the standard 25x annual expenses formula, your NEW FIRE Number incorporates your personalized asset allocation strategy across Equity, Debt, Gold, REITs, and other asset classes. It factors in your expected CAGR based on your risk profile and goal-specific allocations, giving you a more accurate retirement corpus target tailored to YOUR financial strategy.',
+    contentWidth - 6
+  );
+  newFireExplanation.forEach((line: string) => {
+    doc.text(line, margin + 3, yPosition);
+    yPosition += 3.5;
+  });
+
+  yPosition += 8;
 
   // Progress Bar
   const fireBarWidth = contentWidth - 10;
@@ -833,7 +868,7 @@ export const generateFinancialProfilePDF = async (
     yPosition += 2;
   });
 
-  // ============= FOOTER ON ALL PAGES (DISCLAIMER) =============
+  // ============= FOOTER ON ALL PAGES (DISCLAIMER + CONTACT) =============
   const totalPages = (doc as any).internal.getNumberOfPages();
   for (let i = 1; i <= totalPages; i++) {
     doc.setPage(i);
@@ -841,7 +876,30 @@ export const generateFinancialProfilePDF = async (
     // Line separator
     doc.setDrawColor(200, 200, 200);
     doc.setLineWidth(0.3);
-    doc.line(margin, pageHeight - 22, pageWidth - margin, pageHeight - 22);
+    doc.line(margin, pageHeight - 28, pageWidth - margin, pageHeight - 28);
+
+    // Contact Information (above disclaimer)
+    doc.setFontSize(6);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(37, 99, 235);
+
+    const supportEmail = 'support@finedge360.com';
+    const feedbackLink = 'Share Feedback: https://forms.gle/your-feedback-form';
+    const appLink = 'Mobile App: Coming Soon';
+
+    const contactY = pageHeight - 24;
+    const col1X = margin;
+    const col2X = margin + (contentWidth / 3);
+    const col3X = margin + (2 * contentWidth / 3);
+
+    doc.text('📧 Support:', col1X, contactY);
+    doc.text(supportEmail, col1X, contactY + 3);
+
+    doc.text('💬 Feedback:', col2X, contactY);
+    doc.text('https://forms.gle/feedback', col2X, contactY + 3);
+
+    doc.text('📱 Mobile App:', col3X, contactY);
+    doc.text('Coming Soon', col3X, contactY + 3);
 
     // Disclaimer text
     doc.setFontSize(7);

@@ -259,19 +259,26 @@ export default function Profile() {
             </CardContent>
           </Card>
 
-          {/* FIRE Number Card */}
-          <Card className="bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200">
+          {/* NEW FIRE Number Card - PREMIUM */}
+          <Card className="bg-gradient-to-br from-orange-50 to-amber-50 border-2 border-orange-300 relative shadow-lg">
+            <span className="absolute top-2 right-2 bg-orange-600 text-white text-xs px-2 py-1 rounded-full font-bold z-10">PREMIUM</span>
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
-                <Target className="h-5 w-5 text-amber-600" />
-                <CardTitle className="text-lg">FIRE Number</CardTitle>
+                <Target className="h-5 w-5 text-orange-600" />
+                <CardTitle className="text-lg">Your NEW FIRE Number 🔥</CardTitle>
               </div>
+              <p className="text-xs text-orange-700 mt-1">Premium calculation based on your desired allocation & expected CAGR</p>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-bold text-amber-700">
+              <p className="text-3xl font-bold text-orange-700">
                 {formatCurrency(fireNumber)}
               </p>
-              <p className="text-xs text-gray-600 mt-1">25x annual expenses</p>
+              <p className="text-xs text-gray-600 mt-2">Based on 25x annual expenses</p>
+              <div className="mt-3 p-2 bg-orange-100 rounded-md border border-orange-200">
+                <p className="text-xs text-orange-800">
+                  ✨ <strong>NEW:</strong> This premium FIRE number is calculated using your personalized asset allocation strategy and expected portfolio CAGR from your goal planning.
+                </p>
+              </div>
             </CardContent>
           </Card>
         </div>
