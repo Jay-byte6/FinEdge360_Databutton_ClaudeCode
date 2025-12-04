@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/tooltip";
 import { AssetAllocationStrategy } from "@/components/AssetAllocationStrategy";
 import { FormattedNumberDisplay } from "@/components/ui/formatted-number-display";
+import CountdownTimer from "@/components/CountdownTimer";
 
 // Enhanced Goal interface with all required fields
 interface DetailedGoal {
@@ -545,30 +546,39 @@ const FIREPlanner: React.FC = () => {
             </div>
           </div>
 
-          {/* FOMO: Limited Free Access */}
+          {/* FOMO: Limited Time Free Access */}
           <div className="relative bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 border-3 border-red-400 rounded-xl p-6 mb-6 shadow-xl overflow-hidden">
             {/* Animated Pulse Background */}
             <div className="absolute inset-0 bg-gradient-to-r from-red-400/10 to-orange-400/10 animate-pulse"></div>
 
             <div className="relative">
               {/* Urgency Badge */}
-              <div className="flex items-center gap-2 mb-4">
+              <div className="flex items-center justify-center gap-2 mb-4">
                 <span className="bg-red-600 text-white text-xs font-black px-3 py-1 rounded-full uppercase tracking-wide animate-pulse">
                   🔥 Limited Time Only
-                </span>
-                <span className="bg-orange-600 text-white text-xs font-black px-3 py-1 rounded-full uppercase tracking-wide">
-                  ⚡ First 50 Users
                 </span>
               </div>
 
               {/* Main Headline */}
-              <h3 className="text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-orange-600 to-yellow-600 mb-3">
+              <h3 className="text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-orange-600 to-yellow-600 mb-3 text-center">
                 🎁 Grab Your FREE Access Code NOW!
               </h3>
 
-              <p className="text-base md:text-lg text-gray-800 font-semibold mb-4">
-                We're giving away <span className="text-red-600 font-black">EXCLUSIVE FREE ACCESS</span> to the first <span className="text-orange-600 font-black underline">50 early adopters</span> who want to experience the full power of advanced FIRE Planning!
+              <p className="text-base md:text-lg text-gray-800 font-semibold mb-4 text-center">
+                Experience the full power of advanced FIRE Planning with <span className="text-red-600 font-black">EXCLUSIVE FREE ACCESS</span> for a limited time!
               </p>
+
+              {/* Countdown Timer */}
+              <div className="bg-white border-4 border-red-400 rounded-2xl p-6 mb-4 shadow-2xl">
+                <div className="text-center mb-4">
+                  <p className="text-sm font-bold text-gray-600 mb-3 uppercase tracking-wide">⏰ Offer Expires In:</p>
+                  <CountdownTimer
+                    targetDate={new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)}
+                    size="md"
+                    showLabels={true}
+                  />
+                </div>
+              </div>
 
               {/* The Code - Prominent */}
               <div className="bg-white border-4 border-orange-400 rounded-2xl p-6 mb-4 shadow-2xl transform hover:scale-105 transition-all">
@@ -582,18 +592,12 @@ const FIREPlanner: React.FC = () => {
               </div>
 
               {/* Urgency Footer */}
-              <div className="flex items-center justify-between bg-red-100 border-2 border-red-300 rounded-lg p-4">
-                <div className="flex items-center gap-2">
+              <div className="bg-red-100 border-2 border-red-300 rounded-lg p-4 text-center">
+                <div className="flex items-center justify-center gap-2 mb-2">
                   <span className="text-2xl">⏰</span>
-                  <div>
-                    <p className="text-sm font-black text-red-900">Hurry! Limited Spots Remaining</p>
-                    <p className="text-xs text-red-700">Once 50 users claim this code, it's GONE forever!</p>
-                  </div>
+                  <p className="text-sm font-black text-red-900">Hurry! This offer won't last forever!</p>
                 </div>
-                <div className="bg-red-600 text-white px-4 py-2 rounded-lg">
-                  <p className="text-xs font-bold">Spots Left:</p>
-                  <p className="text-2xl font-black">42/50</p>
-                </div>
+                <p className="text-xs text-red-700">Claim your free access before the timer runs out!</p>
               </div>
             </div>
           </div>
@@ -605,7 +609,7 @@ const FIREPlanner: React.FC = () => {
               <div>
                 <p className="text-lg font-bold text-blue-900 mb-2">Get Your Personal Access Code:</p>
                 <ol className="text-sm text-blue-800 space-y-2 ml-5 list-decimal">
-                  <li>Subscribe to <strong>Premium (₹2,999 one-time)</strong> or <strong>Expert Plus (₹3,999/month)</strong></li>
+                  <li>Subscribe to <strong>Premium (₹3,999 one-time)</strong> or <strong>Expert Plus (₹1,999/month)</strong></li>
                   <li>Your <strong>unique access code</strong> will be sent to your email instantly</li>
                   <li>Use the code to unlock all advanced features <strong>forever</strong></li>
                 </ol>

@@ -13,6 +13,7 @@ import { performRiskAssessment, RiskAssessmentResult } from "@/utils/portfolioAn
 import { Target, TrendingUp, Flame, Wallet, Zap, Shield, Heart, Activity, AlertTriangle, Users } from "lucide-react";
 import { API_ENDPOINTS } from "@/config/api";
 import { MilestoneCompletionCard } from "@/components/journey/MilestoneCompletionCard";
+import CountdownTimer from "@/components/CountdownTimer";
 
 const PORTFOLIO_ACCESS_KEY = 'portfolio_access_granted';
 
@@ -219,6 +220,22 @@ const PortfolioPage: React.FC = () => {
             </div>
           </div>
 
+          {/* Limited Time Offer with Countdown */}
+          <div className="bg-gradient-to-br from-red-50 to-orange-50 border-2 border-red-300 rounded-lg p-6 mb-4">
+            <div className="text-center mb-4">
+              <div className="inline-block bg-red-600 text-white text-xs font-black px-3 py-1 rounded-full uppercase tracking-wide animate-pulse mb-3">
+                🔥 Limited Time Only
+              </div>
+              <h3 className="text-xl font-bold text-gray-800 mb-2">⏰ Free Access Expires Soon!</h3>
+              <p className="text-sm text-gray-700 mb-4">Try the demo before this offer ends</p>
+              <CountdownTimer
+                targetDate={new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)}
+                size="sm"
+                showLabels={true}
+              />
+            </div>
+          </div>
+
           {/* Demo Code Display */}
           <div className="bg-yellow-50 border-2 border-yellow-400 rounded-lg p-4 mb-4">
             <div className="flex items-center justify-between">
@@ -236,7 +253,7 @@ const PortfolioPage: React.FC = () => {
           <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
             <p className="text-sm font-semibold text-purple-800 mb-2">💎 Get Your Personal Access Code:</p>
             <ol className="text-xs text-purple-700 space-y-1 ml-4 list-decimal">
-              <li>Subscribe to <strong>Premium (₹2,999 one-time)</strong> or <strong>Expert Plus (₹3,999/month)</strong></li>
+              <li>Subscribe to <strong>Premium (₹3,999 one-time)</strong> or <strong>Expert Plus (₹1,999/month)</strong></li>
               <li>Your unique access code will be sent to your email instantly</li>
               <li>Use the code to unlock all advanced features forever</li>
             </ol>
