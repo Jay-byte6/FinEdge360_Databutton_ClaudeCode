@@ -19,7 +19,6 @@ import {
 } from "@/components/ui/tooltip";
 import { AssetAllocationStrategy } from "@/components/AssetAllocationStrategy";
 import { FormattedNumberDisplay } from "@/components/ui/formatted-number-display";
-import CountdownTimer from "@/components/CountdownTimer";
 
 // Enhanced Goal interface with all required fields
 interface DetailedGoal {
@@ -546,58 +545,69 @@ const FIREPlanner: React.FC = () => {
             </div>
           </div>
 
-          {/* FOMO: Limited Time Free Access */}
-          <div className="relative bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 border-3 border-red-400 rounded-xl p-6 mb-6 shadow-xl overflow-hidden">
+          {/* Limited Time 100% Discount */}
+          <div className="relative bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 border-3 border-green-400 rounded-xl p-6 mb-6 shadow-xl overflow-hidden">
             {/* Animated Pulse Background */}
-            <div className="absolute inset-0 bg-gradient-to-r from-red-400/10 to-orange-400/10 animate-pulse"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-green-400/10 to-emerald-400/10 animate-pulse"></div>
 
             <div className="relative">
-              {/* Urgency Badge */}
-              <div className="flex items-center justify-center gap-2 mb-4">
+              {/* Value Badges */}
+              <div className="flex items-center justify-center gap-2 mb-4 flex-wrap">
                 <span className="bg-red-600 text-white text-xs font-black px-3 py-1 rounded-full uppercase tracking-wide animate-pulse">
-                  🔥 Limited Time Only
+                  🔥 Limited Time
+                </span>
+                <span className="bg-orange-600 text-white text-xs font-black px-3 py-1 rounded-full uppercase tracking-wide">
+                  💎 Limited Users
+                </span>
+                <span className="bg-green-600 text-white text-xs font-black px-3 py-1 rounded-full uppercase tracking-wide">
+                  💯 100% OFF
                 </span>
               </div>
 
               {/* Main Headline */}
-              <h3 className="text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-orange-600 to-yellow-600 mb-3 text-center">
-                🎁 Grab Your FREE Access Code NOW!
+              <h3 className="text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 mb-3 text-center">
+                🎁 Get Premium Access - 100% FREE!
               </h3>
 
-              <p className="text-base md:text-lg text-gray-800 font-semibold mb-4 text-center">
-                Experience the full power of advanced FIRE Planning with <span className="text-red-600 font-black">EXCLUSIVE FREE ACCESS</span> for a limited time!
-              </p>
-
-              {/* Countdown Timer */}
-              <div className="bg-white border-4 border-red-400 rounded-2xl p-6 mb-4 shadow-2xl">
-                <div className="text-center mb-4">
-                  <p className="text-sm font-bold text-gray-600 mb-3 uppercase tracking-wide">⏰ Offer Expires In:</p>
-                  <CountdownTimer
-                    targetDate={new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)}
-                    size="md"
-                    showLabels={true}
-                  />
+              {/* Value Proposition */}
+              <div className="bg-white border-4 border-green-400 rounded-2xl p-6 mb-4 shadow-2xl">
+                <div className="text-center">
+                  <p className="text-sm text-gray-600 mb-2">Regular Premium Plan Value:</p>
+                  <div className="flex items-center justify-center gap-3 mb-3">
+                    <span className="text-3xl font-black text-gray-400 line-through">₹3,999</span>
+                    <span className="text-5xl font-black text-green-600">FREE</span>
+                  </div>
+                  <div className="inline-block bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-2 rounded-full">
+                    <span className="text-2xl font-black">100% INSTANT DISCOUNT</span>
+                  </div>
+                  <p className="text-xs text-gray-600 mt-3 font-semibold">Save ₹3,999 • One-time offer • Limited users only</p>
                 </div>
               </div>
 
               {/* The Code - Prominent */}
               <div className="bg-white border-4 border-orange-400 rounded-2xl p-6 mb-4 shadow-2xl transform hover:scale-105 transition-all">
                 <div className="text-center">
-                  <p className="text-sm font-bold text-gray-600 mb-2 uppercase tracking-wide">Your FREE Access Code:</p>
-                  <div className="bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 px-8 py-4 rounded-xl inline-block shadow-xl">
+                  <p className="text-sm font-bold text-gray-600 mb-2 uppercase tracking-wide">Your 100% Discount Code:</p>
+                  <div className="bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 px-8 py-4 rounded-xl inline-block shadow-xl">
                     <code className="text-4xl md:text-5xl font-black text-white tracking-widest">FIREDEMO</code>
                   </div>
-                  <p className="text-xs text-gray-500 mt-3 font-medium">👆 Copy this code and unlock instantly!</p>
+                  <p className="text-xs text-gray-500 mt-3 font-medium">👆 Copy this code and unlock ₹3,999 worth of features instantly!</p>
                 </div>
               </div>
 
-              {/* Urgency Footer */}
-              <div className="bg-red-100 border-2 border-red-300 rounded-lg p-4 text-center">
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <span className="text-2xl">⏰</span>
-                  <p className="text-sm font-black text-red-900">Hurry! This offer won't last forever!</p>
-                </div>
-                <p className="text-xs text-red-700">Claim your free access before the timer runs out!</p>
+              {/* What You Get */}
+              <div className="bg-gradient-to-r from-green-100 to-emerald-100 border-2 border-green-300 rounded-lg p-4">
+                <p className="text-sm font-black text-green-900 mb-2 text-center">✨ What's Included (Worth ₹3,999):</p>
+                <ul className="text-xs text-green-800 space-y-1">
+                  <li>✅ Advanced FIRE Planning & SIP Calculator</li>
+                  <li>✅ AI-Powered Portfolio Analysis</li>
+                  <li>✅ Smart Asset Allocation Designer</li>
+                  <li>✅ Tax Optimization Strategies</li>
+                  <li>✅ Lifetime Access - Never Pay Again!</li>
+                </ul>
+                <p className="text-xs text-green-700 mt-3 text-center font-semibold">
+                  🎯 Limited to early adopters only • Claim before slots run out!
+                </p>
               </div>
             </div>
           </div>

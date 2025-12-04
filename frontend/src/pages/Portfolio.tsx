@@ -13,7 +13,6 @@ import { performRiskAssessment, RiskAssessmentResult } from "@/utils/portfolioAn
 import { Target, TrendingUp, Flame, Wallet, Zap, Shield, Heart, Activity, AlertTriangle, Users } from "lucide-react";
 import { API_ENDPOINTS } from "@/config/api";
 import { MilestoneCompletionCard } from "@/components/journey/MilestoneCompletionCard";
-import CountdownTimer from "@/components/CountdownTimer";
 
 const PORTFOLIO_ACCESS_KEY = 'portfolio_access_granted';
 
@@ -220,19 +219,29 @@ const PortfolioPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Limited Time Offer with Countdown */}
-          <div className="bg-gradient-to-br from-red-50 to-orange-50 border-2 border-red-300 rounded-lg p-6 mb-4">
+          {/* Limited Time 100% Discount Offer */}
+          <div className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-300 rounded-lg p-6 mb-4">
             <div className="text-center mb-4">
-              <div className="inline-block bg-red-600 text-white text-xs font-black px-3 py-1 rounded-full uppercase tracking-wide animate-pulse mb-3">
-                🔥 Limited Time Only
+              <div className="flex items-center justify-center gap-2 mb-3 flex-wrap">
+                <div className="inline-block bg-red-600 text-white text-xs font-black px-3 py-1 rounded-full uppercase tracking-wide animate-pulse">
+                  🔥 Limited Time
+                </div>
+                <div className="inline-block bg-orange-600 text-white text-xs font-black px-3 py-1 rounded-full uppercase tracking-wide">
+                  💎 Limited Users
+                </div>
+                <div className="inline-block bg-green-600 text-white text-xs font-black px-3 py-1 rounded-full uppercase tracking-wide">
+                  💯 100% OFF
+                </div>
               </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-2">⏰ Free Access Expires Soon!</h3>
-              <p className="text-sm text-gray-700 mb-4">Try the demo before this offer ends</p>
-              <CountdownTimer
-                targetDate={new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)}
-                size="sm"
-                showLabels={true}
-              />
+              <h3 className="text-xl font-bold text-gray-800 mb-2">🎁 Premium Access - 100% FREE!</h3>
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <span className="text-2xl font-black text-gray-400 line-through">₹3,999</span>
+                <span className="text-3xl font-black text-green-600">FREE</span>
+              </div>
+              <div className="inline-block bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-1 rounded-full mb-2">
+                <span className="text-sm font-black">100% INSTANT DISCOUNT</span>
+              </div>
+              <p className="text-xs text-gray-600 font-semibold">Save ₹3,999 • Limited to early adopters only</p>
             </div>
           </div>
 
