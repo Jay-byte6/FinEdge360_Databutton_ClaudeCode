@@ -81,16 +81,18 @@ const RazorpayCheckout: React.FC<RazorpayCheckoutProps> = ({
 
   // Get display name
   const getDisplayName = () => {
-    if (billingCycle === 'lifetime') return 'FOUNDER50 Lifetime Access';
+    if (planName === 'founder50' && billingCycle === 'lifetime') return 'FOUNDER50 Lifetime Access';
     if (planName === 'expert_plus') return 'Expert Plus';
     return 'Premium';
   };
 
   // Get price
   const getPrice = () => {
-    if (billingCycle === 'lifetime') {
+    // FOUNDER50 special promo (only when explicitly selected)
+    if (planName === 'founder50' && billingCycle === 'lifetime') {
       return planPricing.founder50.lifetime;
     }
+    // Regular plans (including Premium lifetime at ₹3,999)
     return planPricing[planName as keyof typeof planPricing]?.[billingCycle] || 0;
   };
 

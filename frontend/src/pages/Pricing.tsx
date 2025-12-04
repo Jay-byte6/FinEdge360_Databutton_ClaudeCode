@@ -211,7 +211,7 @@ const Pricing: React.FC = () => {
                     </div>
                   </div>
                   <Button
-                    onClick={() => handleSelectPlan('premium', 'lifetime')}
+                    onClick={() => handleSelectPlan('founder50', 'lifetime')}
                     size="lg"
                     className="bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700 text-white font-bold shadow-lg"
                   >
