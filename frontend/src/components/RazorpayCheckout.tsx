@@ -65,13 +65,13 @@ const RazorpayCheckout: React.FC<RazorpayCheckoutProps> = ({
   // Plan pricing (in rupees)
   const planPricing = {
     premium: {
-      monthly: 2999,
-      yearly: 2999,
-      lifetime: 2999
+      monthly: 3999,
+      yearly: 3999,
+      lifetime: 3999
     },
     expert_plus: {
-      monthly: 3999,
-      yearly: 39999,
+      monthly: 1999,
+      yearly: 19999,
       lifetime: 0
     },
     founder50: {
