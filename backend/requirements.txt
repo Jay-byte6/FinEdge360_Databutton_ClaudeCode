@@ -10,3 +10,4 @@ beautifulsoup4
 requests
 supabase
 httpx
+razorpay==1.4.2
