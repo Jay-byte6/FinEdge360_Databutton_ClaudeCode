@@ -199,35 +199,41 @@ const PortfolioPage: React.FC = () => {
       <AccessCodeForm expectedCode={ACCESS_CODE} onAccessGranted={handleAccessGranted}>
         <div className="p-6 border-t border-gray-200 mt-6 bg-gradient-to-r from-purple-50 to-blue-50">
           <div className="text-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">🎯 Unlock AI-Powered Portfolio Analysis</h2>
-            <p className="text-gray-600">Get personalized risk assessment and portfolio recommendations</p>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">🎯 Unlock PREMIUM Portfolio Analysis Features</h2>
+            <p className="text-gray-600">Get exclusive premium features not available in free plan</p>
           </div>
 
-          {/* Preview of what they'll get */}
+          {/* Preview of PREMIUM-ONLY features */}
           <div className="grid md:grid-cols-3 gap-4 mb-6">
-            <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-purple-500">
-              <h3 className="font-semibold text-purple-700 mb-1">🧠 Risk Assessment Quiz</h3>
-              <p className="text-sm text-gray-600">Take a 10-question quiz to determine your risk profile and investment personality</p>
+            <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-purple-500 relative">
+              <span className="absolute top-2 right-2 bg-purple-600 text-white text-xs px-2 py-1 rounded-full font-bold">PREMIUM</span>
+              <h3 className="font-semibold text-purple-700 mb-1">🧠 Advanced Risk Profiling</h3>
+              <p className="text-sm text-gray-600">10-question psychometric quiz with AI-powered personality analysis</p>
             </div>
-            <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-blue-500">
-              <h3 className="font-semibold text-blue-700 mb-1">📊 AI Portfolio Analysis</h3>
-              <p className="text-sm text-gray-600">Compare your current portfolio with ideal asset allocation based on your risk score</p>
+            <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-blue-500 relative">
+              <span className="absolute top-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full font-bold">PREMIUM</span>
+              <h3 className="font-semibold text-blue-700 mb-1">📊 AI Portfolio Optimizer</h3>
+              <p className="text-sm text-gray-600">Compare current vs ideal allocation with AI-generated rebalancing recommendations</p>
             </div>
-            <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-green-500">
-              <h3 className="font-semibold text-green-700 mb-1">💡 Rebalancing Strategy</h3>
-              <p className="text-sm text-gray-600">Get educational recommendations and step-by-step rebalancing strategies</p>
+            <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-green-500 relative">
+              <span className="absolute top-2 right-2 bg-green-600 text-white text-white text-xs px-2 py-1 rounded-full font-bold">PREMIUM</span>
+              <h3 className="font-semibold text-green-700 mb-1">💡 Personalized Rebalancing</h3>
+              <p className="text-sm text-gray-600">Step-by-step action plan with specific fund recommendations for your portfolio</p>
             </div>
-            <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-orange-500">
-              <h3 className="font-semibold text-orange-700 mb-1">🎯 Asset Allocation</h3>
-              <p className="text-sm text-gray-600">Smart allocation across Equity, Debt, Gold & Hybrid based on your goals</p>
+            <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-orange-500 relative">
+              <span className="absolute top-2 right-2 bg-orange-600 text-white text-xs px-2 py-1 rounded-full font-bold">PREMIUM</span>
+              <h3 className="font-semibold text-orange-700 mb-1">🎯 Dynamic Asset Mix</h3>
+              <p className="text-sm text-gray-600">Real-time asset allocation across Equity, Debt, Gold & Hybrid synced with your plan</p>
             </div>
-            <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-pink-500">
-              <h3 className="font-semibold text-pink-700 mb-1">📈 Performance Tracking</h3>
-              <p className="text-sm text-gray-600">Visualize portfolio performance with interactive charts and milestone tracking</p>
+            <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-pink-500 relative">
+              <span className="absolute top-2 right-2 bg-pink-600 text-white text-xs px-2 py-1 rounded-full font-bold">PREMIUM</span>
+              <h3 className="font-semibold text-pink-700 mb-1">📈 Visual Performance Insights</h3>
+              <p className="text-sm text-gray-600">Interactive charts showing current vs ideal allocation with gap analysis</p>
             </div>
-            <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-teal-500">
-              <h3 className="font-semibold text-teal-700 mb-1">🔒 Risk Coverage Tips</h3>
-              <p className="text-sm text-gray-600">Identify gaps in insurance coverage and get recommendations to protect your wealth</p>
+            <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-teal-500 relative">
+              <span className="absolute top-2 right-2 bg-teal-600 text-white text-xs px-2 py-1 rounded-full font-bold">PREMIUM</span>
+              <h3 className="font-semibold text-teal-700 mb-1">🔒 Insurance Gap Analysis</h3>
+              <p className="text-sm text-gray-600">Identify missing coverage in Life, Health & Term insurance to protect your wealth</p>
             </div>
           </div>
 
@@ -284,6 +290,30 @@ const PortfolioPage: React.FC = () => {
             >
               View Pricing Plans →
             </button>
+          </div>
+
+          {/* Contact & Support Footer */}
+          <div className="mt-6 pt-4 border-t border-gray-200">
+            <div className="grid md:grid-cols-3 gap-4 text-center text-sm text-gray-600">
+              <div>
+                <p className="font-semibold text-gray-700 mb-1">📧 Support</p>
+                <a href="mailto:support@finedge360.com" className="text-blue-600 hover:underline">
+                  support@finedge360.com
+                </a>
+              </div>
+              <div>
+                <p className="font-semibold text-gray-700 mb-1">💬 Feedback</p>
+                <a href="https://forms.gle/your-feedback-form" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                  Share Your Feedback
+                </a>
+              </div>
+              <div>
+                <p className="font-semibold text-gray-700 mb-1">📱 Mobile App</p>
+                <a href="https://your-app-link.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                  Download App (Coming Soon)
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </AccessCodeForm>

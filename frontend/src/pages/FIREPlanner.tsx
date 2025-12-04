@@ -521,42 +521,48 @@ const FIREPlanner: React.FC = () => {
         <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl shadow-lg p-8 border-2 border-blue-200">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 mb-3">
-              🎯 Unlock Advanced FIRE Planning
+              🎯 Unlock PREMIUM FIRE Planning Features
             </h2>
-            <p className="text-lg text-gray-700">Get instant access to powerful goal-based investment planning</p>
+            <p className="text-lg text-gray-700">Get exclusive premium features not available in free plan</p>
           </div>
 
-          {/* Preview Features - 6 Boxes */}
+          {/* Preview Features - 6 PREMIUM-ONLY Boxes */}
           <div className="grid md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-blue-500 hover:shadow-xl transition-shadow">
+            <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-blue-500 hover:shadow-xl transition-shadow relative">
+              <span className="absolute top-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full font-bold">PREMIUM</span>
               <div className="text-4xl mb-3">📊</div>
-              <h3 className="font-bold text-blue-700 mb-2 text-lg">Multi-Goal Planning</h3>
-              <p className="text-sm text-gray-600">Set unlimited short, mid & long-term financial goals with inflation-adjusted calculations</p>
+              <h3 className="font-bold text-blue-700 mb-2 text-lg">Unlimited Goal Planning</h3>
+              <p className="text-sm text-gray-600">Create unlimited goals with advanced inflation & tax adjustments (Free: 3 goals max)</p>
             </div>
-            <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-green-500 hover:shadow-xl transition-shadow">
+            <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-green-500 hover:shadow-xl transition-shadow relative">
+              <span className="absolute top-2 right-2 bg-green-600 text-white text-xs px-2 py-1 rounded-full font-bold">PREMIUM</span>
               <div className="text-4xl mb-3">💰</div>
-              <h3 className="font-bold text-green-700 mb-2 text-lg">Smart SIP Calculator</h3>
-              <p className="text-sm text-gray-600">Calculate exact monthly SIP needed for each goal with intelligent step-up strategy</p>
+              <h3 className="font-bold text-green-700 mb-2 text-lg">AI-Powered SIP Optimizer</h3>
+              <p className="text-sm text-gray-600">Auto-calculate optimal SIPs with dynamic step-up based on salary growth & market trends</p>
             </div>
-            <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-purple-500 hover:shadow-xl transition-shadow">
+            <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-purple-500 hover:shadow-xl transition-shadow relative">
+              <span className="absolute top-2 right-2 bg-purple-600 text-white text-xs px-2 py-1 rounded-full font-bold">PREMIUM</span>
               <div className="text-4xl mb-3">🎯</div>
-              <h3 className="font-bold text-purple-700 mb-2 text-lg">Asset Allocation Designer</h3>
-              <p className="text-sm text-gray-600">Smart asset allocation across Equity, Debt, Gold & Hybrid based on your risk profile</p>
+              <h3 className="font-bold text-purple-700 mb-2 text-lg">Goal-Based Asset Allocation</h3>
+              <p className="text-sm text-gray-600">Personalized allocation strategy for each goal synced with your portfolio risk profile</p>
             </div>
-            <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-orange-500 hover:shadow-xl transition-shadow">
+            <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-orange-500 hover:shadow-xl transition-shadow relative">
+              <span className="absolute top-2 right-2 bg-orange-600 text-white text-xs px-2 py-1 rounded-full font-bold">PREMIUM</span>
               <div className="text-4xl mb-3">🔥</div>
-              <h3 className="font-bold text-orange-700 mb-2 text-lg">FIRE Number Calculator</h3>
-              <p className="text-sm text-gray-600">Calculate your Financial Independence number and track progress towards early retirement</p>
+              <h3 className="font-bold text-orange-700 mb-2 text-lg">NEW FIRE Number Calculator</h3>
+              <p className="text-sm text-gray-600">Calculate personalized FIRE number based on desired allocation & expected portfolio CAGR</p>
             </div>
-            <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-pink-500 hover:shadow-xl transition-shadow">
+            <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-pink-500 hover:shadow-xl transition-shadow relative">
+              <span className="absolute top-2 right-2 bg-pink-600 text-white text-xs px-2 py-1 rounded-full font-bold">PREMIUM</span>
               <div className="text-4xl mb-3">📈</div>
-              <h3 className="font-bold text-pink-700 mb-2 text-lg">Investment Tracking</h3>
-              <p className="text-sm text-gray-600">Monitor your investment journey with visual charts and milestone completion tracking</p>
+              <h3 className="font-bold text-pink-700 mb-2 text-lg">3D FIRE Journey Visualization</h3>
+              <p className="text-sm text-gray-600">Interactive 3D milestone tracking showing your progress towards financial independence</p>
             </div>
-            <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-teal-500 hover:shadow-xl transition-shadow">
+            <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-teal-500 hover:shadow-xl transition-shadow relative">
+              <span className="absolute top-2 right-2 bg-teal-600 text-white text-xs px-2 py-1 rounded-full font-bold">PREMIUM</span>
               <div className="text-4xl mb-3">💡</div>
-              <h3 className="font-bold text-teal-700 mb-2 text-lg">Tax Planning Insights</h3>
-              <p className="text-sm text-gray-600">Get tax optimization strategies and Section 80C recommendations to maximize savings</p>
+              <h3 className="font-bold text-teal-700 mb-2 text-lg">Advanced Tax Optimization</h3>
+              <p className="text-sm text-gray-600">Section 80C, 80D strategies with year-end tax planning recommendations</p>
             </div>
           </div>
 
@@ -646,6 +652,30 @@ const FIREPlanner: React.FC = () => {
             >
               🚀 View Pricing Plans & Subscribe →
             </button>
+          </div>
+
+          {/* Contact & Support Footer */}
+          <div className="mt-6 pt-4 border-t border-gray-300">
+            <div className="grid md:grid-cols-3 gap-4 text-center text-sm text-gray-600">
+              <div>
+                <p className="font-semibold text-gray-700 mb-1">📧 Support</p>
+                <a href="mailto:support@finedge360.com" className="text-blue-600 hover:underline">
+                  support@finedge360.com
+                </a>
+              </div>
+              <div>
+                <p className="font-semibold text-gray-700 mb-1">💬 Feedback</p>
+                <a href="https://forms.gle/your-feedback-form" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                  Share Your Feedback
+                </a>
+              </div>
+              <div>
+                <p className="font-semibold text-gray-700 mb-1">📱 Mobile App</p>
+                <a href="https://your-app-link.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                  Download App (Coming Soon)
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </AccessCodeForm>
