@@ -73,3 +73,6 @@ logs/
 # Backup files
 *.backup
 *.old
+
+# Personal notes with credentials
+Jay_FinEdge_implementation_Notes.txt
