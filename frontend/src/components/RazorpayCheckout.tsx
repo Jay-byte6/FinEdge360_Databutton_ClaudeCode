@@ -98,8 +98,13 @@ const RazorpayCheckout: React.FC<RazorpayCheckoutProps> = ({
 
   const finalAmount = getPrice() - discount;
 
+  // Update original amount when plan or billing cycle changes
   useEffect(() => {
     setOriginalAmount(getPrice());
+  }, [planName, billingCycle]);
+
+  // Load payment config and Razorpay script once on mount
+  useEffect(() => {
     fetchPaymentConfig();
     loadRazorpayScript();
   }, []);
