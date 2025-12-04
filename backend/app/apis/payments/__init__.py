@@ -121,10 +121,10 @@ async def create_razorpay_order(request: CreateOrderRequest):
 
         # Create Razorpay order
         client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
-        # Receipt must be max 40 characters - use short user ID and timestamp
-        short_user_id = request.user_id[:8]  # First 8 chars of user_id
-        timestamp = int(datetime.now().timestamp())
-        receipt = f'ord_{short_user_id}_{timestamp}'[:40]  # Ensure max 40 chars
+        # Receipt must be max 40 characters - use very short format
+        short_user_id = request.user_id[:6]  # First 6 chars of user_id
+        timestamp = str(int(datetime.now().timestamp()))[-8:]  # Last 8 digits of timestamp
+        receipt = f'{short_user_id}{timestamp}'[:40]  # Max 40 chars, usually 14 chars
 
         order_data = {
             'amount': amount,
