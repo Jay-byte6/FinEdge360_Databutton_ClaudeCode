@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import useFinancialDataStore from "utils/financialDataStore";
 import useAuthStore from "utils/authStore";
 import { API_ENDPOINTS } from "@/config/api";
+import { calculateNewFIRENumber, getYearsToRetirement, calculateCoastFIRE, calculateConservativeFIRE, calculatePremiumNewFIRE } from "../utils/financialCalculations";
 import { AlertCircle, Plus, Trash2, Calculator, X, Info, RotateCcw, Target, Rocket } from "lucide-react";
 import {
   Tooltip,
@@ -69,6 +70,7 @@ const FIREPlanner: React.FC = () => {
   const [monthlySavings, setMonthlySavings] = useState<number>(0);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [assetAllocations, setAssetAllocations] = useState<any[]>([]);
+  const [includeIlliquidAssets, setIncludeIlliquidAssets] = useState(false);
 
   const ACCESS_CODE = "FIREDEMO"; // Demo code for everyone to try
 
@@ -1266,78 +1268,6 @@ const FIREPlanner: React.FC = () => {
                   </CardContent>
                 </Card>
 
-                {/* FIRE Number Display Card - Simplified */}
-                <Card className="mb-6 bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-300">
-                  <CardContent className="py-4">
-                    <div className="flex items-start gap-3">
-                      <Target className="w-6 h-6 text-purple-600 flex-shrink-0 mt-0.5" />
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-purple-900 mb-3 text-lg">🎯 Your FIRE Number</h3>
-
-                        {isLoadingFinancialData || isLoadingData ? (
-                          // Loading State
-                          <div className="bg-blue-50 p-4 rounded-lg border-2 border-blue-300">
-                            <div className="flex items-center gap-3">
-                              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-                              <p className="text-sm text-blue-800">Loading your financial data...</p>
-                            </div>
-                          </div>
-                        ) : !financialData?.personalInfo?.monthlyExpenses ? (
-                          // Missing Monthly Expenses
-                          <div className="bg-yellow-50 p-4 rounded-lg border-2 border-yellow-400">
-                            <p className="font-semibold text-yellow-900 mb-2">⚠️ Monthly Expenses Required</p>
-                            <p className="text-sm text-yellow-800 mb-3">
-                              Please enter your monthly expenses in the <strong>"Enter Details"</strong> page to calculate your FIRE Number.
-                            </p>
-                            <Button
-                              onClick={() => navigate('/enter-details')}
-                              className="bg-yellow-600 hover:bg-yellow-700 text-white"
-                              size="sm"
-                            >
-                              Go to Enter Details
-                            </Button>
-                          </div>
-                        ) : (
-                          <>
-                            {/* Target FIRE Number - Inflation Adjusted */}
-                            <div className="bg-purple-600 p-4 rounded-lg text-white">
-                              <p className="text-sm mb-1 opacity-90">Target FIRE Number (Inflation-Adjusted)</p>
-                              {(() => {
-                                // Find retirement goal to get target years
-                                const retirementGoal = goals.find(g =>
-                                  g.name?.toLowerCase().includes('retirement') ||
-                                  g.name?.toLowerCase().includes('fire') ||
-                                  g.name?.toLowerCase().includes('retire') ||
-                                  g.goalType === 'Long-Term'
-                                );
-
-                                const yearsToRetirement = retirementGoal?.timeYears || 30;
-                                const inflationRate = 6;
-                                const inflationFactor = Math.pow(1 + (inflationRate / 100), yearsToRetirement);
-                                const yearlyExpensesToday = financialData.personalInfo.monthlyExpenses * 12;
-                                const yearlyExpensesRetirement = yearlyExpensesToday * inflationFactor;
-                                const inflationAdjustedFIRE = yearlyExpensesRetirement * 25;
-
-                                return (
-                                  <>
-                                    <p className="text-4xl font-bold mb-1">
-                                      ₹{(inflationAdjustedFIRE / 10000000).toFixed(2)} Cr
-                                    </p>
-                                    <p className="text-xs opacity-80">
-                                      At retirement in {yearsToRetirement} years (₹{Math.round(financialData.personalInfo.monthlyExpenses).toLocaleString()}/month today,
-                                      ₹{Math.round(yearlyExpensesRetirement / 12).toLocaleString()}/month future @ {inflationRate}% inflation)
-                                    </p>
-                                  </>
-                                );
-                              })()}
-                            </div>
-                          </>
-                        )}
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
                 {/* Capacity Warning if exceeded */}
                 {totalSIPRequired > monthlySavings && (
                   <Card className="bg-red-50 border-2 border-red-300">
@@ -1478,6 +1408,290 @@ const FIREPlanner: React.FC = () => {
                     </ul>
                   </CardContent>
                 </Card>
+
+                {/* Illiquid Assets Checkbox */}
+                <Card className="bg-blue-50 border-2 border-blue-300">
+                  <CardContent className="py-3">
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="checkbox"
+                        id="includeIlliquid"
+                        checked={includeIlliquidAssets}
+                        onChange={(e) => setIncludeIlliquidAssets(e.target.checked)}
+                        className="w-5 h-5 text-blue-600 cursor-pointer"
+                      />
+                      <label htmlFor="includeIlliquid" className="text-sm font-semibold text-blue-900 cursor-pointer">
+                        Include Illiquid Assets (Home, Real Estate, Gold, etc.) in FIRE calculations
+                      </label>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="w-4 h-4 text-blue-600 cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs bg-gray-900 text-white p-3">
+                            <p className="text-sm">
+                              By default, only liquid assets are considered for FIRE calculations. Check this to include illiquid assets like your home, real estate investments, physical gold/jewellery, etc.
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* 3 FIRE Scenarios with Dynamic Calculations */}
+                {isLoadingFinancialData || isLoadingData ? (
+                  // Loading State
+                  <div className="bg-blue-50 p-4 rounded-lg border-2 border-blue-300 my-6">
+                    <div className="flex items-center gap-3">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                      <p className="text-sm text-blue-800">Loading your financial data...</p>
+                    </div>
+                  </div>
+                ) : !financialData?.personalInfo?.monthlyExpenses ? (
+                  // Missing Monthly Expenses
+                  <div className="bg-yellow-50 p-4 rounded-lg border-2 border-yellow-400 my-6">
+                    <p className="font-semibold text-yellow-900 mb-2">⚠️ Monthly Expenses Required</p>
+                    <p className="text-sm text-yellow-800 mb-3">
+                      Please enter your monthly expenses in the <strong>"Enter Details"</strong> page to calculate your FIRE scenarios.
+                    </p>
+                    <Button
+                      onClick={() => navigate('/enter-details')}
+                      className="bg-yellow-600 hover:bg-yellow-700 text-white"
+                      size="sm"
+                    >
+                      Go to Enter Details
+                    </Button>
+                  </div>
+                ) : (
+                  <>
+                    {/* Section Header */}
+                    <Card className="mt-6 bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-300">
+                      <CardContent className="py-4">
+                        <h3 className="text-2xl font-bold text-center text-purple-900 mb-2">
+                          🔥 Your 3 FIRE Scenarios
+                        </h3>
+                        <p className="text-sm text-center text-purple-700">
+                          Explore different paths to achieve Financial Independence and Retire Early
+                        </p>
+                      </CardContent>
+                    </Card>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+                      {/* Scenario 1: Coast FIRE - Retire NOW */}
+                      {(() => {
+                        const retirementAge = 60;
+                        const coastFIRE = calculateCoastFIRE(financialData, retirementAge, includeIlliquidAssets);
+
+                        return (
+                          <Card className="bg-gradient-to-br from-orange-50 to-amber-100 border-2 border-orange-400 shadow-lg hover:shadow-xl transition-shadow">
+                            <CardContent className="pt-6">
+                              <div className="text-center mb-4">
+                                <div className="text-4xl mb-2">🏖️</div>
+                                <h3 className="text-xl font-bold text-orange-900">Coast FIRE - Retire NOW</h3>
+                                <p className="text-xs text-orange-700 mt-1">Stop working, investments grow at 5%</p>
+                              </div>
+
+                              <div className="space-y-3">
+                                <div className="bg-white/50 p-3 rounded-lg">
+                                  <p className="text-xs text-gray-600">Target Corpus Needed</p>
+                                  <p className="text-2xl font-bold text-orange-900">
+                                    ₹{(coastFIRE.targetCorpus / 10000000).toFixed(2)} Cr
+                                  </p>
+                                </div>
+
+                                <div className="bg-white/50 p-3 rounded-lg">
+                                  <p className="text-xs text-gray-600">Your Current Net Worth</p>
+                                  <p className="text-xl font-bold text-orange-700">
+                                    ₹{(coastFIRE.currentNetWorth / 10000000).toFixed(2)} Cr
+                                  </p>
+                                  <p className="text-xs text-gray-500">
+                                    {includeIlliquidAssets ? '(includes illiquid)' : '(liquid only)'}
+                                  </p>
+                                </div>
+
+                                <div className={`p-3 rounded-lg ${coastFIRE.gap === 0 ? 'bg-green-100 border-2 border-green-500' : 'bg-yellow-100 border-2 border-yellow-500'}`}>
+                                  {coastFIRE.gap === 0 ? (
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-2xl">✅</span>
+                                      <div className="flex-1">
+                                        <p className="text-sm font-bold text-green-900">You can Coast FIRE NOW!</p>
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <div>
+                                      <p className="text-sm font-bold text-yellow-900 mb-1">Gap to Cover:</p>
+                                      <p className="text-xl font-bold text-yellow-700">
+                                        ₹{(coastFIRE.gap / 10000000).toFixed(2)} Cr
+                                      </p>
+                                      {coastFIRE.yearsToAchieve > 0 && (
+                                        <p className="text-xs text-yellow-600 mt-1">
+                                          {coastFIRE.yearsToAchieve} years (age {coastFIRE.ageAtCoastFIRE})
+                                        </p>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+
+                                <div className="bg-orange-100 p-3 rounded-lg text-xs text-orange-900">
+                                  <p className="font-semibold mb-1">Strategy:</p>
+                                  <p>Retire NOW. Your corpus grows at 5% till age 60, covering all expenses.</p>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        );
+                      })()}
+
+                      {/* Scenario 2: Conservative FIRE at 60 */}
+                      {(() => {
+                        const retirementAge = 60;
+                        const conservativeFIRE = calculateConservativeFIRE(financialData, retirementAge, includeIlliquidAssets);
+
+                        return (
+                          <Card className="bg-gradient-to-br from-blue-50 to-indigo-100 border-2 border-blue-400 shadow-lg hover:shadow-xl transition-shadow">
+                            <CardContent className="pt-6">
+                              <div className="text-center mb-4">
+                                <div className="text-4xl mb-2">💼</div>
+                                <h3 className="text-xl font-bold text-blue-900">Conservative FIRE at 60</h3>
+                                <p className="text-xs text-blue-700 mt-1">Safe path with 5% returns</p>
+                              </div>
+
+                              <div className="space-y-3">
+                                <div className="bg-white/50 p-3 rounded-lg">
+                                  <p className="text-xs text-gray-600">Target FIRE Corpus</p>
+                                  <p className="text-2xl font-bold text-blue-900">
+                                    ₹{(conservativeFIRE.targetCorpus / 10000000).toFixed(2)} Cr
+                                  </p>
+                                </div>
+
+                                <div className="bg-white/50 p-3 rounded-lg">
+                                  <p className="text-xs text-gray-600">Current Net Worth</p>
+                                  <p className="text-xl font-bold text-blue-700">
+                                    ₹{(conservativeFIRE.currentNetWorth / 10000000).toFixed(2)} Cr
+                                  </p>
+                                  <p className="text-xs text-gray-500">
+                                    {includeIlliquidAssets ? '(includes illiquid)' : '(liquid only)'}
+                                  </p>
+                                </div>
+
+                                <div className="bg-white/50 p-3 rounded-lg">
+                                  <p className="text-xs text-gray-600">Projected at Age 60</p>
+                                  <p className="text-xl font-bold text-blue-700">
+                                    ₹{(conservativeFIRE.projectedCorpusAtRetirement / 10000000).toFixed(2)} Cr
+                                  </p>
+                                </div>
+
+                                <div className={`p-3 rounded-lg ${conservativeFIRE.canAchieve ? 'bg-green-100 border-2 border-green-500' : 'bg-red-100 border-2 border-red-500'}`}>
+                                  {conservativeFIRE.canAchieve ? (
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-2xl">✅</span>
+                                      <div className="flex-1">
+                                        <p className="text-sm font-bold text-green-900">You WILL achieve FIRE!</p>
+                                        <p className="text-xs text-green-700">With 5% returns & full savings</p>
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <div>
+                                      <p className="text-sm font-bold text-red-900 mb-1">Shortfall:</p>
+                                      <p className="text-xl font-bold text-red-700">
+                                        ₹{(conservativeFIRE.shortfall / 10000000).toFixed(2)} Cr
+                                      </p>
+                                      <p className="text-xs text-red-600 mt-1">Need to increase savings or extend timeline</p>
+                                    </div>
+                                  )}
+                                </div>
+
+                                <div className="bg-blue-100 p-3 rounded-lg text-xs text-blue-900">
+                                  <p className="font-semibold mb-1">Strategy:</p>
+                                  <p>Save ₹{Math.round(conservativeFIRE.monthlySavings || 0).toLocaleString()}/month with conservative 5% returns (FD/Debt funds)</p>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        );
+                      })()}
+
+                      {/* Scenario 3: Premium NEW FIRE */}
+                      {(() => {
+                        const retirementAge = 60;
+                        const expectedCAGR = 0.10; // 10% from 60:40 equity:debt allocation
+                        const retirementGoalData = financialData?.goals?.longTermGoals?.find((g: any) =>
+                          g.name?.toLowerCase().includes('retirement') || g.name?.toLowerCase().includes('fire')
+                        );
+                        const retirementSIP = retirementGoalData?.monthlyInvestment || 45000;
+                        const stepUpPercentage = 10; // 10% annual step-up
+                        const premiumFIRE = calculatePremiumNewFIRE(financialData, retirementAge, expectedCAGR, retirementSIP, stepUpPercentage, includeIlliquidAssets);
+
+                        return (
+                          <Card className="bg-gradient-to-br from-green-50 to-emerald-100 border-2 border-green-500 shadow-lg hover:shadow-xl transition-shadow relative">
+                            {/* PREMIUM Badge */}
+                            <div className="absolute top-3 right-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-black px-3 py-1 rounded-full shadow-md">
+                              ⭐ PREMIUM
+                            </div>
+
+                            <CardContent className="pt-6">
+                              <div className="text-center mb-4">
+                                <div className="text-4xl mb-2">🚀</div>
+                                <h3 className="text-xl font-bold text-green-900">Premium NEW FIRE</h3>
+                                <p className="text-xs text-green-700 mt-1">Optimized strategy with 10% CAGR</p>
+                              </div>
+
+                              <div className="space-y-3">
+                                <div className="bg-white/50 p-3 rounded-lg">
+                                  <p className="text-xs text-gray-600">Target FIRE Corpus</p>
+                                  <p className="text-2xl font-bold text-green-900">
+                                    ₹{(premiumFIRE.targetCorpus / 10000000).toFixed(2)} Cr
+                                  </p>
+                                </div>
+
+                                <div className="bg-white/50 p-3 rounded-lg">
+                                  <p className="text-xs text-gray-600">Current Net Worth</p>
+                                  <p className="text-xl font-bold text-green-700">
+                                    ₹{(premiumFIRE.currentNetWorth / 10000000).toFixed(2)} Cr
+                                  </p>
+                                  <p className="text-xs text-gray-500">
+                                    {includeIlliquidAssets ? '(includes illiquid)' : '(liquid only)'}
+                                  </p>
+                                </div>
+
+                                <div className="bg-white/50 p-3 rounded-lg">
+                                  <p className="text-xs text-gray-600">Monthly SIP</p>
+                                  <p className="text-xl font-bold text-green-700">
+                                    ₹{Math.round(premiumFIRE.initialSIP).toLocaleString()}
+                                  </p>
+                                  <p className="text-xs text-gray-500">with {premiumFIRE.stepUpPercentage}% annual step-up</p>
+                                </div>
+
+                                <div className="bg-gradient-to-r from-green-100 to-emerald-100 p-3 rounded-lg border-2 border-green-500">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <span className="text-2xl">⚡</span>
+                                    <div className="flex-1">
+                                      <p className="text-sm font-bold text-green-900">Achieve FIRE in {premiumFIRE.yearsToAchieve} years</p>
+                                      <p className="text-xs text-green-700">at age {premiumFIRE.ageAtFIRE}</p>
+                                    </div>
+                                  </div>
+                                  {premiumFIRE.canAchieveBefore60 && (
+                                    <div className="bg-yellow-100 border-2 border-yellow-500 p-2 rounded mt-2">
+                                      <p className="text-xs font-bold text-yellow-900 text-center">
+                                        🎯 Retire {premiumFIRE.yearsBeforeRetirement} years BEFORE 60!
+                                      </p>
+                                    </div>
+                                  )}
+                                </div>
+
+                                <div className="bg-green-100 p-3 rounded-lg text-xs text-green-900">
+                                  <p className="font-semibold mb-1">Strategy:</p>
+                                  <p>Optimized portfolio (60:40 equity:debt) achieving {premiumFIRE.expectedCAGR * 100}% CAGR - retire YEARS earlier!</p>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        );
+                      })()}
+                    </div>
+                  </>
+                )}
 
                 {/* Expert Consultation CTA - Hooking Section */}
                 <Card className="mt-6 bg-gradient-to-br from-orange-50 via-yellow-50 to-amber-50 border-3 border-orange-400 shadow-xl">

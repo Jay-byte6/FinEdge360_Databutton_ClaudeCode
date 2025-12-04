@@ -4,6 +4,7 @@
  */
 
 import jsPDF from 'jspdf';
+import { getFinancialMetrics, calculateNetWorth, calculateCoastFIRE, calculateConservativeFIRE, calculatePremiumNewFIRE } from './financialCalculations';
 
 // Format currency in Indian Rupee format
 const formatCurrency = (amount: number): string => {
@@ -171,6 +172,10 @@ export const generateFinancialProfilePDF = async (
   const monthlySavings = monthlyIncome - monthlyExpenses;
   const savingsRate = monthlyIncome > 0 ? (monthlySavings / monthlyIncome) * 100 : 0;
 
+  // Use centralized calculations for consistency
+  const metrics = getFinancialMetrics(financialData);
+  const { netWorth, basicFIRENumber: fireNumber, newFIRENumber, yearsToRetirement } = metrics;
+
   const illiquid = financialData?.assets?.illiquid || {};
   let totalIlliquid = Object.values(illiquid).reduce((sum: number, val: any) => sum + (Number(val) || 0), 0);
 
@@ -182,10 +187,11 @@ export const generateFinancialProfilePDF = async (
   const liabilities = financialData?.liabilities || {};
   let totalLiabilities = Object.values(liabilities).reduce((sum: number, val: any) => sum + (Number(val) || 0), 0);
 
-  const netWorth = totalAssets - totalLiabilities;
   const annualExpenses = monthlyExpenses * 12;
-  const fireNumber = annualExpenses * 25;
+  const inflationRate = 6;
+
   const fireProgress = fireNumber > 0 ? (netWorth / fireNumber * 100) : 0;
+  const newFireProgress = newFireNumber > 0 ? (netWorth / newFireNumber * 100) : 0;
 
   // Summary Box
   doc.setDrawColor(220, 220, 220);
@@ -546,96 +552,206 @@ export const generateFinancialProfilePDF = async (
   doc.setFont('helvetica', 'italic');
   addLine('Note: Tax calculations are estimates. Consult a CA for accurate filing.', 0, 7);
 
-  // ============= YOUR NEW FIRE NUMBER (PREMIUM) =============
-  checkPageBreak(70);
+  // ============= 3 FIRE SCENARIOS =============
+  checkPageBreak(120);
   yPosition += 5;
-  addSectionHeader('YOUR NEW FIRE NUMBER 🔥', [255, 140, 0]);
+  addSectionHeader('YOUR 3 FIRE SCENARIOS 🔥', [37, 99, 235]);
 
-  // Premium badge explanation
-  doc.setFontSize(8);
-  doc.setFont('helvetica', 'italic');
-  doc.setTextColor(220, 100, 0);
-  addLine('✨ PREMIUM: This NEW FIRE number is calculated based on your desired asset allocation and expected portfolio CAGR.', 0, 8);
-  yPosition += 3;
+  // Calculate all 3 FIRE scenarios
+  const retirementAge = 60;
+  const coastFIRE = calculateCoastFIRE(financialData, retirementAge);
+  const conservativeFIRE = calculateConservativeFIRE(financialData, retirementAge);
 
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'bold');
+  // For Premium NEW FIRE - use actual values from goals if available
+  const expectedCAGR = 0.10; // 10% from 60:40 equity:debt allocation
+  const retirementGoalData = financialData?.goals?.longTermGoals?.find((g: any) =>
+    g.name?.toLowerCase().includes('retirement') || g.name?.toLowerCase().includes('fire')
+  );
+  const retirementSIP = retirementGoalData?.monthlyInvestment || 45000;
+  const stepUpPercentage = 10; // 10% annual step-up
+  const premiumFIRE = calculatePremiumNewFIRE(financialData, retirementAge, expectedCAGR, retirementSIP, stepUpPercentage);
+
+  // Scenario explanation
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
   doc.setTextColor(50, 50, 50);
-  addLine(`Your NEW FIRE Number: ${formatCurrency(fireNumber)}`, 0, 10, true);
-  addLine(`Current Net Worth: ${formatCurrency(netWorth)}`, 0, 10, false);
-  addLine(`Progress to FIRE: ${formatPercentage(fireProgress)}`, 0, 10, false);
+  addLine('Explore 3 different paths to achieve Financial Independence and Retire Early:', 0, 9);
   yPosition += 5;
 
-  // NEW FIRE Number explanation box
-  doc.setFillColor(255, 248, 240);
+  // ============= SCENARIO 1: COAST FIRE (RETIRE NOW) =============
+  doc.setFillColor(255, 237, 213);
   doc.setDrawColor(255, 140, 0);
   doc.setLineWidth(0.5);
-  doc.rect(margin, yPosition, contentWidth, 22, 'FD');
+  doc.rect(margin, yPosition, contentWidth, 50, 'FD');
 
-  yPosition += 6;
-  doc.setFontSize(9);
+  yPosition += 8;
+  doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
-  doc.setTextColor(220, 100, 0);
-  doc.text('What makes this FIRE Number "NEW"?', margin + 3, yPosition);
+  doc.setTextColor(255, 100, 0);
+  doc.text('🏖️ SCENARIO #1: Coast FIRE - Retire NOW', margin + 3, yPosition);
+
+  yPosition += 7;
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(50, 50, 50);
+  doc.text(`Target Corpus Needed: ${formatCurrency(coastFIRE.targetCorpus)}`, margin + 5, yPosition);
 
   yPosition += 5;
-  doc.setFont('helvetica', 'normal');
+  doc.text(`Your Liquid Net Worth: ${formatCurrency(coastFIRE.currentNetWorth)}`, margin + 5, yPosition);
+
+  yPosition += 5;
+  doc.text(`Gap to Cover: ${formatCurrency(coastFIRE.gap)}`, margin + 5, yPosition);
+
+  yPosition += 5;
+  if (coastFIRE.yearsToAchieve > 0) {
+    doc.setTextColor(34, 139, 34);
+    doc.text(`Years to Achieve: ${coastFIRE.yearsToAchieve} years (Age ${coastFIRE.ageAtCoastFIRE})`, margin + 5, yPosition);
+  } else {
+    doc.setTextColor(34, 139, 34);
+    doc.text('✓ You can Coast FIRE NOW!', margin + 5, yPosition);
+  }
+
+  yPosition += 7;
   doc.setFontSize(8);
+  doc.setFont('helvetica', 'italic');
   doc.setTextColor(100, 60, 0);
-  const newFireExplanation = doc.splitTextToSize(
-    'Unlike the standard 25x annual expenses formula, your NEW FIRE Number incorporates your personalized asset allocation strategy across Equity, Debt, Gold, REITs, and other asset classes. It factors in your expected CAGR based on your risk profile and goal-specific allocations, giving you a more accurate retirement corpus target tailored to YOUR financial strategy.',
-    contentWidth - 6
+  const coastExplanation = doc.splitTextToSize(
+    'Coast FIRE: Stop working NOW. Your liquid corpus grows at 5% conservative returns until age 60, covering all expenses till retirement. No more savings needed - just let your investments coast!',
+    contentWidth - 10
   );
-  newFireExplanation.forEach((line: string) => {
-    doc.text(line, margin + 3, yPosition);
+  coastExplanation.forEach((line: string) => {
+    doc.text(line, margin + 5, yPosition);
     yPosition += 3.5;
   });
 
   yPosition += 8;
 
-  // Progress Bar
-  const fireBarWidth = contentWidth - 10;
-  const fireBarHeight = 18;
-
-  doc.setFillColor(220, 220, 220);
-  doc.rect(margin, yPosition, fireBarWidth, fireBarHeight, 'F');
-
-  const fireFilledWidth = Math.min((fireProgress / 100) * fireBarWidth, fireBarWidth);
-  doc.setFillColor(220, 20, 60);
-  doc.rect(margin, yPosition, fireFilledWidth, fireBarHeight, 'F');
-
-  doc.setDrawColor(180, 180, 180);
+  // ============= SCENARIO 2: CONSERVATIVE FIRE AT 60 =============
+  checkPageBreak(55);
+  doc.setFillColor(219, 234, 254);
+  doc.setDrawColor(37, 99, 235);
   doc.setLineWidth(0.5);
-  doc.rect(margin, yPosition, fireBarWidth, fireBarHeight, 'S');
+  doc.rect(margin, yPosition, contentWidth, 50, 'FD');
 
+  yPosition += 8;
   doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
-  doc.setTextColor(255, 255, 255);
-  if (fireProgress > 8) {
-    doc.text(`${formatPercentage(fireProgress)}`, margin + fireFilledWidth / 2, yPosition + 12, { align: 'center' });
+  doc.setTextColor(37, 99, 235);
+  doc.text('💼 SCENARIO #2: Conservative FIRE at Retirement Age (60)', margin + 3, yPosition);
+
+  yPosition += 7;
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(50, 50, 50);
+  doc.text(`Target FIRE Corpus: ${formatCurrency(conservativeFIRE.targetCorpus)}`, margin + 5, yPosition);
+
+  yPosition += 5;
+  doc.text(`Current Net Worth: ${formatCurrency(conservativeFIRE.currentNetWorth)}`, margin + 5, yPosition);
+
+  yPosition += 5;
+  doc.text(`Projected at Age 60: ${formatCurrency(conservativeFIRE.projectedCorpusAtRetirement)}`, margin + 5, yPosition);
+
+  yPosition += 5;
+  if (conservativeFIRE.canAchieve) {
+    doc.setTextColor(34, 139, 34);
+    doc.text(`✓ You WILL achieve FIRE by age 60!`, margin + 5, yPosition);
   } else {
-    doc.setTextColor(0, 0, 0);
-    doc.text(`${formatPercentage(fireProgress)}`, margin + fireFilledWidth + 3, yPosition + 12);
+    doc.setTextColor(220, 38, 38);
+    doc.text(`Shortfall: ${formatCurrency(conservativeFIRE.shortfall)}`, margin + 5, yPosition);
   }
 
-  yPosition += fireBarHeight + 8;
+  yPosition += 7;
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'italic');
+  doc.setTextColor(30, 60, 120);
+  const conservativeExplanation = doc.splitTextToSize(
+    'Conservative approach: Save your full monthly surplus (₹' + (conservativeFIRE.monthlySavings || 0).toLocaleString('en-IN') + '/month) with 5% conservative returns (FD/Debt funds). Traditional safe path to FIRE at retirement age.',
+    contentWidth - 10
+  );
+  conservativeExplanation.forEach((line: string) => {
+    doc.text(line, margin + 5, yPosition);
+    yPosition += 3.5;
+  });
+
+  yPosition += 8;
+
+  // ============= SCENARIO 3: PREMIUM NEW FIRE (OPTIMIZED) =============
+  checkPageBreak(60);
+  doc.setFillColor(220, 252, 231);
+  doc.setDrawColor(34, 197, 94);
+  doc.setLineWidth(0.5);
+  doc.rect(margin, yPosition, contentWidth, 55, 'FD');
+
+  yPosition += 8;
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(22, 163, 74);
+  doc.text('🚀 SCENARIO #3: Premium NEW FIRE (Optimized Strategy)', margin + 3, yPosition);
+
+  // PREMIUM badge
+  doc.setFillColor(255, 215, 0);
+  doc.setDrawColor(255, 140, 0);
+  doc.rect(margin + contentWidth - 35, yPosition - 4, 30, 6, 'FD');
+  doc.setFontSize(7);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(139, 69, 0);
+  doc.text('⭐ PREMIUM', margin + contentWidth - 33, yPosition);
+
+  yPosition += 7;
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
   doc.setTextColor(50, 50, 50);
+  doc.text(`Target FIRE Corpus: ${formatCurrency(premiumFIRE.targetCorpus)}`, margin + 5, yPosition);
 
-  const yearsToFIRE = fireProgress > 0 && monthlySavings > 0 ? Math.ceil((fireNumber - netWorth) / (monthlySavings * 12)) : 0;
+  yPosition += 5;
+  doc.text(`Current Net Worth: ${formatCurrency(premiumFIRE.currentNetWorth)}`, margin + 5, yPosition);
 
+  yPosition += 5;
+  doc.text(`Expected CAGR: ${formatPercentage(premiumFIRE.expectedCAGR * 100)}`, margin + 5, yPosition);
+
+  yPosition += 5;
+  doc.text(`Monthly SIP: ${formatCurrency(premiumFIRE.initialSIP)} (${premiumFIRE.stepUpPercentage}% step-up)`, margin + 5, yPosition);
+
+  yPosition += 5;
+  doc.setTextColor(34, 139, 34);
+  doc.setFont('helvetica', 'bold');
+  doc.text(`⚡ Achieve FIRE in ${premiumFIRE.yearsToAchieve} years (Age ${premiumFIRE.ageAtFIRE})`, margin + 5, yPosition);
+
+  yPosition += 5;
+  if (premiumFIRE.canAchieveBefore60) {
+    doc.setTextColor(22, 163, 74);
+    doc.text(`🎯 Retire ${premiumFIRE.yearsBeforeRetirement} years BEFORE age 60!`, margin + 5, yPosition);
+  }
+
+  yPosition += 7;
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'italic');
+  doc.setTextColor(20, 100, 50);
+  const premiumExplanation = doc.splitTextToSize(
+    'Premium Strategy: Allocate only retirement SIP with optimized portfolio (60:40 equity:debt) achieving 10% CAGR. Step-up SIP by 10% annually. Achieve FIRE YEARS earlier than conservative approach - TIME is your real wealth!',
+    contentWidth - 10
+  );
+  premiumExplanation.forEach((line: string) => {
+    doc.text(line, margin + 5, yPosition);
+    yPosition += 3.5;
+  });
+
+  yPosition += 8;
+
+  // Summary comparison
   doc.setFontSize(9);
   doc.setFont('helvetica', 'bold');
-  if (yearsToFIRE > 0 && yearsToFIRE < 100) {
-    addLine(`Estimated years to FIRE: ${yearsToFIRE} years (at current savings rate)`, 0, 9, true);
-  }
+  doc.setTextColor(37, 99, 235);
+  addLine('Which FIRE Path Should You Choose?', 0, 9, true);
+  yPosition += 3;
 
-  const remainingAmount = Math.max(0, fireNumber - netWorth);
-  addLine(`Amount needed: ${formatCurrency(remainingAmount)}`, 0, 9, false);
-
-  if (monthlySavings > 0 && yearsToFIRE > 0) {
-    const requiredMonthlySIP = remainingAmount / 12 / yearsToFIRE;
-    addLine(`Required monthly investment: ${formatCurrency(requiredMonthlySIP)}`, 0, 9, false);
-  }
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+  doc.setTextColor(50, 50, 50);
+  addLine('• Coast FIRE: If you have enough liquid assets and want to retire NOW', 3, 8);
+  addLine('• Conservative FIRE: If you prefer safe, predictable returns and traditional retirement age', 3, 8);
+  addLine('• Premium NEW FIRE: If you want to retire EARLY with optimized portfolio strategy', 3, 8);
+  yPosition += 5;
 
   // ============= RISK ASSESSMENT & PORTFOLIO =============
   if (riskAnalysis) {

@@ -8,6 +8,7 @@ import useFinancialDataStore from '../utils/financialDataStore';
 import useAuthStore from '../utils/authStore';
 import { MilestoneCompletionCard } from '@/components/journey/MilestoneCompletionCard';
 import { InfoTooltip } from '@/components/InfoTooltip';
+import { calculateNetWorth, calculateBasicFIRENumber, calculateNewFIRENumber } from '../utils/financialCalculations';
 
 type FIREMetrics = {
   annualExpenseInRetirement: number;
@@ -64,43 +65,27 @@ export default function FIRECalculator() {
   // Calculate FIRE metrics
   const calculateFIREMetrics = (data: any): FIREMetrics => {
     // Extract data
-    const { personalInfo, assetsLiabilities } = data;
+    const { personalInfo } = data;
     const monthlyExpenses = personalInfo.monthlyExpenses;
     const monthlySalary = personalInfo.monthlySalary;
     const age = personalInfo.age;
-    
+
     // Calculate annual values
     const yearlyExpensesToday = monthlyExpenses * 12;
     const annualIncome = monthlySalary * 12;
     const annualSavings = Math.max(0, annualIncome - yearlyExpensesToday);
-    
+
     // Calculate savings rate
     const savingsRate = annualIncome > 0 ? annualSavings / annualIncome : 0;
-    
+
     // Calculate annual expenses in retirement with inflation adjustment
     // Formula: FV = PV * (1 + r)^n
     const yearsToRetirement = retirementAge - age;
     const inflationFactor = Math.pow(1 + (inflationRate / 100), yearsToRetirement);
     const yearlyExpensesRetirement = yearlyExpensesToday * inflationFactor;
-    
-    // Calculate total assets and liabilities
-    const totalAssets = [
-      assetsLiabilities.realEstateValue,
-      assetsLiabilities.goldValue,
-      assetsLiabilities.mutualFundsValue,
-      assetsLiabilities.epfBalance,
-      assetsLiabilities.ppfBalance
-    ].reduce((sum, value) => sum + value, 0);
-    
-    const totalLiabilities = [
-      assetsLiabilities.homeLoan,
-      assetsLiabilities.carLoan,
-      assetsLiabilities.personalLoan,
-      assetsLiabilities.otherLoans
-    ].reduce((sum, value) => sum + value, 0);
-    
-    // Current net worth
-    const currentNetWorth = totalAssets - totalLiabilities;
+
+    // Use centralized net worth calculation
+    const currentNetWorth = calculateNetWorth(data);
     
     // Standard FIRE corpus calculation based on 4% safe withdrawal rate (25x multiplier)
     const requiredCorpus = yearlyExpensesRetirement * 25;
@@ -112,8 +97,8 @@ export default function FIRECalculator() {
     const fatFIRE = yearlyExpensesRetirement * 2 * 25;
     
     // Calculate years to FIRE
-    // With an assumed annual investment growth rate of 10%
-    const growthRate = 0.10; // 10% annual growth on investments
+    // With conservative annual investment growth rate of 5%
+    const growthRate = 0.05; // 5% conservative annual growth (FD/Debt funds)
     let years = 0;
     let currentCorpus = currentNetWorth;
     
@@ -131,7 +116,7 @@ export default function FIRECalculator() {
     const coastGrowthFactor = Math.pow(1 + growthRate, yearsCoastToRetirement);
     const coastFIRE = requiredCorpus / coastGrowthFactor;
     
-    // Calculate monthly investment needed with 10% returns
+    // Calculate monthly investment needed with 5% conservative returns
     // Using PMT formula: PMT = FV * r / ((1 + r)^n - 1)
     const monthlyRate = growthRate / 12; // Monthly growth rate
     const months = yearsToRetirement * 12; // Months to retirement
@@ -517,7 +502,7 @@ export default function FIRECalculator() {
                 </div>
                 <p className="text-sm text-gray-600">The amount you need by age {fireMetrics.desiredCoastAge} so your investments can grow until retirement at age {fireMetrics.retirementAge}</p>
                 <div className="mt-4 p-3 bg-amber-50 rounded-md border border-amber-100">
-                  <p className="text-xs text-amber-800">Your investments continue to grow at 10% annually while you only cover your expenses after age {fireMetrics.desiredCoastAge}</p>
+                  <p className="text-xs text-amber-800">Your investments continue to grow at 5% annually (conservative) while you only cover your expenses after age {fireMetrics.desiredCoastAge}</p>
                 </div>
               </CardContent>
             </Card>
@@ -717,7 +702,7 @@ export default function FIRECalculator() {
                     <h3 className="font-medium text-amber-800 mb-2">Coast FIRE Strategy</h3>
                     <p className="text-sm text-amber-700">
                       If you save {formatIndianCurrency(fireMetrics.coastFIRE)} by age {fireMetrics.desiredCoastAge}, you could potentially stop adding to investments and only cover your expenses until retirement. 
-                      Your investments would continue growing at an assumed 10% annually to reach your FIRE number of {formatIndianCurrency(fireMetrics.requiredCorpus)} by age {fireMetrics.retirementAge}.
+                      Your investments would continue growing at an assumed 5% annually (conservative) to reach your FIRE number of {formatIndianCurrency(fireMetrics.requiredCorpus)} by age {fireMetrics.retirementAge}.
                     </p>
                   </div>
                 </div>

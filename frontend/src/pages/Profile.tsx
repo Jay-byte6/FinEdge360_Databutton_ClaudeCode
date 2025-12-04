@@ -14,6 +14,7 @@ import useFinancialDataStore from '../utils/financialDataStore';
 import DeleteAccountDialog from '@/components/DeleteAccountDialog';
 import { generateFinancialProfilePDF } from '../utils/pdfExport';
 import { API_ENDPOINTS } from '@/config/api';
+import { getFinancialMetrics, calculateCoastFIRE, calculateConservativeFIRE, calculatePremiumNewFIRE } from '../utils/financialCalculations';
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -82,31 +83,8 @@ export default function Profile() {
     loadData();
   }, [user?.id, fetchFinancialData]);
 
-  // Calculate net worth
-  const calculateNetWorth = () => {
-    if (!financialData) return 0;
-
-    const totalAssets =
-      (financialData.assetsLiabilities?.realEstateValue || 0) +
-      (financialData.assetsLiabilities?.goldValue || 0) +
-      (financialData.assetsLiabilities?.mutualFundsValue || 0) +
-      (financialData.assetsLiabilities?.epfBalance || 0) +
-      (financialData.assetsLiabilities?.ppfBalance || 0);
-
-    const totalLiabilities =
-      (financialData.assetsLiabilities?.homeLoan || 0) +
-      (financialData.assetsLiabilities?.carLoan || 0) +
-      (financialData.assetsLiabilities?.personalLoan || 0) +
-      (financialData.assetsLiabilities?.otherLoans || 0);
-
-    return totalAssets - totalLiabilities;
-  };
-
-  // Calculate FIRE number (25x annual expenses)
-  const calculateFIRENumber = () => {
-    if (!financialData) return 0;
-    return financialData.personalInfo.monthlyExpenses * 12 * 25;
-  };
+  // Use centralized calculations for consistency across ALL pages
+  const metrics = getFinancialMetrics(financialData);
 
   // Calculate current portfolio allocation
   const calculatePortfolioAllocation = () => {
@@ -167,9 +145,21 @@ export default function Profile() {
     );
   }
 
-  const netWorth = calculateNetWorth();
-  const fireNumber = calculateFIRENumber();
+  // Extract metrics from centralized calculations
+  const { netWorth, basicFIRENumber, newFIRENumber, yearsToRetirement } = metrics;
   const portfolioAllocation = calculatePortfolioAllocation();
+
+  // Calculate 3 FIRE scenarios
+  const retirementAge = 60; // Default retirement age
+  const coastFIRE = calculateCoastFIRE(financialData, retirementAge);
+  const conservativeFIRE = calculateConservativeFIRE(financialData, retirementAge);
+
+  // For Premium NEW FIRE, we need to get expected CAGR and SIP from user's allocation
+  // TODO: Pull from actual asset allocation and goals
+  const expectedCAGR = 0.10; // 10% from 60:40 equity:debt allocation
+  const retirementSIP = 45000; // ₹45,000 from retirement goal
+  const stepUpPercentage = 10; // 10% annual step-up
+  const premiumFIRE = calculatePremiumNewFIRE(financialData, retirementAge, expectedCAGR, retirementSIP, stepUpPercentage);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
@@ -259,28 +249,169 @@ export default function Profile() {
             </CardContent>
           </Card>
 
-          {/* NEW FIRE Number Card - PREMIUM */}
-          <Card className="bg-gradient-to-br from-orange-50 to-amber-50 border-2 border-orange-300 relative shadow-lg">
-            <span className="absolute top-2 right-2 bg-orange-600 text-white text-xs px-2 py-1 rounded-full font-bold z-10">PREMIUM</span>
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-2">
-                <Target className="h-5 w-5 text-orange-600" />
-                <CardTitle className="text-lg">Your NEW FIRE Number 🔥</CardTitle>
-              </div>
-              <p className="text-xs text-orange-700 mt-1">Premium calculation based on your desired allocation & expected CAGR</p>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold text-orange-700">
-                {formatCurrency(fireNumber)}
-              </p>
-              <p className="text-xs text-gray-600 mt-2">Based on 25x annual expenses</p>
-              <div className="mt-3 p-2 bg-orange-100 rounded-md border border-orange-200">
-                <p className="text-xs text-orange-800">
-                  ✨ <strong>NEW:</strong> This premium FIRE number is calculated using your personalized asset allocation strategy and expected portfolio CAGR from your goal planning.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+        </div>
+
+        {/* 3 FIRE Scenarios Section */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Your FIRE Journey Scenarios 🎯</h2>
+          <p className="text-gray-600 mb-6">Three pathways to financial independence based on different strategies</p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* FIRE #1: Coast FIRE - Retire Now */}
+            <Card className="bg-gradient-to-br from-orange-50 to-amber-50 border-2 border-orange-300 shadow-lg">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2">
+                  <Target className="h-5 w-5 text-orange-600" />
+                  <CardTitle className="text-lg">🏖️ Coast FIRE</CardTitle>
+                </div>
+                <p className="text-xs text-orange-700 mt-1">Retire NOW - Stop working today!</p>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-sm text-gray-600">Corpus Needed Now:</p>
+                    <p className="text-2xl font-bold text-orange-700">
+                      {formatCurrency(coastFIRE.targetCorpus)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Current Liquid Assets:</p>
+                    <p className="text-xl font-semibold text-gray-800">
+                      {formatCurrency(coastFIRE.currentNetWorth)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Gap to Fill:</p>
+                    <p className="text-xl font-bold text-red-600">
+                      {formatCurrency(coastFIRE.gap)}
+                    </p>
+                  </div>
+                  <div className="pt-2 border-t border-orange-200">
+                    <p className="text-sm text-gray-600">Years to Achieve:</p>
+                    <p className="text-xl font-bold text-orange-600">
+                      {coastFIRE.yearsToAchieve} years
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Age at Coast FIRE: {coastFIRE.ageAtCoastFIRE}
+                    </p>
+                  </div>
+                  <div className="mt-3 p-2 bg-orange-100 rounded-md border border-orange-200">
+                    <p className="text-xs text-orange-800">
+                      💡 Once you reach this amount in liquid investments, you can stop working!
+                      Your expenses till 60 will be covered by 5% investment growth, keeping
+                      illiquid assets intact.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* FIRE #2: Conservative FIRE at 60 */}
+            <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 border-2 border-blue-300 shadow-lg">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2">
+                  <Target className="h-5 w-5 text-blue-600" />
+                  <CardTitle className="text-lg">💼 Conservative FIRE</CardTitle>
+                </div>
+                <p className="text-xs text-blue-700 mt-1">Traditional retirement at 60</p>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-sm text-gray-600">Target Corpus at 60:</p>
+                    <p className="text-2xl font-bold text-blue-700">
+                      {formatCurrency(conservativeFIRE.targetCorpus)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Current Net Worth:</p>
+                    <p className="text-xl font-semibold text-gray-800">
+                      {formatCurrency(conservativeFIRE.currentNetWorth)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Projected at Age 60:</p>
+                    <p className="text-xl font-bold text-blue-600">
+                      {formatCurrency(conservativeFIRE.projectedCorpusAtRetirement)}
+                    </p>
+                  </div>
+                  <div className="pt-2 border-t border-blue-200">
+                    <p className="text-sm text-gray-600">Can Achieve by 60?</p>
+                    <p className={`text-xl font-bold ${conservativeFIRE.canAchieve ? 'text-green-600' : 'text-red-600'}`}>
+                      {conservativeFIRE.canAchieve ? '✅ YES' : '❌ NO'}
+                    </p>
+                    {!conservativeFIRE.canAchieve && (
+                      <p className="text-sm text-red-600 mt-1">
+                        Shortfall: {formatCurrency(conservativeFIRE.shortfall)}
+                      </p>
+                    )}
+                  </div>
+                  <div className="mt-3 p-2 bg-blue-100 rounded-md border border-blue-200">
+                    <p className="text-xs text-blue-800">
+                      📊 Conservative strategy: 5% annual returns from FD/Debt funds with
+                      ₹{(conservativeFIRE.monthlySavings / 1000).toFixed(0)}k monthly savings.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* FIRE #3: Premium NEW FIRE */}
+            <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-400 relative shadow-lg">
+              <span className="absolute top-2 right-2 bg-green-600 text-white text-xs px-2 py-1 rounded-full font-bold z-10">PREMIUM</span>
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2">
+                  <Target className="h-5 w-5 text-green-600" />
+                  <CardTitle className="text-lg">🚀 NEW FIRE</CardTitle>
+                </div>
+                <p className="text-xs text-green-700 mt-1">Optimized portfolio strategy</p>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-sm text-gray-600">Target Corpus:</p>
+                    <p className="text-2xl font-bold text-green-700">
+                      {formatCurrency(premiumFIRE.targetCorpus)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Expected CAGR:</p>
+                    <p className="text-xl font-semibold text-green-600">
+                      {(premiumFIRE.expectedCAGR * 100).toFixed(0)}%
+                      <span className="text-xs text-gray-500 ml-1">(from allocation)</span>
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Retirement SIP:</p>
+                    <p className="text-lg font-semibold text-gray-800">
+                      ₹{(premiumFIRE.initialSIP / 1000).toFixed(0)}k
+                      <span className="text-xs text-gray-500"> + {premiumFIRE.stepUpPercentage}% step-up</span>
+                    </p>
+                  </div>
+                  <div className="pt-2 border-t border-green-200">
+                    <p className="text-sm text-gray-600">Years to FIRE:</p>
+                    <p className="text-3xl font-bold text-green-600">
+                      {premiumFIRE.yearsToAchieve} years
+                    </p>
+                    <p className="text-sm text-green-700 mt-1">
+                      Age at FIRE: {premiumFIRE.ageAtFIRE}
+                    </p>
+                    {premiumFIRE.canAchieveBefore60 && (
+                      <p className="text-sm font-bold text-green-600 mt-1">
+                        ⚡ {premiumFIRE.yearsBeforeRetirement} years BEFORE 60!
+                      </p>
+                    )}
+                  </div>
+                  <div className="mt-3 p-2 bg-green-100 rounded-md border border-green-200">
+                    <p className="text-xs text-green-800">
+                      ✨ Retire early with optimized portfolio! Higher returns through
+                      strategic asset allocation vs conservative approach.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
         {/* Risk Assessment Card */}
