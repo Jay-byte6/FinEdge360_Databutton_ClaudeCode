@@ -943,7 +943,7 @@ export default function FIRECalculator() {
                             <span className="text-2xl">🎯</span>
                             <span>SUPPOSE I RETIRE at {supposeRetireAge}?</span>
                           </CardTitle>
-                          <InfoTooltip content="Your 'What-If' early retirement scenario! Ever dreamed of retiring at a specific age? This shows if you can hit FIRE at your target age (currently set to " + supposeRetireAge + "). We calculate your wealth at that age with your growing savings and see if it covers your expenses till 60. It answers: 'Can I really retire at " + supposeRetireAge + "?' This is your early retirement reality check - turn your dream age into an actionable plan!" />
+                          <InfoTooltip content={`Your 'What-If' early retirement scenario! Ever dreamed of retiring at a specific age? This shows if you can hit FIRE at your target age (currently set to ${supposeRetireAge}). We calculate your wealth at that age with your growing savings and see if it covers your expenses till 60. It answers: 'Can I really retire at ${supposeRetireAge}?' This is your early retirement reality check - turn your dream age into an actionable plan!`} />
                         </div>
                       </CardHeader>
                       <CardContent className="space-y-2 pt-2 pb-3">
@@ -1023,7 +1023,7 @@ export default function FIRECalculator() {
                             <span className="text-2xl">💰</span>
                             <span>My ACTUAL FIRE at {retirementAge}</span>
                           </CardTitle>
-                          <InfoTooltip content="Your complete financial independence picture at traditional retirement age (" + retirementAge + ")! This is the most realistic scenario - it shows exactly how much wealth you'll have if you keep saving and investing consistently. We account for inflation eating away at your money and your rising income boosting your savings. It answers: 'Will I have enough at 60, and by how much?' This is your financial security scorecard - your peace of mind number!" />
+                          <InfoTooltip content={`Your complete financial independence picture at traditional retirement age (${retirementAge})! This is the most realistic scenario - it shows exactly how much wealth you'll have if you keep saving and investing consistently. We account for inflation eating away at your money and your rising income boosting your savings. It answers: 'Will I have enough at 60, and by how much?' This is your financial security scorecard - your peace of mind number!`} />
                         </div>
                       </CardHeader>
                       <CardContent className="space-y-2 pt-2 pb-3">
