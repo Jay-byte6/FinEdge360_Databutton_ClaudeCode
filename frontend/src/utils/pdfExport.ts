@@ -191,7 +191,7 @@ export const generateFinancialProfilePDF = async (
   const inflationRate = 6;
 
   const fireProgress = fireNumber > 0 ? (netWorth / fireNumber * 100) : 0;
-  const newFireProgress = newFireNumber > 0 ? (netWorth / newFireNumber * 100) : 0;
+  const newFireProgress = newFIRENumber > 0 ? (netWorth / newFIRENumber * 100) : 0;
 
   // Summary Box
   doc.setDrawColor(220, 220, 220);

@@ -12,10 +12,20 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { CheckCircle, Circle, HelpCircle, PlayCircle, BookOpen, MessageCircle, Loader2, ArrowRight } from 'lucide-react';
+import { CheckCircle, Circle, HelpCircle, PlayCircle, BookOpen, MessageCircle, Loader2, ArrowRight, ArrowLeft, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import useAuthStore from '@/utils/authStore';
 import { API_BASE_URL } from '@/config/api';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 export interface MilestoneCompletionProps {
   milestoneNumber: number;
@@ -65,6 +75,8 @@ export const MilestoneCompletionCard: React.FC<MilestoneCompletionProps> = ({
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [previousMilestoneCompleted, setPreviousMilestoneCompleted] = useState(true);
+  const [showPreviousMilestoneAlert, setShowPreviousMilestoneAlert] = useState(false);
 
   // Calculate completion percentage
   const completedCount = completionCriteria.filter(c => c.checked).length;
@@ -76,6 +88,7 @@ export const MilestoneCompletionCard: React.FC<MilestoneCompletionProps> = ({
   useEffect(() => {
     if (user?.id) {
       loadMilestoneProgress();
+      checkPreviousMilestoneCompletion();
     }
   }, [user?.id, milestoneNumber]);
 
@@ -97,6 +110,32 @@ export const MilestoneCompletionCard: React.FC<MilestoneCompletionProps> = ({
       console.error('Error loading milestone progress:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const checkPreviousMilestoneCompletion = async () => {
+    // Milestone 1 has no previous milestone
+    if (milestoneNumber === 1) {
+      setPreviousMilestoneCompleted(true);
+      return;
+    }
+
+    try {
+      const previousMilestoneNumber = milestoneNumber - 1;
+      const response = await fetch(
+        `${API_BASE_URL}/routes/get-milestone-progress/${user?.id}/${previousMilestoneNumber}`
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setPreviousMilestoneCompleted(data.completed || false);
+      } else {
+        // If no data found, assume previous milestone is not completed
+        setPreviousMilestoneCompleted(false);
+      }
+    } catch (error) {
+      console.error('Error checking previous milestone:', error);
+      setPreviousMilestoneCompleted(false);
     }
   };
 
@@ -142,6 +181,12 @@ export const MilestoneCompletionCard: React.FC<MilestoneCompletionProps> = ({
       return;
     }
 
+    // Check if previous milestone is completed
+    if (!previousMilestoneCompleted && milestoneNumber > 1) {
+      setShowPreviousMilestoneAlert(true);
+      return;
+    }
+
     try {
       await saveMilestoneProgress({ completed: true });
       toast.success(`Milestone ${milestoneNumber} marked as complete!`, {
@@ -169,6 +214,18 @@ export const MilestoneCompletionCard: React.FC<MilestoneCompletionProps> = ({
       });
     } catch (error) {
       // Error already handled
+    }
+  };
+
+  const handleGoToPreviousMilestone = () => {
+    const previousMilestoneNumber = milestoneNumber - 1;
+    const previousMilestoneRoute = MILESTONE_ROUTES[previousMilestoneNumber];
+
+    if (previousMilestoneRoute) {
+      navigate(previousMilestoneRoute);
+    } else {
+      // If there's no previous milestone, go to Journey Map
+      navigate('/journey');
     }
   };
 
@@ -299,11 +356,29 @@ export const MilestoneCompletionCard: React.FC<MilestoneCompletionProps> = ({
 
       <CardFooter className="flex flex-col md:flex-row items-center justify-between border-t pt-6 gap-4">
         <p className="text-sm text-gray-600">
-          {isFullyCompleted
-            ? 'All criteria met! You can now mark this milestone as complete.'
-            : `Complete ${totalCount - completedCount} more ${totalCount - completedCount === 1 ? 'criterion' : 'criteria'} to unlock completion.`}
+          {!previousMilestoneCompleted && milestoneNumber > 1 ? (
+            <span className="text-orange-600 flex items-center gap-2">
+              <AlertCircle className="h-4 w-4" />
+              Complete Milestone {milestoneNumber - 1} first to unlock this milestone
+            </span>
+          ) : isFullyCompleted ? (
+            'All criteria met! You can now mark this milestone as complete.'
+          ) : (
+            `Complete ${totalCount - completedCount} more ${totalCount - completedCount === 1 ? 'criterion' : 'criteria'} to unlock completion.`
+          )}
         </p>
         <div className="flex gap-3">
+          {milestoneNumber > 1 && (
+            <Button
+              size="lg"
+              variant="outline"
+              onClick={handleGoToPreviousMilestone}
+              className="flex items-center"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Previous Milestone
+            </Button>
+          )}
           <Button
             size="lg"
             variant="outline"
@@ -311,14 +386,14 @@ export const MilestoneCompletionCard: React.FC<MilestoneCompletionProps> = ({
             disabled={!progressState.completed}
             className="flex items-center"
           >
-            Go to Next Milestone
+            Next Milestone
             <ArrowRight className="h-4 w-4 ml-2" />
           </Button>
           <Button
             size="lg"
             onClick={handleMarkAsComplete}
-            disabled={!isFullyCompleted || progressState.completed || saving}
-            className={`${isFullyCompleted && !progressState.completed ? 'bg-green-600 hover:bg-green-700' : ''}`}
+            disabled={!isFullyCompleted || progressState.completed || saving || (!previousMilestoneCompleted && milestoneNumber > 1)}
+            className={`${isFullyCompleted && !progressState.completed && previousMilestoneCompleted ? 'bg-green-600 hover:bg-green-700' : ''}`}
           >
             {saving ? (
               <>
@@ -336,6 +411,27 @@ export const MilestoneCompletionCard: React.FC<MilestoneCompletionProps> = ({
           </Button>
         </div>
       </CardFooter>
+
+      {/* Alert Dialog for Previous Milestone Not Completed */}
+      <AlertDialog open={showPreviousMilestoneAlert} onOpenChange={setShowPreviousMilestoneAlert}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertCircle className="h-5 w-5 text-orange-500" />
+              Complete Previous Milestone First
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-base">
+              You need to complete <strong>Milestone {milestoneNumber - 1}</strong> before you can mark this milestone as complete. This ensures you follow the proper sequence for your financial journey.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Stay Here</AlertDialogCancel>
+            <AlertDialogAction onClick={handleGoToPreviousMilestone}>
+              Go to Milestone {milestoneNumber - 1}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 };

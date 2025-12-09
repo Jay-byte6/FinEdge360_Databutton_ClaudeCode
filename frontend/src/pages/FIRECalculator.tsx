@@ -34,10 +34,12 @@ export default function FIRECalculator() {
   const [fireMetrics, setFireMetrics] = useState<FIREMetrics | null>(null);
   const [projectionData, setProjectionData] = useState<any[]>([]);
   const [calculationError, setCalculationError] = useState('');
-  const [inflationRate, setInflationRate] = useState(5); // Default 5%
-  const [retirementAge, setRetirementAge] = useState(55); // Default 55
+  const [inflationRate, setInflationRate] = useState(6); // Default 6%
+  const [retirementAge, setRetirementAge] = useState(60); // Default 60
   const [coastAge, setCoastAge] = useState(40); // Default 40 for Coast FIRE
-  
+  const [stepUpPercentage, setStepUpPercentage] = useState(10); // Default 10% savings step-up
+  const [supposeRetireAge, setSupposeRetireAge] = useState(50); // Default 50 for Scenario 3
+
   // Use financial data store
   const { financialData, isLoading, error: storeError, fetchFinancialData } = useFinancialDataStore();
   const { user } = useAuthStore();
@@ -271,10 +273,10 @@ export default function FIRECalculator() {
         <Card className="lg:col-span-3 mb-8 shadow-md">
           <CardHeader>
             <CardTitle>FIRE Calculator Settings</CardTitle>
-            <CardDescription>Adjust parameters to see how your FIRE number changes</CardDescription>
+            <CardDescription>Adjust parameters to see how your FIRE scenarios change in real-time</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div>
                 <label htmlFor="inflationRate" className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
                   Inflation Rate (%)
@@ -291,13 +293,13 @@ export default function FIRECalculator() {
                     onChange={(e) => setInflationRate(parseFloat(e.target.value))}
                     className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                   />
-                  <span className="ml-3 text-sm font-medium text-gray-900 w-8">{inflationRate}%</span>
+                  <span className="ml-3 text-sm font-medium text-gray-900 w-12">{inflationRate}%</span>
                 </div>
               </div>
               <div>
                 <label htmlFor="retirementAge" className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
-                  Retirement Age
-                  <InfoTooltip content="The age at which you want to retire and live off your investments. Traditional retirement is 60-65, but FIRE aims for much earlier." />
+                  Retirement Age (Max)
+                  <InfoTooltip content="The maximum age at which you want to retire. Used in Scenarios 1, 2, and 4." />
                 </label>
                 <div className="flex items-center">
                   <input
@@ -310,7 +312,45 @@ export default function FIRECalculator() {
                     onChange={(e) => setRetirementAge(parseInt(e.target.value))}
                     className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                   />
-                  <span className="ml-3 text-sm font-medium text-gray-900 w-8">{retirementAge}</span>
+                  <span className="ml-3 text-sm font-medium text-gray-900 w-12">{retirementAge}</span>
+                </div>
+              </div>
+              <div>
+                <label htmlFor="stepUpPercentage" className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                  Savings Step-Up (%)
+                  <InfoTooltip content="Annual increase in your savings amount. E.g., 10% means if you save ₹50k this year, you'll save ₹55k next year." />
+                </label>
+                <div className="flex items-center">
+                  <input
+                    type="range"
+                    id="stepUpPercentage"
+                    min="0"
+                    max="20"
+                    step="1"
+                    value={stepUpPercentage}
+                    onChange={(e) => setStepUpPercentage(parseInt(e.target.value))}
+                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                  />
+                  <span className="ml-3 text-sm font-medium text-gray-900 w-12">{stepUpPercentage}%</span>
+                </div>
+              </div>
+              <div>
+                <label htmlFor="supposeRetireAge" className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                  Scenario 3: Retire Age
+                  <InfoTooltip content="What age do you want to explore retiring at? Used only in Scenario 3." />
+                </label>
+                <div className="flex items-center">
+                  <input
+                    type="range"
+                    id="supposeRetireAge"
+                    min={financialData?.personalInfo.age || 30}
+                    max={retirementAge}
+                    step="1"
+                    value={supposeRetireAge}
+                    onChange={(e) => setSupposeRetireAge(parseInt(e.target.value))}
+                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                  />
+                  <span className="ml-3 text-sm font-medium text-gray-900 w-12">{supposeRetireAge}</span>
                 </div>
               </div>
               <div>
@@ -319,17 +359,17 @@ export default function FIRECalculator() {
                   <InfoTooltip content="Coast FIRE: The age when you've saved enough that compound growth will reach your FIRE goal by retirement. You can stop saving and just 'coast' on investment returns." />
                 </label>
                 <div className="flex items-center">
-                  <input 
-                    type="range" 
-                    id="coastAge" 
-                    min={financialData?.personalInfo.age || 30} 
+                  <input
+                    type="range"
+                    id="coastAge"
+                    min={financialData?.personalInfo.age || 30}
                     max={retirementAge - 5}
                     step="1"
                     value={coastAge}
                     onChange={(e) => setCoastAge(parseInt(e.target.value))}
                     className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                   />
-                  <span className="ml-3 text-sm font-medium text-gray-900 w-8">{coastAge}</span>
+                  <span className="ml-3 text-sm font-medium text-gray-900 w-12">{coastAge}</span>
                 </div>
               </div>
             </div>
@@ -708,6 +748,329 @@ export default function FIRECalculator() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* 4 FIRE SCENARIOS SECTION */}
+            <div className="lg:col-span-3 mt-8">
+              <div className="text-center mb-8">
+                <h2 className="text-4xl font-extrabold bg-gradient-to-r from-orange-600 via-red-600 to-pink-600 bg-clip-text text-transparent mb-3">
+                  🔥 Your 4 FIRE Scenarios
+                </h2>
+                <p className="text-lg font-semibold text-gray-700 mb-2">
+                  Discover Your Path to Financial Freedom
+                </p>
+                <p className="text-sm text-gray-600 max-w-3xl mx-auto">
+                  Four personalized scenarios showing exactly when and how you can achieve Financial Independence.
+                  Each scenario is tailored to your unique financial situation and goals.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {/* Scenario 1: RETIRE NOW */}
+                {(() => {
+                  const currentAge = financialData?.personalInfo.age || 30;
+                  const monthlyExpenses = financialData?.personalInfo.monthlyExpenses || 0;
+                  const yearsToRetirement = retirementAge - currentAge;
+                  const annualExpenses = monthlyExpenses * 12;
+
+                  // Since inflation = returns (6%), real return = 0
+                  const totalExpensesTillRetirement = annualExpenses * yearsToRetirement;
+                  const survivalYears = fireMetrics ? fireMetrics.currentNetWorth / annualExpenses : 0;
+                  const shortfallYears = Math.max(0, yearsToRetirement - survivalYears);
+                  const shortfall = shortfallYears * annualExpenses;
+
+                  return (
+                    <Card className="border-2 border-orange-400 hover:border-orange-500 bg-gradient-to-br from-orange-50 to-amber-50 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                      <CardHeader className="pb-2 pt-4 bg-gradient-to-r from-orange-100 to-amber-100 border-b-2 border-orange-200">
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-lg font-bold text-orange-900 flex items-center gap-2">
+                            <span className="text-2xl">🏖️</span>
+                            <span>What if I RETIRE NOW?</span>
+                          </CardTitle>
+                          <InfoTooltip content="Imagine retiring today and living off your current savings until age 60. This scenario assumes your money grows slowly (just matching inflation at 6% per year), with no additional income. It answers: 'Can I stop working right now and still maintain my lifestyle?' This is your 'Coast FIRE' dream - the ultimate freedom test!" />
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-2 pt-2 pb-3">
+                        <div className="flex justify-between items-center py-1.5 px-2 bg-gray-50 rounded">
+                          <span className="text-xs text-gray-600">Money Needed Today</span>
+                          <span className="text-lg font-bold text-gray-900">₹{(totalExpensesTillRetirement / 10000000).toFixed(2)} Cr</span>
+                        </div>
+
+                        <div className="flex justify-between items-center py-1.5 px-2 bg-gray-50 rounded">
+                          <span className="text-xs text-gray-600">You Have</span>
+                          <span className="text-base font-semibold text-gray-800">{fireMetrics && formatIndianCurrency(fireMetrics.currentNetWorth)}</span>
+                        </div>
+
+                        {shortfall > 0 ? (
+                          <div className="border border-red-300 bg-red-50 p-2 rounded">
+                            <div className="flex justify-between items-center mb-1">
+                              <span className="text-xs font-semibold text-red-900">⚠️ Shortfall</span>
+                              <span className="text-base font-bold text-red-700">₹{(shortfall / 10000000).toFixed(2)} Cr</span>
+                            </div>
+                            <p className="text-xs text-red-700">
+                              Can survive: {Math.floor(survivalYears)} yrs (till age {currentAge + Math.floor(survivalYears)}) • Need: {Math.ceil(shortfallYears)} more yrs
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="border border-green-400 bg-green-50 p-2 rounded">
+                            <p className="text-xs font-semibold text-green-900">✅ Can Retire NOW till age {retirementAge}!</p>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  );
+                })()}
+
+                {/* Scenario 2: WHEN CAN I RETIRE */}
+                {(() => {
+                  const currentAge = financialData?.personalInfo.age || 30;
+                  const monthlyExpenses = financialData?.personalInfo.monthlyExpenses || 0;
+                  const monthlySavings = (financialData?.personalInfo.monthlySalary || 0) - monthlyExpenses;
+                  const annualSavings = monthlySavings * 12;
+                  const annualExpenses = monthlyExpenses * 12;
+
+                  // Calculate years with dynamic step-up savings
+                  const stepUpRate = stepUpPercentage / 100;
+                  let yearCount = 0;
+                  let totalSavings = 0;
+                  let currentSavings = annualSavings;
+
+                  while (yearCount < 50) {
+                    totalSavings += currentSavings;
+                    const expensesCovered = annualExpenses * yearCount;
+
+                    if (totalSavings >= expensesCovered) {
+                      break;
+                    }
+
+                    currentSavings *= (1 + stepUpRate);
+                    yearCount++;
+                  }
+
+                  const retireAge = currentAge + yearCount;
+                  const canRetireEarly = retireAge < retirementAge;
+
+                  // Projected net worth at retirement age
+                  const yearsToRetirement = retirementAge - currentAge;
+                  const netWorthAtRetirement = fireMetrics
+                    ? fireMetrics.currentNetWorth * Math.pow(1.06, yearsToRetirement) + (annualSavings * ((Math.pow(1 + stepUpRate, yearsToRetirement) - 1) / stepUpRate))
+                    : 0;
+
+                  return (
+                    <Card className="border-2 border-blue-400 hover:border-blue-500 bg-gradient-to-br from-blue-50 to-cyan-50 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                      <CardHeader className="pb-2 pt-4 bg-gradient-to-r from-blue-100 to-cyan-100 border-b-2 border-blue-200">
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-lg font-bold text-blue-900 flex items-center gap-2">
+                            <span className="text-2xl">⏰</span>
+                            <span>When Can I RETIRE?</span>
+                          </CardTitle>
+                          <InfoTooltip content="Your personalized retirement timeline! This shows exactly when you can retire if you keep saving consistently. We factor in your increasing savings (as your income grows by 10% yearly) and conservative 6% investment returns. It answers: 'When will I have enough to never work again?' This is your countdown to freedom - the date that changes your life!" />
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-2 pt-2 pb-3">
+                        {canRetireEarly ? (
+                          <div className="border border-green-400 bg-green-50 p-2 rounded text-center">
+                            <p className="text-xs font-semibold text-green-900 mb-1">✨ Can retire in</p>
+                            <p className="text-2xl font-bold text-green-700">{yearCount} years</p>
+                            <p className="text-xs text-green-800 mt-1">at age <strong>{retireAge}</strong> ({retirementAge - retireAge} yrs before {retirementAge}!)</p>
+                          </div>
+                        ) : (
+                          <div className="border border-yellow-400 bg-yellow-50 p-2 rounded text-center">
+                            <p className="text-xs font-semibold text-yellow-900 mb-1">⏳ Need to work</p>
+                            <p className="text-2xl font-bold text-yellow-700">{yearCount} years</p>
+                            <p className="text-xs text-yellow-800 mt-1">Retire at age <strong>{retireAge}</strong></p>
+                          </div>
+                        )}
+
+                        <div className="flex justify-between items-center py-1.5 px-2 bg-gray-50 rounded">
+                          <span className="text-xs text-gray-600">Net Worth at {retirementAge}</span>
+                          <span className="text-base font-semibold text-gray-800">₹{(netWorthAtRetirement / 10000000).toFixed(2)} Cr</span>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2">
+                          <div className="py-1 px-2 bg-gray-50 rounded text-center">
+                            <p className="text-xs text-gray-500">Current</p>
+                            <p className="text-sm font-bold text-gray-900">{currentAge}</p>
+                          </div>
+                          <div className="py-1 px-2 bg-gray-50 rounded text-center">
+                            <p className="text-xs text-gray-500">Retire</p>
+                            <p className="text-sm font-bold text-gray-900">{retireAge}</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })()}
+
+                {/* Scenario 3: SUPPOSE I RETIRE AT */}
+                {(() => {
+                  const currentAge = financialData?.personalInfo.age || 30;
+                  const yearsToSuppose = supposeRetireAge - currentAge;
+                  const monthlyExpenses = financialData?.personalInfo.monthlyExpenses || 0;
+                  const monthlySavings = (financialData?.personalInfo.monthlySalary || 0) - monthlyExpenses;
+
+                  // Net worth at suppose age
+                  const netWorthAtSuppose = fireMetrics && yearsToSuppose > 0
+                    ? fireMetrics.currentNetWorth * Math.pow(1.06, yearsToSuppose)
+                    : fireMetrics?.currentNetWorth || 0;
+
+                  // Savings accumulated till suppose age
+                  const annualSavings = monthlySavings * 12;
+                  const stepUpRate = stepUpPercentage / 100;
+                  const savingsAccumulated = yearsToSuppose > 0 && stepUpRate > 0
+                    ? annualSavings * ((Math.pow(1 + stepUpRate, yearsToSuppose) - 1) / stepUpRate)
+                    : 0;
+
+                  const totalWealthAtSuppose = netWorthAtSuppose + savingsAccumulated;
+
+                  // FIRE number at suppose age
+                  const inflationFactor = Math.pow(1 + (inflationRate / 100), yearsToSuppose);
+                  const expensesAtSuppose = monthlyExpenses * inflationFactor;
+                  const fireNumberAtSuppose = expensesAtSuppose * 12 * 25;
+
+                  const shortfall = Math.max(0, fireNumberAtSuppose - totalWealthAtSuppose);
+                  const surplus = Math.max(0, totalWealthAtSuppose - fireNumberAtSuppose);
+
+                  // Extra SIP needed (rough calculation)
+                  const extraSIPNeeded = yearsToSuppose > 0 && shortfall > 0
+                    ? shortfall / (yearsToSuppose * 12)
+                    : 0;
+
+                  return (
+                    <Card className="border-2 border-purple-400 hover:border-purple-500 bg-gradient-to-br from-purple-50 to-pink-50 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                      <CardHeader className="pb-2 pt-4 bg-gradient-to-r from-purple-100 to-pink-100 border-b-2 border-purple-200">
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-lg font-bold text-purple-900 flex items-center gap-2">
+                            <span className="text-2xl">🎯</span>
+                            <span>SUPPOSE I RETIRE at {supposeRetireAge}?</span>
+                          </CardTitle>
+                          <InfoTooltip content="Your 'What-If' early retirement scenario! Ever dreamed of retiring at a specific age? This shows if you can hit FIRE at your target age (currently set to " + supposeRetireAge + "). We calculate your wealth at that age with your growing savings and see if it covers your expenses till 60. It answers: 'Can I really retire at " + supposeRetireAge + "?' This is your early retirement reality check - turn your dream age into an actionable plan!" />
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-2 pt-2 pb-3">
+                        <div className="flex justify-between items-center py-1.5 px-2 bg-gray-50 rounded">
+                          <span className="text-xs text-gray-600">FIRE Need at {supposeRetireAge}</span>
+                          <span className="text-lg font-bold text-gray-900">₹{(fireNumberAtSuppose / 10000000).toFixed(2)} Cr</span>
+                        </div>
+
+                        <div className="flex justify-between items-center py-1.5 px-2 bg-gray-50 rounded">
+                          <span className="text-xs text-gray-600">Your Wealth at {supposeRetireAge}</span>
+                          <span className="text-base font-semibold text-gray-800">₹{(totalWealthAtSuppose / 10000000).toFixed(2)} Cr</span>
+                        </div>
+
+                        {shortfall > 0 ? (
+                          <>
+                            <div className="border border-red-300 bg-red-50 p-2 rounded">
+                              <div className="flex justify-between items-center mb-1">
+                                <span className="text-xs font-semibold text-red-900">⚠️ Shortfall</span>
+                                <span className="text-base font-bold text-red-700">₹{(shortfall / 10000000).toFixed(2)} Cr</span>
+                              </div>
+                              <p className="text-xs text-red-700">
+                                Need extra SIP: ₹{Math.round(extraSIPNeeded).toLocaleString()}/mo or increase step-up%
+                              </p>
+                            </div>
+                          </>
+                        ) : (
+                          <div className="border border-green-400 bg-green-50 p-2 rounded">
+                            <div className="flex justify-between items-center">
+                              <span className="text-xs font-semibold text-green-900">✅ On Track!</span>
+                              <span className="text-sm font-bold text-green-700">₹{(surplus / 10000000).toFixed(2)} Cr surplus</span>
+                            </div>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  );
+                })()}
+
+                {/* Scenario 4: ACTUAL FIRE AT RETIREMENT AGE */}
+                {(() => {
+                  const currentAge = financialData?.personalInfo.age || 30;
+                  const monthlyExpenses = financialData?.personalInfo.monthlyExpenses || 0;
+                  const monthlySavings = (financialData?.personalInfo.monthlySalary || 0) - monthlyExpenses;
+                  const yearsToRetirement = retirementAge - currentAge;
+
+                  // FIRE number at retirement age
+                  const inflationFactor = Math.pow(1 + (inflationRate / 100), yearsToRetirement);
+                  const expensesAtRetirement = monthlyExpenses * inflationFactor;
+                  const fireNumberAtRetirement = expensesAtRetirement * 12 * 25;
+
+                  // Projected wealth at retirement age
+                  const annualSavings = monthlySavings * 12;
+                  const stepUpRate = stepUpPercentage / 100;
+                  const netWorthAtRetirement = fireMetrics && yearsToRetirement > 0
+                    ? fireMetrics.currentNetWorth * Math.pow(1.06, yearsToRetirement)
+                    : fireMetrics?.currentNetWorth || 0;
+                  const savingsAtRetirement = yearsToRetirement > 0 && stepUpRate > 0
+                    ? annualSavings * ((Math.pow(1 + stepUpRate, yearsToRetirement) - 1) / stepUpRate)
+                    : 0;
+                  const totalWealthAtRetirement = netWorthAtRetirement + savingsAtRetirement;
+
+                  const shortfall = Math.max(0, fireNumberAtRetirement - totalWealthAtRetirement);
+                  const surplus = Math.max(0, totalWealthAtRetirement - fireNumberAtRetirement);
+
+                  // With 10% lifestyle cut
+                  const reducedExpenses = monthlyExpenses * 0.9;
+                  const reducedExpensesAtRetirement = reducedExpenses * inflationFactor;
+                  const reducedFIREAtRetirement = reducedExpensesAtRetirement * 12 * 25;
+                  const newShortfall = Math.max(0, reducedFIREAtRetirement - totalWealthAtRetirement);
+                  const newSurplus = Math.max(0, totalWealthAtRetirement - reducedFIREAtRetirement);
+
+                  return (
+                    <Card className="border-2 border-green-400 hover:border-green-500 bg-gradient-to-br from-green-50 to-emerald-50 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                      <CardHeader className="pb-2 pt-4 bg-gradient-to-r from-green-100 to-emerald-100 border-b-2 border-green-200">
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-lg font-bold text-green-900 flex items-center gap-2">
+                            <span className="text-2xl">💰</span>
+                            <span>My ACTUAL FIRE at {retirementAge}</span>
+                          </CardTitle>
+                          <InfoTooltip content="Your complete financial independence picture at traditional retirement age (" + retirementAge + ")! This is the most realistic scenario - it shows exactly how much wealth you'll have if you keep saving and investing consistently. We account for inflation eating away at your money and your rising income boosting your savings. It answers: 'Will I have enough at 60, and by how much?' This is your financial security scorecard - your peace of mind number!" />
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-2 pt-2 pb-3">
+                        <div className="flex justify-between items-center py-1.5 px-2 bg-gray-50 rounded">
+                          <span className="text-xs text-gray-600">FIRE at {retirementAge}</span>
+                          <span className="text-lg font-bold text-gray-900">₹{(fireNumberAtRetirement / 10000000).toFixed(2)} Cr</span>
+                        </div>
+
+                        <div className="flex justify-between items-center py-1.5 px-2 bg-gray-50 rounded">
+                          <span className="text-xs text-gray-600">Projected Wealth</span>
+                          <span className="text-base font-semibold text-gray-800">₹{(totalWealthAtRetirement / 10000000).toFixed(2)} Cr</span>
+                        </div>
+
+                        {shortfall > 0 ? (
+                          <div className="border border-yellow-400 bg-yellow-50 p-2 rounded">
+                            <div className="flex justify-between items-center">
+                              <span className="text-xs font-semibold text-yellow-900">⚠️ Shortfall</span>
+                              <span className="text-base font-bold text-yellow-700">₹{(shortfall / 10000000).toFixed(2)} Cr</span>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="border border-green-400 bg-green-50 p-2 rounded">
+                            <div className="flex justify-between items-center">
+                              <span className="text-xs font-semibold text-green-900">✅ Surplus!</span>
+                              <span className="text-base font-bold text-green-700">₹{(surplus / 10000000).toFixed(2)} Cr</span>
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="bg-gray-100 border border-gray-300 p-2 rounded">
+                          <p className="text-xs font-semibold text-gray-800 mb-1">💡 With 10% Lifestyle Cut</p>
+                          <div className="flex justify-between items-center text-xs">
+                            <span className="text-gray-600">Reduced FIRE:</span>
+                            <span className="font-semibold text-gray-800">₹{(reducedFIREAtRetirement / 10000000).toFixed(2)} Cr</span>
+                          </div>
+                          {newShortfall > 0 ? (
+                            <p className="text-xs text-red-700 mt-1">Gap: ₹{(newShortfall / 10000000).toFixed(2)} Cr</p>
+                          ) : (
+                            <p className="text-xs text-green-700 mt-1">✅ Surplus: ₹{(newSurplus / 10000000).toFixed(2)} Cr</p>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })()}
+              </div>
+            </div>
           </div>
         )}
 

@@ -11,7 +11,7 @@ import useFinancialDataStore from "utils/financialDataStore";
 import useAuthStore from "utils/authStore";
 import { API_ENDPOINTS } from "@/config/api";
 import { calculateNewFIRENumber, getYearsToRetirement, calculateCoastFIRE, calculateConservativeFIRE, calculatePremiumNewFIRE } from "../utils/financialCalculations";
-import { AlertCircle, Plus, Trash2, Calculator, X, Info, RotateCcw, Target, Rocket } from "lucide-react";
+import { AlertCircle, Plus, Trash2, Calculator, X, Info, RotateCcw, Target, Rocket, ArrowRight, ChevronRight } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/tooltip";
 import { AssetAllocationStrategy } from "@/components/AssetAllocationStrategy";
 import { FormattedNumberDisplay } from "@/components/ui/formatted-number-display";
+import { InfoTooltip } from '@/components/InfoTooltip';
 
 // Enhanced Goal interface with all required fields
 interface DetailedGoal {
@@ -71,6 +72,8 @@ const FIREPlanner: React.FC = () => {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [assetAllocations, setAssetAllocations] = useState<any[]>([]);
   const [includeIlliquidAssets, setIncludeIlliquidAssets] = useState(false);
+  const [premiumCAGR, setPremiumCAGR] = useState(12); // Default 12% CAGR for Premium NEW FIRE
+  const [activeTab, setActiveTab] = useState<string>("goals");
 
   const ACCESS_CODE = "FIREDEMO"; // Demo code for everyone to try
 
@@ -738,7 +741,8 @@ const FIREPlanner: React.FC = () => {
       </Card>
 
       {/* Tabs for different views */}
-      <Tabs defaultValue="goals" className="w-full" onValueChange={(value) => {
+      <Tabs defaultValue="goals" className="w-full" value={activeTab} onValueChange={(value) => {
+        setActiveTab(value);
         // Refresh asset allocations when switching to Goal Planning tab
         if (value === 'sipplan' && user?.id) {
           fetch(API_ENDPOINTS.getAssetAllocation(user.id))
@@ -779,10 +783,11 @@ const FIREPlanner: React.FC = () => {
             <div className="flex items-start gap-3">
               <Info className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
               <div>
-                <h3 className="font-semibold text-green-900 mb-1">Step 1: Define Your Financial Goals</h3>
+                <h3 className="font-semibold text-green-900 mb-1">Step 1: Define Your Financial Goals ✅ v2.0</h3>
                 <p className="text-sm text-green-700">
                   Add your goals (house, education, vacation, etc.), enter the amount needed and timeline.
                   Click <strong>Calculate</strong> to see monthly SIP required. Click <strong>Save Goals</strong> when done.
+                  <span className="font-bold text-green-900"> A blinking button will appear at bottom to guide you to Step 2!</span>
                 </p>
               </div>
             </div>
@@ -1164,6 +1169,18 @@ const FIREPlanner: React.FC = () => {
             </CardContent>
           </Card>
         )}
+
+        {/* Next Step Button - Always visible */}
+        <div className="mt-8 flex justify-center">
+          <Button
+            size="lg"
+            onClick={() => setActiveTab("allocation")}
+            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold px-8 py-6 text-lg shadow-lg animate-pulse"
+          >
+            <span className="mr-2">Continue to Step 2: Asset Allocation</span>
+            <ChevronRight className="h-5 w-5 animate-bounce" />
+          </Button>
+        </div>
       </div>
         </TabsContent>
 
@@ -1186,6 +1203,18 @@ const FIREPlanner: React.FC = () => {
           </Card>
 
           <AssetAllocationStrategy />
+
+          {/* Next Step Button - Always visible */}
+          <div className="mt-8 flex justify-center">
+            <Button
+              size="lg"
+              onClick={() => setActiveTab("sipplan")}
+              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold px-8 py-6 text-lg shadow-lg animate-pulse"
+            >
+              <span className="mr-2">Continue to Step 3: Goal Planning</span>
+              <ChevronRight className="h-5 w-5 animate-bounce" />
+            </Button>
+          </div>
         </TabsContent>
 
         {/* TAB 3: Goal Planning (SIP Plan with Asset Allocation Breakdown) */}
@@ -1409,36 +1438,6 @@ const FIREPlanner: React.FC = () => {
                   </CardContent>
                 </Card>
 
-                {/* Illiquid Assets Checkbox */}
-                <Card className="bg-blue-50 border-2 border-blue-300">
-                  <CardContent className="py-3">
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="checkbox"
-                        id="includeIlliquid"
-                        checked={includeIlliquidAssets}
-                        onChange={(e) => setIncludeIlliquidAssets(e.target.checked)}
-                        className="w-5 h-5 text-blue-600 cursor-pointer"
-                      />
-                      <label htmlFor="includeIlliquid" className="text-sm font-semibold text-blue-900 cursor-pointer">
-                        Include Illiquid Assets (Home, Real Estate, Gold, etc.) in FIRE calculations
-                      </label>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Info className="w-4 h-4 text-blue-600 cursor-help" />
-                          </TooltipTrigger>
-                          <TooltipContent className="max-w-xs bg-gray-900 text-white p-3">
-                            <p className="text-sm">
-                              By default, only liquid assets are considered for FIRE calculations. Check this to include illiquid assets like your home, real estate investments, physical gold/jewellery, etc.
-                            </p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </div>
-                  </CardContent>
-                </Card>
-
                 {/* 3 FIRE Scenarios with Dynamic Calculations */}
                 {isLoadingFinancialData || isLoadingData ? (
                   // Loading State
@@ -1468,14 +1467,40 @@ const FIREPlanner: React.FC = () => {
                     {/* Section Header */}
                     <Card className="mt-6 bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-300">
                       <CardContent className="py-4">
-                        <h3 className="text-2xl font-bold text-center text-purple-900 mb-2">
-                          🔥 Your 3 FIRE Scenarios
+                        <h3 className="text-3xl font-extrabold text-center bg-gradient-to-r from-purple-700 via-pink-600 to-red-600 bg-clip-text text-transparent mb-2">
+                          🚀 Your NEW FIRE
                         </h3>
-                        <p className="text-sm text-center text-purple-700">
-                          Explore different paths to achieve Financial Independence and Retire Early
+                        <p className="text-base font-semibold text-center text-purple-800">
+                          Advanced Retirement Scenarios with Optimized Investment Returns
                         </p>
                       </CardContent>
                     </Card>
+
+                    {/* Prominent Illiquid Assets Toggle */}
+                    <div className="flex justify-center mt-6 mb-4">
+                      <div className="inline-flex items-center gap-3 bg-gradient-to-r from-purple-50 to-indigo-50 border-2 border-purple-300 rounded-lg px-6 py-3 shadow-md">
+                        <label htmlFor="illiquid-toggle-planner" className="flex items-center gap-2 cursor-pointer">
+                          <span className="text-base font-semibold text-gray-800">Include Illiquid Assets (Real Estate, Gold)</span>
+                          <InfoTooltip content="Toggle to include illiquid assets like real estate and gold in your net worth calculations." />
+                        </label>
+                        <div className="relative inline-block w-14 h-7 transition duration-200 ease-linear rounded-full">
+                          <input
+                            type="checkbox"
+                            id="illiquid-toggle-planner"
+                            checked={includeIlliquidAssets}
+                            onChange={(e) => setIncludeIlliquidAssets(e.target.checked)}
+                            className="absolute w-14 h-7 transition duration-200 ease-linear rounded-full appearance-none cursor-pointer bg-gray-300 checked:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+                          />
+                          <label
+                            htmlFor="illiquid-toggle-planner"
+                            className="absolute left-1 top-1 w-5 h-5 transition duration-200 ease-linear transform bg-white rounded-full cursor-pointer"
+                            style={{
+                              transform: includeIlliquidAssets ? 'translateX(28px)' : 'translateX(0)',
+                            }}
+                          ></label>
+                        </div>
+                      </div>
+                    </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
                       {/* Scenario 1: Coast FIRE - Retire NOW */}
@@ -1615,7 +1640,7 @@ const FIREPlanner: React.FC = () => {
                       {/* Scenario 3: Premium NEW FIRE */}
                       {(() => {
                         const retirementAge = 60;
-                        const expectedCAGR = 0.10; // 10% from 60:40 equity:debt allocation
+                        const expectedCAGR = premiumCAGR / 100; // Use dynamic CAGR from slider
                         const retirementGoalData = financialData?.goals?.longTermGoals?.find((g: any) =>
                           g.name?.toLowerCase().includes('retirement') || g.name?.toLowerCase().includes('fire')
                         );
@@ -1634,7 +1659,28 @@ const FIREPlanner: React.FC = () => {
                               <div className="text-center mb-4">
                                 <div className="text-4xl mb-2">🚀</div>
                                 <h3 className="text-xl font-bold text-green-900">Premium NEW FIRE</h3>
-                                <p className="text-xs text-green-700 mt-1">Optimized strategy with 10% CAGR</p>
+                                <p className="text-xs text-green-700 mt-1">Optimized strategy with {premiumCAGR}% CAGR</p>
+                              </div>
+
+                              {/* Premium CAGR Slider */}
+                              <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-3">
+                                <label htmlFor="premiumCAGRSlider" className="block text-xs font-semibold text-green-900 mb-2 flex items-center gap-1">
+                                  <span>Adjust Expected CAGR %</span>
+                                  <InfoTooltip content="Adjust the expected annual growth rate (CAGR) for your investments. Higher CAGR means faster wealth growth. Realistic range: 8-15%." />
+                                </label>
+                                <div className="flex items-center gap-2">
+                                  <input
+                                    type="range"
+                                    id="premiumCAGRSlider"
+                                    min="6"
+                                    max="18"
+                                    step="0.5"
+                                    value={premiumCAGR}
+                                    onChange={(e) => setPremiumCAGR(parseFloat(e.target.value))}
+                                    className="flex-1 h-2 bg-green-200 rounded-lg appearance-none cursor-pointer accent-green-600"
+                                  />
+                                  <span className="text-sm font-bold text-green-900 w-14">{premiumCAGR}%</span>
+                                </div>
                               </div>
 
                               <div className="space-y-3">
@@ -1762,4 +1808,5 @@ const FIREPlanner: React.FC = () => {
 };
 
 export default FIREPlanner;
+
 
