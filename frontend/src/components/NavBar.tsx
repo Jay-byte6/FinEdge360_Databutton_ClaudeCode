@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import useAuthStore from '../utils/authStore';
+import { NotificationCenter } from './NotificationCenter';
 
 export interface NavBarProps {
   showFullNav?: boolean;
@@ -79,6 +80,7 @@ const NavBar: React.FC<NavBarProps> = ({ showFullNav = true }) => {
           )}
           
           <div className="flex items-center space-x-2">
+            {isAuthenticated && <NotificationCenter />}
             {isAuthenticated ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -91,7 +93,7 @@ const NavBar: React.FC<NavBarProps> = ({ showFullNav = true }) => {
                     </div>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuContent align="end" className="w-56 max-h-[80vh] overflow-y-auto">
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
                       <p className="text-sm font-semibold text-gray-900">{firstName}</p>

@@ -6,9 +6,13 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import useFinancialDataStore from "utils/financialDataStore";
 import useAuthStore from "utils/authStore";
+import usePortfolioStore from "utils/portfolioStore";
 import FinancialLadder from "@/components/FinancialLadder";
 import RiskAssessmentQuiz, { RiskQuizAnswer } from "@/components/RiskAssessmentQuiz";
 import PortfolioComparison from "@/components/PortfolioComparison";
+import { PortfolioUploadCard } from "@/components/PortfolioUploadCard";
+import { PortfolioHoldingsTable } from "@/components/PortfolioHoldingsTable";
+import { PortfolioSummaryCards } from "@/components/PortfolioSummaryCards";
 import { performRiskAssessment, RiskAssessmentResult } from "@/utils/portfolioAnalysis";
 import { Target, TrendingUp, Flame, Wallet, Zap, Shield, Heart, Activity, AlertTriangle, Users } from "lucide-react";
 import { API_ENDPOINTS } from "@/config/api";
@@ -19,6 +23,7 @@ const PORTFOLIO_ACCESS_KEY = 'portfolio_access_granted';
 const PortfolioPage: React.FC = () => {
   const { user } = useAuthStore();
   const { financialData } = useFinancialDataStore();
+  const { holdings, summary, fetchHoldings, isLoading: portfolioLoading } = usePortfolioStore();
   const navigate = useNavigate();
 
   // Check localStorage for persisted access
@@ -61,6 +66,13 @@ const PortfolioPage: React.FC = () => {
 
     loadRiskAssessment();
   }, [user, hasAccess]);
+
+  // Load portfolio holdings when user has access
+  useEffect(() => {
+    if (user?.id && hasAccess) {
+      fetchHoldings(user.id);
+    }
+  }, [user?.id, hasAccess, fetchHoldings]);
 
   const handleAccessGranted = () => {
     setHasAccess(true);
@@ -328,6 +340,23 @@ const PortfolioPage: React.FC = () => {
           Discover your ideal asset mix with personalized risk assessment and portfolio recommendations
         </p>
       </header>
+
+      {/* CAMS Portfolio Upload & Tracking - Show only when user has access and no holdings */}
+      {hasAccess && holdings.length === 0 && !portfolioLoading && (
+        <div className="mb-8">
+          <PortfolioUploadCard />
+        </div>
+      )}
+
+      {/* Portfolio Summary and Holdings - Show when holdings exist */}
+      {hasAccess && holdings.length > 0 && summary && (
+        <div className="mb-8">
+          <PortfolioSummaryCards summary={summary} />
+          <div className="mt-6">
+            <PortfolioHoldingsTable holdings={holdings} />
+          </div>
+        </div>
+      )}
 
       {/* Missing Data Warning - Only show if no financial data */}
       {!hasFinancialData && (

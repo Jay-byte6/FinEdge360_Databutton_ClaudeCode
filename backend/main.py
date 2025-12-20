@@ -198,4 +198,37 @@ def create_app() -> FastAPI:
 
 app = create_app()
 
+
+# =======================
+# APSCHEDULER INTEGRATION (Temporarily disabled - will enable after testing)
+# =======================
+
+# TODO: Enable scheduler after testing portfolio upload feature
+# from app.tasks.daily_nav_updater import scheduler
+#
+# @app.on_event("startup")
+# async def startup_event():
+#     """Start APScheduler on application startup"""
+#     try:
+#         print("\n" + "="*60)
+#         print("[Startup] Initializing APScheduler...")
+#         scheduler.start()
+#         print("[Startup] ✅ APScheduler started successfully!")
+#         print("[Startup] Daily NAV update job scheduled for 7:00 PM IST")
+#         print("="*60 + "\n")
+#     except Exception as e:
+#         print(f"[Startup] ❌ Error starting scheduler: {str(e)}")
+#
+#
+# @app.on_event("shutdown")
+# async def shutdown_event():
+#     """Shutdown APScheduler gracefully"""
+#     try:
+#         print("\n[Shutdown] Stopping APScheduler...")
+#         scheduler.shutdown()
+#         print("[Shutdown] ✅ APScheduler stopped successfully!")
+#     except Exception as e:
+#         print(f"[Shutdown] ❌ Error stopping scheduler: {str(e)}")
+
+
 # Trigger Railway deployment - v2

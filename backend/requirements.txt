@@ -11,3 +11,12 @@ requests
 supabase
 httpx
 razorpay==1.4.2
+
+# Portfolio tracking dependencies (Added for CAMS upload & NAV tracking)
+pdfplumber==0.10.3  # PDF parsing for CAMS statements
+openpyxl==3.1.2  # Excel file parsing
+pandas==2.1.4  # Data processing and manipulation
+APScheduler==3.10.4  # Scheduled jobs for daily NAV updates
+aiohttp==3.9.1  # Async HTTP client for MFAPI calls
+fuzzywuzzy==0.18.0  # Fuzzy string matching for scheme names
+python-Levenshtein==0.21.1  # Fast fuzzy matching speedup
