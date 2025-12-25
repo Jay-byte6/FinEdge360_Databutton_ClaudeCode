@@ -13,10 +13,14 @@ import PortfolioComparison from "@/components/PortfolioComparison";
 import { PortfolioUploadCard } from "@/components/PortfolioUploadCard";
 import { PortfolioHoldingsTable } from "@/components/PortfolioHoldingsTable";
 import { PortfolioSummaryCards } from "@/components/PortfolioSummaryCards";
+import { PortfolioNetWorthSyncBanner } from "@/components/PortfolioNetWorthSyncBanner";
 import { performRiskAssessment, RiskAssessmentResult } from "@/utils/portfolioAnalysis";
-import { Target, TrendingUp, Flame, Wallet, Zap, Shield, Heart, Activity, AlertTriangle, Users } from "lucide-react";
+import { Target, TrendingUp, Flame, Wallet, Zap, Shield, Heart, Activity, AlertTriangle, Users, Upload, Plus, RefreshCw, Rocket } from "lucide-react";
 import { API_ENDPOINTS } from "@/config/api";
 import { MilestoneCompletionCard } from "@/components/journey/MilestoneCompletionCard";
+import { AddManualHoldingModal } from "@/components/AddManualHoldingModal";
+import { EditHoldingModal } from "@/components/EditHoldingModal";
+import { PortfolioHolding } from "@/types/portfolio";
 
 const PORTFOLIO_ACCESS_KEY = 'portfolio_access_granted';
 
@@ -36,6 +40,11 @@ const PortfolioPage: React.FC = () => {
   const [riskAnalysis, setRiskAnalysis] = useState<RiskAssessmentResult | null>(null);
   const [analysisGenerated, setAnalysisGenerated] = useState(false);
   const [isLoadingAnalysis, setIsLoadingAnalysis] = useState(true);
+  const [showUploadCard, setShowUploadCard] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [editingHolding, setEditingHolding] = useState<PortfolioHolding | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [goals, setGoals] = useState<Array<{ id: string; goal_name: string }>>([]);
 
   const ACCESS_CODE = "FIREDEMO"; // Demo code for everyone to try
 
@@ -67,6 +76,44 @@ const PortfolioPage: React.FC = () => {
     loadRiskAssessment();
   }, [user, hasAccess]);
 
+  // Load goals function (reusable for refresh)
+  const loadGoals = async () => {
+    if (!user?.id || !hasAccess) {
+      console.log('[Portfolio] Skipping loadGoals - userId:', user?.id, 'hasAccess:', hasAccess);
+      return;
+    }
+
+    try {
+      console.log('[Portfolio] Loading goals for dropdown...');
+      console.log('[Portfolio] User ID:', user.id);
+      console.log('[Portfolio] API URL:', `${API_ENDPOINTS.baseUrl}/routes/goal-investment-summary/${user.id}`);
+      const response = await fetch(`${API_ENDPOINTS.baseUrl}/routes/goal-investment-summary/${user.id}`);
+      console.log('[Portfolio] Response status:', response.status, response.ok);
+      if (response.ok) {
+        const data = await response.json();
+        console.log('[Portfolio] Response data:', data);
+        // Extract just goal_id and goal_name from the summaries
+        const goalList = (data.goals || []).map((g: any) => ({
+          id: g.goal_id,
+          goal_name: g.goal_name
+        }));
+        setGoals(goalList);
+        console.log(`[Portfolio] Loaded ${goalList.length} goals:`, goalList);
+      } else {
+        console.error('[Portfolio] Response not OK:', response.status, response.statusText);
+        const errorText = await response.text();
+        console.error('[Portfolio] Error response:', errorText);
+      }
+    } catch (error) {
+      console.error('[Portfolio] Error loading goals:', error);
+    }
+  };
+
+  // Load goals when user has access
+  useEffect(() => {
+    loadGoals();
+  }, [user?.id, hasAccess]);
+
   // Load portfolio holdings when user has access
   useEffect(() => {
     if (user?.id && hasAccess) {
@@ -82,6 +129,51 @@ const PortfolioPage: React.FC = () => {
 
   // Check if user has filled financial data
   const hasFinancialData = financialData && Object.keys(financialData).length > 0;
+
+  // Handle refresh with NAV sync
+  const handleRefreshData = async () => {
+    if (!user?.id) {
+      toast.error('User ID required to refresh data');
+      return;
+    }
+
+    setIsRefreshing(true);
+    try {
+      // First, refresh NAV for all holdings
+      const navResponse = await fetch(
+        `${API_ENDPOINTS.baseUrl}/routes/refresh-portfolio-nav/${user.id}`,
+        { method: 'POST' }
+      );
+
+      if (!navResponse.ok) {
+        throw new Error('Failed to refresh NAV');
+      }
+
+      const navResult = await navResponse.json();
+      console.log('[Portfolio] NAV refresh result:', navResult);
+
+      // Show appropriate toast based on result
+      if (navResult.failed_count > 0) {
+        toast.warning(
+          `Refreshed ${navResult.updated_count} of ${navResult.total_holdings} holdings. ${navResult.failed_count} failed.`,
+          { duration: 5000 }
+        );
+      } else {
+        toast.success(
+          `Portfolio refreshed! Updated ${navResult.updated_count} holdings with latest NAV.`,
+          { duration: 3000 }
+        );
+      }
+
+      // Then fetch updated holdings to refresh the UI
+      await fetchHoldings(user.id);
+    } catch (error) {
+      console.error('[Portfolio] Refresh error:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to refresh portfolio data');
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   // Save risk assessment to database
   const saveRiskAssessment = async (analysis: RiskAssessmentResult, answers: RiskQuizAnswer[] | null) => {
@@ -341,20 +433,124 @@ const PortfolioPage: React.FC = () => {
         </p>
       </header>
 
-      {/* CAMS Portfolio Upload & Tracking - Show only when user has access and no holdings */}
-      {hasAccess && holdings.length === 0 && !portfolioLoading && (
+      {/* CAMS Portfolio Upload & Tracking - Show upload card or holdings */}
+      {hasAccess && !portfolioLoading && (
         <div className="mb-8">
-          <PortfolioUploadCard />
-        </div>
-      )}
+          {holdings.length === 0 || showUploadCard ? (
+            <>
+              {/* Back to Holdings Button - show only when re-uploading */}
+              {holdings.length > 0 && showUploadCard && (
+                <div className="mb-4">
+                  <Button
+                    onClick={() => setShowUploadCard(false)}
+                    variant="outline"
+                    className="border-gray-300 text-gray-600 hover:bg-gray-50"
+                  >
+                    ← Back to Holdings
+                  </Button>
+                </div>
+              )}
+              <PortfolioUploadCard onUploadSuccess={() => setShowUploadCard(false)} />
+            </>
+          ) : (
+            <>
+              {/* Action Buttons */}
+              <div className="flex justify-end gap-3 mb-4">
+                <Button
+                  onClick={handleRefreshData}
+                  disabled={isRefreshing}
+                  variant="outline"
+                  className="border-blue-300 text-blue-600 hover:bg-blue-50"
+                >
+                  <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                  {isRefreshing ? 'Refreshing...' : 'Refresh Data'}
+                </Button>
+                <Button
+                  onClick={() => setShowUploadCard(true)}
+                  variant="outline"
+                  className="border-purple-300 text-purple-600 hover:bg-purple-50"
+                >
+                  <Upload className="mr-2 h-4 w-4" />
+                  Re-upload Statement
+                </Button>
+                <Button
+                  onClick={() => setShowAddModal(true)}
+                  variant="default"
+                  className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white"
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Holding Manually
+                </Button>
+              </div>
 
-      {/* Portfolio Summary and Holdings - Show when holdings exist */}
-      {hasAccess && holdings.length > 0 && summary && (
-        <div className="mb-8">
-          <PortfolioSummaryCards summary={summary} />
-          <div className="mt-6">
-            <PortfolioHoldingsTable holdings={holdings} />
-          </div>
+              {/* Portfolio Summary and Holdings */}
+              {summary && (
+                <>
+                  <PortfolioSummaryCards summary={summary} />
+
+                  {/* Net Worth Sync Toggle - Simple Banner */}
+                  {user?.id && (
+                    <div className="mt-6">
+                      <PortfolioNetWorthSyncBanner
+                        userId={user.id}
+                        onSyncChange={() => {
+                          // Optionally refresh or show confirmation
+                          console.log('[Portfolio] Sync status changed');
+                        }}
+                      />
+                    </div>
+                  )}
+
+                  {/* No Goals Banner */}
+                  {holdings.length > 0 && goals.length === 0 && (
+                    <div className="mt-6 p-4 bg-blue-50 border-2 border-blue-300 rounded-lg">
+                      <div className="flex items-start gap-3">
+                        <Target className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-blue-900 mb-1">
+                            Track Your Investment Goals
+                          </h4>
+                          <p className="text-sm text-blue-800 mb-3">
+                            Create financial goals in the FIRE Planner page to track which holdings contribute to each goal. This helps you visualize your progress and maintain proper asset allocation.
+                          </p>
+                          <Button
+                            onClick={() => navigate('/fire-planner')}
+                            size="sm"
+                            className="bg-blue-600 hover:bg-blue-700"
+                          >
+                            <Rocket className="h-4 w-4 mr-2" />
+                            Create Goals in FIRE Planner
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="mt-6">
+                    <PortfolioHoldingsTable
+                      holdings={holdings}
+                      userId={user?.id}
+                      goals={goals}
+                      onEdit={(holding) => setEditingHolding(holding)}
+                      onDelete={(holdingId) => {
+                        // Delete is handled internally by the table component
+                        // Just refresh after deletion
+                        setTimeout(() => {
+                          if (user?.id) fetchHoldings(user.id);
+                        }, 500);
+                      }}
+                      onRefresh={() => {
+                        if (user?.id) {
+                          fetchHoldings(user.id);
+                          loadGoals(); // Refresh goals too for two-way sync
+                        }
+                      }}
+                    />
+                  </div>
+                </>
+              )}
+            </>
+          )}
         </div>
       )}
 
@@ -908,6 +1104,33 @@ const PortfolioPage: React.FC = () => {
             }}
           />
         </div>
+      )}
+
+      {/* Manual Entry Modals */}
+      <AddManualHoldingModal
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        userId={user?.id || ''}
+        onSuccess={() => {
+          if (user?.id) {
+            fetchHoldings(user.id);
+          }
+          setShowAddModal(false);
+        }}
+      />
+
+      {editingHolding && (
+        <EditHoldingModal
+          isOpen={!!editingHolding}
+          onClose={() => setEditingHolding(null)}
+          holding={editingHolding}
+          onSuccess={() => {
+            if (user?.id) {
+              fetchHoldings(user.id);
+            }
+            setEditingHolding(null);
+          }}
+        />
       )}
     </div>
   );

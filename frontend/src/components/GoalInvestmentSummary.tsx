@@ -105,16 +105,28 @@ export const GoalInvestmentSummary = ({ userId }: GoalInvestmentSummaryProps) =>
   }, [goalSummaries]);
 
   const fetchGoalSummaries = async () => {
-    if (!userId) return;
+    if (!userId) {
+      console.log('[GoalInvestmentSummary] No userId provided');
+      return;
+    }
+    console.log('[GoalInvestmentSummary] Fetching for userId:', userId);
+    console.log('[GoalInvestmentSummary] API URL:', `${API_ENDPOINTS.baseUrl}/routes/goal-investment-summary/${userId}`);
     setIsLoading(true);
     try {
       const response = await fetch(`${API_ENDPOINTS.baseUrl}/routes/goal-investment-summary/${userId}`);
+      console.log('[GoalInvestmentSummary] Response status:', response.status, response.ok);
       if (response.ok) {
         const data = await response.json();
+        console.log('[GoalInvestmentSummary] Data received:', data);
+        console.log('[GoalInvestmentSummary] Goals count:', data.goals?.length || 0);
         setGoalSummaries(data.goals || []);
+      } else {
+        console.error('[GoalInvestmentSummary] Response not OK:', response.status, response.statusText);
+        const errorText = await response.text();
+        console.error('[GoalInvestmentSummary] Error response:', errorText);
       }
     } catch (error) {
-      console.error('[GoalInvestmentSummary] Error:', error);
+      console.error('[GoalInvestmentSummary] Fetch error:', error);
     } finally {
       setIsLoading(false);
     }
