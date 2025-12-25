@@ -110,20 +110,26 @@ export const GoalInvestmentSummary = ({ userId }: GoalInvestmentSummaryProps) =>
       return;
     }
     console.log('[GoalInvestmentSummary] Fetching for userId:', userId);
-    console.log('[GoalInvestmentSummary] API URL:', `${API_ENDPOINTS.baseUrl}/routes/goal-investment-summary/${userId}`);
+    console.log('[GoalInvestmentSummary] API_ENDPOINTS.baseUrl:', API_ENDPOINTS.baseUrl);
+    console.log('[GoalInvestmentSummary] Full API URL:', `${API_ENDPOINTS.baseUrl}/routes/goal-investment-summary/${userId}`);
     setIsLoading(true);
     try {
       const response = await fetch(`${API_ENDPOINTS.baseUrl}/routes/goal-investment-summary/${userId}`);
       console.log('[GoalInvestmentSummary] Response status:', response.status, response.ok);
+      console.log('[GoalInvestmentSummary] Response content-type:', response.headers.get('content-type'));
+
+      // Get response as text first to see what we're receiving
+      const responseText = await response.text();
+      console.log('[GoalInvestmentSummary] Response text (first 200 chars):', responseText.substring(0, 200));
+
       if (response.ok) {
-        const data = await response.json();
+        const data = JSON.parse(responseText);
         console.log('[GoalInvestmentSummary] Data received:', data);
         console.log('[GoalInvestmentSummary] Goals count:', data.goals?.length || 0);
         setGoalSummaries(data.goals || []);
       } else {
         console.error('[GoalInvestmentSummary] Response not OK:', response.status, response.statusText);
-        const errorText = await response.text();
-        console.error('[GoalInvestmentSummary] Error response:', errorText);
+        console.error('[GoalInvestmentSummary] Error response:', responseText);
       }
     } catch (error) {
       console.error('[GoalInvestmentSummary] Fetch error:', error);
