@@ -21,6 +21,7 @@ import {
 import { AssetAllocationStrategy } from "@/components/AssetAllocationStrategy";
 import { FormattedNumberDisplay } from "@/components/ui/formatted-number-display";
 import { InfoTooltip } from '@/components/InfoTooltip';
+import { GoalInvestmentSummary } from '@/components/GoalInvestmentSummary';
 
 // Enhanced Goal interface with all required fields
 interface DetailedGoal {
@@ -71,7 +72,7 @@ const FIREPlanner: React.FC = () => {
   const [monthlySavings, setMonthlySavings] = useState<number>(0);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [assetAllocations, setAssetAllocations] = useState<any[]>([]);
-  const [includeIlliquidAssets, setIncludeIlliquidAssets] = useState(false);
+  const [includeIlliquidAssets, setIncludeIlliquidAssets] = useState(true); // Default to true - include illiquid assets
   const [premiumCAGR, setPremiumCAGR] = useState(12); // Default 12% CAGR for Premium NEW FIRE
   const [activeTab, setActiveTab] = useState<string>("goals");
 
@@ -1402,6 +1403,11 @@ const FIREPlanner: React.FC = () => {
                     </div>
                   </CardContent>
                 </Card>
+
+                {/* Goal Investment Tracking Section */}
+                {user?.id && (
+                  <GoalInvestmentSummary userId={user.id} />
+                )}
 
                 {/* Investment Recommendations */}
                 <Card className="bg-green-50 border-2 border-green-300">
