@@ -3,12 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Shield, Check } from 'lucide-react';
 import useAuthStore from '../utils/authStore';
 import useFinancialDataStore from '../utils/financialDataStore';
 import FinancialRoadmap from '@/components/FinancialRoadmap';
+import { DailyInsightsCard } from '@/components/DailyInsightsCard';
+import { PremiumGoalRoadmap } from '@/components/PremiumGoalRoadmap';
+import { MilestoneProgressCard } from '@/components/MilestoneProgressCard';
 import { calculateNetWorth, calculateBasicFIRENumber } from '../utils/financialCalculations';
+import { isPremiumUser } from '../utils/premiumCheck';
+import { API_ENDPOINTS } from '@/config/api';
 
 type DashboardCard = {
   title: string;
@@ -18,16 +22,25 @@ type DashboardCard = {
   color: string;
 };
 
+interface Goal {
+  id: string;
+  name: string;
+  amountRequiredFuture: number;
+  amountAvailableToday?: number;
+}
+
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { user, profile, signOut, isAuthenticated } = useAuthStore();
+  const { user, profile, isAuthenticated } = useAuthStore();
   const { financialData, fetchFinancialData } = useFinancialDataStore();
   const [isLoading, setIsLoading] = useState(true);
+  const [isPremium, setIsPremium] = useState(false);
+  const [goals, setGoals] = useState<Goal[]>([]);
 
   // Format currency for display
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', { 
-      style: 'currency', 
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
       currency: 'INR',
       maximumFractionDigits: 0,
     }).format(amount);
@@ -35,9 +48,9 @@ export default function Dashboard() {
 
   // Format large numbers to show in lakhs/crores
   const formatIndianCurrency = (amount: number) => {
-    if (amount >= 10000000) { // 1 crore = 10,000,000
+    if (amount >= 10000000) {
       return `₹${(amount / 10000000).toFixed(2)} Cr`;
-    } else if (amount >= 100000) { // 1 lakh = 100,000
+    } else if (amount >= 100000) {
       return `₹${(amount / 100000).toFixed(2)} L`;
     } else {
       return `₹${amount.toFixed(2)}`;
@@ -51,49 +64,71 @@ export default function Dashboard() {
     }
   }, [isAuthenticated, navigate]);
 
+  // Check premium status
+  useEffect(() => {
+    const premium = isPremiumUser();
+    setIsPremium(premium);
+  }, []);
+
   // Load financial data
   useEffect(() => {
-    console.log("Dashboard: Data loading useEffect triggered.");
-    if (user) {
-      console.log("Dashboard: Effective user object:", JSON.stringify(user, null, 2));
-      console.log("Dashboard: User ID:", user.id);
-    } else {
-      console.log("Dashboard: User object is null or undefined at this point.");
-    }
     const loadData = async () => {
-      if (user?.id) { // Only fetch if user.id is available
+      if (user?.id) {
         try {
           setIsLoading(true);
-          const userId = user.id;
-          await fetchFinancialData(userId);
+          await fetchFinancialData(user.id);
         } catch (error) {
-          console.error("Error loading financial data for user:", userId, error);
+          console.error("Error loading financial data:", error);
           toast.error("Could not load your financial data. Please try again later.");
         } finally {
           setIsLoading(false);
         }
       } else {
-        // Handle the case where user.id is not yet available or user is not fully authenticated
-        setIsLoading(false); // Stop loading if no user.id
-        // Optionally, clear existing financial data if user logs out or ID changes to undefined
-        // useFinancialDataStore.getState().clearFinancialData();
-        // For now, just ensuring we don't fetch with 'anonymous' or undefined
+        setIsLoading(false);
       }
     };
 
     loadData();
-  }, [user?.id, fetchFinancialData]); // Add user.id to dependency array and fetchFinancialData
+  }, [user?.id, fetchFinancialData]);
 
-  const handleLogout = async () => {
-    try {
-      await signOut();
-      navigate('/');
-      toast.success("Successfully logged out");
-    } catch (error) {
-      console.error("Logout error:", error);
-      toast.error("There was an error logging out");
-    }
-  };
+  // Load goals for premium users
+  useEffect(() => {
+    if (!isPremium || !user?.id) return;
+
+    const fetchGoals = async () => {
+      try {
+        const response = await fetch(API_ENDPOINTS.getSIPPlanner(user.id));
+        if (response.ok) {
+          const data = await response.json();
+          if (data.goals && Array.isArray(data.goals)) {
+            setGoals(data.goals.filter((g: Goal) => g.amountRequiredFuture > 0));
+          }
+        }
+      } catch (error) {
+        console.error('[Dashboard] Error fetching goals:', error);
+      }
+    };
+
+    fetchGoals();
+  }, [isPremium, user?.id]);
+
+  // Calculate metrics for DailyInsightsCard
+  const netWorth = financialData ? calculateNetWorth(financialData) : 0;
+
+  const totalGoalsProgress = goals.length > 0
+    ? goals.reduce((sum, goal) => {
+        const progress = goal.amountAvailableToday
+          ? (goal.amountAvailableToday / goal.amountRequiredFuture) * 100
+          : 0;
+        return sum + Math.min(progress, 100);
+      }, 0) / goals.length
+    : 0;
+
+  const goalsOnTrack = goals.filter(goal => {
+    if (!goal.amountAvailableToday) return false;
+    const progress = (goal.amountAvailableToday / goal.amountRequiredFuture) * 100;
+    return progress >= 50; // Consider on-track if >= 50% progress
+  }).length;
 
   // Dashboard cards configuration
   const dashboardCards: DashboardCard[] = [
@@ -127,7 +162,7 @@ export default function Dashboard() {
     },
     {
       title: "Portfolio",
-      description: "Optimize your investment allocation",
+      description: "Track your mutual fund holdings",
       path: "/portfolio",
       icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" /></svg>,
       color: "bg-amber-50 text-amber-600 border-amber-100"
@@ -138,13 +173,6 @@ export default function Dashboard() {
       path: "/tax-planning",
       icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>,
       color: "bg-purple-50 text-purple-600 border-purple-100"
-    },
-    {
-      title: "Download Report",
-      description: "Get PDF summary of your financial plan",
-      path: "/profile",
-      icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>,
-      color: "bg-red-50 text-red-600 border-red-100"
     }
   ];
 
@@ -154,22 +182,21 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
-      {/* Dashboard Header/Navigation - Now removed since we use global NavBar */}
-      <main className="container mx-auto max-w-6xl py-8 px-4">
+      <main className="container mx-auto max-w-7xl py-6 px-4">
         {/* SEBI Compliance Badge */}
         <div className="mb-6">
           <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-500">
-            <CardContent className="py-4">
-              <div className="flex items-center justify-center gap-3">
-                <Shield className="w-6 h-6 text-green-600" />
+            <CardContent className="py-3">
+              <div className="flex items-center justify-center gap-2 flex-wrap">
+                <Shield className="w-5 h-5 text-green-600 flex-shrink-0" />
                 <div className="text-center">
-                  <div className="flex items-center gap-2">
-                    <Check className="w-5 h-5 text-green-600" />
-                    <span className="text-lg font-bold text-green-900">
+                  <div className="flex items-center gap-2 flex-wrap justify-center">
+                    <Check className="w-4 h-4 text-green-600" />
+                    <span className="text-sm md:text-base font-bold text-green-900">
                       COMPLIANT WITH SEBI REGULATIONS
                     </span>
                   </div>
-                  <p className="text-sm text-green-700 mt-1">
+                  <p className="text-xs text-green-700 mt-1">
                     Educational Tool • No Advisory Services • Self-Service Platform
                   </p>
                 </div>
@@ -179,75 +206,106 @@ export default function Dashboard() {
         </div>
 
         {/* Welcome Section */}
-        <section className="mb-10">
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">
+        <section className="mb-6">
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
             Welcome, {profile?.full_name || user?.email?.split('@')[0] || "User"}
           </h2>
-          <p className="text-gray-600">
+          <p className="text-gray-600 text-sm md:text-base">
             Your financial dashboard at a glance. Plan smart, retire early.
           </p>
         </section>
 
         {/* Financial Summary Section */}
         {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-6">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="bg-white rounded-lg shadow p-6 animate-pulse">
-                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                <div className="h-6 bg-gray-200 rounded w-1/2 mb-4"></div>
-                <div className="h-4 bg-gray-200 rounded w-full"></div>
+              <div key={i} className="bg-white rounded-lg shadow p-4 md:p-6 animate-pulse">
+                <div className="h-3 bg-gray-200 rounded w-3/4 mb-2"></div>
+                <div className="h-5 bg-gray-200 rounded w-1/2 mb-3"></div>
+                <div className="h-3 bg-gray-200 rounded w-full"></div>
               </div>
             ))}
           </div>
         ) : financialData ? (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="text-sm font-medium text-gray-500 mb-1">Monthly Income</div>
-              <div className="text-2xl font-bold text-gray-800 mb-1">
-                {formatCurrency(financialData.personalInfo.monthlySalary)}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-6">
+            <div className="bg-white rounded-lg shadow p-4 md:p-6">
+              <div className="text-xs md:text-sm font-medium text-gray-500 mb-1">Monthly Income</div>
+              <div className="text-lg md:text-2xl font-bold text-gray-800 mb-1">
+                {formatIndianCurrency(financialData.personalInfo.monthlySalary)}
               </div>
-              <div className="text-xs text-gray-500">
-                Annual: {formatCurrency(financialData.personalInfo.monthlySalary * 12)}
-              </div>
-            </div>
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="text-sm font-medium text-gray-500 mb-1">Monthly Expenses</div>
-              <div className="text-2xl font-bold text-gray-800 mb-1">
-                {formatCurrency(financialData.personalInfo.monthlyExpenses)}
-              </div>
-              <div className="text-xs text-gray-500">
-                Annual: {formatCurrency(financialData.personalInfo.monthlyExpenses * 12)}
+              <div className="text-xs text-gray-500 hidden md:block">
+                Annual: {formatIndianCurrency(financialData.personalInfo.monthlySalary * 12)}
               </div>
             </div>
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="text-sm font-medium text-gray-500 mb-1">Net Worth</div>
-              <div className="text-2xl font-bold text-gray-800 mb-1">
+            <div className="bg-white rounded-lg shadow p-4 md:p-6">
+              <div className="text-xs md:text-sm font-medium text-gray-500 mb-1">Monthly Expenses</div>
+              <div className="text-lg md:text-2xl font-bold text-gray-800 mb-1">
+                {formatIndianCurrency(financialData.personalInfo.monthlyExpenses)}
+              </div>
+              <div className="text-xs text-gray-500 hidden md:block">
+                Annual: {formatIndianCurrency(financialData.personalInfo.monthlyExpenses * 12)}
+              </div>
+            </div>
+            <div className="bg-white rounded-lg shadow p-4 md:p-6">
+              <div className="text-xs md:text-sm font-medium text-gray-500 mb-1">Net Worth</div>
+              <div className="text-lg md:text-2xl font-bold text-gray-800 mb-1">
                 {formatIndianCurrency(calculateNetWorth(financialData))}
               </div>
-              <div className="text-xs text-gray-500">
+              <div className="text-xs text-gray-500 hidden md:block">
                 Basic FIRE: {formatIndianCurrency(calculateBasicFIRENumber(financialData))}
               </div>
             </div>
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="text-sm font-medium text-gray-500 mb-1">Savings Rate</div>
-              <div className="text-2xl font-bold text-gray-800 mb-1">
+            <div className="bg-white rounded-lg shadow p-4 md:p-6">
+              <div className="text-xs md:text-sm font-medium text-gray-500 mb-1">Savings Rate</div>
+              <div className="text-lg md:text-2xl font-bold text-gray-800 mb-1">
                 {Math.round(((financialData.personalInfo.monthlySalary - financialData.personalInfo.monthlyExpenses) / financialData.personalInfo.monthlySalary) * 100)}%
               </div>
-              <div className="text-xs text-gray-500">
-                Monthly Savings: {formatCurrency(financialData.personalInfo.monthlySalary - financialData.personalInfo.monthlyExpenses)}
+              <div className="text-xs text-gray-500 hidden md:block">
+                Monthly: {formatIndianCurrency(financialData.personalInfo.monthlySalary - financialData.personalInfo.monthlyExpenses)}
               </div>
             </div>
           </div>
         ) : (
-          <div className="text-center p-8 bg-white rounded-lg shadow mb-10">
-            <p className="text-gray-600 mb-4">No financial data available yet.</p>
-            <Button onClick={() => navigate('/enter-details')}>Enter Your Financial Details</Button>
+          <div className="text-center p-6 md:p-8 bg-white rounded-lg shadow mb-6">
+            <p className="text-gray-600 mb-4 text-sm md:text-base">No financial data available yet.</p>
+            <Button onClick={() => navigate('/enter-details')} size="sm">
+              Enter Your Financial Details
+            </Button>
           </div>
         )}
 
-        {/* Quick Actions Grid - Main Dashboard Options */}
-        <h3 className="text-xl font-bold text-gray-800 mb-4">Quick Actions</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+        {/* Premium Insights Section - NEW */}
+        {financialData && (
+          <div className="space-y-6 mb-6">
+            <h3 className="text-xl md:text-2xl font-bold text-gray-800">Your Financial Journey</h3>
+
+            {/* Row 1: Daily Insights & Goal Roadmap */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <DailyInsightsCard
+                netWorth={netWorth}
+                totalGoalsProgress={totalGoalsProgress}
+                goalsOnTrack={goalsOnTrack}
+                totalGoals={goals.length}
+                isPremium={isPremium}
+              />
+
+              <PremiumGoalRoadmap
+                userId={user?.id || ''}
+                isPremium={isPremium}
+              />
+            </div>
+
+            {/* Row 2: Milestone Progress - Full Width */}
+            <MilestoneProgressCard
+              userId={user?.id || ''}
+              isPremium={isPremium}
+            />
+          </div>
+        )}
+
+        {/* Quick Actions Grid */}
+        <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-4">Quick Actions</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-6">
           {dashboardCards.map((card, index) => (
             <Card
               key={index}
@@ -256,19 +314,19 @@ export default function Dashboard() {
             >
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg font-bold">{card.title}</CardTitle>
+                  <CardTitle className="text-base md:text-lg font-bold">{card.title}</CardTitle>
                   <div className="p-2 rounded-full bg-white/80">
                     {card.icon}
                   </div>
                 </div>
-                <CardDescription className="text-gray-700">
+                <CardDescription className="text-sm text-gray-700">
                   {card.description}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <Button
                   variant="ghost"
-                  className="p-0 h-auto text-sm font-medium hover:bg-transparent hover:underline"
+                  className="p-0 h-auto text-xs md:text-sm font-medium hover:bg-transparent hover:underline"
                 >
                   Go to {card.title} →
                 </Button>
@@ -279,13 +337,13 @@ export default function Dashboard() {
 
         {/* Road to Financial Freedom - FinancialRoadmap Component */}
         {financialData && Object.keys(financialData).length > 0 && (
-          <div className="mb-10">
+          <div className="mb-6">
             <FinancialRoadmap financialData={financialData} />
           </div>
         )}
 
         {/* Legal Disclaimer */}
-        <div className="mt-10 mb-6">
+        <div className="mb-6">
           <Card className="bg-amber-50 border-amber-300">
             <CardContent className="py-3">
               <p className="text-xs text-amber-900 text-center">
