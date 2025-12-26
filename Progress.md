@@ -1,12 +1,379 @@
 # FinEdge360 - Development Progress & Conversation History
 
-**Last Updated**: 2025-11-17 (Session 12 - Completed)
+**Last Updated**: 2025-12-27 (Session 25 - Completed)
 **Project**: FinEdge360 - Financial Planning & Investment Platform
 **Tech Stack**: React + TypeScript (Frontend) | FastAPI + Python (Backend) | Supabase (Auth & DB)
 
 ---
 
 ## 📋 Current Session Summary
+
+### Session 25 (Dec 27, 2025) - Dashboard UX Enhancement & Deep Linking Implementation ✅ COMPLETED
+
+**Session Goal**: Enhance Dashboard with premium insights, deep linking navigation, and optimal layout balance
+
+**Status**: 🎉 **COMPLETED** - All Dashboard enhancements, deep linking, and layout improvements implemented successfully
+
+### Work Completed This Session
+
+#### 1. Premium NEW FIRE Overview Card ✅
+**What**: Created compact Premium NEW FIRE card showing key FIRE metrics
+**Impact**: Users can see optimized FIRE strategy at a glance without cluttering layout
+
+**Implementation** (`frontend/src/components/PremiumNewFIRECard.tsx` - NEW FILE):
+- Shows years to achieve FIRE and target age
+- Displays target corpus and monthly SIP required
+- Compact design with 2-column grid layout
+- Links to full Premium NEW FIRE section in FIRE Planner
+- Locked overlay for free users
+
+**Files Created**:
+- `frontend/src/components/PremiumNewFIRECard.tsx` - 131 lines
+
+---
+
+#### 2. Risk & Portfolio Overview Card ✅
+**What**: Added risk score and portfolio recommendation card to fill empty space
+**Impact**: Balanced Dashboard layout with valuable portfolio insights
+
+**Implementation** (`frontend/src/components/RiskPortfolioOverviewCard.tsx` - NEW FILE):
+- Fetches actual risk score from API (consistent with Portfolio page)
+- Displays risk level: Conservative (≤20), Moderate (≤35), Aggressive (>35)
+- Shows recommended asset allocation (equity/debt percentages)
+- Circular progress indicator with color coding
+- Links to full Portfolio analysis
+
+**Risk Score Consistency Fix**:
+- Changed from manual calculation to API fetch
+- Matches Portfolio page thresholds exactly
+- Fixed label inconsistency (was showing "Low" for score 30, now shows "Moderate")
+- Portfolio recommendations: Conservative (20/60), Moderate (40/40), Aggressive (70/20)
+
+**Files Created**:
+- `frontend/src/components/RiskPortfolioOverviewCard.tsx` - 214 lines
+
+---
+
+#### 3. Quick Links Expansion ✅
+**What**: Expanded Quick Links from 7 to 19 with deep linking to specific sections
+**Impact**: Users can navigate directly to exact sections instead of just pages
+
+**New Quick Links Added** (`frontend/src/pages/Dashboard.tsx:300-376`):
+1. PowerFIRE Tips → `/portfolio#powerfire-tips`
+2. Risk Coverage → `/portfolio#risk-coverage`
+3. Smart Tax Saving Tips → `/tax-planning#smart-tax-tips`
+4. Set Goals → `/fire-planner?tab=set-goals`
+5. Asset Allocation → `/fire-planner?tab=asset-allocation`
+6. FIRE Strategy → `/fire-calculator#fire-strategy-dashboard`
+7. Corpus Growth → `/fire-calculator#corpus-growth-projection`
+8. Tax Regime Comparison → `/tax-planning#tax-regime-comparison`
+9. Health Insurance → `/tax-planning#section-80d`
+10. Investment Risks → `/portfolio#financial-ladder`
+11. Book Consultation → `/consultation`
+
+**Deep Linking Implementation**:
+- Added `handleNavigation()` function supporting hash anchors
+- Automatic scroll to section with 500ms delay
+- 80px offset for sticky header
+- Added section IDs across all pages
+
+---
+
+#### 4. Section IDs for Deep Linking ✅
+**What**: Added ID attributes to all major sections across pages
+**Impact**: Enables precise navigation to specific content
+
+**Section IDs Added**:
+
+**Portfolio.tsx**:
+- `id="powerfire-tips"` - PowerFIRE Tips section
+- `id="risk-coverage"` - Risk Coverage section
+- `id="financial-ladder"` - Financial Ladder (Investment Risks)
+
+**Tax Planning.tsx**:
+- `id="smart-tax-tips"` - Smart Tax Saving Tips section
+- `id="tax-regime-comparison"` - Old vs New Regime comparison
+- `id="section-80d"` - Health Insurance deductions
+
+**FIRE Calculator.tsx**:
+- `id="fire-strategy-dashboard"` - FIRE Strategy Dashboard
+- `id="corpus-growth-projection"` - Corpus Growth chart
+- `id="retirement-settings"` - Retirement settings (already existed)
+- `id="fire-scenarios"` - 4 FIRE Scenarios section (already existed)
+
+**FIRE Planner.tsx**:
+- `id="premium-new-fire"` - Premium NEW FIRE section
+- Query params: `?tab=set-goals`, `?tab=asset-allocation`, `?tab=sip-plan`
+
+**Dashboard.tsx**:
+- `id="fire-scenarios-overview"` - FIRE Scenarios card
+- `id="premium-new-fire-overview"` - Premium NEW FIRE card
+- `id="risk-portfolio-overview"` - Risk & Portfolio card
+
+**Files Modified**:
+- `frontend/src/pages/Portfolio.tsx:704, 847, 697`
+- `frontend/src/pages/TaxPlanning.tsx:829, 1195`
+- `frontend/src/pages/FIRECalculator.tsx:634, 690`
+- `frontend/src/pages/FIREPlanner.tsx:1705`
+
+---
+
+#### 5. Dashboard Title Enhancements ✅
+**What**: Enhanced ALL Dashboard section titles with gradients, emojis, and prominence
+**Impact**: More engaging, visually appealing Dashboard
+
+**Titles Enhanced**:
+1. **Welcome Section** - Gradient card with personalized greeting
+2. **Financial Snapshot** - Gradient decorative bars + emoji
+3. **Your Financial Journey** - Main section title
+4. **Today's Insights** - Gradient badge + sparkles emoji
+5. **Goals in Action** - Gradient badge + flag emoji
+6. **Your FIRE Journey Progress** - Gradient badge + trophy emoji
+7. **Your Journey Map** - Gradient badge + map emoji
+8. **Your 4 FIRE Scenarios** - Gradient badge + flame emoji
+9. **Premium NEW FIRE** - Gradient badge + rocket emoji
+10. **Risk & Portfolio** - Gradient badge + shield emoji
+11. **Your Financial Roadmap** - Gradient badge + roadmap emoji
+12. **Quick Actions** - Gradient decorative bars + lightning emoji
+
+**Design Pattern**:
+```tsx
+<div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-[color] to-[color] shadow-md">
+  <Icon className="h-5 w-5 text-white" />
+</div>
+<span className="font-extrabold bg-gradient-to-r from-[color] via-[color] to-[color] bg-clip-text text-transparent">
+  🎯 Title Text
+</span>
+```
+
+**Files Modified**:
+- `frontend/src/pages/Dashboard.tsx` - Multiple title enhancements
+- `frontend/src/components/DailyInsightsCard.tsx:117-125`
+- `frontend/src/components/PremiumGoalRoadmap.tsx:60-68`
+- `frontend/src/components/MilestoneProgressCard.tsx:189-197`
+- `frontend/src/components/FIREScenariosCard.tsx:116-123`
+- `frontend/src/components/FinancialRoadmap.tsx:title`
+
+---
+
+#### 6. Dashboard Layout Reorganization ✅
+**What**: Reorganized Dashboard for balanced 2-column layout
+**Impact**: Eliminated wasted white space, better visual balance
+
+**New Layout Structure**:
+
+**Row 1**: Daily Insights + Goal Roadmap (2 columns)
+
+**Row 2**:
+- **Left Column**:
+  - Your FIRE Journey Progress
+  - Your Journey Map
+- **Right Column**:
+  - Your 4 FIRE Scenarios
+  - Premium NEW FIRE
+  - Risk & Portfolio Overview
+
+**Visual Improvements**:
+- Reduced Journey Map height (viewBox 300→240, padding p-6→p-4)
+- Adjusted milestone positions proportionally
+- Made all text more compact
+- Used `flex flex-col gap-6` for better column control
+
+**Files Modified**:
+- `frontend/src/pages/Dashboard.tsx:529-716` - Complete layout restructure
+
+---
+
+#### 7. Action Items System Overhaul ✅
+**What**: Implemented 3-tier priority system with deep linking
+**Impact**: Users see TOP 10 most important actions prioritized correctly
+
+**Priority Tiers**:
+- **Tier 1**: Journey/Milestone completion (highest priority)
+  - Automate Monthly SIPs (if SIP plan exists)
+  - Book Expert Consultation (if milestones completed)
+- **Tier 2**: Risk-based actions
+  - Add Health Insurance, Increase Emergency Fund
+- **Tier 3**: Monetary benefit actions
+  - Optimize Tax, Increase SIP contributions
+
+**Deep Linking Implementation**:
+- Health Insurance → `/tax-planning#section-80d`
+- FIRE Scenarios → `/fire-calculator#fire-scenarios`
+- Set Goals → `/fire-planner?tab=set-goals`
+- Asset Allocation → `/fire-planner?tab=asset-allocation`
+- SIP Plan → `/fire-planner?tab=sip-plan`
+
+**Removed Items**:
+- Track Net Worth (not actionable)
+- Download Report (not actionable)
+- Kept: Join Community
+
+**Files Modified**:
+- `frontend/src/components/ActionItemsCard.tsx:` - Complete rewrite with tier system
+
+---
+
+#### 8. FIRE Planner Mobile UX Fixes ✅
+**What**: Fixed mobile tab overlap and enhanced Continue buttons
+**Impact**: Better mobile experience, clearer step progression
+
+**Mobile Tab Fixes**:
+- Changed to responsive text: "Goals" (mobile) / "Set Goals" (desktop)
+- Added "Step 1", "Step 2", "Step 3" labels
+- Vertical flex layout on mobile prevents overlap
+- Added shadow to TabsList for prominence
+
+**Progress Indicator**:
+- Added visual progress bar showing Step X of 3
+- Color-coded bars (blue, green, purple)
+- Shows completion state
+
+**Continue Button Enhancements**:
+- **Removed excessive animation** (animate-pulse removed)
+- Wrapped in gradient background cards
+- Added contextual messaging ("✅ Great! Now let's...")
+- Made buttons larger (px-8 md:px-12 py-6)
+- Kept smooth hover effects (scale-105, shadow transitions)
+- Added time estimates ("⏱️ Takes 2-3 minutes")
+
+**Files Modified**:
+- `frontend/src/pages/FIREPlanner.tsx:1218, 1258` - Remove animate-pulse
+- `frontend/src/pages/FIREPlanner.tsx` - Mobile tabs, progress bar, Continue cards
+
+---
+
+#### 9. Profile Name Display Fix ✅
+**What**: Changed profile icon to show actual name from financial data
+**Impact**: Shows "Hi, Jay" instead of "Hi, jsjaiho5"
+
+**Implementation** (`frontend/src/components/NavBar.tsx`):
+- Changed from localStorage manual read to `useFinancialDataStore()` hook
+- Made reactive with `useEffect` to update when data changes
+- Priority: Financial data name > Profile name > Email prefix
+
+**Files Modified**:
+- `frontend/src/components/NavBar.tsx:12-30` - Added reactive name display
+
+---
+
+#### 10. Additional Fixes ✅
+
+**CAMS Link Update**:
+- Changed from `https://new.camsonline.com/` to `https://www.camsonline.com/`
+- File: `frontend/src/components/PortfolioUploadCard.tsx`
+
+**Manual Holding NAV Error Fix**:
+- Changed from querying non-existent database column to real-time MFAPI fetch
+- Used `nav_service.fetch_latest_nav()` instead of `scheme_master.current_nav`
+- File: `backend/app/apis/portfolio/__init__.py`
+
+---
+
+### Session Statistics
+
+**Files Modified**: 16
+- Backend: 1 file (portfolio API)
+- Frontend: 15 files (components, pages)
+
+**Files Created**: 2
+- `frontend/src/components/PremiumNewFIRECard.tsx`
+- `frontend/src/components/RiskPortfolioOverviewCard.tsx`
+
+**Lines Changed**: ~1,251 insertions, ~453 deletions
+
+**Quick Links**: Expanded from 7 to 19 (+12 new links)
+
+**Section IDs Added**: 11 new IDs across 4 pages
+
+**Bugs Fixed**: 3
+- Profile name showing email instead of actual name
+- Risk score inconsistency (30 showing as "Low" instead of "Moderate")
+- Manual holding NAV database error
+
+**UX Improvements**: 8
+- Continue button animation reduced
+- Mobile tabs fixed
+- Dashboard layout balanced
+- All titles enhanced with gradients
+- Deep linking navigation implemented
+- Risk score consistency achieved
+- Premium FIRE overview added
+- Risk & Portfolio insights added
+
+---
+
+### Technical Highlights
+
+**Deep Linking Architecture**:
+- Hash-based navigation (`#section-id`)
+- Query parameter navigation (`?tab=name`)
+- Automatic scroll with offset for sticky header
+- 500ms delay for reliable page load before scroll
+
+**Risk Score Consistency**:
+- Uses same API endpoint as Portfolio page
+- Matches exact thresholds: Conservative (≤20), Moderate (≤35), Aggressive (>35)
+- Fetches real-time data instead of calculating manually
+- Loading state during API fetch
+
+**Dashboard Layout**:
+- 2-column responsive grid
+- `lg:grid-cols-2` for desktop, full width mobile
+- `flex flex-col gap-6` for column spacing
+- Balanced card distribution (3 cards per column)
+
+**Component Architecture**:
+- All premium cards use `LockedFeatureOverlay` for free users
+- Consistent gradient design patterns
+- Reusable deep linking navigation
+- API-based data fetching with loading states
+
+---
+
+### Git Commit
+
+**Commit Hash**: `b61494f`
+
+**Commit Message**:
+```
+Enhance Dashboard UX with premium insights, deep linking, and layout improvements
+
+Major Enhancements:
+- Add Premium NEW FIRE overview card with compact design
+- Add Risk & Portfolio Overview card (risk score, recommended allocation)
+- Expand Quick Links from 7 to 19 with deep linking to specific sections
+- Reorganize Dashboard layout: balanced 2-column grid
+- Add section IDs across pages for precise navigation
+
+Dashboard Improvements:
+- Enhance all section titles with gradients, emojis, and visual prominence
+- Fix profile name to prioritize financial data over email
+- Add Journey Map below Milestone Progress for cleaner layout
+- Remove wasted white space in right column
+
+FIRE Planner Fixes:
+- Remove excessive animation from Continue buttons
+- Add progress indicator showing Step X of 3
+- Fix mobile tab overlap with responsive design
+- Make Continue buttons highly prominent with gradient cards
+
+Action Items System:
+- Implement 3-tier priority: Journey > Risk > Monetary
+- Add deep linking to exact sections (tabs, hash anchors)
+- Make SIP automation and consultation dynamic based on progress
+
+Component Fixes:
+- Fix risk score consistency (use API data, match Portfolio thresholds)
+- Fix CAMS link to correct URL
+- Fix manual holding NAV error in backend (use MFAPI fetch)
+```
+
+**Files Changed**: 16 files, 1,251 insertions, 453 deletions
+
+**Push Status**: ✅ Successfully pushed to GitHub `origin/master`
+
+---
 
 ### Session 12 (Nov 17, 2025) - UI/UX Refinements & Navigation Improvements ✅ COMPLETED
 
