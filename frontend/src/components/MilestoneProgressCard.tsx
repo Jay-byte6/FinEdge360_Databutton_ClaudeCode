@@ -95,13 +95,15 @@ export const MilestoneProgressCard: React.FC<MilestoneProgressCardProps> = ({
           completionStatus[8] = false;
 
           // Step 9: Automate Success (SIP setup)
-          // Mark complete if user has SIP calculations
+          // Mark complete ONLY if ALL goals have SIP calculations
           try {
             const sipRes = await fetch(API_ENDPOINTS.getSIPPlanner(userId));
             if (sipRes.ok) {
               const sipData = await sipRes.json();
-              const hasSIP = sipData.goals?.some((g: any) => g.sipRequired && g.sipRequired > 0);
-              completionStatus[9] = hasSIP;
+              const goals = sipData.goals || [];
+              // Check if ALL goals have SIP calculated (sipRequired > 0)
+              const allGoalsHaveSIP = goals.length > 0 && goals.every((g: any) => g.sipRequired && g.sipRequired > 0);
+              completionStatus[9] = allGoalsHaveSIP;
             } else {
               completionStatus[9] = false;
             }

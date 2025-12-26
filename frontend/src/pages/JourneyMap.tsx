@@ -147,16 +147,21 @@ export default function JourneyMap() {
         milestoneProgress[8] = 0;
 
         // Milestone 9: Automate Success (SIP setup)
+        // Mark complete ONLY if ALL goals have SIP calculations
         try {
           const sipRes = await fetch(API_ENDPOINTS.getSIPPlanner(user.id));
           if (sipRes.ok) {
             const sipData = await sipRes.json();
-            const hasSIP = sipData.goals?.some((g: any) => g.sipRequired && g.sipRequired > 0);
-            if (hasSIP) {
+            const goals = sipData.goals || [];
+            // Check if ALL goals have SIP calculated (sipRequired > 0)
+            const allGoalsHaveSIP = goals.length > 0 && goals.every((g: any) => g.sipRequired && g.sipRequired > 0);
+            if (allGoalsHaveSIP) {
               completedMilestones.push(9);
               milestoneProgress[9] = 100;
             } else {
-              milestoneProgress[9] = 0;
+              // Calculate partial progress based on % of goals with SIP
+              const goalsWithSIP = goals.filter((g: any) => g.sipRequired && g.sipRequired > 0).length;
+              milestoneProgress[9] = goals.length > 0 ? Math.round((goalsWithSIP / goals.length) * 100) : 0;
             }
           } else {
             milestoneProgress[9] = 0;
@@ -183,25 +188,21 @@ export default function JourneyMap() {
           milestoneProgress[10] = 0;
         }
 
-        // Milestone 11: FINANCIAL FREEDOM (All goals achieved)
-        // This will rarely be completed, but we can track progress
-        milestoneProgress[11] = 0;
-
         // Determine current milestone (first incomplete one)
         let currentMilestone = 1;
-        for (let i = 1; i <= 11; i++) {
+        for (let i = 1; i <= 10; i++) {
           if (!completedMilestones.includes(i)) {
             currentMilestone = i;
             break;
           }
         }
-        if (completedMilestones.length === 11) {
-          currentMilestone = 11;
+        if (completedMilestones.length === 10) {
+          currentMilestone = 10; // All milestones completed - Financial Freedom achieved!
         }
 
-        // Calculate overall progress
+        // Calculate overall progress (Financial Freedom is the destination, not counted)
         const totalProgress = Object.values(milestoneProgress).reduce((sum, p) => sum + p, 0);
-        const financialFreedomProgress = Math.round(totalProgress / 11);
+        const financialFreedomProgress = Math.round(totalProgress / 10);
 
         // Calculate XP and level
         const totalXP = completedMilestones.length * 100;

@@ -505,58 +505,10 @@ export const MILESTONES: MilestoneData[] = [
       'Expert rebalancing advice',
     ],
   },
-  {
-    id: 11,
-    title: 'FINANCIAL FREEDOM!',
-    subtitle: 'Living life on your terms',
-    icon: '🎉',
-    description: 'You\'ve achieved true financial independence. All your goals are achieved and your money works for you!',
-    status: 'locked',
-    progress: 0,
-    xpReward: 1000,
-    benefits: [
-      'Investment income ≥ monthly expenses',
-      'Portfolio generating passive income',
-      'All financial goals on track or achieved',
-      'Tax-optimized wealth',
-      'Diversified, balanced portfolio',
-      'Automated systems maintaining your wealth',
-      'True financial independence',
-    ],
-    completionCriteria: [
-      'Portfolio income ≥ expenses',
-      'All systems running smoothly',
-      'Financial freedom achieved!',
-    ],
-    actions: [
-      {
-        title: 'Celebrate Your Achievement!',
-        description: 'You\'ve reached financial freedom!',
-        link: '/dashboard',
-        completed: false,
-      },
-      {
-        title: 'Share Your Success',
-        description: 'Inspire others on their journey',
-        link: '/dashboard',
-        completed: false,
-      },
-      {
-        title: 'Optimize Wealth',
-        description: 'Continue growing with premium features',
-        link: '/dashboard',
-        completed: false,
-      },
-    ],
-    estimatedTime: 'Ongoing',
-    premiumFeatures: [
-      'Advanced wealth optimization',
-      'Legacy planning',
-      'Philanthropic portfolio management',
-      'Priority expert support',
-    ],
-  },
 ];
+
+// Financial Freedom is the DESTINATION, not a milestone step
+// It's what you achieve after completing all 10 milestones above
 
 // Achievement definitions
 export const ACHIEVEMENT_DEFINITIONS = {

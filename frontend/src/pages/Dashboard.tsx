@@ -434,7 +434,7 @@ export default function Dashboard() {
                     {/* Status text */}
                     <div className="mt-6 text-center">
                       <p className="text-lg font-bold text-gray-900 mb-2">
-                        Milestone {currentMilestone} of 11
+                        Milestone {currentMilestone} of 10
                       </p>
                       <p className="text-sm text-gray-600 mb-4">
                         Keep going! You're making great progress on your journey to financial freedom.
