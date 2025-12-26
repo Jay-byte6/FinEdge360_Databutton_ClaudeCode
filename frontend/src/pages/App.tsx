@@ -188,9 +188,12 @@ export default function App() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-120 py-10 md:py-10"> {/* Added padding for container, and gap for columns */}
             {/* Text Content */}
             <div className="md:w-3/5 text-center md:text-left">
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight tracking-tight">
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-3 leading-tight tracking-tight">
                 Unlock Your Financial Potential. <span className="block sm:inline">Secure Your Future.</span>
               </h2>
+              <p className="text-lg md:text-xl text-blue-200 mb-6 max-w-3xl mx-auto md:mx-0 italic font-medium">
+                Your GPS to Financial Freedom
+              </p>
               <p className="text-xl md:text-2xl text-blue-100 mb-8 max-w-3xl mx-auto md:mx-0">
                 Plan Smart. Retire Early. Save Max Tax.
               </p>

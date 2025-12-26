@@ -12,10 +12,11 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-6">
           {/* Company Info */}
           <div>
-            <h3 className="text-xl font-bold mb-3 flex items-center gap-2">
+            <h3 className="text-xl font-bold mb-1 flex items-center gap-2">
               <Shield className="w-5 h-5 text-green-400" />
               FIREMap
             </h3>
+            <p className="text-sm text-blue-300 font-medium mb-3 italic">Your GPS to Financial Freedom</p>
             <p className="text-sm text-gray-300 mb-3">
               Your trusted educational financial planning tool for achieving Financial Independence
               and Retire Early (FIRE) goals.

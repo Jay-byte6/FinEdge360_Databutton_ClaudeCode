@@ -230,14 +230,15 @@ export default function Login() {
           >
             FinE
           </div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent mb-2">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent mb-1">
             Welcome to FIREMap
           </h1>
+          <p className="text-sm font-medium text-blue-600 mb-3">Your GPS to Financial Freedom</p>
           <p className="text-gray-600">
-            {showForgotPassword 
+            {showForgotPassword
               ? "Reset your password"
-              : isRegistering 
-                ? "Create an account" 
+              : isRegistering
+                ? "Create an account"
                 : "Sign in to continue to your financial planning dashboard"}
           </p>
           {isRegistering && (
