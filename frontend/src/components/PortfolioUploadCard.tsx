@@ -172,6 +172,40 @@ export const PortfolioUploadCard = ({ onUploadSuccess }: PortfolioUploadCardProp
           )}
         </div>
 
+        {/* CAMS Online Download Guide */}
+        <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <h4 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
+            <FileText className="h-4 w-4" />
+            How to Download Your CAMS Statement
+          </h4>
+          <div className="space-y-3 text-sm">
+            <div className="bg-white rounded-md p-3 border border-blue-100">
+              <p className="font-medium text-blue-900 mb-2">📥 Quick Download Steps:</p>
+              <ol className="list-decimal list-inside space-y-1 text-gray-700 ml-2">
+                <li>Click the button below to open CAMS online in a new tab</li>
+                <li>Enter your <strong>Email Address</strong> registered with mutual funds</li>
+                <li>Set a <strong>Password</strong> to protect your statement file</li>
+                <li>Download the statement and upload it here</li>
+              </ol>
+            </div>
+            <div className="text-center">
+              <a
+                href="https://new.camsonline.com/Investors/Statements/Consolidated-Account-Statement"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all shadow-md hover:shadow-lg"
+              >
+                <Upload className="h-4 w-4" />
+                Download from CAMS Online
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
+              <p className="text-xs text-gray-500 mt-2">Opens in a new window</p>
+            </div>
+          </div>
+        </div>
+
         {/* Help Text */}
         <div className="mt-6 space-y-2 text-sm text-gray-600">
           <p className="flex items-start gap-2">
@@ -184,7 +218,7 @@ export const PortfolioUploadCard = ({ onUploadSuccess }: PortfolioUploadCardProp
           </p>
           <p className="flex items-start gap-2">
             <AlertCircle className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
-            <span>Get your CAMS statement by emailing requestcams@camsonline.com or download from CAMS website</span>
+            <span>Alternative: Email requestcams@camsonline.com to request your statement</span>
           </p>
         </div>
       </CardContent>

@@ -75,6 +75,10 @@ export const API_ENDPOINTS = {
   refreshPortfolioNav: (userId: string) => `${API_BASE_URL}/routes/refresh-portfolio-nav/${userId}`,
   getPortfolioSyncStatus: (userId: string) => `${API_BASE_URL}/routes/portfolio-sync-status/${userId}`,
   togglePortfolioSync: `${API_BASE_URL}/routes/toggle-portfolio-sync`,
+
+  // Action Items (Dashboard checklist)
+  getUserActionItems: (userId: string) => `${API_BASE_URL}/routes/user-action-items/${userId}`,
+  updateUserActionItems: (userId: string) => `${API_BASE_URL}/routes/user-action-items/${userId}`,
 };
 
 // Helper function to check if we're in production

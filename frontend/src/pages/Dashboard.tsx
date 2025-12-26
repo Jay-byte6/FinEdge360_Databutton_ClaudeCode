@@ -13,6 +13,7 @@ import { PremiumGoalRoadmap } from '@/components/PremiumGoalRoadmap';
 import { MilestoneProgressCard } from '@/components/MilestoneProgressCard';
 import { JourneyMapSimple } from '@/components/journey/JourneyMapSimple';
 import { UserJourneyState } from '@/components/journey/types';
+import { ActionItemsCard } from '@/components/ActionItemsCard';
 import { calculateNetWorth, calculateBasicFIRENumber } from '../utils/financialCalculations';
 import { isPremiumUser } from '../utils/premiumCheck';
 import { API_ENDPOINTS } from '@/config/api';
@@ -584,6 +585,17 @@ export default function Dashboard() {
               />
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Action Items Dashboard - NEW */}
+        {user?.id && (
+          <div className="mb-6">
+            <ActionItemsCard
+              userId={user.id}
+              financialData={financialData}
+              isPremium={isPremium}
+            />
           </div>
         )}
 
