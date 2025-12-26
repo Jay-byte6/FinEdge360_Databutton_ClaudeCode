@@ -132,6 +132,30 @@ export default function Dashboard() {
     return progress >= 50; // Consider on-track if >= 50% progress
   }).length;
 
+  // Calculate current milestone for Journey Map preview
+  const [currentMilestone, setCurrentMilestone] = useState(1);
+  useEffect(() => {
+    const calculateCurrentMilestone = () => {
+      let milestone = 1;
+
+      // Check each milestone completion
+      if (financialData) {
+        milestone = 2; // Has financial data - on Step 2
+
+        // Check if FIRE calculated (same as having data for now)
+        if (financialData) milestone = 3;
+
+        // Step 4 onwards requires API checks, which are async
+        // For now, use a simple heuristic based on goals
+        if (goals.length > 0) milestone = Math.min(milestone + 3, 8);
+      }
+
+      setCurrentMilestone(milestone);
+    };
+
+    calculateCurrentMilestone();
+  }, [financialData, goals]);
+
   // Dashboard cards configuration
   const dashboardCards: DashboardCard[] = [
     {
@@ -410,7 +434,7 @@ export default function Dashboard() {
                     {/* Status text */}
                     <div className="mt-6 text-center">
                       <p className="text-lg font-bold text-gray-900 mb-2">
-                        Milestone 2 of 10
+                        Milestone {currentMilestone} of 11
                       </p>
                       <p className="text-sm text-gray-600 mb-4">
                         Keep going! You're making great progress on your journey to financial freedom.

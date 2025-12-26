@@ -146,14 +146,15 @@ export default function JourneyMap() {
         // TODO: Add consultation booking API check
         milestoneProgress[8] = 0;
 
-        // Milestone 9: Portfolio Monitoring (Has portfolio and checking regularly)
-        // For now, mark as in-progress if they have portfolio
+        // Milestone 9: Automate Success (SIP setup)
         try {
-          const portfolioRes = await fetch(API_ENDPOINTS.getPortfolioHoldings(user.id));
-          if (portfolioRes.ok) {
-            const portfolioData = await portfolioRes.json();
-            if (portfolioData.holdings && portfolioData.holdings.length > 0) {
-              milestoneProgress[9] = 50; // In progress
+          const sipRes = await fetch(API_ENDPOINTS.getSIPPlanner(user.id));
+          if (sipRes.ok) {
+            const sipData = await sipRes.json();
+            const hasSIP = sipData.goals?.some((g: any) => g.sipRequired && g.sipRequired > 0);
+            if (hasSIP) {
+              completedMilestones.push(9);
+              milestoneProgress[9] = 100;
             } else {
               milestoneProgress[9] = 0;
             }
@@ -164,25 +165,43 @@ export default function JourneyMap() {
           milestoneProgress[9] = 0;
         }
 
-        // Milestone 10: FINANCIAL FREEDOM (Net worth >= FIRE number)
+        // Milestone 10: Portfolio Monitoring (Has portfolio and checking regularly)
+        // For now, mark as in-progress if they have portfolio
+        try {
+          const portfolioRes = await fetch(API_ENDPOINTS.getPortfolioHoldings(user.id));
+          if (portfolioRes.ok) {
+            const portfolioData = await portfolioRes.json();
+            if (portfolioData.holdings && portfolioData.holdings.length > 0) {
+              milestoneProgress[10] = 50; // In progress
+            } else {
+              milestoneProgress[10] = 0;
+            }
+          } else {
+            milestoneProgress[10] = 0;
+          }
+        } catch (err) {
+          milestoneProgress[10] = 0;
+        }
+
+        // Milestone 11: FINANCIAL FREEDOM (All goals achieved)
         // This will rarely be completed, but we can track progress
-        milestoneProgress[10] = 0;
+        milestoneProgress[11] = 0;
 
         // Determine current milestone (first incomplete one)
         let currentMilestone = 1;
-        for (let i = 1; i <= 10; i++) {
+        for (let i = 1; i <= 11; i++) {
           if (!completedMilestones.includes(i)) {
             currentMilestone = i;
             break;
           }
         }
-        if (completedMilestones.length === 10) {
-          currentMilestone = 10;
+        if (completedMilestones.length === 11) {
+          currentMilestone = 11;
         }
 
         // Calculate overall progress
         const totalProgress = Object.values(milestoneProgress).reduce((sum, p) => sum + p, 0);
-        const financialFreedomProgress = Math.round(totalProgress / 10);
+        const financialFreedomProgress = Math.round(totalProgress / 11);
 
         // Calculate XP and level
         const totalXP = completedMilestones.length * 100;

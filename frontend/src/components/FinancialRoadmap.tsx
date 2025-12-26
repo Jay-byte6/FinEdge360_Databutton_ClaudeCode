@@ -29,6 +29,8 @@ const FinancialRoadmap: React.FC<FinancialRoadmapProps> = ({ financialData, user
               years: goal.timeYears || 0,
               type: goal.goalType || 'Long-term',
               color: goal.timeYears <= 3 ? 'bg-blue-500' : goal.timeYears <= 7 ? 'bg-purple-500' : 'bg-green-500',
+              sipRequired: goal.sipRequired || 0, // Include SIP info
+              hasActivePlan: goal.sipRequired && goal.sipRequired > 0,
             }));
             setPremiumGoals(transformedGoals);
           }
@@ -85,8 +87,13 @@ const FinancialRoadmap: React.FC<FinancialRoadmapProps> = ({ financialData, user
   };
 
   // Use premium goals if available, otherwise use goals from Enter Details
-  const allGoals = isPremium && premiumGoals.length > 0
-    ? premiumGoals.sort((a, b) => a.years - b.years)
+  const allPremiumGoals = isPremium && premiumGoals.length > 0 ? premiumGoals : [];
+  const plannedGoals = allPremiumGoals.filter((g: any) => g.hasActivePlan).sort((a, b) => a.years - b.years);
+  const unplannedGoals = allPremiumGoals.filter((g: any) => !g.hasActivePlan).sort((a, b) => a.years - b.years);
+
+  // For non-premium users or when no premium goals, use Enter Details goals
+  const allGoals = isPremium && plannedGoals.length > 0
+    ? plannedGoals
     : [
         ...(goals?.shortTermGoals || []).map(g => ({ ...g, type: 'Short-term', color: 'bg-blue-500' })),
         ...(goals?.midTermGoals || []).map(g => ({ ...g, type: 'Mid-term', color: 'bg-purple-500' })),
@@ -184,25 +191,73 @@ const FinancialRoadmap: React.FC<FinancialRoadmapProps> = ({ financialData, user
           </div>
         </div>
 
-        {/* Goals Breakdown */}
+        {/* Goals Overview */}
         <div className="mt-8">
-          <h3 className="text-lg font-semibold mb-4 text-gray-800">Goals Breakdown</h3>
-          <div className="space-y-3">
-            {allGoals.map((goal, index) => (
-              <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                <div className={`w-3 h-3 rounded-full ${goal.color} flex-shrink-0`}></div>
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium text-gray-800 truncate">{goal.name}</div>
-                  <div className="text-sm text-gray-600">
-                    {goal.type} • In {goal.years} {goal.years === 1 ? 'year' : 'years'} (Age {currentAge + goal.years})
+          <h3 className="text-lg font-semibold mb-4 text-gray-800">Your Financial Goals</h3>
+
+          {/* Active Goals with SIP Plan */}
+          {allGoals.length > 0 && (
+            <div className="space-y-3 mb-6">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="h-1 w-8 bg-green-500 rounded"></div>
+                <p className="text-sm font-semibold text-green-700">Goals with Active SIP Plan</p>
+              </div>
+              {allGoals.map((goal, index) => (
+                <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                  <div className={`w-3 h-3 rounded-full ${goal.color} flex-shrink-0`}></div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium text-gray-800 truncate">{goal.name}</div>
+                    <div className="text-sm text-gray-600">
+                      {goal.type} • In {goal.years} {goal.years === 1 ? 'year' : 'years'} (Age {currentAge + goal.years})
+                    </div>
+                  </div>
+                  <div className="text-right flex-shrink-0">
+                    <div className="font-semibold text-gray-800">{formatCurrency(goal.amount)}</div>
                   </div>
                 </div>
-                <div className="text-right flex-shrink-0">
-                  <div className="font-semibold text-gray-800">{formatCurrency(goal.amount)}</div>
+              ))}
+            </div>
+          )}
+
+          {/* Unplanned Goals Section */}
+          {isPremium && unplannedGoals.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="h-1 w-8 bg-blue-500 rounded"></div>
+                <p className="text-sm font-semibold text-blue-700">Additional Goals to Plan</p>
+              </div>
+
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-3">
+                <div className="flex items-start gap-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-blue-900 mb-1">Keep Going! 💪</h4>
+                    <p className="text-sm text-blue-800">
+                      You have more goals that need SIP planning. Don't worry - as your income grows or existing goals are achieved, you can add these to your plan. Every goal is achievable with the right strategy!
+                    </p>
+                  </div>
                 </div>
               </div>
-            ))}
-          </div>
+
+              {unplannedGoals.map((goal: any, index: number) => (
+                <div key={index} className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-blue-200 opacity-80">
+                  <div className="w-3 h-3 rounded-full bg-blue-400 flex-shrink-0"></div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium text-gray-800 truncate">{goal.name}</div>
+                    <div className="text-sm text-blue-700">
+                      {goal.type} • In {goal.years} {goal.years === 1 ? 'year' : 'years'} • Awaiting Plan
+                    </div>
+                  </div>
+                  <div className="text-right flex-shrink-0">
+                    <div className="font-semibold text-gray-800">{formatCurrency(goal.amount)}</div>
+                    <div className="text-xs text-blue-600">Not yet planned</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Insights */}

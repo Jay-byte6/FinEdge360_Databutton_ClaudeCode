@@ -36,6 +36,7 @@ export const MilestoneProgressCard: React.FC<MilestoneProgressCardProps> = ({
     { step: 6, title: 'Design Asset Allocation', description: 'Optimize investment strategy', path: '/fire-planner?tab=asset-allocation', completed: false },
     { step: 7, title: 'FIRE Planning', description: 'Create SIP investment plan', path: '/fire-planner?tab=sip-plan', completed: false },
     { step: 8, title: 'Book Expert Consultation', description: 'Get personalized advice from certified advisors', path: '/consultation', completed: false },
+    { step: 9, title: 'Automate Success', description: 'Set up automated SIP & rebalancing', path: '/fire-planner?tab=sip-plan', completed: false },
   ]);
 
   // Smart auto-detection of milestone completion based on actual data
@@ -92,6 +93,21 @@ export const MilestoneProgressCard: React.FC<MilestoneProgressCardProps> = ({
           // For now, this is always pending unless explicitly marked
           // TODO: Add consultation booking API check
           completionStatus[8] = false;
+
+          // Step 9: Automate Success (SIP setup)
+          // Mark complete if user has SIP calculations
+          try {
+            const sipRes = await fetch(API_ENDPOINTS.getSIPPlanner(userId));
+            if (sipRes.ok) {
+              const sipData = await sipRes.json();
+              const hasSIP = sipData.goals?.some((g: any) => g.sipRequired && g.sipRequired > 0);
+              completionStatus[9] = hasSIP;
+            } else {
+              completionStatus[9] = false;
+            }
+          } catch (err) {
+            completionStatus[9] = false;
+          }
         }
 
         // Update milestones with detected completion status
