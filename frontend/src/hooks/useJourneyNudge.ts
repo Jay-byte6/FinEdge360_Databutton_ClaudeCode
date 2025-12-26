@@ -59,6 +59,25 @@ export const useJourneyNudge = (
     }
   }, [userId]);
 
+  // Update current milestone when completedMilestones changes
+  useEffect(() => {
+    // Find the next incomplete milestone
+    const totalMilestones = 10;
+    let nextMilestone = totalMilestones;
+    for (let i = 1; i <= totalMilestones; i++) {
+      if (!completedMilestones.includes(i)) {
+        nextMilestone = i;
+        break;
+      }
+    }
+
+    setNudgeState(prev => ({
+      ...prev,
+      currentMilestone: nextMilestone,
+      completedMilestones,
+    }));
+  }, [completedMilestones]);
+
   // Save nudge state to localStorage
   const saveNudgeState = (newState: Partial<NudgeState>) => {
     if (!userId) return;
