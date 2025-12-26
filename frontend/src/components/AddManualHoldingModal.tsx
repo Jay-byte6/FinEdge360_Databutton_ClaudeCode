@@ -55,14 +55,15 @@ export const AddManualHoldingModal = ({ isOpen, onClose, userId, onSuccess }: Pr
           setIsin(schemeDetails.isin_div_reinvestment);
           setIsinType('div');
         } else {
-          toast.error('ISIN not available for this scheme. Cannot add to portfolio.');
-          setSelectedScheme(null);
+          // ISIN not available - allow manual entry
+          toast.info('ISIN not found in database. Please enter it manually from your fund fact sheet.');
+          setIsin(''); // Keep scheme selected, allow manual ISIN entry
         }
       }
     } catch (error) {
       console.error('Failed to fetch scheme details:', error);
-      toast.error('Failed to fetch scheme ISIN');
-      setSelectedScheme(null);
+      toast.warning('Could not auto-fetch ISIN. Please enter it manually.');
+      setIsin(''); // Keep scheme selected, allow manual ISIN entry
     } finally {
       setIsFetchingIsin(false);
     }
@@ -183,16 +184,31 @@ export const AddManualHoldingModal = ({ isOpen, onClose, userId, onSuccess }: Pr
             )}
           </div>
 
-          {/* ISIN Display (Auto-populated, Read-only) */}
-          {isin && (
+          {/* ISIN Input (Auto-populated or Manual Entry) */}
+          {selectedScheme && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 ISIN ({isinType === 'growth' ? 'Growth Plan' : 'Dividend Reinvestment Plan'}) <span className="text-red-500">*</span>
               </label>
-              <div className="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm font-mono text-gray-700">
-                {isin}
+              <input
+                type="text"
+                value={isin}
+                onChange={(e) => setIsin(e.target.value.toUpperCase())}
+                placeholder="INF123456789 (12 characters)"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-primary focus:border-transparent"
+                maxLength={12}
+                required
+              />
+              <div className="mt-2 bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <p className="text-xs text-blue-800 font-medium mb-1">📝 How to find ISIN:</p>
+                <ul className="text-xs text-blue-700 space-y-1 ml-2">
+                  <li>• Check your fund fact sheet or statement</li>
+                  <li>• Visit the AMC website and search for your scheme</li>
+                  <li>• Google: "{selectedScheme.scheme_name} ISIN"</li>
+                  <li>• ISIN format: 12 characters (e.g., INF123456789)</li>
+                </ul>
               </div>
-              <p className="mt-1 text-xs text-gray-500">
+              <p className="mt-2 text-xs text-gray-500">
                 Required for automatic NAV updates and goal tracking
               </p>
             </div>
