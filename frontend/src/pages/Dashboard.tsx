@@ -19,6 +19,10 @@ import { ActionItemsCard } from '@/components/ActionItemsCard';
 import { calculateNetWorth, calculateBasicFIRENumber } from '../utils/financialCalculations';
 import { isPremiumUser } from '../utils/premiumCheck';
 import { API_ENDPOINTS } from '@/config/api';
+import { PrelaunchOfferBanner } from '@/components/PrelaunchOfferBanner';
+import { MilestoneNudgePopup } from '@/components/MilestoneNudgePopup';
+import { MilestoneCelebration } from '@/components/MilestoneCelebration';
+import { useJourneyNudge } from '@/hooks/useJourneyNudge';
 
 type DashboardCard = {
   title: string;
@@ -42,6 +46,12 @@ export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [isPremium, setIsPremium] = useState(false);
   const [goals, setGoals] = useState<Goal[]>([]);
+  const [completedMilestonesArray, setCompletedMilestonesArray] = useState<number[]>([]);
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [celebrationMilestone, setCelebrationMilestone] = useState<number>(1);
+
+  // Journey nudge system
+  const journeyNudge = useJourneyNudge(user?.id, completedMilestonesArray);
 
   // Format currency for display
   const formatCurrency = (amount: number) => {
@@ -242,10 +252,21 @@ export default function Dashboard() {
       }
 
       setCurrentMilestone(current);
+
+      // Update completed milestones array for journey system
+      const prevCompleted = completedMilestonesArray.length;
+      setCompletedMilestonesArray(completedMilestones);
+
+      // Show celebration if a new milestone was just completed
+      if (completedMilestones.length > prevCompleted) {
+        const newMilestone = completedMilestones[completedMilestones.length - 1];
+        setCelebrationMilestone(newMilestone);
+        setShowCelebration(true);
+      }
     };
 
     calculateCurrentMilestone();
-  }, [financialData, goals, user?.id]);
+  }, [financialData, goals, user?.id, completedMilestonesArray.length]);
 
   // Dashboard cards configuration
   const dashboardCards: DashboardCard[] = [
@@ -395,6 +416,34 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
+      {/* Prelaunch Offer Banner */}
+      <PrelaunchOfferBanner
+        completedMilestones={completedMilestonesArray.length}
+        totalMilestones={10}
+      />
+
+      {/* Milestone Nudge Popup */}
+      {journeyNudge.shouldShow && (
+        <MilestoneNudgePopup
+          currentMilestone={journeyNudge.currentMilestone}
+          completedMilestones={completedMilestonesArray}
+          onClose={journeyNudge.closeNudge}
+          onDismissForever={journeyNudge.dismissForever}
+          showPrelaunchOffer={completedMilestonesArray.length >= 5}
+        />
+      )}
+
+      {/* Milestone Celebration */}
+      {showCelebration && (
+        <MilestoneCelebration
+          milestoneNumber={celebrationMilestone}
+          milestoneTitle={`Milestone ${celebrationMilestone}`}
+          onContinue={() => setShowCelebration(false)}
+          nextMilestoneRoute={journeyNudge.currentMilestone < 10 ? '/' : '/dashboard'}
+          totalCompleted={completedMilestonesArray.length}
+        />
+      )}
+
       <main className="container mx-auto max-w-7xl py-6 px-4">
         {/* SEBI Compliance Badge */}
         <div className="mb-6">

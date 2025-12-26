@@ -224,11 +224,19 @@ export default function Login() {
       <div className="container mx-auto px-4 py-8 max-w-md">
         {/* Logo and Header */}
         <div className="text-center mb-8">
-          <div 
-            className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-green-500 rounded-lg flex items-center justify-center text-white font-bold text-2xl shadow-lg cursor-pointer"
+          <div
+            className="flex justify-center items-center mb-4 cursor-pointer"
             onClick={handleGoToHome}
           >
-            FinE
+            <video
+              src="/FIREMap.mp4"
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="h-32 md:h-40 w-auto object-contain"
+              aria-label="FIREMap - Your GPS to Financial Freedom"
+            />
           </div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent mb-1">
             Welcome to FIREMap
