@@ -17,9 +17,14 @@ interface Milestone {
 interface MilestoneProgressCardProps {
   userId: string;
   isPremium: boolean;
+  hasFinancialData?: boolean;
 }
 
-export const MilestoneProgressCard: React.FC<MilestoneProgressCardProps> = ({ userId, isPremium }) => {
+export const MilestoneProgressCard: React.FC<MilestoneProgressCardProps> = ({
+  userId,
+  isPremium,
+  hasFinancialData = false
+}) => {
   const navigate = useNavigate();
   const [milestones, setMilestones] = useState<Milestone[]>([
     { step: 0, title: 'Enter Your Details', description: 'Basic financial information', path: '/enter-details', completed: false },
@@ -32,29 +37,70 @@ export const MilestoneProgressCard: React.FC<MilestoneProgressCardProps> = ({ us
     { step: 7, title: 'FIRE Planning', description: 'Create SIP investment plan', path: '/fire-planner?tab=sip-plan', completed: false },
   ]);
 
+  // Smart auto-detection of milestone completion based on actual data
   useEffect(() => {
-    if (!isPremium) return;
-
     const checkMilestoneCompletion = async () => {
       try {
-        // Fetch milestone progress from backend
-        const response = await fetch(API_ENDPOINTS.getMilestoneProgress(userId));
-        if (response.ok) {
-          const data = await response.json();
+        const completionStatus: Record<number, boolean> = {
+          0: hasFinancialData, // Step 0: Has entered financial details
+          1: hasFinancialData, // Step 1: Has net worth (same as financial data)
+          2: hasFinancialData, // Step 2: Can calculate FIRE if they have data
+          3: hasFinancialData, // Step 3: Tax planning available if they have data
+        };
 
-          // Update milestones with completion status
-          setMilestones(prev => prev.map(milestone => ({
-            ...milestone,
-            completed: data.milestones?.[`step_${milestone.step}`] || false
-          })));
+        // Check Step 4: Portfolio holdings
+        if (userId) {
+          try {
+            const portfolioRes = await fetch(API_ENDPOINTS.getPortfolioHoldings(userId));
+            if (portfolioRes.ok) {
+              const portfolioData = await portfolioRes.json();
+              completionStatus[4] = portfolioData.holdings && portfolioData.holdings.length > 0;
+            }
+          } catch (err) {
+            completionStatus[4] = false;
+          }
+
+          // Check Step 5, 6, 7: FIRE Planner data
+          try {
+            const sipRes = await fetch(API_ENDPOINTS.getSIPPlanner(userId));
+            if (sipRes.ok) {
+              const sipData = await sipRes.json();
+              const hasGoals = sipData.goals && sipData.goals.length > 0;
+              const hasSIPCalculated = sipData.goals?.some((g: any) => g.sipRequired && g.sipRequired > 0);
+
+              completionStatus[5] = hasGoals; // Has set goals
+              completionStatus[7] = hasSIPCalculated; // Has calculated SIP
+            }
+          } catch (err) {
+            completionStatus[5] = false;
+            completionStatus[7] = false;
+          }
+
+          // Check Step 6: Asset allocations
+          try {
+            const allocRes = await fetch(API_ENDPOINTS.getAssetAllocation(userId));
+            if (allocRes.ok) {
+              const allocData = await allocRes.json();
+              completionStatus[6] = allocData.allocations && allocData.allocations.length > 0;
+            }
+          } catch (err) {
+            completionStatus[6] = false;
+          }
         }
+
+        // Update milestones with detected completion status
+        setMilestones(prev => prev.map(milestone => ({
+          ...milestone,
+          completed: completionStatus[milestone.step] || false
+        })));
+
       } catch (error) {
-        console.error('[MilestoneProgressCard] Error fetching milestone progress:', error);
+        console.error('[MilestoneProgressCard] Error checking milestone completion:', error);
       }
     };
 
     checkMilestoneCompletion();
-  }, [userId, isPremium]);
+  }, [userId, hasFinancialData]);
 
   const completedCount = milestones.filter(m => m.completed).length;
   const progressPercentage = (completedCount / milestones.length) * 100;

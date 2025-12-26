@@ -299,6 +299,7 @@ export default function Dashboard() {
             <MilestoneProgressCard
               userId={user?.id || ''}
               isPremium={isPremium}
+              hasFinancialData={!!financialData}
             />
           </div>
         )}
