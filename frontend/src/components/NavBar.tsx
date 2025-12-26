@@ -47,14 +47,14 @@ const NavBar: React.FC<NavBarProps> = ({ showFullNav = true }) => {
   ];
 
   return (
-    <header className="bg-white border-b border-gray-200 py-0 px-2 shadow-sm sticky top-0 z-10">
+    <header className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-10">
       <div className="container mx-auto max-w-6xl">
-        <div className="flex justify-between items-center min-h-[4rem]">
+        <div className="flex justify-between items-center py-1">
           <div className="flex items-center cursor-pointer" onClick={() => navigate('/')}>
             <img
               src="/TheFireMap_Logo.png"
               alt="FIREMap - Your GPS to Financial Freedom"
-              className="h-20 md:h-24 w-auto object-contain"
+              className="h-16 md:h-20 lg:h-24 w-auto object-contain"
             />
           </div>
           
