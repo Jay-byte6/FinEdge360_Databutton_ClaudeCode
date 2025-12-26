@@ -47,19 +47,23 @@ const NavBar: React.FC<NavBarProps> = ({ showFullNav = true }) => {
   ];
 
   return (
-    <header className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-10">
+    <header className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-10 overflow-hidden">
       <div className="container mx-auto max-w-6xl">
-        <div className="flex justify-between items-center py-1">
-          <div className="flex items-center cursor-pointer mr-8 md:mr-12" onClick={() => navigate('/')}>
-            <img
-              src="/TheFireMap_Logo.png"
-              alt="FIREMap - Your GPS to Financial Freedom"
-              className="h-10 md:h-12 lg:h-16 w-auto object-contain"
+        <div className="flex justify-between items-center py-2 h-20 relative overflow-hidden">
+          <div className="flex items-center cursor-pointer mr-8 md:mr-12 relative z-0 bg-transparent -my-2" onClick={() => navigate('/')}>
+            <video
+              src="/FIREMap.mp4"
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="h-36 md:h-42 lg:h-48 w-auto object-contain"
+              aria-label="FIREMap - Your GPS to Financial Freedom"
             />
           </div>
           
           {showFullNav && (
-            <nav className="hidden md:flex space-x-6">
+            <nav className="hidden md:flex space-x-6 relative z-10">
               {navItems.map((item, index) => {
                 const isActive = location.pathname === item.path;
                 return (
@@ -79,7 +83,7 @@ const NavBar: React.FC<NavBarProps> = ({ showFullNav = true }) => {
             </nav>
           )}
           
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 relative z-10">
             {isAuthenticated && <NotificationCenter />}
             {isAuthenticated ? (
               <DropdownMenu>

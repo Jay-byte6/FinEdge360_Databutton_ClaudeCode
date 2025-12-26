@@ -1319,8 +1319,8 @@ const FIREPlanner: React.FC = () => {
                 {/* SIP Plan Table with Asset Class Breakdown */}
                 <Card className="shadow-lg">
                   <CardHeader>
-                    <CardTitle>SIP Plan with Asset Class Breakdown</CardTitle>
-                    <p className="text-sm text-gray-600">Monthly investment split by asset class for each goal</p>
+                    <CardTitle>Your SIP Investment Plan - Diversified Across Asset Classes</CardTitle>
+                    <p className="text-sm text-gray-600">This shows how your monthly SIP should be split across different asset classes (Equity, Debt, Gold, etc.) as per your desired asset allocation strategy for each goal</p>
                   </CardHeader>
                   <CardContent>
                     <div className="overflow-x-auto">

@@ -485,6 +485,37 @@ async def manual_nav_update(user_id: Optional[str] = None):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@router.post("/refresh-portfolio-nav/{user_id}")
+async def refresh_portfolio_nav(user_id: str):
+    """
+    Refresh NAV for all portfolio holdings of a specific user
+
+    Args:
+        user_id: User ID whose portfolio NAV needs to be refreshed
+
+    Returns:
+        Update statistics
+    """
+    try:
+        print(f"[Refresh Portfolio NAV] User: {user_id}")
+
+        from .nav_service import batch_update_navs
+
+        # Trigger batch NAV update for this user
+        stats = await batch_update_navs(user_id)
+
+        return {
+            'success': True,
+            'message': 'Portfolio NAV refreshed successfully',
+            'stats': stats
+        }
+
+    except Exception as e:
+        print(f"[Refresh Portfolio NAV] Error: {str(e)}")
+        print(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 # =======================
 # GOAL ASSIGNMENT ENDPOINTS
 # =======================

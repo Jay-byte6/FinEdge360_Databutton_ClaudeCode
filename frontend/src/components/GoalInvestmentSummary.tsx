@@ -224,7 +224,7 @@ export const GoalInvestmentSummary = ({ userId }: GoalInvestmentSummaryProps) =>
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Goals & Portfolio Alignment</CardTitle>
+          <CardTitle>Your Actual Portfolio Tracking - See Your Real Progress</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center justify-center py-8 text-center">
@@ -245,10 +245,10 @@ export const GoalInvestmentSummary = ({ userId }: GoalInvestmentSummaryProps) =>
         {/* Simple Centered Header */}
         <div className="text-center py-4 border-b-2 border-gray-200">
           <h2 className="text-2xl font-bold text-gray-900">
-            Goals & Portfolio Alignment
+            Your Actual Portfolio Tracking - See Your Real Progress
           </h2>
           <p className="text-sm text-gray-600 mt-1">
-            Track Your Progress Toward Financial Freedom
+            This shows your REAL current holdings mapped to each goal. You can see if your actual investments are diversified as per your planned asset allocation above. Track your progress and stay on course to achieve your goals!
           </p>
         </div>
 
