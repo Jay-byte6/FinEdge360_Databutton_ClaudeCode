@@ -577,8 +577,7 @@ export default function App() {
         <div className="container mx-auto max-w-6xl">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center mb-4 md:mb-0">
-              <img src="https://static.databutton.com/public/c20b7149-cba2-4252-9e94-0e8406b7fcec/FinEdge360_Logo_screenshot.png" alt="FinEdge360 Logo" className="h-14 w-auto mr-2" />
-              <span className="text-gray-600 font-semibold">FinEdge360</span>
+              <img src="/TheFireMap_Logo.png" alt="TheFireMap Logo" className="h-10 w-auto mr-2 object-contain" />
             </div>
             <div className="text-gray-500 text-sm">
               © {new Date().getFullYear()} FinEdge360. All rights reserved.

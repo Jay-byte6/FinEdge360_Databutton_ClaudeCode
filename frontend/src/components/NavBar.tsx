@@ -51,10 +51,10 @@ const NavBar: React.FC<NavBarProps> = ({ showFullNav = true }) => {
       <div className="container mx-auto max-w-6xl">
         <div className="flex justify-between items-center">
           <div className="flex items-center cursor-pointer" onClick={() => navigate('/')}>
-            <img 
-              src="https://static.databutton.com/public/c20b7149-cba2-4252-9e94-0e8406b7fcec/FinEdge360_Logo_screenshot.png" 
-              alt="FinEdge360 Logo" 
-              className="h-16 w-auto" 
+            <img
+              src="/TheFireMap_Logo.png"
+              alt="TheFireMap Logo"
+              className="h-12 w-auto object-contain"
             />
           </div>
           

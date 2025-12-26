@@ -212,7 +212,7 @@ const RazorpayCheckout: React.FC<RazorpayCheckoutProps> = ({
         order_id: orderData.order_id,
         name: 'FinEdge360',
         description: `${getDisplayName()} - ${billingCycle}`,
-        image: 'https://static.databutton.com/public/c20b7149-cba2-4252-9e94-0e8406b7fcec/FinEdge360_Logo_screenshot.png',
+        image: `${window.location.origin}/TheFireMap_Logo.png`,
         prefill: {
           name: user.email?.split('@')[0] || '',
           email: user.email || '',

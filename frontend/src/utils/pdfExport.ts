@@ -110,7 +110,7 @@ export const generateFinancialProfilePDF = async (
   const loadLogo = async () => {
     try {
       const img = new Image();
-      img.src = '/FinEdge360_Logo_Resized_250px.png';
+      img.src = '/TheFireMap_Logo.png';
       await new Promise((resolve, reject) => {
         img.onload = resolve;
         img.onerror = reject;
