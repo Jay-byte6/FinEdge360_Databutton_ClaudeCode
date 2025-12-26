@@ -195,7 +195,7 @@ export default function App() {
                 Plan Smart. Retire Early. Save Max Tax.
               </p>
               <p className="text-lg text-blue-200 mb-12 max-w-2xl mx-auto md:mx-0">
-                FinEdge360 empowers <span className="font-semibold text-white">Salaried & IT Professionals</span> with intelligent tools for goal planning, investment tracking, and tax optimization – all designed for your dynamic career.
+                FIREMap empowers <span className="font-semibold text-white">Salaried & IT Professionals</span> with intelligent tools for goal planning, investment tracking, and tax optimization – all designed for your dynamic career.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
                 <Button
@@ -219,7 +219,7 @@ export default function App() {
             <div className="md:w-2/5 flex justify-center md:justify-end mt-10 md:mt-0">
               <img
                 src="https://cdn3d.iconscout.com/3d/premium/thumb/man-seat-on-money-stack-and-achieve-financial-freedom-7303350-6000052.png"
-                alt="Man achieving financial freedom with FinEdge360"
+                alt="Man achieving financial freedom with FIREMap"
                 className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg rounded-lg object-contain"
               />
             </div>
@@ -267,7 +267,7 @@ export default function App() {
       <section className="py-12 md:py-16 bg-slate-50">
         <div className="text-center mb-12 md:mb-16 px-4">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            How FinEdge360 Transforms Your Finances
+            How FIREMap Transforms Your Finances
           </h2>
           <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
             Swipe or use the arrows to explore the key benefits and take control of your financial future.
@@ -380,7 +380,7 @@ export default function App() {
             Ready to Transform Your Financial Future?
           </h2>
           <p className="text-lg sm:text-xl mb-10 opacity-90 max-w-2xl mx-auto">
-            Take the first step towards financial clarity and independence. FinEdge360 empowers you with the tools and insights you need.
+            Take the first step towards financial clarity and independence. FIREMap empowers you with the tools and insights you need.
           </p>
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
             <Button
@@ -494,7 +494,7 @@ export default function App() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
               {
-                quote: "FinEdge360 has revolutionized how I manage my finances. The clarity and insights are unparalleled!",
+                quote: "FIREMap has revolutionized how I manage my finances. The clarity and insights are unparalleled!",
                 name: "Priya S.",
                 title: "IT Project Manager",
                 avatar: "PS"
@@ -539,13 +539,13 @@ export default function App() {
             {[
               {
                 id: "faq-1",
-                question: "Is my data secure with FinEdge360?",
+                question: "Is my data secure with FIREMap?",
                 answer: "Absolutely. We prioritize your data security using industry-standard encryption and security protocols to ensure your financial information is always protected. Your trust is paramount to us."
               },
               {
                 id: "faq-2",
-                question: "Who is FinEdge360 designed for?",
-                answer: "FinEdge360 is specifically tailored for salaried employees and IT professionals in India who are looking to take proactive control of their financial planning – from goal setting and SIPs to tax optimization and FIRE (Financial Independence, Retire Early) planning."
+                question: "Who is FIREMap designed for?",
+                answer: "FIREMap is specifically tailored for salaried employees and IT professionals in India who are looking to take proactive control of their financial planning – from goal setting and SIPs to tax optimization and FIRE (Financial Independence, Retire Early) planning."
               },
               {
                 id: "faq-3",
@@ -555,7 +555,7 @@ export default function App() {
               {
                 id: "faq-4",
                 question: "What kind of support do you offer if I have questions?",
-                answer: "We're here to assist you! You can reach our support team via email at support@finedge360.com or through other contact options available within the app once you're logged in. We are committed to helping you make the most of FinEdge360."
+                answer: "We're here to assist you! You can reach our support team via email at support@finedge360.com or through other contact options available within the app once you're logged in. We are committed to helping you make the most of FIREMap."
               }
             ].map((faq) => (
               <AccordionItem value={faq.id} key={faq.id} className="border-b last:border-b-0">
@@ -580,7 +580,7 @@ export default function App() {
               <img src="/TheFireMap_Logo.png" alt="TheFireMap Logo" className="h-20 w-auto mr-2 object-contain" />
             </div>
             <div className="text-gray-500 text-sm">
-              © {new Date().getFullYear()} FinEdge360. All rights reserved.
+              © {new Date().getFullYear()} FIREMap. All rights reserved.
             </div>
           </div>
         </div>

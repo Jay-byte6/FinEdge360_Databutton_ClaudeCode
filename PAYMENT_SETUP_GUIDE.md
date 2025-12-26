@@ -35,7 +35,7 @@ RAZORPAY_KEY_SECRET=xxxxxxxxxxxxxxxxxx
 
 ### Step 4: Install Razorpay SDK
 
-```bash
+```bashJay Palani Palya No no no
 cd backend
 pip install razorpay
 ```

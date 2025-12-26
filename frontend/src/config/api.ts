@@ -8,6 +8,9 @@ export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:80
 
 // API Endpoints
 export const API_ENDPOINTS = {
+  // Base URL for direct API calls
+  baseUrl: API_BASE_URL,
+
   // Auth
   resetPassword: `${API_BASE_URL}/routes/auth/reset-password`,
   initAuthTables: `${API_BASE_URL}/routes/init-auth-tables`,
@@ -69,6 +72,9 @@ export const API_ENDPOINTS = {
   markNotificationRead: (notificationId: string) => `${API_BASE_URL}/routes/portfolio-notifications/${notificationId}/read`,
   deletePortfolioHolding: (holdingId: string, userId: string) => `${API_BASE_URL}/routes/portfolio-holdings/${holdingId}?user_id=${userId}`,
   manualNavUpdate: `${API_BASE_URL}/routes/manual-nav-update`,
+  refreshPortfolioNav: (userId: string) => `${API_BASE_URL}/routes/refresh-portfolio-nav/${userId}`,
+  getPortfolioSyncStatus: (userId: string) => `${API_BASE_URL}/routes/portfolio-sync-status/${userId}`,
+  togglePortfolioSync: `${API_BASE_URL}/routes/toggle-portfolio-sync`,
 };
 
 // Helper function to check if we're in production

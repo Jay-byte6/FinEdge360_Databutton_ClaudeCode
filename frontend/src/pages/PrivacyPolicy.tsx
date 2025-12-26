@@ -21,7 +21,7 @@ export default function PrivacyPolicy() {
             <section>
               <h2 className="text-xl font-semibold mb-3">1. Introduction</h2>
               <p className="text-gray-700">
-                FinEdge360 ("we", "our", or "us") is committed to protecting your privacy and personal
+                FIREMap ("we", "our", or "us") is committed to protecting your privacy and personal
                 information. This Privacy Policy explains how we collect, use, store, and protect your
                 data when you use our Service.
               </p>
@@ -247,7 +247,7 @@ export default function PrivacyPolicy() {
             <section>
               <h2 className="text-xl font-semibold mb-3">8. Children's Privacy</h2>
               <p className="text-gray-700">
-                FinEdge360 is not intended for users under the age of 18. We do not knowingly collect
+                FIREMap is not intended for users under the age of 18. We do not knowingly collect
                 personal information from children. If you believe a child has provided us with
                 personal information, please contact us immediately.
               </p>
@@ -284,7 +284,7 @@ export default function PrivacyPolicy() {
             <section>
               <h2 className="text-xl font-semibold mb-3">11. International Users</h2>
               <p className="text-gray-700">
-                FinEdge360 is operated from India. If you are accessing the Service from outside India,
+                FIREMap is operated from India. If you are accessing the Service from outside India,
                 please be aware that your information may be transferred to, stored, and processed in
                 India. By using the Service, you consent to this transfer.
               </p>

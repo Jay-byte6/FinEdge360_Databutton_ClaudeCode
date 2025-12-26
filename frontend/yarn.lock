@@ -7604,7 +7604,7 @@
     "@radix-ui/react-use-previous" "1.1.1"
     "@radix-ui/react-use-size" "1.1.1"
 
-"@radix-ui/react-collapsible@^1.1.0", "@radix-ui/react-collapsible@^1.1.1", "@radix-ui/react-collapsible@1.1.12":
+"@radix-ui/react-collapsible@^1.1.1", "@radix-ui/react-collapsible@^1.1.12", "@radix-ui/react-collapsible@1.1.12":
   version "1.1.12"
   resolved "https://registry.npmjs.org/@radix-ui/react-collapsible/-/react-collapsible-1.1.12.tgz"
   integrity sha512-Uu+mSh4agx2ib1uIGPP4/CKNULyajb3p92LsVXmH2EHVMTfZWpll88XJ0j4W0z3f8NK1eYl1+Mf/szHPmcHzyA==
@@ -8084,7 +8084,7 @@
     "@babel/runtime" "^7.13.10"
     "@radix-ui/react-compose-refs" "1.0.1"
 
-"@radix-ui/react-switch@^1.1.0", "@radix-ui/react-switch@^1.1.1":
+"@radix-ui/react-switch@^1.1.1", "@radix-ui/react-switch@^1.2.6":
   version "1.2.6"
   resolved "https://registry.npmjs.org/@radix-ui/react-switch/-/react-switch-1.2.6.tgz"
   integrity sha512-bByzr1+ep1zk4VubeEVViV592vu2lHE2BZY5OnzehZqOOgogN80+mNtCqPkhn2gklJqOpxWgPoYTSnhBCqpOXQ==
@@ -29033,10 +29033,10 @@ react-composer@^5.0.3:
   dependencies:
     prop-types "^15.6.0"
 
-react-confetti@^6.1.0:
-  version "6.1.0"
-  resolved "https://registry.npmjs.org/react-confetti/-/react-confetti-6.1.0.tgz"
-  integrity sha512-7Ypx4vz0+g8ECVxr88W9zhcQpbeujJAVqL14ZnXJ3I23mOI9/oBVTQ3dkJhUmB0D6XOtCZEM6N0Gm9PMngkORw==
+react-confetti@^6.4.0:
+  version "6.4.0"
+  resolved "https://registry.npmjs.org/react-confetti/-/react-confetti-6.4.0.tgz"
+  integrity sha512-5MdGUcqxrTU26I2EU7ltkWPwxvucQTuqMm8dUz72z2YMqTD6s9vMcDUysk7n9jnC+lXuCPeJJ7Knf98VEYE9Rg==
   dependencies:
     tween-functions "^1.2.0"
 

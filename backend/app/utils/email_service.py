@@ -1,5 +1,5 @@
 """
-Email Service for FinEdge360
+Email Service for FIREMap
 Handles all email communications including access codes, receipts, and notifications
 """
 
@@ -83,7 +83,7 @@ def send_access_code_email(
         bool: True if sent successfully
     """
 
-    subject = f"🎉 Your FinEdge360 {plan_name.title()} Access Code"
+    subject = f"🎉 Your FIREMap {plan_name.title()} Access Code"
 
     html_content = f"""
 <!DOCTYPE html>
@@ -203,7 +203,7 @@ def send_access_code_email(
 <body>
     <div class="email-container">
         <div class="header">
-            <h1>🎉 Welcome to FinEdge360 {plan_name.title()}!</h1>
+            <h1>🎉 Welcome to FIREMap {plan_name.title()}!</h1>
             <p>Thank you for subscribing, {user_name}!</p>
             {"<span class='badge'>LIFETIME ACCESS</span>" if is_lifetime else ""}
         </div>
@@ -219,7 +219,7 @@ def send_access_code_email(
         <div class="instructions">
             <h3>📝 How to Use Your Access Code:</h3>
             <ol>
-                <li>Log in to your FinEdge360 account</li>
+                <li>Log in to your FIREMap account</li>
                 <li>Navigate to <strong>SIP Planner</strong> or <strong>Portfolio Analyzer</strong></li>
                 <li>Enter your access code when prompted</li>
                 <li>Start exploring your premium features!</li>
@@ -265,7 +265,7 @@ def send_access_code_email(
             <p>Contact us at <a href="mailto:support@finedge360.com">support@finedge360.com</a></p>
             <p>WhatsApp: <a href="https://wa.me/yourwhatsapplink">Chat with Expert</a></p>
             <p style="margin-top: 20px; font-size: 12px;">
-                FinEdge360 | Your Path to Financial Freedom<br>
+                FIREMap | Your Path to Financial Freedom<br>
                 © {datetime.now().year} All rights reserved
             </p>
         </div>
@@ -297,7 +297,7 @@ def send_payment_receipt_email(
         billing_cycle: monthly/yearly/lifetime
     """
 
-    subject = f"Payment Receipt - FinEdge360 {plan_name.title()} Subscription"
+    subject = f"Payment Receipt - FIREMap {plan_name.title()} Subscription"
 
     html_content = f"""
 <!DOCTYPE html>
@@ -399,7 +399,7 @@ def send_subscription_expiry_reminder(
 ) -> bool:
     """Send reminder email when subscription is about to expire"""
 
-    subject = f"⏰ Your FinEdge360 Subscription Expires in {days_remaining} Days"
+    subject = f"⏰ Your FIREMap Subscription Expires in {days_remaining} Days"
 
     html_content = f"""
 <!DOCTYPE html>

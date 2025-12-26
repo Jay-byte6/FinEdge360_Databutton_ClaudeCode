@@ -152,6 +152,123 @@ def get_scheme_code(scheme_name: str, amc_name: str = None) -> str:
 
 
 # =======================
+# TEXT-BASED PARSER (Fallback)
+# =======================
+
+def parse_cams_text(file_path: str, password: str = None) -> List[Dict[str, Any]]:
+    """
+    Parse CAMS PDF by extracting tables properly
+    CAMS format: Folio No. | ISIN | Scheme Name | Cost Value | Unit Balance | NAV Date | NAV | Market Value | Registrar
+
+    Args:
+        file_path: Path to PDF file
+        password: Password for protected PDFs (optional)
+
+    Returns:
+        List of holding dictionaries
+    """
+    holdings = []
+    seen_holdings = set()  # Track unique holdings to avoid duplicates
+
+    try:
+        with pdfplumber.open(file_path, password=password) as pdf:
+            for page_num, page in enumerate(pdf.pages):
+                # Extract tables from the page
+                tables = page.extract_tables()
+
+                if tables:
+                    print(f"[Text Parser] Found {len(tables)} tables on page {page_num + 1}")
+
+                    for table_idx, table in enumerate(tables):
+                        print(f"[Text Parser] Processing table {table_idx + 1} with {len(table)} rows")
+
+                        for row_idx, row in enumerate(table):
+                            if not row or len(row) < 8:
+                                continue
+
+                            # Skip header rows
+                            if any(header in str(row).upper() for header in ['FOLIO', 'ISIN', 'SCHEME NAME', 'COST VALUE']):
+                                continue
+
+                            # CAMS table columns:
+                            # 0: Folio No.
+                            # 1: ISIN
+                            # 2: Scheme Name
+                            # 3: Cost Value (INR)
+                            # 4: Unit Balance
+                            # 5: NAV Date
+                            # 6: NAV (INR)
+                            # 7: Market Value (INR)
+                            # 8: Registrar (optional)
+
+                            try:
+                                folio = str(row[0]).strip() if row[0] else 'UNKNOWN'
+                                isin = str(row[1]).strip() if row[1] and str(row[1]).startswith('INF') else None
+                                scheme_name = str(row[2]).strip() if row[2] else ''
+
+                                # Skip if scheme name is too short or empty
+                                if len(scheme_name) < 10 or scheme_name.upper() == 'TOTAL':
+                                    continue
+
+                                # Extract numeric values
+                                cost_value = clean_number(str(row[3])) if row[3] else 0
+                                unit_balance = clean_number(str(row[4])) if row[4] else 0
+                                nav = clean_number(str(row[6])) if row[6] else 0
+                                market_value = clean_number(str(row[7])) if row[7] else 0
+
+                                # Skip if units is 0 or very small
+                                if unit_balance < 0.001:
+                                    continue
+
+                                # Create unique key to avoid duplicates
+                                holding_key = f"{folio}_{isin}_{scheme_name}_{unit_balance}"
+                                if holding_key in seen_holdings:
+                                    print(f"[Text Parser] SKIP duplicate: {scheme_name}")
+                                    continue
+
+                                seen_holdings.add(holding_key)
+
+                                # Extract scheme code from scheme name (usually first word before dash)
+                                scheme_code_match = re.match(r'([A-Z0-9]+)\s*-', scheme_name)
+                                scheme_code = scheme_code_match.group(1) if scheme_code_match else 'UNKNOWN'
+
+                                avg_cost = cost_value / unit_balance if unit_balance > 0 else 0
+
+                                holding = {
+                                    'folio_number': folio,
+                                    'isin': isin,
+                                    'scheme_name': scheme_name,
+                                    'scheme_code': scheme_code,
+                                    'amc_name': None,
+                                    'unit_balance': unit_balance,
+                                    'avg_cost_per_unit': avg_cost,
+                                    'cost_value': cost_value,
+                                    'current_nav': nav,
+                                    'nav_date': datetime.now().date().isoformat(),
+                                }
+
+                                holdings.append(holding)
+                                print(f"[Text Parser] Extracted: {scheme_name}")
+                                print(f"  Folio: {folio}, ISIN: {isin}")
+                                print(f"  Cost: {cost_value}, Units: {unit_balance}, NAV: {nav}, Value: {market_value}")
+
+                            except Exception as row_error:
+                                print(f"[Text Parser] Error processing row {row_idx}: {str(row_error)}")
+                                continue
+                else:
+                    print(f"[Text Parser] No tables found on page {page_num + 1}, trying text extraction")
+
+            print(f"[Text Parser] Total holdings extracted: {len(holdings)}")
+            return holdings
+
+    except Exception as e:
+        print(f"[Text Parser] Error: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return []
+
+
+# =======================
 # PDF PARSER
 # =======================
 
@@ -176,23 +293,52 @@ def parse_cams_pdf(file_path: str, password: str = None) -> List[Dict[str, Any]]
             for page_num, page in enumerate(pdf.pages, 1):
                 print(f"[PDF Parser] Processing page {page_num}/{len(pdf.pages)}")
 
-                # Extract text and tables
+                # Extract text and tables with more aggressive settings
                 text = page.extract_text()
-                tables = page.extract_tables()
+
+                # Try multiple table extraction strategies
+                table_settings = {
+                    "vertical_strategy": "lines_strict",
+                    "horizontal_strategy": "lines_strict",
+                    "explicit_vertical_lines": [],
+                    "explicit_horizontal_lines": [],
+                    "snap_tolerance": 3,
+                    "join_tolerance": 3,
+                    "edge_min_length": 3,
+                    "min_words_vertical": 3,
+                    "min_words_horizontal": 1,
+                }
+
+                tables = page.extract_tables(table_settings)
+
+                # If no tables found, try text strategy
+                if not tables or len(tables) == 0:
+                    table_settings["vertical_strategy"] = "text"
+                    table_settings["horizontal_strategy"] = "text"
+                    tables = page.extract_tables(table_settings)
+
+                # DEBUG: Print what we found
+                print(f"[PDF Parser DEBUG] Page {page_num} text preview: {text[:500] if text else 'NO TEXT'}")
+                print(f"[PDF Parser DEBUG] Page {page_num} found {len(tables)} tables")
 
                 # Look for AMC name in text
                 amc_match = re.search(r'([A-Z][A-Za-z\s]+(?:Mutual Fund|Asset Management|AMC))', text)
                 if amc_match:
                     current_amc = amc_match.group(1).strip()
+                    print(f"[PDF Parser DEBUG] Found AMC: {current_amc}")
 
                 # Process tables
-                for table in tables:
+                for table_idx, table in enumerate(tables):
+                    print(f"[PDF Parser DEBUG] Table {table_idx}: {len(table)} rows")
                     if not table or len(table) < 2:
+                        print(f"[PDF Parser DEBUG] Skipping table {table_idx} - too few rows")
                         continue
 
                     # Try to identify column headers
                     headers = table[0]
+                    print(f"[PDF Parser DEBUG] Table {table_idx} headers: {headers}")
                     if not headers:
+                        print(f"[PDF Parser DEBUG] Skipping table {table_idx} - no headers")
                         continue
 
                     # Look for key columns (case-insensitive)
@@ -219,20 +365,24 @@ def parse_cams_pdf(file_path: str, password: str = None) -> List[Dict[str, Any]]
                             elif 'value' in header_lower or 'market' in header_lower:
                                 value_col = i
 
+                    print(f"[PDF Parser DEBUG] Column mapping - folio:{folio_col}, scheme:{scheme_col}, units:{units_col}, nav:{nav_col}, cost:{cost_col}, value:{value_col}")
+
                     # Parse data rows
-                    for row in table[1:]:
+                    for row_idx, row in enumerate(table[1:]):
                         if not row or len(row) == 0:
                             continue
 
                         # Extract folio number
-                        if folio_col is not None and row[folio_col]:
+                        if folio_col is not None and len(row) > folio_col and row[folio_col]:
                             folio = extract_folio_number(row[folio_col])
                             if folio:
                                 current_folio = folio
+                                print(f"[PDF Parser DEBUG] Row {row_idx}: Found folio {folio}")
 
                         # Extract scheme data
-                        if scheme_col is not None and row[scheme_col]:
+                        if scheme_col is not None and len(row) > scheme_col and row[scheme_col]:
                             scheme_name = str(row[scheme_col]).strip()
+                            print(f"[PDF Parser DEBUG] Row {row_idx}: Scheme candidate '{scheme_name}'")
 
                             # Skip if it's a header or empty
                             if not scheme_name or len(scheme_name) < 5:
@@ -273,6 +423,11 @@ def parse_cams_pdf(file_path: str, password: str = None) -> List[Dict[str, Any]]
 
                                 holdings.append(holding)
                                 print(f"[PDF Parser] Extracted: {scheme_name} ({units} units)")
+
+        # If no holdings were extracted from tables, try text parsing
+        if len(holdings) == 0:
+            print("[PDF Parser] No holdings from tables, trying text-based parsing...")
+            holdings = parse_cams_text(file_path, password)
 
         print(f"[PDF Parser] Total holdings extracted: {len(holdings)}")
         return holdings

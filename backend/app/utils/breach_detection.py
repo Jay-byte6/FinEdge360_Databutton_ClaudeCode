@@ -170,10 +170,10 @@ def send_breach_notification(user_email: str, user_id: str, breach_type: str, de
         timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
 
         # Email to user
-        user_subject = "Security Alert - FinEdge360 Account Activity"
+        user_subject = "Security Alert - FIREMap Account Activity"
         user_body = f"""Dear User,
 
-We detected unusual activity on your FinEdge360 account:
+We detected unusual activity on your FIREMap account:
 - Activity Type: {breach_type}
 - Time: {timestamp}
 - Details: {details}
@@ -184,14 +184,14 @@ If this was you, no action is needed. If you don't recognize this activity, plea
 3. Contact us at support@finedge360.com
 
 Best regards,
-FinEdge360 Security Team
+FIREMap Security Team
 """
 
         # Email to admin
-        admin_subject = "Security Alert - FinEdge360 Suspicious Activity"
+        admin_subject = "Security Alert - FIREMap Suspicious Activity"
         admin_body = f"""Admin Alert,
 
-Suspicious activity detected on FinEdge360:
+Suspicious activity detected on FIREMap:
 - User ID: {user_id}
 - User Email: {user_email}
 - Activity Type: {breach_type}
@@ -200,7 +200,7 @@ Suspicious activity detected on FinEdge360:
 
 Please review this activity and take appropriate action if necessary.
 
-FinEdge360 Security System
+FIREMap Security System
 """
 
         # Send to user

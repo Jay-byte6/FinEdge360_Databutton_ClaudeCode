@@ -210,7 +210,7 @@ const RazorpayCheckout: React.FC<RazorpayCheckoutProps> = ({
         amount: orderData.amount,
         currency: orderData.currency,
         order_id: orderData.order_id,
-        name: 'FinEdge360',
+        name: 'FIREMap',
         description: `${getDisplayName()} - ${billingCycle}`,
         image: `${window.location.origin}/TheFireMap_Logo.png`,
         prefill: {

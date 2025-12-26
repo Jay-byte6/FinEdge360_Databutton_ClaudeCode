@@ -8,12 +8,14 @@ export interface PortfolioHolding {
   folio_number: string;
   scheme_code: string;
   scheme_name: string;
+  isin?: string;  // ISIN for NAV tracking and goal mapping
   amc_name: string | null;
   unit_balance: number;
   avg_cost_per_unit: number;
   cost_value: number;
   current_nav: number;
   nav_date: string;
+  nav_last_fetched_at?: string;  // Timestamp when NAV was last fetched from MFAPI
   market_value: number;
   absolute_profit: number;
   absolute_return_percentage: number;

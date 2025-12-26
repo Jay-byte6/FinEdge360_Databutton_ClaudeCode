@@ -402,7 +402,7 @@ export default function ConsultationNew() {
                   </h4>
                 </div>
                 <p className="text-center text-sm text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-                  All consultations are provided by independent SEBI Registered Investment Advisors (RIA) and certified financial professionals. FinEdge360 is an educational platform and does not provide investment advice directly.
+                  All consultations are provided by independent SEBI Registered Investment Advisors (RIA) and certified financial professionals. FIREMap is an educational platform and does not provide investment advice directly.
                 </p>
               </div>
             </Card>

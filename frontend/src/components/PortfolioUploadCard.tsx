@@ -6,7 +6,11 @@ import { toast } from 'sonner';
 import usePortfolioStore from '@/utils/portfolioStore';
 import useAuthStore from '@/utils/authStore';
 
-export const PortfolioUploadCard = () => {
+interface PortfolioUploadCardProps {
+  onUploadSuccess?: () => void;
+}
+
+export const PortfolioUploadCard = ({ onUploadSuccess }: PortfolioUploadCardProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const [pdfPassword, setPdfPassword] = useState('');
   const [showPasswordInput, setShowPasswordInput] = useState(false);
@@ -46,7 +50,12 @@ export const PortfolioUploadCard = () => {
 
     // Upload file (with password if provided)
     const password = pdfPassword || undefined;
-    await uploadStatement(file, user.id, password);
+    const result = await uploadStatement(file, user.id, password);
+
+    // Call success callback if upload was successful
+    if (result && result.success && onUploadSuccess) {
+      onUploadSuccess();
+    }
   };
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {

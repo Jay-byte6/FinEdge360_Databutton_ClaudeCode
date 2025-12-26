@@ -12,7 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { CheckCircle, Circle, HelpCircle, PlayCircle, BookOpen, MessageCircle, Loader2, ArrowRight, ArrowLeft, AlertCircle } from 'lucide-react';
+import { CheckCircle, Circle, HelpCircle, PlayCircle, BookOpen, MessageCircle, Loader2, ArrowRight, ArrowLeft, AlertCircle, Trophy, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import useAuthStore from '@/utils/authStore';
 import { API_BASE_URL } from '@/config/api';
@@ -77,6 +77,7 @@ export const MilestoneCompletionCard: React.FC<MilestoneCompletionProps> = ({
   const [saving, setSaving] = useState(false);
   const [previousMilestoneCompleted, setPreviousMilestoneCompleted] = useState(true);
   const [showPreviousMilestoneAlert, setShowPreviousMilestoneAlert] = useState(false);
+  const [showCongratulations, setShowCongratulations] = useState(false);
 
   // Calculate completion percentage
   const completedCount = completionCriteria.filter(c => c.checked).length;
@@ -189,18 +190,27 @@ export const MilestoneCompletionCard: React.FC<MilestoneCompletionProps> = ({
 
     try {
       await saveMilestoneProgress({ completed: true });
-      toast.success(`Milestone ${milestoneNumber} marked as complete!`, {
-        description: 'Great job! You\'re one step closer to financial freedom.',
-      });
 
       if (onComplete) {
         onComplete();
       }
 
-      // Optionally redirect to Journey Map
+      // Show congratulations popup
+      setShowCongratulations(true);
+
+      // Auto-redirect to next milestone after 3 seconds
       setTimeout(() => {
-        window.location.href = '/journey';
-      }, 2000);
+        setShowCongratulations(false);
+        const nextMilestoneNumber = milestoneNumber + 1;
+        const nextMilestoneRoute = MILESTONE_ROUTES[nextMilestoneNumber];
+
+        if (nextMilestoneRoute) {
+          navigate(nextMilestoneRoute);
+        } else {
+          // If no more milestones, go to Journey Map
+          navigate('/journey');
+        }
+      }, 3000);
     } catch (error) {
       // Error already handled in saveMilestoneProgress
     }
@@ -430,6 +440,66 @@ export const MilestoneCompletionCard: React.FC<MilestoneCompletionProps> = ({
               Go to Milestone {milestoneNumber - 1}
             </AlertDialogAction>
           </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Congratulations Dialog */}
+      <AlertDialog open={showCongratulations} onOpenChange={setShowCongratulations}>
+        <AlertDialogContent className="max-w-md">
+          <div className="relative overflow-hidden">
+            {/* Animated background elements */}
+            <div className="absolute inset-0 bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 opacity-50" />
+
+            {/* Celebration sparkles animation */}
+            <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
+              <Sparkles className="absolute top-4 left-4 h-6 w-6 text-yellow-400 animate-ping" />
+              <Sparkles className="absolute top-8 right-8 h-4 w-4 text-green-400 animate-pulse" />
+              <Sparkles className="absolute bottom-12 left-12 h-5 w-5 text-blue-400 animate-bounce" />
+              <Sparkles className="absolute bottom-8 right-4 h-6 w-6 text-purple-400 animate-ping" style={{ animationDelay: '0.3s' }} />
+              <Sparkles className="absolute top-1/2 left-1/4 h-4 w-4 text-pink-400 animate-pulse" style={{ animationDelay: '0.5s' }} />
+              <Sparkles className="absolute top-1/3 right-1/4 h-5 w-5 text-yellow-400 animate-bounce" style={{ animationDelay: '0.7s' }} />
+            </div>
+
+            <AlertDialogHeader className="relative">
+              <div className="flex justify-center mb-4">
+                <div className="relative">
+                  <Trophy className="h-20 w-20 text-yellow-500 animate-bounce" />
+                  <div className="absolute -top-2 -right-2">
+                    <Sparkles className="h-8 w-8 text-yellow-400 animate-spin" style={{ animationDuration: '3s' }} />
+                  </div>
+                </div>
+              </div>
+              <AlertDialogTitle className="text-center text-3xl font-bold bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                Congratulations!
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-center text-lg mt-4 text-gray-700">
+                <p className="font-semibold mb-2">
+                  You've successfully completed Milestone {milestoneNumber}!
+                </p>
+                <p className="text-base text-gray-600">
+                  {milestoneNumber < 7 ? (
+                    <>
+                      Great progress! Redirecting you to <strong>Milestone {milestoneNumber + 1}</strong> in a moment...
+                    </>
+                  ) : (
+                    <>
+                      Amazing! You've completed all milestones. Redirecting to your FIRE Journey Map...
+                    </>
+                  )}
+                </p>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <div className="flex justify-center mt-6 relative">
+              <div className="flex items-center gap-2 bg-green-100 text-green-800 px-6 py-3 rounded-full animate-pulse">
+                <CheckCircle className="h-6 w-6" />
+                <span className="font-bold text-lg">Milestone Completed!</span>
+              </div>
+            </div>
+            <div className="mt-4 text-center text-sm text-gray-500 relative">
+              <Loader2 className="h-4 w-4 animate-spin inline mr-2" />
+              Auto-redirecting in 3 seconds...
+            </div>
+          </div>
         </AlertDialogContent>
       </AlertDialog>
     </Card>

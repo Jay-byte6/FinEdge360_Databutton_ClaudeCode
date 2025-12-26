@@ -381,7 +381,10 @@ export default function FIRECalculator() {
             {/* Primary FIRE Metrics Card */}
             <Card className="lg:col-span-3 bg-gradient-to-r from-blue-50 to-green-50 border-blue-100 shadow-md">
               <CardHeader className="pb-2">
-                <CardTitle className="text-2xl font-bold text-gray-800">Your FIRE Number</CardTitle>
+                <div className="flex items-center gap-2">
+                  <CardTitle className="text-2xl font-bold text-gray-800">Your FIRE Number</CardTitle>
+                  <InfoTooltip content="This is your Financial Independence number - the total wealth you need to retire comfortably. It's calculated using the famous '25x Rule': Your annual expenses × 25. This means you can safely withdraw 4% each year without running out of money. Think of it as your freedom number - once you reach this, you never have to work for money again!" />
+                </div>
                 <CardDescription>The amount you need to retire comfortably at age {fireMetrics.retirementAge}</CardDescription>
               </CardHeader>
               <CardContent>
@@ -391,11 +394,17 @@ export default function FIRECalculator() {
                   </div>
                   <div className="flex flex-col sm:flex-row gap-4">
                     <div className="bg-blue-50 border border-blue-100 p-4 rounded-lg text-center min-w-40">
-                      <p className="text-blue-700 text-sm font-medium">Years to FIRE</p>
+                      <div className="flex items-center justify-center gap-1">
+                        <p className="text-blue-700 text-sm font-medium">Years to FIRE</p>
+                        <InfoTooltip content={`At your current pace, you'll reach FIRE in ${fireMetrics.yearsToFIRE.toFixed(1)} years! This is calculated based on: (1) Your current net worth of ${formatIndianCurrency(fireMetrics.currentNetWorth)}, (2) Your annual savings of ${formatIndianCurrency(fireMetrics.annualSavings)}, (3) Conservative 5% annual growth (safe like FDs). Don't worry if this seems long - the 4 scenarios below show you different paths to speed this up! Remember: Every rupee saved today brings you closer to freedom.`} />
+                      </div>
                       <p className="text-blue-800 text-xl font-bold">{fireMetrics.yearsToFIRE.toFixed(1)} years</p>
                     </div>
                     <div className="bg-green-50 border border-green-100 p-4 rounded-lg text-center min-w-40">
-                      <p className="text-green-700 text-sm font-medium">Savings Rate</p>
+                      <div className="flex items-center justify-center gap-1">
+                        <p className="text-green-700 text-sm font-medium">Savings Rate</p>
+                        <InfoTooltip content={`You're currently saving ${(fireMetrics.savingsRate * 100).toFixed(1)}% of your income - that's ${formatIndianCurrency(fireMetrics.annualSavings)} per year! Higher savings rate = faster FIRE. Here's the magic: 10% → 51 years to FIRE, 25% → 32 years, 50% → 17 years, 75% → 7 years. Even a 5% increase makes a huge difference. You're already on the path - every percentage point counts!`} />
+                      </div>
                       <p className="text-green-800 text-xl font-bold">{(fireMetrics.savingsRate * 100).toFixed(1)}%</p>
                     </div>
                   </div>
@@ -424,7 +433,10 @@ export default function FIRECalculator() {
                         <td className="px-4 py-2 text-sm text-right font-medium text-gray-900 bg-green-50">{fireMetrics.retirementAge}</td>
                       </tr>
                       <tr>
-                        <td className="px-4 py-2 text-sm text-gray-900 bg-green-50">Inflation</td>
+                        <td className="px-4 py-2 text-sm text-gray-900 bg-green-50 flex items-center gap-1">
+                          <span>Inflation</span>
+                          <InfoTooltip content="Inflation is the silent wealth killer - it makes everything more expensive over time. At 6% inflation, prices double every 12 years! That's why your FIRE number seems big - we're planning for future prices, not today's. The good news? Your investments will also grow to beat inflation. This is already factored into your FIRE number." />
+                        </td>
                         <td className="px-4 py-2 text-sm text-right font-medium text-gray-900 bg-green-50">{fireMetrics.inflationRate}%</td>
                       </tr>
                       <tr>
@@ -432,19 +444,31 @@ export default function FIRECalculator() {
                         <td className="px-4 py-2 text-sm text-right font-medium text-gray-900 bg-red-50">{formatCurrency(fireMetrics.yearlyExpensesToday)}</td>
                       </tr>
                       <tr>
-                        <td className="px-4 py-2 text-sm text-gray-900 bg-red-50">Yearly expenses (retirement age)</td>
+                        <td className="px-4 py-2 text-sm text-gray-900 bg-red-50 flex items-center gap-1">
+                          <span>Yearly expenses (retirement age)</span>
+                          <InfoTooltip content={`This might look scary, but it's just your current ${formatCurrency(fireMetrics.yearlyExpensesToday)} adjusted for ${fireMetrics.inflationRate}% inflation over ${retirementAge - (financialData?.personalInfo.age || 30)} years. Think of it this way: In ${retirementAge - (financialData?.personalInfo.age || 30)} years, what costs ${formatCurrency(100000)} today will cost ${formatCurrency(100000 * Math.pow(1.06, retirementAge - (financialData?.personalInfo.age || 30)))}. We're just planning ahead! Your investments will grow too, keeping pace with inflation.`} />
+                        </td>
                         <td className="px-4 py-2 text-sm text-right font-medium text-gray-900 bg-red-50">{formatCurrency(fireMetrics.yearlyExpensesRetirement)}</td>
                       </tr>
                       <tr>
-                        <td className="px-4 py-2 text-sm font-medium text-gray-900 bg-red-50">Lean FIRE</td>
+                        <td className="px-4 py-2 text-sm font-medium text-gray-900 bg-red-50 flex items-center gap-1">
+                          <span>Lean FIRE</span>
+                          <InfoTooltip content={`The minimalist path! This is 80% of your normal expenses - by living a bit more frugally, you can retire with ${formatCurrency(fireMetrics.leanFIRE)} instead of ${formatCurrency(fireMetrics.requiredCorpus)}. Many FIRE achievers start here and upgrade later. Small sacrifices = early freedom. Imagine retiring years earlier!`} />
+                        </td>
                         <td className="px-4 py-2 text-sm text-right font-bold text-gray-900 bg-red-50">{formatCurrency(fireMetrics.leanFIRE)}</td>
                       </tr>
                       <tr>
-                        <td className="px-4 py-2 text-sm font-medium text-gray-900 bg-red-50">FIRE</td>
+                        <td className="px-4 py-2 text-sm font-medium text-gray-900 bg-red-50 flex items-center gap-1">
+                          <span>FIRE</span>
+                          <InfoTooltip content="Your standard FIRE number - maintain your current lifestyle forever! This follows the 4% Safe Withdrawal Rule used by millions globally. With this corpus, you can withdraw 4% each year (adjusted for inflation) and it'll last forever. It's been tested across 150 years of market data. This is your sustainable freedom number!" />
+                        </td>
                         <td className="px-4 py-2 text-sm text-right font-bold text-gray-900 bg-red-50">{formatCurrency(fireMetrics.requiredCorpus)}</td>
                       </tr>
                       <tr>
-                        <td className="px-4 py-2 text-sm font-medium text-gray-900 bg-red-50">FAT FIRE</td>
+                        <td className="px-4 py-2 text-sm font-medium text-gray-900 bg-red-50 flex items-center gap-1">
+                          <span>FAT FIRE</span>
+                          <InfoTooltip content={`The luxury retirement! FAT FIRE lets you spend 2x your current lifestyle - think more travel, finer dining, bigger home. With ${formatCurrency(fireMetrics.fatFIRE)}, you can live large without worry. Many people start with regular FIRE and upgrade to FAT FIRE as their investments grow. Dream big!`} />
+                        </td>
                         <td className="px-4 py-2 text-sm text-right font-bold text-gray-900 bg-red-50">{formatCurrency(fireMetrics.fatFIRE)}</td>
                       </tr>
                       <tr>
@@ -452,7 +476,10 @@ export default function FIRECalculator() {
                         <td className="px-4 py-2 text-sm text-right font-medium text-gray-900 bg-green-50">{fireMetrics.desiredCoastAge}</td>
                       </tr>
                       <tr>
-                        <td className="px-4 py-2 text-sm font-medium text-gray-900 bg-red-50">Coast FIRE</td>
+                        <td className="px-4 py-2 text-sm font-medium text-gray-900 bg-red-50 flex items-center gap-1">
+                          <span>Coast FIRE</span>
+                          <InfoTooltip content={`The 'chill mode' number! Once you hit ${formatCurrency(fireMetrics.coastFIRE)} by age ${fireMetrics.desiredCoastAge}, you can stop saving aggressively. Your investments will grow on their own to reach your FIRE number by ${fireMetrics.retirementAge}. This means you could switch to a passion job, work part-time, or just cover living expenses. Financial stress ends much earlier than full FIRE!`} />
+                        </td>
                         <td className="px-4 py-2 text-sm text-right font-bold text-gray-900 bg-red-50">{formatCurrency(fireMetrics.coastFIRE)}</td>
                       </tr>
                     </tbody>
@@ -882,7 +909,10 @@ export default function FIRECalculator() {
                         )}
 
                         <div className="flex justify-between items-center py-1.5 px-2 bg-gray-50 rounded">
-                          <span className="text-xs text-gray-600">Net Worth at {retirementAge}</span>
+                          <div className="flex items-center gap-1">
+                            <span className="text-xs text-gray-600">Net Worth at {retirementAge}</span>
+                            <InfoTooltip content={`Your projected wealth by age ${retirementAge}! This big number comes from: (1) Your current ₹${(fireMetrics.currentNetWorth / 10000000).toFixed(2)} Cr growing at 6% annually, (2) Your ${formatIndianCurrency(annualSavings)} yearly savings increasing by ${stepUpPercentage}% each year. The magic of compounding makes small savings today become huge wealth tomorrow. This is why starting early matters so much!`} />
+                          </div>
                           <span className="text-base font-semibold text-gray-800">₹{(netWorthAtRetirement / 10000000).toFixed(2)} Cr</span>
                         </div>
 
@@ -948,12 +978,18 @@ export default function FIRECalculator() {
                       </CardHeader>
                       <CardContent className="space-y-2 pt-2 pb-3">
                         <div className="flex justify-between items-center py-1.5 px-2 bg-gray-50 rounded">
-                          <span className="text-xs text-gray-600">FIRE Need at {supposeRetireAge}</span>
+                          <div className="flex items-center gap-1">
+                            <span className="text-xs text-gray-600">FIRE Need at {supposeRetireAge}</span>
+                            <InfoTooltip content={`How much you need by age ${supposeRetireAge} to retire comfortably. This is your current ₹${formatCurrency(monthlyExpenses * 12)} annual expenses, adjusted for ${inflationRate}% inflation over ${yearsToSuppose} years (becomes ₹${formatCurrency(expensesAtSuppose * 12)}), multiplied by 25 (the 4% rule). Yes, it's a big number, but remember - this accounts for ${retirementAge - supposeRetireAge} years of living without work! Your goal is to match or beat this number.`} />
+                          </div>
                           <span className="text-lg font-bold text-gray-900">₹{(fireNumberAtSuppose / 10000000).toFixed(2)} Cr</span>
                         </div>
 
                         <div className="flex justify-between items-center py-1.5 px-2 bg-gray-50 rounded">
-                          <span className="text-xs text-gray-600">Your Wealth at {supposeRetireAge}</span>
+                          <div className="flex items-center gap-1">
+                            <span className="text-xs text-gray-600">Your Wealth at {supposeRetireAge}</span>
+                            <InfoTooltip content={`Your projected total wealth at age ${supposeRetireAge}! This includes: (1) Your current net worth of ₹${(fireMetrics.currentNetWorth / 10000000).toFixed(2)} Cr growing at 6% for ${yearsToSuppose} years = ₹${(netWorthAtSuppose / 10000000).toFixed(2)} Cr, (2) Plus your ₹${formatCurrency(annualSavings)} annual savings (growing ${stepUpPercentage}% yearly) = ₹${(savingsAccumulated / 10000000).toFixed(2)} Cr. The power of time + consistent investing = huge wealth!`} />
+                          </div>
                           <span className="text-base font-semibold text-gray-800">₹{(totalWealthAtSuppose / 10000000).toFixed(2)} Cr</span>
                         </div>
 
@@ -1028,12 +1064,18 @@ export default function FIRECalculator() {
                       </CardHeader>
                       <CardContent className="space-y-2 pt-2 pb-3">
                         <div className="flex justify-between items-center py-1.5 px-2 bg-gray-50 rounded">
-                          <span className="text-xs text-gray-600">FIRE at {retirementAge}</span>
+                          <div className="flex items-center gap-1">
+                            <span className="text-xs text-gray-600">FIRE at {retirementAge}</span>
+                            <InfoTooltip content={`Your FIRE target at age ${retirementAge}. Starting from your current ₹${formatCurrency(monthlyExpenses * 12)} annual expenses, we project forward ${yearsToRetirement} years with ${inflationRate}% inflation = ₹${formatCurrency(expensesAtRetirement * 12)} annual expenses. Then multiply by 25 for the safe 4% withdrawal rate. This number looks huge, but it's designed to last your entire retirement (possibly 30+ years) without running out!`} />
+                          </div>
                           <span className="text-lg font-bold text-gray-900">₹{(fireNumberAtRetirement / 10000000).toFixed(2)} Cr</span>
                         </div>
 
                         <div className="flex justify-between items-center py-1.5 px-2 bg-gray-50 rounded">
-                          <span className="text-xs text-gray-600">Projected Wealth</span>
+                          <div className="flex items-center gap-1">
+                            <span className="text-xs text-gray-600">Projected Wealth</span>
+                            <InfoTooltip content={`Where you'll be by age ${retirementAge} if you stay on track! This is: (1) Your current ₹${(fireMetrics.currentNetWorth / 10000000).toFixed(2)} Cr growing 6% annually = ₹${(netWorthAtRetirement / 10000000).toFixed(2)} Cr, (2) Your ₹${formatCurrency(annualSavings)} annual savings (increasing ${stepUpPercentage}% yearly) = ₹${(savingsAtRetirement / 10000000).toFixed(2)} Cr. Total: The magic of compound interest working for you! Small actions today = massive wealth tomorrow.`} />
+                          </div>
                           <span className="text-base font-semibold text-gray-800">₹{(totalWealthAtRetirement / 10000000).toFixed(2)} Cr</span>
                         </div>
 
@@ -1054,7 +1096,10 @@ export default function FIRECalculator() {
                         )}
 
                         <div className="bg-gray-100 border border-gray-300 p-2 rounded">
-                          <p className="text-xs font-semibold text-gray-800 mb-1">💡 With 10% Lifestyle Cut</p>
+                          <div className="flex items-center gap-1 mb-1">
+                            <p className="text-xs font-semibold text-gray-800">💡 With 10% Lifestyle Cut</p>
+                            <InfoTooltip content={`A powerful optimization trick! By spending just 10% less (from ₹${formatCurrency(monthlyExpenses)} to ₹${formatCurrency(reducedExpenses)}/month), your FIRE number drops from ₹${(fireNumberAtRetirement / 10000000).toFixed(2)} Cr to ₹${(reducedFIREAtRetirement / 10000000).toFixed(2)} Cr - saving you ₹${((fireNumberAtRetirement - reducedFIREAtRetirement) / 10000000).toFixed(2)} Cr! This could mean retiring years earlier. Small lifestyle adjustments = massive FIRE acceleration. Most people don't even notice a 10% reduction when done smartly!`} />
+                          </div>
                           <div className="flex justify-between items-center text-xs">
                             <span className="text-gray-600">Reduced FIRE:</span>
                             <span className="font-semibold text-gray-800">₹{(reducedFIREAtRetirement / 10000000).toFixed(2)} Cr</span>

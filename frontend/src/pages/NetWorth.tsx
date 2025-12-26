@@ -10,6 +10,9 @@ import { FinancialData } from 'types'; // Added import for FinancialData
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"; // Import Table components
 import { MilestoneCompletionCard } from '@/components/journey/MilestoneCompletionCard';
 import { InfoTooltip } from '@/components/InfoTooltip';
+import { NetWorthChangeBanner } from '@/components/NetWorthChangeBanner';
+import { NetWorthGraph } from '@/components/NetWorthGraph';
+import { calculateNetWorth as calculateNetWorthCentralized } from '../utils/financialCalculations';
 
 // Define color constants - Vibrant, distinct colors for better visibility
 const COLORS = {
@@ -130,8 +133,9 @@ export default function NetWorth() {
         }
       }
     }
-    
-    const calculatedNetWorth = assetTotal - liabilityTotal;
+
+    // Use centralized calculation for consistency
+    const calculatedNetWorth = calculateNetWorthCentralized(data);
     setTotalAssets(assetTotal);
     setTotalLiabilities(liabilityTotal);
     setNetWorth(calculatedNetWorth);
@@ -320,6 +324,16 @@ export default function NetWorth() {
           </h1>
           <p className="text-gray-600">Visualize your assets and liabilities to track your financial health</p>
         </div>
+
+        {/* Net Worth Change Banner */}
+        {user?.id && netWorth !== 0 && (
+          <NetWorthChangeBanner
+            userId={user.id}
+            currentNetWorth={netWorth}
+            totalAssets={totalAssets}
+            totalLiabilities={totalLiabilities}
+          />
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           {/* Net Worth Summary Card */}
@@ -574,6 +588,13 @@ export default function NetWorth() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Net Worth Trend Graph */}
+        {user?.id && (
+          <div className="mb-8">
+            <NetWorthGraph userId={user.id} />
+          </div>
+        )}
 
         <div className="flex justify-between">
           <Button variant="outline" onClick={() => navigate('/')}>

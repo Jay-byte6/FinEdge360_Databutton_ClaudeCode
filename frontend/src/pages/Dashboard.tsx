@@ -8,6 +8,7 @@ import { Shield, Check } from 'lucide-react';
 import useAuthStore from '../utils/authStore';
 import useFinancialDataStore from '../utils/financialDataStore';
 import FinancialRoadmap from '@/components/FinancialRoadmap';
+import { calculateNetWorth, calculateBasicFIRENumber } from '../utils/financialCalculations';
 
 type DashboardCard = {
   title: string;
@@ -221,26 +222,10 @@ export default function Dashboard() {
             <div className="bg-white rounded-lg shadow p-6">
               <div className="text-sm font-medium text-gray-500 mb-1">Net Worth</div>
               <div className="text-2xl font-bold text-gray-800 mb-1">
-                {formatIndianCurrency(
-                  (financialData.assetsLiabilities.realEstateValue +
-                    financialData.assetsLiabilities.goldValue +
-                    financialData.assetsLiabilities.mutualFundsValue +
-                    financialData.assetsLiabilities.epfBalance +
-                    financialData.assetsLiabilities.ppfBalance) -
-                  (financialData.assetsLiabilities.homeLoan +
-                    financialData.assetsLiabilities.carLoan +
-                    financialData.assetsLiabilities.personalLoan +
-                    financialData.assetsLiabilities.otherLoans)
-                )}
+                {formatIndianCurrency(calculateNetWorth(financialData))}
               </div>
               <div className="text-xs text-gray-500">
-                Total Assets: {formatIndianCurrency(
-                  financialData.assetsLiabilities.realEstateValue +
-                  financialData.assetsLiabilities.goldValue +
-                  financialData.assetsLiabilities.mutualFundsValue +
-                  financialData.assetsLiabilities.epfBalance +
-                  financialData.assetsLiabilities.ppfBalance
-                )}
+                Basic FIRE: {formatIndianCurrency(calculateBasicFIRENumber(financialData))}
               </div>
             </div>
             <div className="bg-white rounded-lg shadow p-6">
@@ -304,7 +289,7 @@ export default function Dashboard() {
           <Card className="bg-amber-50 border-amber-300">
             <CardContent className="py-3">
               <p className="text-xs text-amber-900 text-center">
-                <strong>DISCLAIMER:</strong> FinEdge360 is an educational financial planning tool.
+                <strong>DISCLAIMER:</strong> FIREMap is an educational financial planning tool.
                 We do NOT provide investment advice, recommend specific securities, or manage investments.
                 All calculations are for educational purposes only. Please consult a{' '}
                 <a

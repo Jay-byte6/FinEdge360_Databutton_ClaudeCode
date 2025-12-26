@@ -1572,7 +1572,7 @@ export default function TaxPlanning() {
       <footer className="mt-12 bg-white border-t border-gray-200 py-4 px-6">
         <div className="container mx-auto max-w-6xl text-center text-gray-500 text-sm">
           <p>Disclaimer: This tax calculator is designed for estimation purposes only and should not be considered as tax advice. Please consult with a qualified tax professional for personalized guidance.</p>
-          <p className="mt-2">© {new Date().getFullYear()} FinEdge360. All rights reserved.</p>
+          <p className="mt-2">© {new Date().getFullYear()} FIREMap. All rights reserved.</p>
         </div>
       </footer>
     </div>

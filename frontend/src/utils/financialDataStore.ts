@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { FinancialData } from 'types';
 // import brain from 'brain'; // REMOVED - Unused Databutton API client
 import { toast } from 'sonner';
-import { API_ENDPOINTS } from '@/config/api';
+import { API_ENDPOINTS, fetchWithRetry } from '@/config/api';
 
 // Define the store state
 interface FinancialDataState {
@@ -26,41 +26,38 @@ const useFinancialDataStore = create<FinancialDataState>((set, get) => ({
     try {
       set({ isLoading: true, error: null });
 
-      console.log('========== [FETCH FINANCIAL DATA] START ==========');
-      console.log('[Store fetchFinancialData] User ID:', userId);
-      console.log('[Store fetchFinancialData] User ID type:', typeof userId);
-      console.log('[Store fetchFinancialData] User ID is undefined?', userId === undefined);
-      console.log('[Store fetchFinancialData] User ID is null?', userId === null);
-
+      // Minimal logging to reduce console noise
       const apiUrl = API_ENDPOINTS.getFinancialData(userId);
-      console.log('[Store fetchFinancialData] Full API URL:', apiUrl);
 
       if (!userId || userId === 'undefined' || userId === 'null') {
         console.error('[Store fetchFinancialData] INVALID USER ID - Aborting fetch');
         throw new Error('Invalid user ID provided');
       }
 
-      // Direct fetch since Brain API client doesn't have the method yet
-      // Using single /routes prefix (Bug #8 resolved)
-      console.log('[Store fetchFinancialData] Calling fetch() now...');
-      const response = await fetch(apiUrl, {
+      // Direct fetch with retry logic to handle backend connection issues
+      const response = await fetchWithRetry(apiUrl, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
-        // credentials: 'include'  // Removed for local dev - CORS issue
       });
-      console.log('[Store fetchFinancialData] Fetch completed. Response status:', response.status);
+
+      // Handle case where backend is not reachable
+      if (!response) {
+        set({
+          financialData: null,
+          error: 'Backend server is not reachable. Please ensure the server is running.',
+          isLoading: false
+        });
+        return;
+      }
 
       if (!response.ok) {
-        console.error('[Store fetchFinancialData] API returned error:', response.status, response.statusText);
         throw new Error(`Failed to fetch financial data: ${response.statusText}`);
       }
 
       const data = await response.json();
-      console.log('[Store fetchFinancialData] Raw data received from API:', data);
 
       // Set the financial data in store
       set({ financialData: data, isLoading: false });
-      console.log('[Store fetchFinancialData] Store updated. New financialData:', data);
 
       return data;
     } catch (error) {

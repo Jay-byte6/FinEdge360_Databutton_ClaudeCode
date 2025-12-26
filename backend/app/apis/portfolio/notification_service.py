@@ -273,13 +273,13 @@ def render_portfolio_alert_email(data: Dict[str, Any]) -> str:
                 </table>
             </div>
 
-            <p>This notification was triggered because your portfolio value changed by more than 10%. You can view your complete portfolio and track all your investments on FinEdge360.</p>
+            <p>This notification was triggered because your portfolio value changed by more than 10%. You can view your complete portfolio and track all your investments on FIREMap.</p>
 
             <a href="https://finedge360.com/portfolio" class="cta-button">View Full Portfolio →</a>
 
             <div class="footer">
                 <p>
-                    <strong>FinEdge360</strong> - Your Personal Finance Companion<br>
+                    <strong>FIREMap</strong> - Your Personal Finance Companion<br>
                     <a href="https://finedge360.com">Visit Website</a> |
                     <a href="https://finedge360.com/portfolio">Portfolio</a> |
                     <a href="https://finedge360.com/profile">Settings</a>

@@ -55,11 +55,13 @@ class CustomCORSMiddleware(BaseHTTPMiddleware):
         # Handle OPTIONS preflight requests immediately
         if request.method == "OPTIONS":
             logger.info(f"[CORS Middleware] Handling OPTIONS preflight for {request.url.path}")
+            cors_methods = "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+            logger.info(f"[CORS Middleware] Sending methods: {cors_methods}")
             return Response(
                 status_code=200,
                 headers={
                     "Access-Control-Allow-Origin": allowed_origin,
-                    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+                    "Access-Control-Allow-Methods": cors_methods,
                     "Access-Control-Allow-Headers": "Content-Type, Authorization",
                     "Access-Control-Allow-Credentials": "true",
                     "Access-Control-Max-Age": "600",
@@ -72,7 +74,7 @@ class CustomCORSMiddleware(BaseHTTPMiddleware):
 
         # Add CORS headers to all responses
         response.headers["Access-Control-Allow-Origin"] = allowed_origin
-        response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+        response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, PATCH, DELETE, OPTIONS"
         response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
         response.headers["Access-Control-Allow-Credentials"] = "true"
 

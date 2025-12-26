@@ -85,7 +85,7 @@ const PrivacyPolicyModal: React.FC<PrivacyPolicyModalProps> = ({ open, onOpenCha
                 We will process your personal data only for the purposes explicitly mentioned below:
               </p>
               <ul className="list-disc list-inside space-y-2 text-gray-700">
-                <li><strong>Service Provision:</strong> To provide, operate, and maintain all features of the FinEdge360 services.</li>
+                <li><strong>Service Provision:</strong> To provide, operate, and maintain all features of the FIREMap services.</li>
                 <li><strong>KYC and Regulatory Compliance:</strong> To fulfill our legal obligations, including Anti-Money Laundering (AML), Know Your Customer (KYC) requirements, and other statutory reporting under Indian law.</li>
                 <li><strong>Security and Fraud Prevention:</strong> To detect, prevent, and address fraudulent activities and technical issues.</li>
                 <li><strong>Service Communication:</strong> To send transactional alerts, service updates, security notices, and to respond to your queries.</li>
@@ -230,7 +230,7 @@ const PrivacyPolicyModal: React.FC<PrivacyPolicyModalProps> = ({ open, onOpenCha
                   <strong>Email:</strong> <a href="mailto:support@finedge360.com" className="text-blue-600 hover:underline">support@finedge360.com</a>
                 </p>
                 <p className="text-gray-800 mt-1">
-                  <strong>Address:</strong> FinEdge360, India
+                  <strong>Address:</strong> FIREMap, India
                 </p>
               </div>
             </section>
@@ -239,7 +239,7 @@ const PrivacyPolicyModal: React.FC<PrivacyPolicyModalProps> = ({ open, onOpenCha
             <section className="border-t pt-4 mt-6">
               <p className="text-xs text-gray-500">
                 <strong>Legal Notice:</strong> This Privacy Policy is provided for informational purposes.
-                FinEdge360 is committed to complying with applicable data protection laws including the
+                FIREMap is committed to complying with applicable data protection laws including the
                 Digital Personal Data Protection Act (DPDP Act) of India. This policy may be updated from
                 time to time, and the latest version will always be available in the application.
               </p>

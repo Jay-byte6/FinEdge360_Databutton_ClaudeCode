@@ -28,7 +28,7 @@ export const AppProvider = ({ children }: Props) => {
 
   // Set document title
   useEffect(() => {
-    document.title = "FinEdge360";
+    document.title = "FIREMap";
   }, []); // Empty dependency array ensures this runs once on mount
 
   // Determine if we should show the navbar and footer based on current route

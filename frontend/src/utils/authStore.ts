@@ -4,6 +4,7 @@ import { Session, User } from '@supabase/supabase-js';
 import brain from 'brain';
 import { API_URL } from 'app';
 import { toast } from 'sonner';
+import { fetchWithRetry } from '@/config/api';
 
 // Top-level log to verify file loads
 console.log("####### authStore.ts FILE LOADED #######");
@@ -462,28 +463,31 @@ const useAuthStore = create<AuthState>((set, get) => ({
         try {
           console.log('Fetching profile for user:', user.id);
           
-          // Try to get profile from our API first (with timeout)
+          // Try to get profile from our API first (with retry logic)
           try {
-            const profileResponse = await withTimeout(
-              fetch(`${API_URL}/routes/get-profile/${user.id}`, {
+            const profileResponse = await fetchWithRetry(
+              `${API_URL}/routes/get-profile/${user.id}`,
+              {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json' },
                 // credentials: 'include'  // Removed for local dev - CORS issue
-              }),
-              5000 // 5 second timeout
+              },
+              { timeout: 5000, maxRetries: 1 } // Quick timeout and 1 retry
             );
 
-            if (profileResponse.ok) {
+            if (profileResponse && profileResponse.ok) {
               const profileData = await profileResponse.json();
               if (profileData.success && profileData.data) {
                 profile = profileData.data;
                 console.log('Profile fetched from API');
               }
+            } else if (profileResponse) {
+              console.warn('Failed to get profile from API - will use Supabase fallback');
             } else {
-              console.error('Failed to get profile from API:', await profileResponse.text());
+              console.warn('Backend not reachable - using Supabase fallback');
             }
           } catch (apiError) {
-            console.error('Error getting profile from API (will try Supabase):', apiError);
+            console.warn('Error getting profile from API (will try Supabase):', apiError);
           }
           
           // If we didn't get a profile from the API, try Supabase directly

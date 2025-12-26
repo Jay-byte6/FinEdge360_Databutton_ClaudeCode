@@ -124,12 +124,12 @@ def send_admin_notification(inactive_users: List[Dict]) -> bool:
             print("No inactive users to report")
             return True
 
-        subject = f"FinEdge360 Inactive Users Alert - {len(inactive_users)} users require review"
+        subject = f"FIREMap Inactive Users Alert - {len(inactive_users)} users require review"
 
         # Build email body
         body = f"""Admin,
 
-This is an automated notification from the FinEdge360 Data Retention System.
+This is an automated notification from the FIREMap Data Retention System.
 
 The following {len(inactive_users)} user(s) have been inactive for {RETENTION_MONTHS} months or more:
 
@@ -162,7 +162,7 @@ This notification is sent daily. To adjust the retention period or notification 
 update the configuration in backend/app/tasks/data_retention.py.
 
 Best regards,
-FinEdge360 Data Retention System
+FIREMap Data Retention System
 """
 
         return send_email(ADMIN_EMAIL, subject, body)

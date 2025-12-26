@@ -14,7 +14,7 @@ const Footer: React.FC = () => {
           <div>
             <h3 className="text-xl font-bold mb-3 flex items-center gap-2">
               <Shield className="w-5 h-5 text-green-400" />
-              FinEdge360
+              FIREMap
             </h3>
             <p className="text-sm text-gray-300 mb-3">
               Your trusted educational financial planning tool for achieving Financial Independence
@@ -111,7 +111,7 @@ const Footer: React.FC = () => {
               <div>
                 <p className="text-xs text-amber-200 font-semibold mb-1">IMPORTANT DISCLAIMER</p>
                 <p className="text-xs text-amber-100">
-                  FinEdge360 is an educational financial planning tool. We do NOT provide investment
+                  FIREMap is an educational financial planning tool. We do NOT provide investment
                   advice, recommend specific securities, or manage investments. All content is for
                   educational purposes only. Please consult a{' '}
                   <a
@@ -132,7 +132,7 @@ const Footer: React.FC = () => {
         {/* Copyright */}
         <div className="border-t border-slate-700 pt-6 text-center">
           <p className="text-sm text-gray-400">
-            © {currentYear} FinEdge360. All rights reserved.
+            © {currentYear} FIREMap. All rights reserved.
           </p>
           <p className="text-xs text-gray-500 mt-2">
             Made with care to help you achieve financial independence

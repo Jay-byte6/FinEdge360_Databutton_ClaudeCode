@@ -21,8 +21,8 @@ export default function TermsOfService() {
             <section>
               <h2 className="text-xl font-semibold mb-3">1. Introduction</h2>
               <p className="text-gray-700">
-                Welcome to FinEdge360. These Terms of Service ("Terms") govern your access to and use of
-                FinEdge360's website, application, and services (collectively, the "Service"). By accessing
+                Welcome to FIREMap. These Terms of Service ("Terms") govern your access to and use of
+                FIREMap's website, application, and services (collectively, the "Service"). By accessing
                 or using the Service, you agree to be bound by these Terms.
               </p>
             </section>
@@ -33,7 +33,7 @@ export default function TermsOfService() {
             <section>
               <h2 className="text-xl font-semibold mb-3">2. Service Description</h2>
               <div className="space-y-3 text-gray-700">
-                <p>FinEdge360 is an <strong>educational financial planning tool</strong> that provides:</p>
+                <p>FIREMap is an <strong>educational financial planning tool</strong> that provides:</p>
                 <ul className="list-disc list-inside space-y-2 ml-4">
                   <li>Financial calculators (Net Worth, FIRE Calculator, SIP Planner, Tax Planning)</li>
                   <li>Educational content about financial independence and retirement planning</li>
@@ -47,7 +47,7 @@ export default function TermsOfService() {
                     <div>
                       <p className="font-semibold text-amber-900">Important Notice:</p>
                       <p className="text-sm text-amber-800 mt-1">
-                        FinEdge360 does NOT provide investment advice, recommend specific securities,
+                        FIREMap does NOT provide investment advice, recommend specific securities,
                         or manage investments. We are not a SEBI Registered Investment Advisor.
                       </p>
                     </div>
@@ -62,12 +62,12 @@ export default function TermsOfService() {
             <section>
               <h2 className="text-xl font-semibold mb-3">3. User Responsibilities</h2>
               <div className="space-y-3 text-gray-700">
-                <p>By using FinEdge360, you agree to:</p>
+                <p>By using FIREMap, you agree to:</p>
                 <ul className="list-disc list-inside space-y-2 ml-4">
                   <li>Provide accurate and truthful information</li>
                   <li>Maintain the security and confidentiality of your account credentials</li>
                   <li>Use the Service for educational and personal financial planning purposes only</li>
-                  <li>Not rely solely on FinEdge360 for investment decisions</li>
+                  <li>Not rely solely on FIREMap for investment decisions</li>
                   <li>Consult qualified financial professionals before making investment decisions</li>
                   <li>Not use the Service for any illegal or unauthorized purpose</li>
                 </ul>
@@ -81,7 +81,7 @@ export default function TermsOfService() {
               <h2 className="text-xl font-semibold mb-3">4. No Investment Advice</h2>
               <div className="space-y-3 text-gray-700">
                 <p className="font-semibold">
-                  FinEdge360 does NOT provide investment advice or personalized financial recommendations.
+                  FIREMap does NOT provide investment advice or personalized financial recommendations.
                 </p>
                 <ul className="list-disc list-inside space-y-2 ml-4">
                   <li>All content is for educational and informational purposes only</li>
@@ -121,7 +121,7 @@ export default function TermsOfService() {
                   <li>Uninterrupted or error-free operation</li>
                 </ul>
                 <p className="mt-3">
-                  FinEdge360 makes no guarantee about the accuracy of calculations, projections,
+                  FIREMap makes no guarantee about the accuracy of calculations, projections,
                   or any other information provided through the Service.
                 </p>
               </div>
@@ -134,7 +134,7 @@ export default function TermsOfService() {
               <h2 className="text-xl font-semibold mb-3">6. Limitation of Liability</h2>
               <div className="space-y-3 text-gray-700">
                 <p>
-                  To the maximum extent permitted by law, FinEdge360 and its affiliates, officers,
+                  To the maximum extent permitted by law, FIREMap and its affiliates, officers,
                   directors, employees, and agents shall NOT be liable for:
                 </p>
                 <ul className="list-disc list-inside space-y-2 ml-4">
@@ -179,7 +179,7 @@ export default function TermsOfService() {
                   <li>Design, layout, and user interface</li>
                 </ul>
                 <p className="mt-3">
-                  are owned by FinEdge360 or our licensors and are protected by copyright, trademark,
+                  are owned by FIREMap or our licensors and are protected by copyright, trademark,
                   and other intellectual property laws.
                 </p>
               </div>
@@ -245,7 +245,7 @@ export default function TermsOfService() {
             {/* Footer Note */}
             <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <p className="text-sm text-blue-900">
-                <strong>By using FinEdge360, you acknowledge that you have read, understood,
+                <strong>By using FIREMap, you acknowledge that you have read, understood,
                 and agree to be bound by these Terms of Service.</strong>
               </p>
             </div>

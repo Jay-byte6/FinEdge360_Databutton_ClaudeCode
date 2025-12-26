@@ -111,7 +111,7 @@ export default function Consultation() {
           <p><strong>Additional Message:</strong></p>
           <p>${userMessage || 'No additional message'}</p>
           <hr>
-          <p><em>This request was submitted through FinEdge360 consultation booking system.</em></p>
+          <p><em>This request was submitted through FIREMap consultation booking system.</em></p>
         `,
       };
 
@@ -176,7 +176,7 @@ export default function Consultation() {
                 </p>
                 <p className="text-xs text-green-700">
                   Our partner advisors are SEBI Registered Investment Advisors (RIA).
-                  This consultation is provided by independent third-party experts, not by FinEdge360.
+                  This consultation is provided by independent third-party experts, not by FIREMap.
                 </p>
               </div>
             </div>
@@ -250,7 +250,7 @@ export default function Consultation() {
                 <p className="text-sm font-semibold text-red-900 mb-2">IMPORTANT DISCLAIMER</p>
                 <p className="text-xs text-red-800">
                   This consultation is provided by independent SEBI Registered Investment Advisors and certified professionals,
-                  NOT by FinEdge360. FinEdge360 is an educational tool and does NOT provide
+                  NOT by FIREMap. FIREMap is an educational tool and does NOT provide
                   investment advice. The advisors you consult with are third-party professionals
                   with their own certifications. Any investment decisions you make are your
                   responsibility. Please verify the advisor's credentials.
