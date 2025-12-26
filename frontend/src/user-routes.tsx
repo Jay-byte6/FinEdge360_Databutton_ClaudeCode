@@ -34,6 +34,7 @@ const TermsOfService = lazy(() => import("./pages/TermsOfService.tsx"));
 const PromoShowcase = lazy(() => import("./pages/PromoShowcase.tsx"));
 const ConsultationNew = lazy(() => import("./pages/ConsultationNew.tsx"));
 const Pricing = lazy(() => import("./pages/Pricing.tsx"));
+const Feedback = lazy(() => import("./pages/Feedback.tsx"));
 
 export const userRoutes: RouteObject[] = [
 
@@ -71,5 +72,6 @@ export const userRoutes: RouteObject[] = [
 	{ path: "/promo-showcase", element: <Suspense fallback={<LoadingFallback />}><AppProvider><PromoShowcase /></AppProvider></Suspense>},
 	{ path: "/consultation-new", element: <Suspense fallback={<LoadingFallback />}><AppProvider><ConsultationNew /></AppProvider></Suspense>},
 	{ path: "/pricing", element: <Suspense fallback={<LoadingFallback />}><AppProvider><Pricing /></AppProvider></Suspense>},
+	{ path: "/feedback", element: <Suspense fallback={<LoadingFallback />}><AppProvider><Feedback /></AppProvider></Suspense>},
 
 ];
