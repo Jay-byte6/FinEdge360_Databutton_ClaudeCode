@@ -577,7 +577,7 @@ export default function App() {
         <div className="container mx-auto max-w-6xl">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center mb-4 md:mb-0">
-              <img src="/TheFireMap_Logo.png" alt="TheFireMap Logo" className="h-10 w-auto mr-2 object-contain" />
+              <img src="/TheFireMap_Logo.png" alt="TheFireMap Logo" className="h-20 w-auto mr-2 object-contain" />
             </div>
             <div className="text-gray-500 text-sm">
               © {new Date().getFullYear()} FinEdge360. All rights reserved.

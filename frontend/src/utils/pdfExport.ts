@@ -115,9 +115,9 @@ export const generateFinancialProfilePDF = async (
         img.onload = resolve;
         img.onerror = reject;
       });
-      // Add logo centered at top (smaller size)
-      const logoWidth = 25;
-      const logoHeight = 25;
+      // Add logo centered at top (larger size)
+      const logoWidth = 100;
+      const logoHeight = 100;
       doc.addImage(img, 'PNG', (pageWidth - logoWidth) / 2, 5, logoWidth, logoHeight);
     } catch (error) {
       // Fallback: Simple circle with F if logo fails to load

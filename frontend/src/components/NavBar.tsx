@@ -54,7 +54,7 @@ const NavBar: React.FC<NavBarProps> = ({ showFullNav = true }) => {
             <img
               src="/TheFireMap_Logo.png"
               alt="TheFireMap Logo"
-              className="h-12 w-auto object-contain"
+              className="h-24 w-auto object-contain"
             />
           </div>
           
