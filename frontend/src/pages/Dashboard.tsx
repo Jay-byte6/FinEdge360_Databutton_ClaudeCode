@@ -10,6 +10,8 @@ import FinancialRoadmap from '@/components/FinancialRoadmap';
 import { DailyInsightsCard } from '@/components/DailyInsightsCard';
 import { PremiumGoalRoadmap } from '@/components/PremiumGoalRoadmap';
 import { MilestoneProgressCard } from '@/components/MilestoneProgressCard';
+import { JourneyMapSimple } from '@/components/journey/JourneyMapSimple';
+import { UserJourneyState } from '@/components/journey/types';
 import { calculateNetWorth, calculateBasicFIRENumber } from '../utils/financialCalculations';
 import { isPremiumUser } from '../utils/premiumCheck';
 import { API_ENDPOINTS } from '@/config/api';
@@ -295,12 +297,162 @@ export default function Dashboard() {
               />
             </div>
 
-            {/* Row 2: Milestone Progress - Full Width */}
-            <MilestoneProgressCard
-              userId={user?.id || ''}
-              isPremium={isPremium}
-              hasFinancialData={!!financialData}
-            />
+            {/* Row 2: Milestone Progress and Journey Map */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <MilestoneProgressCard
+                userId={user?.id || ''}
+                isPremium={isPremium}
+                hasFinancialData={!!financialData}
+              />
+
+              {/* Journey Map Preview Card */}
+              <Card
+                className="relative cursor-pointer hover:shadow-lg transition-shadow"
+                onClick={() => isPremium && navigate('/journey-map')}
+              >
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                      </svg>
+                      Your Journey Map
+                    </CardTitle>
+                  </div>
+                  <p className="text-sm text-gray-600">Visual roadmap to financial freedom</p>
+                </CardHeader>
+
+                <CardContent className={!isPremium ? 'filter blur-sm' : ''}>
+                  <div className="relative bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 rounded-lg p-6 min-h-[300px] flex flex-col items-center justify-center">
+                    {/* Simple visual representation of the journey */}
+                    <div className="relative w-full max-w-md">
+                      {/* Simplified road visual */}
+                      <svg viewBox="0 0 400 300" className="w-full h-auto">
+                        <defs>
+                          <linearGradient id="roadPreview" x1="0%" y1="100%" x2="0%" y2="0%">
+                            <stop offset="0%" stopColor="#1f2937" />
+                            <stop offset="100%" stopColor="#4b5563" />
+                          </linearGradient>
+                        </defs>
+                        {/* Curved road path */}
+                        <path
+                          d="M 50 280 Q 150 250, 200 200 T 350 50"
+                          stroke="url(#roadPreview)"
+                          strokeWidth="30"
+                          fill="none"
+                          strokeLinecap="round"
+                        />
+                        {/* Milestone markers */}
+                        {[0, 1, 2, 3, 4].map((i) => {
+                          const positions = [
+                            { x: 50, y: 280 },
+                            { x: 125, y: 235 },
+                            { x: 200, y: 200 },
+                            { x: 275, y: 125 },
+                            { x: 350, y: 50 }
+                          ];
+                          const isCompleted = i === 0 || i === 1;
+                          const isCurrent = i === 2;
+
+                          return (
+                            <g key={i}>
+                              <circle
+                                cx={positions[i].x}
+                                cy={positions[i].y}
+                                r="12"
+                                fill={isCompleted ? '#10b981' : isCurrent ? '#fbbf24' : '#9ca3af'}
+                                stroke="white"
+                                strokeWidth="2"
+                              />
+                              {isCurrent && (
+                                <>
+                                  <circle
+                                    cx={positions[i].x}
+                                    cy={positions[i].y}
+                                    r="18"
+                                    fill="none"
+                                    stroke="#fbbf24"
+                                    strokeWidth="2"
+                                    opacity="0.5"
+                                  >
+                                    <animate
+                                      attributeName="r"
+                                      from="12"
+                                      to="24"
+                                      dur="2s"
+                                      repeatCount="indefinite"
+                                    />
+                                    <animate
+                                      attributeName="opacity"
+                                      from="0.8"
+                                      to="0"
+                                      dur="2s"
+                                      repeatCount="indefinite"
+                                    />
+                                  </circle>
+                                  {/* "You Are Here" marker */}
+                                  <text
+                                    x={positions[i].x}
+                                    y={positions[i].y - 30}
+                                    textAnchor="middle"
+                                    className="text-xs font-bold fill-yellow-600"
+                                  >
+                                    YOU ARE HERE
+                                  </text>
+                                </>
+                              )}
+                            </g>
+                          );
+                        })}
+                      </svg>
+                    </div>
+
+                    {/* Status text */}
+                    <div className="mt-6 text-center">
+                      <p className="text-lg font-bold text-gray-900 mb-2">
+                        Milestone 2 of 10
+                      </p>
+                      <p className="text-sm text-gray-600 mb-4">
+                        Keep going! You're making great progress on your journey to financial freedom.
+                      </p>
+                      {isPremium && (
+                        <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                          </svg>
+                          View Full Journey Map
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+
+                {!isPremium && (
+                  <div className="absolute inset-0 backdrop-blur-sm bg-white/40 z-20 flex items-center justify-center rounded-lg">
+                    <div className="bg-white rounded-xl shadow-2xl p-6 max-w-sm mx-4 border-2 border-blue-200 text-center">
+                      <div className="h-16 w-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mx-auto mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                      </div>
+                      <h3 className="text-lg font-bold text-gray-900 mb-2">Premium Feature</h3>
+                      <p className="text-sm text-gray-600 mb-4">
+                        <strong>Interactive Journey Map</strong> is available for Premium users only.
+                      </p>
+                      <Button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate('/pricing');
+                        }}
+                        className="w-full bg-gradient-to-r from-blue-600 to-purple-600"
+                      >
+                        Upgrade to Premium
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </Card>
+            </div>
           </div>
         )}
 
@@ -339,7 +491,11 @@ export default function Dashboard() {
         {/* Road to Financial Freedom - FinancialRoadmap Component */}
         {financialData && Object.keys(financialData).length > 0 && (
           <div className="mb-6">
-            <FinancialRoadmap financialData={financialData} />
+            <FinancialRoadmap
+              financialData={financialData}
+              userId={user?.id}
+              isPremium={isPremium}
+            />
           </div>
         )}
 

@@ -1,12 +1,46 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { FinancialDataValues } from '../utils/formSchema';
+import { API_ENDPOINTS } from '@/config/api';
 
 interface FinancialRoadmapProps {
   financialData: FinancialDataValues;
+  userId?: string;
+  isPremium?: boolean;
 }
 
-const FinancialRoadmap: React.FC<FinancialRoadmapProps> = ({ financialData }) => {
+const FinancialRoadmap: React.FC<FinancialRoadmapProps> = ({ financialData, userId, isPremium = false }) => {
+  const [premiumGoals, setPremiumGoals] = useState<any[]>([]);
+
+  // Fetch premium goals from FIRE Planner for premium users
+  useEffect(() => {
+    if (!isPremium || !userId) return;
+
+    const fetchPremiumGoals = async () => {
+      try {
+        const response = await fetch(API_ENDPOINTS.getSIPPlanner(userId));
+        if (response.ok) {
+          const data = await response.json();
+          if (data.goals && Array.isArray(data.goals)) {
+            // Transform FIRE Planner goals to match the format expected by FinancialRoadmap
+            const transformedGoals = data.goals.map((goal: any) => ({
+              name: goal.name,
+              amount: goal.amountRequiredFuture || goal.amountRequiredToday || 0,
+              years: goal.timeYears || 0,
+              type: goal.goalType || 'Long-term',
+              color: goal.timeYears <= 3 ? 'bg-blue-500' : goal.timeYears <= 7 ? 'bg-purple-500' : 'bg-green-500',
+            }));
+            setPremiumGoals(transformedGoals);
+          }
+        }
+      } catch (error) {
+        console.error('[FinancialRoadmap] Error fetching premium goals:', error);
+      }
+    };
+
+    fetchPremiumGoals();
+  }, [isPremium, userId]);
+
   if (!financialData) {
     return (
       <Card className="w-full">
@@ -50,12 +84,14 @@ const FinancialRoadmap: React.FC<FinancialRoadmapProps> = ({ financialData }) =>
     }
   };
 
-  // Combine all goals with their categories
-  const allGoals = [
-    ...(goals?.shortTermGoals || []).map(g => ({ ...g, type: 'Short-term', color: 'bg-blue-500' })),
-    ...(goals?.midTermGoals || []).map(g => ({ ...g, type: 'Mid-term', color: 'bg-purple-500' })),
-    ...(goals?.longTermGoals || []).map(g => ({ ...g, type: 'Long-term', color: 'bg-green-500' })),
-  ].sort((a, b) => a.years - b.years);
+  // Use premium goals if available, otherwise use goals from Enter Details
+  const allGoals = isPremium && premiumGoals.length > 0
+    ? premiumGoals.sort((a, b) => a.years - b.years)
+    : [
+        ...(goals?.shortTermGoals || []).map(g => ({ ...g, type: 'Short-term', color: 'bg-blue-500' })),
+        ...(goals?.midTermGoals || []).map(g => ({ ...g, type: 'Mid-term', color: 'bg-purple-500' })),
+        ...(goals?.longTermGoals || []).map(g => ({ ...g, type: 'Long-term', color: 'bg-green-500' })),
+      ].sort((a, b) => a.years - b.years);
 
   // Calculate timeline milestones
   const milestones = [

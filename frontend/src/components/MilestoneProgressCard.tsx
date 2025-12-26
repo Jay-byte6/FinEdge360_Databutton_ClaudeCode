@@ -35,6 +35,7 @@ export const MilestoneProgressCard: React.FC<MilestoneProgressCardProps> = ({
     { step: 5, title: 'Set Your Goals', description: 'Define financial goals', path: '/fire-planner?tab=set-goals', completed: false },
     { step: 6, title: 'Design Asset Allocation', description: 'Optimize investment strategy', path: '/fire-planner?tab=asset-allocation', completed: false },
     { step: 7, title: 'FIRE Planning', description: 'Create SIP investment plan', path: '/fire-planner?tab=sip-plan', completed: false },
+    { step: 8, title: 'Book Expert Consultation', description: 'Get personalized advice from certified advisors', path: '/consultation', completed: false },
   ]);
 
   // Smart auto-detection of milestone completion based on actual data
@@ -86,6 +87,11 @@ export const MilestoneProgressCard: React.FC<MilestoneProgressCardProps> = ({
           } catch (err) {
             completionStatus[6] = false;
           }
+
+          // Step 8: Book Expert Consultation
+          // For now, this is always pending unless explicitly marked
+          // TODO: Add consultation booking API check
+          completionStatus[8] = false;
         }
 
         // Update milestones with detected completion status
