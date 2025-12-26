@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import useAuthStore from '../utils/authStore';
+import useFinancialDataStore from '../utils/financialDataStore';
 import { NotificationCenter } from './NotificationCenter';
 
 export interface NavBarProps {
@@ -13,19 +14,29 @@ const NavBar: React.FC<NavBarProps> = ({ showFullNav = true }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, profile, signOut, isAuthenticated } = useAuthStore();
+  const { financialData } = useFinancialDataStore();
+  const [firstName, setFirstName] = React.useState<string>('User');
 
-  // Extract first name from profile or email
-  const getFirstName = () => {
-    if (profile?.full_name) {
-      return profile.full_name.split(' ')[0];
-    }
-    if (user?.email) {
-      return user.email.split('@')[0];
-    }
-    return 'User';
-  };
+  // Extract first name from profile, financial data, or email
+  React.useEffect(() => {
+    const getFirstName = () => {
+      // Priority 1: Financial data name (from Enter Details page)
+      if (financialData?.personalInfo?.name) {
+        return financialData.personalInfo.name.split(' ')[0];
+      }
+      // Priority 2: Profile full name
+      if (profile?.full_name) {
+        return profile.full_name.split(' ')[0];
+      }
+      // Priority 3: Email prefix
+      if (user?.email) {
+        return user.email.split('@')[0];
+      }
+      return 'User';
+    };
 
-  const firstName = getFirstName();
+    setFirstName(getFirstName());
+  }, [financialData, profile, user, location.pathname]); // Re-run when financial data, profile, user, or page changes
 
   const handleLogout = async () => {
     try {

@@ -42,9 +42,13 @@ export const DailyInsightsCard: React.FC<DailyInsightsCardProps> = ({
 
       <CardHeader className={!isPremium ? 'filter blur-sm' : ''}>
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-yellow-600" />
-            Today's Insights
+          <CardTitle className="flex items-center gap-2 text-xl md:text-2xl">
+            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 shadow-md">
+              <Sparkles className="h-5 w-5 text-white" />
+            </div>
+            <span className="font-extrabold bg-gradient-to-r from-yellow-600 via-orange-600 to-red-600 bg-clip-text text-transparent">
+              ✨ Today's Insights
+            </span>
           </CardTitle>
           {isPremium && (
             <Button

@@ -270,7 +270,7 @@ export default function FIRECalculator() {
         </div>
 
         {/* FIRE Calculator Input Section */}
-        <Card className="lg:col-span-3 mb-8 shadow-md">
+        <Card className="lg:col-span-3 mb-8 shadow-md" id="retirement-settings">
           <CardHeader>
             <CardTitle>FIRE Calculator Settings</CardTitle>
             <CardDescription>Adjust parameters to see how your FIRE scenarios change in real-time</CardDescription>
@@ -631,7 +631,7 @@ export default function FIRECalculator() {
           </div>
 
             {/* Projection Chart Card */}
-            <Card className="lg:col-span-3 shadow-md">
+            <Card className="lg:col-span-3 shadow-md" id="corpus-growth-projection">
               <CardHeader>
                 <CardTitle>Corpus Growth Projection</CardTitle>
                 <CardDescription>Projected growth of your investments over time</CardDescription>
@@ -687,7 +687,7 @@ export default function FIRECalculator() {
             </Card>
 
             {/* FIRE Summary Card */}
-            <Card className="lg:col-span-3 shadow-md">
+            <Card className="lg:col-span-3 shadow-md" id="fire-strategy-dashboard">
               <CardHeader>
                 <CardTitle>FIRE Strategy Dashboard</CardTitle>
                 <CardDescription>Comprehensive overview of your financial independence path</CardDescription>
@@ -777,7 +777,7 @@ export default function FIRECalculator() {
             </Card>
 
             {/* 4 FIRE SCENARIOS SECTION */}
-            <div className="lg:col-span-3 mt-8">
+            <div className="lg:col-span-3 mt-8" id="fire-scenarios">
               <div className="text-center mb-8">
                 <h2 className="text-4xl font-extrabold bg-gradient-to-r from-orange-600 via-red-600 to-pink-600 bg-clip-text text-transparent mb-3">
                   🔥 Your 4 FIRE Scenarios

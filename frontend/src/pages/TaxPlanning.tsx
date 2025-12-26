@@ -826,7 +826,7 @@ export default function TaxPlanning() {
                   </div>
 
                   {/* Smart Tax-Saving Tips Section - Moved to Left Column */}
-                  <div className="mt-6">
+                  <div className="mt-6" id="smart-tax-tips">
                     <h4 className="text-lg font-semibold mb-3 text-gray-700">Smart Tax-Saving Tips</h4>
                     {activeTips.length > 0 ? (
                       <TaxTipsDisplay tips={activeTips} />
@@ -1104,7 +1104,7 @@ export default function TaxPlanning() {
                             const index = deductions.findIndex(d => d.section === item.section);
                             if (!deduction) return null;
                             return (
-                              <AccordionItem key={item.value} value={item.value} className="border rounded-lg bg-white shadow-sm">
+                              <AccordionItem key={item.value} value={item.value} className="border rounded-lg bg-white shadow-sm" id={item.value}>
                                 <AccordionTrigger className="px-4 py-3 text-base font-medium hover:no-underline w-full">
                                   <div className="flex items-center justify-between w-full">
                                     <span className="flex items-center">
@@ -1192,7 +1192,7 @@ export default function TaxPlanning() {
 
           {/* Comparison Tab */}
           <TabsContent value="comparison" className="space-y-6">
-            <Card className="bg-white shadow-md">
+            <Card className="bg-white shadow-md" id="tax-regime-comparison">
               <CardHeader>
                 <CardTitle>Tax Regime Comparison</CardTitle>
                 <CardDescription>Compare your tax liability under both regimes</CardDescription>

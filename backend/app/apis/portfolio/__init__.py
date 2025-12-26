@@ -832,18 +832,26 @@ async def add_manual_holding(request: ManualHoldingRequest):
 
         print(f"[Add Manual Holding] User: {request.user_id}, Scheme: {request.scheme_name}, Units: {request.unit_balance}")
 
-        # Fetch current NAV from scheme_master using ISIN
-        nav_response = supabase.from_("scheme_master") \
-            .select("current_nav, nav_date") \
-            .or_(f"isin_growth.eq.{request.isin},isin_div_reinvestment.eq.{request.isin}") \
-            .limit(1) \
-            .execute()
+        # Fetch current NAV from MFAPI using scheme_code
+        from .nav_service import fetch_latest_nav
 
-        if not nav_response.data or len(nav_response.data) == 0:
-            raise HTTPException(status_code=404, detail=f"NAV not found for ISIN: {request.isin}")
+        nav_data = await fetch_latest_nav(request.scheme_code)
 
-        current_nav = float(nav_response.data[0].get('current_nav', 0))
-        nav_date = nav_response.data[0].get('nav_date')
+        if not nav_data or not nav_data.get('nav'):
+            raise HTTPException(
+                status_code=404,
+                detail=f"Could not fetch NAV for scheme {request.scheme_name}. Please check the scheme code or try again later."
+            )
+
+        current_nav = float(nav_data['nav'])
+        nav_date_str = nav_data['date']
+
+        # Parse nav_date from MFAPI format (e.g., '17-Dec-2025') to ISO format
+        try:
+            from datetime import datetime
+            nav_date = datetime.strptime(nav_date_str, '%d-%b-%Y').date().isoformat()
+        except:
+            nav_date = datetime.now().date().isoformat()
 
         if current_nav <= 0:
             raise HTTPException(status_code=400, detail="Invalid NAV data for this scheme")
@@ -873,7 +881,7 @@ async def add_manual_holding(request: ManualHoldingRequest):
             "avg_cost_per_unit": avg_cost_per_unit,
             "cost_value": cost_value,
             "current_nav": current_nav,
-            "nav_date": nav_date or datetime.now().date().isoformat(),
+            "nav_date": nav_date,
             "market_value": market_value,
             "absolute_profit": absolute_profit,
             "absolute_return_percentage": round(absolute_return_percentage, 2),

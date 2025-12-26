@@ -99,9 +99,13 @@ export const PremiumGoalRoadmap: React.FC<PremiumGoalRoadmapProps> = ({ userId, 
 
       <CardHeader className={!isPremium ? 'filter blur-sm' : ''}>
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <Flag className="h-5 w-5 text-blue-600" />
-            Goals in Action
+          <CardTitle className="flex items-center gap-2 text-xl md:text-2xl">
+            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-blue-500 shadow-md">
+              <Flag className="h-5 w-5 text-white" />
+            </div>
+            <span className="font-extrabold bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent">
+              🎯 Goals in Action
+            </span>
           </CardTitle>
           {isPremium && (
             <Button

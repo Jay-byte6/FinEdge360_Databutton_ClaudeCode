@@ -694,14 +694,14 @@ const PortfolioPage: React.FC = () => {
 
       {/* Financial Ladder Component */}
       {financialData && Object.keys(financialData).length > 0 && (
-        <div className="mt-8">
+        <div className="mt-8" id="financial-ladder">
           <FinancialLadder financialData={financialData} />
         </div>
       )}
 
       {/* PowerFIRE Tips - Savings Scenarios */}
       {financialData && Object.keys(financialData).length > 0 && (
-        <div className="mt-8">
+        <div className="mt-8" id="powerfire-tips">
           <Card className="bg-gradient-to-r from-orange-50 to-red-50 border-2 border-orange-300 shadow-lg">
             <CardHeader>
               <CardTitle className="text-2xl text-orange-900 flex items-center gap-2">
@@ -844,7 +844,7 @@ const PortfolioPage: React.FC = () => {
 
       {/* Risk Coverage Tips */}
       {financialData && Object.keys(financialData).length > 0 && (
-        <div className="mt-8">
+        <div className="mt-8" id="risk-coverage">
           <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 shadow-lg">
             <CardHeader>
               <CardTitle className="text-2xl text-blue-900 flex items-center gap-2">

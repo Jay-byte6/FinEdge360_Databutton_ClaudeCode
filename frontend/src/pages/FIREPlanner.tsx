@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { AccessCodeForm } from "components/AccessCodeForm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -60,6 +60,7 @@ const ColumnHeader: React.FC<{ title: string; tooltip: string }> = ({ title, too
 
 const FIREPlanner: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user } = useAuthStore();
   const { financialData, fetchFinancialData, isLoading: isLoadingFinancialData } = useFinancialDataStore();
 
@@ -74,7 +75,23 @@ const FIREPlanner: React.FC = () => {
   const [assetAllocations, setAssetAllocations] = useState<any[]>([]);
   const [includeIlliquidAssets, setIncludeIlliquidAssets] = useState(true); // Default to true - include illiquid assets
   const [premiumCAGR, setPremiumCAGR] = useState(12); // Default 12% CAGR for Premium NEW FIRE
-  const [activeTab, setActiveTab] = useState<string>("goals");
+
+  // Read tab from URL query params (e.g., /fire-planner?tab=set-goals)
+  const tabFromUrl = searchParams.get('tab');
+  const [activeTab, setActiveTab] = useState<string>(
+    tabFromUrl === 'set-goals' ? 'goals' :
+    tabFromUrl === 'asset-allocation' ? 'allocation' :
+    tabFromUrl === 'sip-plan' ? 'sipplan' :
+    'goals'
+  );
+
+  // Update tab when URL changes
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab === 'set-goals') setActiveTab('goals');
+    else if (tab === 'asset-allocation') setActiveTab('allocation');
+    else if (tab === 'sip-plan') setActiveTab('sipplan');
+  }, [searchParams]);
 
   const ACCESS_CODE = "FIREDEMO"; // Demo code for everyone to try
 
@@ -741,6 +758,21 @@ const FIREPlanner: React.FC = () => {
         </CardContent>
       </Card>
 
+      {/* Progress Indicator */}
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-sm font-medium text-gray-600">Your Progress</span>
+          <span className="text-sm font-semibold text-blue-600">
+            Step {activeTab === 'goals' ? '1' : activeTab === 'allocation' ? '2' : '3'} of 3
+          </span>
+        </div>
+        <div className="flex gap-2">
+          <div className={`h-2 flex-1 rounded-full ${activeTab === 'goals' || activeTab === 'allocation' || activeTab === 'sipplan' ? 'bg-blue-600' : 'bg-gray-200'}`}></div>
+          <div className={`h-2 flex-1 rounded-full ${activeTab === 'allocation' || activeTab === 'sipplan' ? 'bg-green-600' : 'bg-gray-200'}`}></div>
+          <div className={`h-2 flex-1 rounded-full ${activeTab === 'sipplan' ? 'bg-purple-600' : 'bg-gray-200'}`}></div>
+        </div>
+      </div>
+
       {/* Tabs for different views */}
       <Tabs defaultValue="goals" className="w-full" value={activeTab} onValueChange={(value) => {
         setActiveTab(value);
@@ -757,20 +789,23 @@ const FIREPlanner: React.FC = () => {
             .catch(error => console.error('[FIRE Planner] Error refreshing allocations:', error));
         }
       }}>
-        <TabsList className="grid w-full grid-cols-3 mb-6">
-          <TabsTrigger value="goals">
-            <span className="flex items-center gap-1">
-              Step 1: Set Goals
+        <TabsList className="grid w-full grid-cols-3 mb-6 h-auto shadow-md">
+          <TabsTrigger value="goals" className="flex-col gap-1 py-3 px-2">
+            <span className="text-xs font-semibold text-blue-600">Step 1</span>
+            <span className="text-sm md:text-base font-medium">
+              <span className="hidden md:inline">Set </span>Goals
             </span>
           </TabsTrigger>
-          <TabsTrigger value="allocation">
-            <span className="flex items-center gap-1">
-              Step 2: Asset Allocation
+          <TabsTrigger value="allocation" className="flex-col gap-1 py-3 px-2">
+            <span className="text-xs font-semibold text-green-600">Step 2</span>
+            <span className="text-sm md:text-base font-medium">
+              <span className="hidden md:inline">Asset </span>Allocation
             </span>
           </TabsTrigger>
-          <TabsTrigger value="sipplan">
-            <span className="flex items-center gap-1">
-              Step 3: Goal Planning
+          <TabsTrigger value="sipplan" className="flex-col gap-1 py-3 px-2">
+            <span className="text-xs font-semibold text-purple-600">Step 3</span>
+            <span className="text-sm md:text-base font-medium">
+              <span className="hidden md:inline">FIRE </span>Planning
             </span>
           </TabsTrigger>
         </TabsList>
@@ -1171,16 +1206,22 @@ const FIREPlanner: React.FC = () => {
           </Card>
         )}
 
-        {/* Next Step Button - Always visible */}
-        <div className="mt-8 flex justify-center">
-          <Button
-            size="lg"
-            onClick={() => setActiveTab("allocation")}
-            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold px-8 py-6 text-lg shadow-lg animate-pulse"
-          >
-            <span className="mr-2">Continue to Step 2: Asset Allocation</span>
-            <ChevronRight className="h-5 w-5 animate-bounce" />
-          </Button>
+        {/* Next Step Button - Always visible and PROMINENT */}
+        <div className="mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200">
+          <div className="flex flex-col items-center gap-3">
+            <p className="text-sm md:text-base text-gray-700 font-medium text-center">
+              ✅ Great! Now let's design your asset allocation strategy
+            </p>
+            <Button
+              size="lg"
+              onClick={() => setActiveTab("allocation")}
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold px-8 md:px-12 py-6 text-base md:text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+            >
+              <span className="mr-2">Continue to Step 2: Asset Allocation</span>
+              <ChevronRight className="h-5 w-5" />
+            </Button>
+            <p className="text-xs text-gray-500">⏱️ Takes 2-3 minutes</p>
+          </div>
         </div>
       </div>
         </TabsContent>
@@ -1205,16 +1246,22 @@ const FIREPlanner: React.FC = () => {
 
           <AssetAllocationStrategy />
 
-          {/* Next Step Button - Always visible */}
-          <div className="mt-8 flex justify-center">
-            <Button
-              size="lg"
-              onClick={() => setActiveTab("sipplan")}
-              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold px-8 py-6 text-lg shadow-lg animate-pulse"
-            >
-              <span className="mr-2">Continue to Step 3: Goal Planning</span>
-              <ChevronRight className="h-5 w-5 animate-bounce" />
-            </Button>
+          {/* Next Step Button - Always visible and PROMINENT */}
+          <div className="mt-8 p-6 bg-gradient-to-r from-green-50 to-teal-50 rounded-xl border-2 border-green-200">
+            <div className="flex flex-col items-center gap-3">
+              <p className="text-sm md:text-base text-gray-700 font-medium text-center">
+                ✅ Perfect! Now calculate your monthly SIP requirements
+              </p>
+              <Button
+                size="lg"
+                onClick={() => setActiveTab("sipplan")}
+                className="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white font-bold px-8 md:px-12 py-6 text-base md:text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+              >
+                <span className="mr-2">Continue to Step 3: FIRE Planning</span>
+                <ChevronRight className="h-5 w-5" />
+              </Button>
+              <p className="text-xs text-gray-500">⏱️ Takes 3-5 minutes</p>
+            </div>
           </div>
         </TabsContent>
 
@@ -1655,7 +1702,7 @@ const FIREPlanner: React.FC = () => {
                         const premiumFIRE = calculatePremiumNewFIRE(financialData, retirementAge, expectedCAGR, retirementSIP, stepUpPercentage, includeIlliquidAssets);
 
                         return (
-                          <Card className="bg-gradient-to-br from-green-50 to-emerald-100 border-2 border-green-500 shadow-lg hover:shadow-xl transition-shadow relative">
+                          <Card id="premium-new-fire" className="bg-gradient-to-br from-green-50 to-emerald-100 border-2 border-green-500 shadow-lg hover:shadow-xl transition-shadow relative">
                             {/* PREMIUM Badge */}
                             <div className="absolute top-3 right-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-black px-3 py-1 rounded-full shadow-md">
                               ⭐ PREMIUM

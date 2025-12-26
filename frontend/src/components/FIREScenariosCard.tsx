@@ -108,14 +108,18 @@ export const FIREScenariosCard: React.FC<FIREScenariosCardProps> = ({
   const surplus4 = Math.max(0, totalWealthAtRetirement - fireNumberAtRetirement);
 
   return (
-    <Card className="relative">
+    <Card className="relative" id="fire-scenarios-overview">
       {!isPremium && <LockedFeatureOverlay featureName="4 FIRE Scenarios Overview" />}
 
       <CardHeader className={!isPremium ? 'filter blur-sm' : ''}>
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <Flame className="h-5 w-5 text-orange-600" />
-            Your 4 FIRE Scenarios
+          <CardTitle className="flex items-center gap-2 text-xl md:text-2xl">
+            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-red-500 shadow-md">
+              <Flame className="h-5 w-5 text-white" />
+            </div>
+            <span className="font-extrabold bg-gradient-to-r from-orange-600 via-red-600 to-pink-600 bg-clip-text text-transparent">
+              🔥 Your 4 FIRE Scenarios
+            </span>
           </CardTitle>
           {isPremium && (
             <Button
@@ -128,7 +132,7 @@ export const FIREScenariosCard: React.FC<FIREScenariosCardProps> = ({
             </Button>
           )}
         </div>
-        <p className="text-xs text-gray-600 mt-1">
+        <p className="text-sm md:text-base text-gray-600 mt-2 font-medium">
           Four personalized scenarios showing when and how you can achieve Financial Independence
         </p>
       </CardHeader>
