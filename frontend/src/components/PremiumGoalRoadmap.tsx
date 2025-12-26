@@ -81,7 +81,7 @@ export const PremiumGoalRoadmap: React.FC<PremiumGoalRoadmapProps> = ({ userId, 
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Flag className="h-5 w-5 text-blue-600" />
-            Your Financial Goals Roadmap
+            Goals in Action
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -95,13 +95,13 @@ export const PremiumGoalRoadmap: React.FC<PremiumGoalRoadmapProps> = ({ userId, 
 
   return (
     <Card className="relative">
-      {!isPremium && <LockedFeatureOverlay featureName="Financial Goals Roadmap" />}
+      {!isPremium && <LockedFeatureOverlay featureName="Goals in Action" />}
 
       <CardHeader className={!isPremium ? 'filter blur-sm' : ''}>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <Flag className="h-5 w-5 text-blue-600" />
-            Your Financial Goals Roadmap
+            Goals in Action
           </CardTitle>
           {isPremium && (
             <Button
@@ -114,18 +114,18 @@ export const PremiumGoalRoadmap: React.FC<PremiumGoalRoadmapProps> = ({ userId, 
             </Button>
           )}
         </div>
-        <p className="text-sm text-gray-600">Track your journey to financial freedom</p>
+        <p className="text-sm text-gray-600">Your active goals with SIP plans underway</p>
       </CardHeader>
 
       <CardContent className={!isPremium ? 'filter blur-sm' : ''}>
         {goals.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-8 text-center">
             <Target className="h-12 w-12 text-gray-400 mb-3" />
-            <p className="text-gray-600 font-medium">No goals yet</p>
-            <p className="text-sm text-gray-500 mb-4">Create goals in FIRE Planner to see your roadmap</p>
+            <p className="text-gray-600 font-medium">No active goals yet</p>
+            <p className="text-sm text-gray-500 mb-4">Set goals in FIRE Planner and create SIP plans to see them here</p>
             <Button onClick={() => navigate('/fire-planner?tab=set-goals')} size="sm">
               <TrendingUp className="h-4 w-4 mr-2" />
-              Set Your First Goal
+              Start Your First Goal
             </Button>
           </div>
         ) : (

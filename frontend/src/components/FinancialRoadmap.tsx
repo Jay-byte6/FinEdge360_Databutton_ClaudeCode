@@ -195,67 +195,66 @@ const FinancialRoadmap: React.FC<FinancialRoadmapProps> = ({ financialData, user
         <div className="mt-8">
           <h3 className="text-lg font-semibold mb-4 text-gray-800">Your Financial Goals</h3>
 
-          {/* Active Goals with SIP Plan */}
-          {allGoals.length > 0 && (
-            <div className="space-y-3 mb-6">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="h-1 w-8 bg-green-500 rounded"></div>
-                <p className="text-sm font-semibold text-green-700">Goals with Active SIP Plan</p>
-              </div>
-              {allGoals.map((goal, index) => (
-                <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                  <div className={`w-3 h-3 rounded-full ${goal.color} flex-shrink-0`}></div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium text-gray-800 truncate">{goal.name}</div>
-                    <div className="text-sm text-gray-600">
-                      {goal.type} • In {goal.years} {goal.years === 1 ? 'year' : 'years'} (Age {currentAge + goal.years})
-                    </div>
-                  </div>
-                  <div className="text-right flex-shrink-0">
-                    <div className="font-semibold text-gray-800">{formatCurrency(goal.amount)}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Unplanned Goals Section */}
-          {isPremium && unplannedGoals.length > 0 && (
+          {/* Goals Needing Attention Section */}
+          {isPremium && unplannedGoals.length > 0 ? (
             <div className="space-y-3">
               <div className="flex items-center gap-2 mb-2">
-                <div className="h-1 w-8 bg-blue-500 rounded"></div>
-                <p className="text-sm font-semibold text-blue-700">Additional Goals to Plan</p>
+                <div className="h-1 w-8 bg-orange-500 rounded"></div>
+                <p className="text-sm font-semibold text-orange-700">Goals Needing Attention</p>
               </div>
 
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-3">
+              <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-3">
                 <div className="flex items-start gap-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                   </svg>
                   <div className="flex-1">
-                    <h4 className="font-semibold text-blue-900 mb-1">Keep Going! 💪</h4>
-                    <p className="text-sm text-blue-800">
-                      You have more goals that need SIP planning. Don't worry - as your income grows or existing goals are achieved, you can add these to your plan. Every goal is achievable with the right strategy!
+                    <h4 className="font-semibold text-orange-900 mb-1">Complete Your Financial Plan 💪</h4>
+                    <p className="text-sm text-orange-800">
+                      These goals need SIP planning to ensure you reach them on time. Head to FIRE Planner to calculate required monthly investments and set up your strategy.
                     </p>
                   </div>
                 </div>
               </div>
 
               {unplannedGoals.map((goal: any, index: number) => (
-                <div key={index} className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-blue-200 opacity-80">
-                  <div className="w-3 h-3 rounded-full bg-blue-400 flex-shrink-0"></div>
+                <div key={index} className="flex items-center gap-3 p-4 bg-gradient-to-br from-orange-50 to-amber-50 rounded-lg border-2 border-orange-200">
+                  <div className="w-3 h-3 rounded-full bg-orange-500 flex-shrink-0"></div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-medium text-gray-800 truncate">{goal.name}</div>
-                    <div className="text-sm text-blue-700">
-                      {goal.type} • In {goal.years} {goal.years === 1 ? 'year' : 'years'} • Awaiting Plan
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="font-semibold text-gray-900 truncate">{goal.name}</div>
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-800 flex-shrink-0">
+                        ⚠️ Needs Planning
+                      </span>
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      {goal.type} • In {goal.years} {goal.years === 1 ? 'year' : 'years'} (Age {currentAge + goal.years})
                     </div>
                   </div>
                   <div className="text-right flex-shrink-0">
                     <div className="font-semibold text-gray-800">{formatCurrency(goal.amount)}</div>
-                    <div className="text-xs text-blue-600">Not yet planned</div>
+                    <div className="text-xs text-orange-600 font-medium">Action Required</div>
                   </div>
                 </div>
               ))}
+            </div>
+          ) : isPremium ? (
+            <div className="flex flex-col items-center justify-center py-8 text-center bg-green-50 rounded-lg border border-green-200">
+              <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center mb-3">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <p className="text-green-700 font-semibold mb-1">All Goals Fully Planned! 🎉</p>
+              <p className="text-sm text-gray-600">You've completed SIP planning for all your financial goals</p>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-8 text-center bg-gray-50 rounded-lg border border-gray-200">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+              </svg>
+              <p className="text-gray-600 font-medium mb-1">Upgrade to Premium</p>
+              <p className="text-sm text-gray-500">Get detailed SIP planning and goal tracking</p>
             </div>
           )}
         </div>

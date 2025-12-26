@@ -8,6 +8,7 @@ import { LockedFeatureOverlay } from './LockedFeatureOverlay';
 interface DailyInsightsCardProps {
   netWorth: number;
   netWorthChange?: number; // Optional: change from yesterday
+  coastFIRE?: number; // Optional: Coast FIRE number
   totalGoalsProgress: number; // Average progress across all goals (0-100)
   goalsOnTrack: number; // Number of goals on track
   totalGoals: number; // Total number of goals
@@ -23,6 +24,7 @@ const formatCurrency = (amount: number) => {
 export const DailyInsightsCard: React.FC<DailyInsightsCardProps> = ({
   netWorth,
   netWorthChange,
+  coastFIRE,
   totalGoalsProgress,
   goalsOnTrack,
   totalGoals,
@@ -32,6 +34,7 @@ export const DailyInsightsCard: React.FC<DailyInsightsCardProps> = ({
 
   const isPositiveChange = netWorthChange !== undefined && netWorthChange >= 0;
   const allGoalsOnTrack = goalsOnTrack === totalGoals && totalGoals > 0;
+  const coastFIREProgress = coastFIRE && coastFIRE > 0 ? (netWorth / coastFIRE) * 100 : 0;
 
   return (
     <Card className="relative">
@@ -89,6 +92,43 @@ export const DailyInsightsCard: React.FC<DailyInsightsCardProps> = ({
             </div>
           )}
         </div>
+
+        {/* Coast FIRE Number */}
+        {coastFIRE !== undefined && coastFIRE > 0 && (
+          <div
+            onClick={() => isPremium && navigate('/fire-calculator')}
+            className={`p-4 rounded-lg bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-200 ${
+              isPremium ? 'cursor-pointer hover:shadow-md transition-shadow' : ''
+            }`}
+          >
+            <div className="flex items-start justify-between mb-3">
+              <div>
+                <p className="text-sm text-gray-600 font-medium">Your Coast FIRE Number</p>
+                <p className="text-2xl font-bold text-gray-900">{formatCurrency(coastFIRE)}</p>
+              </div>
+              <div className="h-10 w-10 rounded-full bg-orange-100 flex items-center justify-center">
+                <TrendingUp className="h-5 w-5 text-orange-600" />
+              </div>
+            </div>
+
+            {/* Progress Bar */}
+            <div className="mb-2">
+              <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-orange-500 to-amber-600 transition-all"
+                  style={{ width: `${Math.min(coastFIREProgress, 100)}%` }}
+                />
+              </div>
+            </div>
+
+            <p className="text-xs text-gray-600">
+              {coastFIREProgress >= 100
+                ? "🎉 You've reached Coast FIRE! Let your investments grow."
+                : `${Math.round(coastFIREProgress)}% towards Coast FIRE - keep investing!`
+              }
+            </p>
+          </div>
+        )}
 
         {/* Overall Goals Progress */}
         <div

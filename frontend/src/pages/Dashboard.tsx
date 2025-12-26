@@ -8,6 +8,7 @@ import useAuthStore from '../utils/authStore';
 import useFinancialDataStore from '../utils/financialDataStore';
 import FinancialRoadmap from '@/components/FinancialRoadmap';
 import { DailyInsightsCard } from '@/components/DailyInsightsCard';
+import { FIREScenariosCard } from '@/components/FIREScenariosCard';
 import { PremiumGoalRoadmap } from '@/components/PremiumGoalRoadmap';
 import { MilestoneProgressCard } from '@/components/MilestoneProgressCard';
 import { JourneyMapSimple } from '@/components/journey/JourneyMapSimple';
@@ -117,6 +118,31 @@ export default function Dashboard() {
   // Calculate metrics for DailyInsightsCard
   const netWorth = financialData ? calculateNetWorth(financialData) : 0;
 
+  // Calculate Coast FIRE number
+  const coastFIRE = financialData ? (() => {
+    const retirementAge = financialData.riskAppetite?.retirementAge || 60;
+    const coastAge = 40; // Default Coast FIRE age
+    const currentAge = financialData.personalInfo.age || 30;
+    const monthlyExpenses = financialData.personalInfo.monthlyExpenses || 0;
+    const inflationRate = 0.06; // 6% inflation
+    const growthRate = 0.05; // 5% conservative annual growth
+
+    // Calculate years
+    const yearsToRetirement = retirementAge - currentAge;
+    const yearsCoastToRetirement = retirementAge - coastAge;
+
+    // Calculate FIRE number at retirement
+    const inflationFactor = Math.pow(1 + inflationRate, yearsToRetirement);
+    const yearlyExpensesRetirement = monthlyExpenses * 12 * inflationFactor;
+    const requiredCorpus = yearlyExpensesRetirement * 25; // 4% rule
+
+    // Calculate Coast FIRE (how much you need by coastAge to let it grow to requiredCorpus)
+    const coastGrowthFactor = Math.pow(1 + growthRate, yearsCoastToRetirement);
+    const coastFIRENumber = requiredCorpus / coastGrowthFactor;
+
+    return coastFIRENumber;
+  })() : 0;
+
   const totalGoalsProgress = goals.length > 0
     ? goals.reduce((sum, goal) => {
         const progress = goal.amountAvailableToday
@@ -135,26 +161,88 @@ export default function Dashboard() {
   // Calculate current milestone for Journey Map preview
   const [currentMilestone, setCurrentMilestone] = useState(1);
   useEffect(() => {
-    const calculateCurrentMilestone = () => {
-      let milestone = 1;
-
-      // Check each milestone completion
-      if (financialData) {
-        milestone = 2; // Has financial data - on Step 2
-
-        // Check if FIRE calculated (same as having data for now)
-        if (financialData) milestone = 3;
-
-        // Step 4 onwards requires API checks, which are async
-        // For now, use a simple heuristic based on goals
-        if (goals.length > 0) milestone = Math.min(milestone + 3, 8);
+    const calculateCurrentMilestone = async () => {
+      if (!user?.id) {
+        setCurrentMilestone(1);
+        return;
       }
 
-      setCurrentMilestone(milestone);
+      const completedMilestones: number[] = [];
+
+      // Milestone 1, 2, 3: Financial data
+      if (financialData) {
+        completedMilestones.push(1, 2, 3);
+      } else {
+        setCurrentMilestone(1);
+        return;
+      }
+
+      // Milestone 4: Portfolio holdings
+      try {
+        const portfolioRes = await fetch(API_ENDPOINTS.getPortfolioHoldings(user.id));
+        if (portfolioRes.ok) {
+          const portfolioData = await portfolioRes.json();
+          if (portfolioData.holdings && portfolioData.holdings.length > 0) {
+            completedMilestones.push(4);
+          }
+        }
+      } catch (err) {
+        // Continue
+      }
+
+      // Milestone 5: Asset allocation
+      try {
+        const allocRes = await fetch(API_ENDPOINTS.getAssetAllocation(user.id));
+        if (allocRes.ok) {
+          const allocData = await allocRes.json();
+          if (allocData.allocations && allocData.allocations.length > 0) {
+            completedMilestones.push(5);
+          }
+        }
+      } catch (err) {
+        // Continue
+      }
+
+      // Milestone 6: Goals created
+      if (goals.length > 0) {
+        completedMilestones.push(6);
+
+        // Milestone 7: Goals with asset allocation/plan
+        const hasGoalsWithPlan = goals.some((g: any) => g.assetAllocation || (g.sipRequired && g.sipRequired > 0));
+        if (hasGoalsWithPlan) {
+          completedMilestones.push(7);
+        }
+      }
+
+      // Milestone 8: Expert consultation (always pending for now)
+      // Skip milestone 8
+
+      // Milestone 9: Automate Success - ALL goals must have SIP
+      const allGoalsHaveSIP = goals.length > 0 && goals.every((g: any) => g.sipRequired && g.sipRequired > 0);
+      if (allGoalsHaveSIP) {
+        completedMilestones.push(9);
+      }
+
+      // Milestone 10: Portfolio monitoring (always in progress if portfolio exists)
+      // Skip milestone 10
+
+      // Find first incomplete milestone
+      let current = 1;
+      for (let i = 1; i <= 10; i++) {
+        if (!completedMilestones.includes(i)) {
+          current = i;
+          break;
+        }
+      }
+      if (completedMilestones.length === 10) {
+        current = 10; // All complete
+      }
+
+      setCurrentMilestone(current);
     };
 
     calculateCurrentMilestone();
-  }, [financialData, goals]);
+  }, [financialData, goals, user?.id]);
 
   // Dashboard cards configuration
   const dashboardCards: DashboardCard[] = [
@@ -199,6 +287,13 @@ export default function Dashboard() {
       path: "/tax-planning",
       icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>,
       color: "bg-purple-50 text-purple-600 border-purple-100"
+    },
+    {
+      title: "Download Report",
+      description: "Get your complete financial report",
+      path: "/download-report",
+      icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>,
+      color: "bg-pink-50 text-pink-600 border-pink-100"
     }
   ];
 
@@ -309,6 +404,7 @@ export default function Dashboard() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <DailyInsightsCard
                 netWorth={netWorth}
+                coastFIRE={coastFIRE}
                 totalGoalsProgress={totalGoalsProgress}
                 goalsOnTrack={goalsOnTrack}
                 totalGoals={goals.length}
@@ -329,8 +425,10 @@ export default function Dashboard() {
                 hasFinancialData={!!financialData}
               />
 
-              {/* Journey Map Preview Card */}
-              <Card
+              {/* Right Column: Journey Map + FIRE Scenarios */}
+              <div className="space-y-6">
+                {/* Journey Map Preview Card */}
+                <Card
                 className="relative cursor-pointer hover:shadow-lg transition-shadow"
                 onClick={() => isPremium && navigate('/journey-map')}
               >
@@ -375,8 +473,10 @@ export default function Dashboard() {
                             { x: 275, y: 125 },
                             { x: 350, y: 50 }
                           ];
-                          const isCompleted = i === 0 || i === 1;
-                          const isCurrent = i === 2;
+                          // Map preview positions to milestone numbers (1, 3, 5, 7, 9)
+                          const milestoneNum = i === 0 ? 1 : i === 1 ? 3 : i === 2 ? 5 : i === 3 ? 7 : 9;
+                          const isCompleted = milestoneNum < currentMilestone;
+                          const isCurrent = milestoneNum === currentMilestone;
 
                           return (
                             <g key={i}>
@@ -476,7 +576,25 @@ export default function Dashboard() {
                   </div>
                 )}
               </Card>
+
+              {/* FIRE Scenarios Overview */}
+              <FIREScenariosCard
+                financialData={financialData}
+                isPremium={isPremium}
+              />
+              </div>
             </div>
+          </div>
+        )}
+
+        {/* Road to Financial Freedom - FinancialRoadmap Component */}
+        {financialData && Object.keys(financialData).length > 0 && (
+          <div className="mb-6">
+            <FinancialRoadmap
+              financialData={financialData}
+              userId={user?.id}
+              isPremium={isPremium}
+            />
           </div>
         )}
 
@@ -511,17 +629,6 @@ export default function Dashboard() {
             </Card>
           ))}
         </div>
-
-        {/* Road to Financial Freedom - FinancialRoadmap Component */}
-        {financialData && Object.keys(financialData).length > 0 && (
-          <div className="mb-6">
-            <FinancialRoadmap
-              financialData={financialData}
-              userId={user?.id}
-              isPremium={isPremium}
-            />
-          </div>
-        )}
 
         {/* Legal Disclaimer */}
         <div className="mb-6">
