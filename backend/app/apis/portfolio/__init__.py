@@ -802,5 +802,189 @@ async def get_goal_investment_summary(user_id: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+class ManualHoldingRequest(BaseModel):
+    """Manual holding request model"""
+    user_id: str
+    scheme_code: str
+    scheme_name: str
+    isin: str
+    unit_balance: float
+    invested_value: Optional[float] = None
+    folio_number: Optional[str] = None
+    purchase_date: Optional[str] = None
+
+
+@router.post("/add-manual-holding")
+async def add_manual_holding(request: ManualHoldingRequest):
+    """
+    Add a holding manually (without CAMS upload)
+    Auto-fetches current NAV based on ISIN
+
+    Args:
+        request: Manual holding data including user_id, scheme info, units, etc.
+
+    Returns:
+        Created holding with auto-fetched NAV
+    """
+    try:
+        if not supabase:
+            raise HTTPException(status_code=500, detail="Database not configured")
+
+        print(f"[Add Manual Holding] User: {request.user_id}, Scheme: {request.scheme_name}, Units: {request.unit_balance}")
+
+        # Fetch current NAV from scheme_master using ISIN
+        nav_response = supabase.from_("scheme_master") \
+            .select("current_nav, nav_date") \
+            .or_(f"isin_growth.eq.{request.isin},isin_div_reinvestment.eq.{request.isin}") \
+            .limit(1) \
+            .execute()
+
+        if not nav_response.data or len(nav_response.data) == 0:
+            raise HTTPException(status_code=404, detail=f"NAV not found for ISIN: {request.isin}")
+
+        current_nav = float(nav_response.data[0].get('current_nav', 0))
+        nav_date = nav_response.data[0].get('nav_date')
+
+        if current_nav <= 0:
+            raise HTTPException(status_code=400, detail="Invalid NAV data for this scheme")
+
+        # Calculate values
+        market_value = request.unit_balance * current_nav
+
+        # If invested_value provided, use it; otherwise assume cost = current value (0% returns)
+        if request.invested_value and request.invested_value > 0:
+            cost_value = request.invested_value
+            avg_cost_per_unit = cost_value / request.unit_balance
+        else:
+            cost_value = market_value
+            avg_cost_per_unit = current_nav
+
+        absolute_profit = market_value - cost_value
+        absolute_return_percentage = (absolute_profit / cost_value * 100) if cost_value > 0 else 0
+
+        # Create holding record
+        holding_data = {
+            "user_id": request.user_id,
+            "folio_number": request.folio_number or f"MANUAL-{request.scheme_code}-{datetime.now().strftime('%Y%m%d%H%M%S')}",
+            "scheme_code": request.scheme_code,
+            "scheme_name": request.scheme_name,
+            "isin": request.isin,
+            "unit_balance": request.unit_balance,
+            "avg_cost_per_unit": avg_cost_per_unit,
+            "cost_value": cost_value,
+            "current_nav": current_nav,
+            "nav_date": nav_date or datetime.now().date().isoformat(),
+            "market_value": market_value,
+            "absolute_profit": absolute_profit,
+            "absolute_return_percentage": round(absolute_return_percentage, 2),
+            "is_active": True,
+            "entry_method": "manual",
+            "created_at": datetime.now().isoformat(),
+            "last_updated": datetime.now().isoformat()
+        }
+
+        # Insert into database
+        insert_response = supabase.from_("portfolio_holdings").insert(holding_data).execute()
+
+        if not insert_response.data:
+            raise HTTPException(status_code=500, detail="Failed to create holding")
+
+        created_holding = insert_response.data[0]
+
+        print(f"[Add Manual Holding] Success! Holding ID: {created_holding.get('id')}")
+
+        return {
+            "success": True,
+            "message": "Holding added successfully with latest NAV",
+            "holding": created_holding
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"[Add Manual Holding] Error: {str(e)}")
+        print(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"Failed to add holding: {str(e)}")
+
+
+@router.get("/search-schemes")
+async def search_schemes(query: str, limit: int = 20):
+    """
+    Search mutual fund schemes from scheme_master table
+
+    Args:
+        query: Search term (scheme name, AMC name, or partial match)
+        limit: Maximum number of results to return (default 20)
+
+    Returns:
+        List of matching schemes with scheme_code, scheme_name, amc_name, category
+    """
+    try:
+        if not supabase:
+            raise HTTPException(status_code=500, detail="Database not configured")
+
+        if not query or len(query) < 2:
+            return {"schemes": []}
+
+        # Search in scheme_master table
+        # Use ilike for case-insensitive search on scheme_name
+        search_pattern = f"%{query}%"
+
+        response = supabase.from_("scheme_master") \
+            .select("scheme_code, scheme_name, amc_name, category") \
+            .or_(f"scheme_name.ilike.{search_pattern},amc_name.ilike.{search_pattern}") \
+            .limit(limit) \
+            .execute()
+
+        schemes = response.data or []
+
+        print(f"[Search Schemes] Query: '{query}', Found: {len(schemes)} results")
+
+        return {"schemes": schemes}
+
+    except Exception as e:
+        print(f"[Search Schemes] Error: {str(e)}")
+        print(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"Failed to search schemes: {str(e)}")
+
+
+@router.get("/scheme-details/{scheme_code}")
+async def get_scheme_details(scheme_code: str):
+    """
+    Get detailed information about a specific scheme including ISIN codes
+
+    Args:
+        scheme_code: The unique scheme code
+
+    Returns:
+        Full scheme details including ISINs for growth and dividend plans
+    """
+    try:
+        if not supabase:
+            raise HTTPException(status_code=500, detail="Database not configured")
+
+        # Fetch scheme details from scheme_master
+        response = supabase.from_("scheme_master") \
+            .select("*") \
+            .eq("scheme_code", scheme_code) \
+            .execute()
+
+        if not response.data or len(response.data) == 0:
+            raise HTTPException(status_code=404, detail=f"Scheme not found: {scheme_code}")
+
+        scheme = response.data[0]
+
+        print(f"[Scheme Details] Fetched details for scheme_code: {scheme_code}")
+
+        return {"scheme": scheme}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"[Scheme Details] Error: {str(e)}")
+        print(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"Failed to fetch scheme details: {str(e)}")
+
+
 # Export router
 __all__ = ['router']
