@@ -75,7 +75,8 @@ const ROUTE_NUDGE_RULES: Record<string, {
 
 export const useJourneyNudge = (
   userId: string | undefined,
-  completedMilestones: number[]
+  completedMilestones: number[],
+  isDataLoading: boolean = false // NEW: Don't show nudges while data is loading
 ) => {
   const location = useLocation();
   const [nudgeState, setNudgeState] = useState<NudgeState>({
@@ -194,8 +195,12 @@ export const useJourneyNudge = (
 
   // Main effect to determine when to show nudge - SMART & CONTEXTUAL
   useEffect(() => {
-    // Don't show if user dismissed forever or not logged in
-    if (!userId || nudgeState.dismissedForever) return;
+    // Don't show if user dismissed forever, not logged in, or data is still loading
+    if (!userId || nudgeState.dismissedForever || isDataLoading) {
+      // Hide nudge while loading to prevent showing wrong milestone
+      setNudgeState(prev => ({ ...prev, shouldShow: false }));
+      return;
+    }
 
     const nextMilestone = getNextMilestone();
     const isRelevantRoute = shouldShowNudgeForRoute(nextMilestone);
@@ -203,10 +208,11 @@ export const useJourneyNudge = (
 
     // INTELLIGENT NUDGE DECISION:
     // ✅ Show nudge ONLY if ALL conditions are met:
-    // 1. User is on a page where this nudge makes sense (not interrupting their work)
-    // 2. Enough time has passed since last nudge (5 min cooldown)
-    // 3. User hasn't completed all milestones yet
-    // 4. This specific milestone is allowed on current page
+    // 1. User data has fully loaded from backend (not showing wrong milestone)
+    // 2. User is on a page where this nudge makes sense (not interrupting their work)
+    // 3. Enough time has passed since last nudge (5 min cooldown)
+    // 4. User hasn't completed all milestones yet
+    // 5. This specific milestone is allowed on current page
 
     if (
       isRelevantRoute &&
@@ -234,7 +240,7 @@ export const useJourneyNudge = (
         shouldShow: false,
       }));
     }
-  }, [location.pathname, completedMilestones, userId]);
+  }, [location.pathname, completedMilestones, userId, isDataLoading]);
 
   // Functions to control nudge display
   const closeNudge = () => {

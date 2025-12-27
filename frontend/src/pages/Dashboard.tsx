@@ -49,9 +49,14 @@ export default function Dashboard() {
   const [completedMilestonesArray, setCompletedMilestonesArray] = useState<number[]>([]);
   const [showCelebration, setShowCelebration] = useState(false);
   const [celebrationMilestone, setCelebrationMilestone] = useState<number>(1);
+  const [milestonesLoading, setMilestonesLoading] = useState(true); // Track milestone data loading
 
-  // Journey nudge system
-  const journeyNudge = useJourneyNudge(user?.id, completedMilestonesArray);
+  // Journey nudge system - only show after ALL data is loaded
+  const journeyNudge = useJourneyNudge(
+    user?.id,
+    completedMilestonesArray,
+    isLoading || milestonesLoading // Pass loading state to prevent premature nudges
+  );
 
   // Format currency for display
   const formatCurrency = (amount: number) => {
@@ -177,8 +182,12 @@ export default function Dashboard() {
     const calculateCurrentMilestone = async () => {
       if (!user?.id) {
         setCurrentMilestone(1);
+        setMilestonesLoading(false);
         return;
       }
+
+      // Start loading milestones
+      setMilestonesLoading(true);
 
       const completedMilestones: number[] = [];
 
@@ -187,6 +196,7 @@ export default function Dashboard() {
         completedMilestones.push(1, 2, 3);
       } else {
         setCurrentMilestone(1);
+        setMilestonesLoading(false); // No data means calculation is complete
         return;
       }
 
@@ -263,6 +273,9 @@ export default function Dashboard() {
         setCelebrationMilestone(newMilestone);
         setShowCelebration(true);
       }
+
+      // Milestone calculation complete - now safe to show nudges
+      setMilestonesLoading(false);
     };
 
     calculateCurrentMilestone();
