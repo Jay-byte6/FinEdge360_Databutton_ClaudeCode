@@ -292,25 +292,46 @@ const Pricing: React.FC = () => {
                     </div>
 
                     <div>
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-5xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-                          ₹{price.toLocaleString()}
-                        </span>
-                        {price > 0 && (
-                          <span className="text-gray-500">
-                            {isPremium ? 'one-time' : isExpertPlus ? '/month' : ''}
-                          </span>
-                        )}
-                      </div>
-                      {isPremium && price > 0 && (
-                        <p className="text-sm text-green-600 font-semibold mt-1">
-                          Lifetime access • No recurring fees
-                        </p>
-                      )}
-                      {isExpertPlus && (
-                        <p className="text-sm text-purple-600 font-semibold mt-1">
-                          Billed monthly • Cancel anytime
-                        </p>
+                      {isPremium && price > 0 ? (
+                        <>
+                          <div className="flex items-baseline gap-2 mb-1">
+                            <span className="text-2xl font-semibold text-gray-400 line-through">
+                              ₹9,999
+                            </span>
+                            <span className="text-sm text-red-600 font-bold bg-red-50 px-2 py-0.5 rounded">
+                              60% OFF
+                            </span>
+                          </div>
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-5xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                              ₹{price.toLocaleString()}
+                            </span>
+                            <span className="text-gray-500">
+                              one-time
+                            </span>
+                          </div>
+                          <p className="text-sm text-green-600 font-semibold mt-1">
+                            Lifetime access • No recurring fees
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-5xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+                              ₹{price.toLocaleString()}
+                            </span>
+                            {price > 0 && (
+                              <span className="text-gray-500">
+                                {isExpertPlus ? '/month' : ''}
+                              </span>
+                            )}
+                          </div>
+                          {isExpertPlus && (
+                            <p className="text-sm text-purple-600 font-semibold mt-1">
+                              Billed monthly • Cancel anytime
+                            </p>
+                          )}
+                        </>
                       )}
                     </div>
                   </CardHeader>
