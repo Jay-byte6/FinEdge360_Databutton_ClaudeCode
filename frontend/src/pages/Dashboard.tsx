@@ -578,6 +578,31 @@ export default function Dashboard() {
           </div>
         )}
 
+        {/* PowerUp FIREMap - Share Your Ideas Button */}
+        <div className="mb-6">
+          <Card className="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-300 shadow-lg hover:shadow-xl transition-all">
+            <CardContent className="p-6">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center">
+                    <span className="text-3xl">💡</span>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-1">Help Us Improve FIREMap!</h3>
+                    <p className="text-sm text-gray-600">Share your ideas, suggestions, and feedback to make FIREMap even better</p>
+                  </div>
+                </div>
+                <Button
+                  onClick={() => navigate('/feedback')}
+                  className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-gray-900 font-bold px-6 py-6 rounded-xl shadow-md hover:shadow-lg transition-all whitespace-nowrap"
+                >
+                  🚀 PowerUp FIREMap
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
         {/* Premium Insights Section - NEW */}
         {financialData && (
           <div className="space-y-6 mb-6">

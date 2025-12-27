@@ -29,8 +29,7 @@ export default function Feedback() {
         source: 'in-app-feedback'
       };
 
-      // For now, log to console and localStorage
-      // TODO: Replace with actual API call when backend endpoint is ready
+      // Save to backend database
       console.log('Feedback submitted:', feedbackData);
 
       // Store in localStorage as backup
@@ -39,24 +38,28 @@ export default function Feedback() {
       feedbackArray.push(feedbackData);
       localStorage.setItem('finedge360_feedback_submissions', JSON.stringify(feedbackArray));
 
-      // Show success toast
-      toast.success('Thank you for your valuable feedback! 🎉');
-
-      // Optional: Send to backend API
-      // Uncomment when backend endpoint is ready
-      /*
+      // Send to backend API for database storage
       try {
-        await fetch(API_ENDPOINTS.submitFeedback(), {
+        const response = await fetch(API_ENDPOINTS.submitFeedback, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(feedbackData),
         });
+
+        if (response.ok) {
+          toast.success('Thank you for your valuable feedback! 🎉 Your input helps us improve FIREMap.');
+        } else {
+          // If backend fails, still show success since we have localStorage backup
+          console.warn('Backend submission failed, but saved to localStorage');
+          toast.success('Thank you for your valuable feedback! 🎉 (Saved locally)');
+        }
       } catch (error) {
-        console.error('Error sending feedback to backend:', error);
+        console.error('Backend submission error:', error);
+        // Still show success since we have localStorage backup
+        toast.success('Thank you for your valuable feedback! 🎉 (Saved locally)');
       }
-      */
 
       return Promise.resolve();
     } catch (error) {

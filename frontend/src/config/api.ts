@@ -84,6 +84,10 @@ export const API_ENDPOINTS = {
   getSIPExecutions: (userId: string) => `${API_BASE_URL}/routes/sip-executions/${userId}`,
   createSIPExecution: `${API_BASE_URL}/routes/sip-executions`,
   updateSIPExecution: (executionId: string) => `${API_BASE_URL}/routes/sip-executions/${executionId}`,
+
+  // Feedback Submissions
+  submitFeedback: `${API_BASE_URL}/routes/submit-feedback`,
+  getFeedback: (userId: string) => `${API_BASE_URL}/routes/feedback/${userId}`,
 };
 
 // Helper function to check if we're in production
