@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Shield, Lock, AlertTriangle, ExternalLink, Flame } from 'lucide-react';
+import { Shield, Lock, AlertTriangle, ExternalLink } from 'lucide-react';
 
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
@@ -12,16 +12,7 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-6">
           {/* Company Info */}
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <img
-                src="/FIREMap_Logo_MapPin.png"
-                alt="FIREMap Icon"
-                className="w-8 h-8 object-contain"
-                style={{
-                  filter: 'contrast(1.2) brightness(1.1)',
-                  mixBlendMode: 'lighten'
-                }}
-              />
+            <div className="mb-4">
               <span className="text-2xl font-black text-white">FIRE<span className="text-emerald-500">Map</span></span>
             </div>
             <p className="text-sm text-gray-400 mb-3">Your GPS to Financial Freedom</p>
