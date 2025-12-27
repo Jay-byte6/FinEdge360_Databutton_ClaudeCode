@@ -32,7 +32,7 @@ export const AppProvider = ({ children }: Props) => {
   }, []); // Empty dependency array ensures this runs once on mount
 
   // Determine if we should show the navbar and footer based on current route
-  const hideNavbarRoutes = ["/login"];
+  const hideNavbarRoutes = ["/login", "/"];
   const shouldShowNavbar = !hideNavbarRoutes.includes(location.pathname);
   const shouldShowFooter = !hideNavbarRoutes.includes(location.pathname);
 
@@ -114,6 +114,14 @@ export const AppProvider = ({ children }: Props) => {
 
   return (
     <div className="flex flex-col min-h-screen">
+      {/* Sticky Announcement Banner for All Pages */}
+      {shouldShowNavbar && (
+        <div className="sticky top-0 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 text-white py-2 px-4 overflow-hidden z-50">
+          <div className="text-center text-sm md:text-base font-semibold whitespace-nowrap overflow-x-auto scrollbar-hide">
+            🎉 LIMITED TIME: Worth ₹9,999/year - 100% FREE for First 5,000 Users! • Only 277 Spots Left • SEBI Compliant • Bank-Grade Security • Join 4,723 Smart Investors Now! 🎉
+          </div>
+        </div>
+      )}
       {shouldShowNavbar && <NavBar showFullNav={location.pathname !== "/"} />}
       <div className="flex-grow">
         {children}

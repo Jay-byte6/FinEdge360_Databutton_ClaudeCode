@@ -58,23 +58,31 @@ const NavBar: React.FC<NavBarProps> = ({ showFullNav = true }) => {
   ];
 
   return (
-    <header className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-10 overflow-hidden">
+    <header className="bg-white border-b border-gray-200 shadow-sm sticky top-8 z-40">
       <div className="container mx-auto max-w-6xl">
-        <div className="flex justify-between items-center py-2 h-20 relative overflow-hidden">
-          <div className="flex items-center cursor-pointer mr-8 md:mr-12 relative z-0 bg-transparent -my-2" onClick={() => navigate('/')}>
-            <video
-              src="/FIREMap.mp4"
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="h-36 md:h-42 lg:h-48 w-auto object-contain"
-              aria-label="FIREMap - Your GPS to Financial Freedom"
-            />
+        <div className="flex justify-between items-center py-2 h-20">
+          <div className="flex items-center cursor-pointer mr-8 md:mr-12" onClick={() => navigate('/')}>
+            <div className="relative overflow-hidden flex items-center justify-center" style={{ height: '80px', width: 'auto' }}>
+              <video
+                src="/FIREMap.mp4"
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="h-44 md:h-52 w-auto"
+                style={{
+                  objectFit: 'contain',
+                  filter: 'contrast(1.3) brightness(1.05)',
+                  mixBlendMode: 'darken',
+                  transform: 'translateY(0)'
+                }}
+                aria-label="FIREMap - Your GPS to Financial Freedom"
+              />
+            </div>
           </div>
-          
+
           {showFullNav && (
-            <nav className="hidden md:flex space-x-6 relative z-10">
+            <nav className="hidden md:flex space-x-6">
               {navItems.map((item, index) => {
                 const isActive = location.pathname === item.path;
                 return (
@@ -94,7 +102,7 @@ const NavBar: React.FC<NavBarProps> = ({ showFullNav = true }) => {
             </nav>
           )}
           
-          <div className="flex items-center space-x-2 relative z-10">
+          <div className="flex items-center space-x-2">
             {isAuthenticated && <NotificationCenter />}
             {isAuthenticated ? (
               <DropdownMenu>
@@ -172,8 +180,8 @@ const NavBar: React.FC<NavBarProps> = ({ showFullNav = true }) => {
                   <DropdownMenuItem className="cursor-pointer" onClick={() => window.open("https://chat.whatsapp.com/yourcommunitylink", "_blank")}>
                     👥 Join Community
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="cursor-pointer" onClick={() => window.open("https://form.typeform.com/to/euTwDCwt", "_blank")}>
-                    📝 My Feedback
+                  <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/feedback")}>
+                    🚀 PowerUp FIREMap
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem className="cursor-pointer" onClick={handleLogout}>

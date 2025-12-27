@@ -46,6 +46,7 @@ import {
   Eye,
   ThumbsUp,
   MessageCircle,
+  MessageSquare,
   Lightbulb,
   Flame,
   Navigation,
@@ -112,8 +113,8 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Running Announcement Banner */}
-      <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 text-white py-2 px-4 overflow-hidden">
+      {/* Running Announcement Banner - STICKY */}
+      <div className="sticky top-0 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 text-white py-2 px-4 overflow-hidden z-50">
         <motion.div
           animate={{ x: ["100%", "-100%"] }}
           transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
@@ -124,16 +125,27 @@ export default function App() {
       </div>
 
       {/* Navigation - SINGLE, CLEAN */}
-      <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-sm">
-        <div className="container mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
+      <nav className="sticky top-8 z-40 bg-white border-b border-gray-200 shadow-sm">
+        <div className="container mx-auto px-4 py-2">
+          <div className="flex items-center justify-between h-20">
             {/* Logo + SEBI Badge */}
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2">
-                <Flame className="w-8 h-8 text-emerald-600" />
-                <span className="text-2xl font-black text-gray-900">
-                  FIRE<span className="text-emerald-600">Map</span>
-                </span>
+            <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
+              <div className="relative overflow-hidden flex items-center justify-center" style={{ height: '80px', width: 'auto' }}>
+                <video
+                  src="/FIREMap.mp4"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="h-44 md:h-52 w-auto"
+                  style={{
+                    objectFit: 'contain',
+                    filter: 'contrast(1.3) brightness(1.05)',
+                    mixBlendMode: 'darken',
+                    transform: 'translateY(0)'
+                  }}
+                  aria-label="FIREMap - Your GPS to Financial Freedom"
+                />
               </div>
               <div className="hidden lg:flex items-center gap-2 px-3 py-1 bg-emerald-50 border border-emerald-200 rounded-full">
                 <Shield className="w-4 h-4 text-emerald-600" />
@@ -180,7 +192,7 @@ export default function App() {
       </nav>
 
       {/* HERO SECTION - "We Sell Peace of Mind" */}
-      <section className="relative bg-gradient-to-br from-emerald-50 via-white to-teal-50 py-20 md:py-32 overflow-hidden">
+      <section className="relative bg-gradient-to-br from-emerald-50 via-white to-teal-50 py-20 md:py-32 overflow-hidden" style={{ position: 'relative', zIndex: 40 }}>
         {/* Decorative elements */}
         <div className="absolute top-20 left-10 w-72 h-72 bg-emerald-200/30 rounded-full blur-3xl" />
         <div className="absolute bottom-20 right-10 w-96 h-96 bg-teal-200/30 rounded-full blur-3xl" />
@@ -1012,6 +1024,144 @@ export default function App() {
         </div>
       </section>
 
+      {/* Built on User Feedback Section */}
+      <section className="py-20 bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-600 text-white relative overflow-hidden">
+        {/* Decorative background elements */}
+        <div className="absolute top-0 left-0 w-full h-full opacity-10">
+          <div className="absolute top-10 left-10 w-72 h-72 bg-white rounded-full blur-3xl"></div>
+          <div className="absolute bottom-10 right-10 w-96 h-96 bg-white rounded-full blur-3xl"></div>
+        </div>
+
+        <div className="container mx-auto px-4 max-w-6xl relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-6 py-3 rounded-full mb-6">
+              <Users className="w-5 h-5" />
+              <span className="text-sm font-bold uppercase tracking-wide">Community-Driven Platform</span>
+            </div>
+
+            <h2 className="text-4xl md:text-6xl font-black mb-6 leading-tight">
+              Built by <span className="text-yellow-300">You</span>, For <span className="text-yellow-300">You</span>
+            </h2>
+
+            <p className="text-xl md:text-2xl text-emerald-50 max-w-4xl mx-auto leading-relaxed mb-8">
+              FIREMap isn't just another financial tool - it's a living platform shaped by real users like you. Every feature, every improvement comes from your feedback and real-world needs.
+            </p>
+
+            <div className="inline-flex items-center gap-2 bg-yellow-300 text-gray-900 px-6 py-3 rounded-full font-bold">
+              <Sparkles className="w-5 h-5" />
+              <span>Still Evolving • Always Improving</span>
+            </div>
+          </motion.div>
+
+          <div className="grid md:grid-cols-3 gap-8 mb-12">
+            {[
+              {
+                icon: <MessageSquare className="w-8 h-8" />,
+                title: "Your Voice Matters",
+                desc: "Every suggestion is reviewed by our team. Your ideas shape the roadmap."
+              },
+              {
+                icon: <Zap className="w-8 h-8" />,
+                title: "Rapid Iterations",
+                desc: "We ship updates weekly based on what you need most. No corporate delays."
+              },
+              {
+                icon: <TrendingUp className="w-8 h-8" />,
+                title: "Built for Real Life",
+                desc: "Features tested by real users in real financial situations - not boardrooms."
+              }
+            ].map((item, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border-2 border-white/20 hover:bg-white/20 transition-all"
+              >
+                <div className="text-yellow-300 mb-4 flex justify-center">
+                  {item.icon}
+                </div>
+                <h3 className="text-xl font-bold mb-3">{item.title}</h3>
+                <p className="text-emerald-50 text-sm leading-relaxed">{item.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-3xl p-8 md:p-12 border-4 border-yellow-300 shadow-2xl"
+          >
+            <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+              <div className="flex-1 text-center md:text-left">
+                <h3 className="text-3xl md:text-4xl font-black mb-4 flex items-center justify-center md:justify-start gap-3">
+                  <Rocket className="w-10 h-10 text-yellow-300" />
+                  <span>PowerUp FIREMap!</span>
+                </h3>
+                <p className="text-lg text-gray-300 mb-2">
+                  Have an idea? Found a bug? Want a new feature?
+                </p>
+                <p className="text-emerald-400 font-semibold text-xl">
+                  Your feedback drives our development roadmap.
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-3">
+                <Button
+                  onClick={() => navigate('/login?redirect=/feedback')}
+                  className="bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-gray-900 font-bold text-lg px-8 py-6 rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
+                >
+                  <MessageSquare className="w-5 h-5" />
+                  Share Your Ideas
+                </Button>
+                <p className="text-xs text-gray-400 text-center">
+                  Sign in to contribute feedback
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-8 pt-8 border-t border-gray-700">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                <div>
+                  <p className="text-3xl font-black text-yellow-300 mb-1">500+</p>
+                  <p className="text-sm text-gray-400">User Suggestions</p>
+                </div>
+                <div>
+                  <p className="text-3xl font-black text-yellow-300 mb-1">120+</p>
+                  <p className="text-sm text-gray-400">Features Shipped</p>
+                </div>
+                <div>
+                  <p className="text-3xl font-black text-yellow-300 mb-1">Weekly</p>
+                  <p className="text-sm text-gray-400">Updates</p>
+                </div>
+                <div>
+                  <p className="text-3xl font-black text-yellow-300 mb-1">100%</p>
+                  <p className="text-sm text-gray-400">User-Driven</p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="mt-12 text-center"
+          >
+            <p className="text-emerald-100 text-lg italic">
+              "The best financial planning tool is the one that listens to its users. That's FIREMap."
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Expert Team Section */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4 max-w-6xl">
@@ -1024,15 +1174,15 @@ export default function App() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
               {
-                name: "CA Santhosh",
+                name: "Arun",
                 role: "Chief Financial Advisor",
-                credentials: "SEBI RIA • CA • CFP",
+                credentials: "SEBI RIA • Financial Expert",
                 experience: "15+ years",
                 expertise: "Tax Planning & Wealth Management",
-                image: "/experts/Santhosh_CA_edited.png"
+                image: "/experts/Arun_FinExpert_image.jpg"
               },
               {
                 name: "Sameer Patel, CA",
@@ -1049,6 +1199,14 @@ export default function App() {
                 experience: "10+ years",
                 expertise: "Early Retirement Planning & Goal Setting",
                 image: "/experts/Chethan_Bhagvat.png"
+              },
+              {
+                name: "Ramesh Narayan",
+                role: "Financial Planning Expert",
+                credentials: "SEBI RIA • Certified Planner",
+                experience: "14+ years",
+                expertise: "Retirement Planning & Wealth Solutions",
+                image: "/experts/Ramesh_Narayan_FinPlanner_image.jpg"
               }
             ].map((expert, index) => (
               <motion.div

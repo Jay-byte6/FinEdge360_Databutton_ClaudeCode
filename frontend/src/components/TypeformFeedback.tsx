@@ -40,75 +40,97 @@ interface TypeformFeedbackProps {
 
 const FEEDBACK_QUESTIONS: Question[] = [
   {
-    id: 'overall_experience',
+    id: 'overall_vibe',
     type: 'emoji',
-    question: "How's your experience with FIREMap so far?",
-    subtitle: "Your honest feedback helps us improve!",
+    question: "First things first - how are you feeling about FIREMap? 😊",
+    subtitle: "No filter needed - we can handle the truth!",
     required: true
   },
   {
-    id: 'nps_score',
+    id: 'i_like',
+    type: 'text',
+    question: "I LIKE... 💚",
+    subtitle: "Tell us what's working for you! What made you smile or relieved while using FIREMap?",
+    required: true
+  },
+  {
+    id: 'i_wish',
+    type: 'text',
+    question: "I WISH... ✨",
+    subtitle: "What would make FIREMap even more amazing? What's missing or could be better?",
+    required: true
+  },
+  {
+    id: 'biggest_win',
+    type: 'multipleChoice',
+    question: "What's your biggest win with FIREMap so far?",
+    subtitle: "Celebrate with us! 🎉",
+    options: [
+      "Finally know my net worth",
+      "Discovered my FIRE number",
+      "Created a clear plan for my goals",
+      "Understanding my portfolio better",
+      "Saving taxes smartly",
+      "Tracking everything in one place",
+      "Expert guidance when I needed it",
+      "Still exploring - but excited!"
+    ],
+    required: false
+  },
+  {
+    id: 'stuck_moment',
+    type: 'multipleChoice',
+    question: "Where did you get stuck or confused?",
+    subtitle: "Help us smooth out the rough edges",
+    options: [
+      "Understanding how to start",
+      "Entering my financial details",
+      "Setting realistic goals",
+      "Understanding the FIRE calculator",
+      "Portfolio recommendations",
+      "Navigation - finding things",
+      "Too much information at once",
+      "I didn't get stuck - smooth sailing! ⛵"
+    ],
+    required: false
+  },
+  {
+    id: 'dream_feature',
+    type: 'text',
+    question: "If you had a magic wand... 🪄",
+    subtitle: "What ONE feature would you add to FIREMap? Dream big!",
+    required: false
+  },
+  {
+    id: 'recommend_friend',
     type: 'nps',
-    question: "How likely are you to recommend FIREMap to a friend?",
-    subtitle: "0 = Not at all likely, 10 = Extremely likely",
+    question: "Would you recommend FIREMap to a friend?",
+    subtitle: "0 = Not really, 10 = Already telling everyone!",
     required: true,
     minRating: 0,
     maxRating: 10
   },
   {
-    id: 'most_valuable_feature',
-    type: 'multipleChoice',
-    question: "Which feature do you find most valuable?",
-    subtitle: "Help us understand what matters most to you",
-    options: [
-      "Net Worth Tracking",
-      "FIRE Calculator",
-      "SIP Planner",
-      "Portfolio Analysis",
-      "Tax Planning",
-      "Journey Map & Milestones",
-      "Expert Consultation",
-      "All of the above!"
-    ],
-    required: true
-  },
-  {
-    id: 'missing_feature',
-    type: 'text',
-    question: "What feature would you love to see added?",
-    subtitle: "Dream big! We're all ears 👂",
-    required: false
-  },
-  {
-    id: 'biggest_challenge',
-    type: 'multipleChoice',
-    question: "What's your biggest financial planning challenge?",
-    subtitle: "Let us know how we can help you better",
-    options: [
-      "Don't know where to start",
-      "Too complex to understand",
-      "Finding time to plan",
-      "Choosing the right investments",
-      "Sticking to my plan",
-      "Tracking progress",
-      "Other"
-    ],
-    required: false
-  },
-  {
-    id: 'app_ease_of_use',
+    id: 'speed_rating',
     type: 'rating',
-    question: "How easy is FIREMap to use?",
-    subtitle: "Be honest - we can take it! 😊",
-    required: true,
+    question: "How's the speed and performance?",
+    subtitle: "Fast and smooth? Or needs improvement?",
+    required: false,
     minRating: 1,
     maxRating: 5
   },
   {
-    id: 'additional_comments',
+    id: 'bug_report',
     type: 'text',
-    question: "Anything else you'd like to share?",
-    subtitle: "Suggestions, praise, concerns - we value it all!",
+    question: "Spotted a bug or something broken? 🐛",
+    subtitle: "Let us know! Screenshots or descriptions help us fix faster.",
+    required: false
+  },
+  {
+    id: 'anything_else',
+    type: 'text',
+    question: "Any parting words of wisdom for us? 🙏",
+    subtitle: "Ideas, rants, love letters, feature requests - we're all ears!",
     required: false
   }
 ];
