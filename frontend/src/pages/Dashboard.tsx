@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Shield, Check } from 'lucide-react';
 import useAuthStore from '../utils/authStore';
 import useFinancialDataStore from '../utils/financialDataStore';
+import usePortfolioStore from '../utils/portfolioStore';
 import FinancialRoadmap from '@/components/FinancialRoadmap';
 import { DailyInsightsCard } from '@/components/DailyInsightsCard';
 import { FIREScenariosCard } from '@/components/FIREScenariosCard';
@@ -44,6 +45,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const { user, profile, isAuthenticated } = useAuthStore();
   const { financialData, fetchFinancialData } = useFinancialDataStore();
+  const { holdings, summary, fetchHoldings } = usePortfolioStore();
   const [isLoading, setIsLoading] = useState(true);
   const [isPremium, setIsPremium] = useState(false);
   const [goals, setGoals] = useState<Goal[]>([]);
@@ -112,6 +114,13 @@ export default function Dashboard() {
 
     loadData();
   }, [user?.id, fetchFinancialData]);
+
+  // Load portfolio holdings
+  useEffect(() => {
+    if (user?.id) {
+      fetchHoldings(user.id);
+    }
+  }, [user?.id, fetchHoldings]);
 
   // Load goals for premium users
   useEffect(() => {
@@ -562,41 +571,41 @@ export default function Dashboard() {
         )}
 
         {/* Portfolio Holdings Overview - Full Width */}
-        {financialData && (
+        {(holdings.length > 0 || financialData) && (
           <div className="mb-6">
             <PortfolioHoldingsOverview
-              holdings={[
-                // Example holdings - replace with actual data from your backend
+              holdings={holdings.length > 0 ? holdings : [
+                // Fallback to basic financial data if no detailed holdings
                 {
                   id: '1',
                   name: 'Equity Mutual Funds',
                   type: 'equity',
-                  currentValue: financialData.investments?.mutualFunds || 0,
-                  investedValue: (financialData.investments?.mutualFunds || 0) * 0.85, // Assuming 15% gain
+                  currentValue: financialData?.investments?.mutualFunds || 0,
+                  investedValue: (financialData?.investments?.mutualFunds || 0) * 0.85,
                 },
                 {
                   id: '2',
                   name: 'Fixed Deposits',
                   type: 'debt',
-                  currentValue: financialData.investments?.fixedDeposits || 0,
-                  investedValue: financialData.investments?.fixedDeposits || 0,
+                  currentValue: financialData?.investments?.fixedDeposits || 0,
+                  investedValue: financialData?.investments?.fixedDeposits || 0,
                 },
                 {
                   id: '3',
                   name: 'Gold Holdings',
                   type: 'gold',
-                  currentValue: financialData.investments?.gold || 0,
-                  investedValue: (financialData.investments?.gold || 0) * 0.92, // Assuming 8% gain
+                  currentValue: financialData?.investments?.gold || 0,
+                  investedValue: (financialData?.investments?.gold || 0) * 0.92,
                 },
                 {
                   id: '4',
                   name: 'Real Estate',
                   type: 'realestate',
-                  currentValue: financialData.investments?.realEstate || 0,
-                  investedValue: (financialData.investments?.realEstate || 0) * 0.88, // Assuming 12% gain
+                  currentValue: financialData?.investments?.realEstate || 0,
+                  investedValue: (financialData?.investments?.realEstate || 0) * 0.88,
                 },
               ].filter(h => h.currentValue > 0)}
-              totalValue={calculateNetWorth(financialData)}
+              totalValue={holdings.length > 0 ? summary.totalValue : calculateNetWorth(financialData)}
             />
           </div>
         )}
