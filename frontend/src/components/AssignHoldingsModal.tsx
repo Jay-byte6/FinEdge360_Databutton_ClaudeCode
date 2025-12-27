@@ -3,9 +3,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { API_ENDPOINTS } from '@/config/api';
-import { TrendingUp, TrendingDown, Loader2, IndianRupee } from 'lucide-react';
+import { TrendingUp, TrendingDown, Loader2, IndianRupee, Calendar } from 'lucide-react';
 
 interface Holding {
   id: string;
@@ -19,6 +20,7 @@ interface Holding {
   absolute_return_percentage: number;
   goal_id: string | null;
   monthly_sip_amount?: number;
+  auto_debit_date?: number; // Day of month (1-28)
 }
 
 interface AssignHoldingsModalProps {
@@ -41,6 +43,7 @@ export const AssignHoldingsModal = ({
   const [holdings, setHoldings] = useState<Holding[]>([]);
   const [selectedHoldings, setSelectedHoldings] = useState<Set<string>>(new Set());
   const [sipAmounts, setSipAmounts] = useState<Record<string, number>>({});
+  const [debitDates, setDebitDates] = useState<Record<string, number>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -66,14 +69,19 @@ export const AssignHoldingsModal = ({
         );
         setSelectedHoldings(preSelected);
 
-        // Pre-populate SIP amounts from existing holdings
+        // Pre-populate SIP amounts and debit dates from existing holdings
         const initialSipAmounts: Record<string, number> = {};
+        const initialDebitDates: Record<string, number> = {};
         (data.holdings || []).forEach((h: Holding) => {
           if (h.monthly_sip_amount) {
             initialSipAmounts[h.id] = h.monthly_sip_amount;
           }
+          if (h.auto_debit_date) {
+            initialDebitDates[h.id] = h.auto_debit_date;
+          }
         });
         setSipAmounts(initialSipAmounts);
+        setDebitDates(initialDebitDates);
       }
     } catch (error) {
       console.error('[AssignHoldingsModal] Error fetching holdings:', error);
@@ -103,6 +111,14 @@ export const AssignHoldingsModal = ({
     }));
   };
 
+  const handleDebitDateChange = (holdingId: string, value: string) => {
+    const dateValue = parseInt(value) || 1;
+    setDebitDates(prev => ({
+      ...prev,
+      [holdingId]: dateValue
+    }));
+  };
+
   const handleSave = async () => {
     setIsSaving(true);
 
@@ -127,7 +143,8 @@ export const AssignHoldingsModal = ({
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             goal_id: goalId,
-            monthly_sip_amount: sipAmounts[h.id] || 0
+            monthly_sip_amount: sipAmounts[h.id] || 0,
+            auto_debit_date: debitDates[h.id] || null
           })
         })
       );
@@ -138,19 +155,21 @@ export const AssignHoldingsModal = ({
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             goal_id: null,
-            monthly_sip_amount: 0
+            monthly_sip_amount: 0,
+            auto_debit_date: null
           })
         })
       );
 
-      // Update SIP amounts for already assigned holdings
+      // Update SIP amounts and debit dates for already assigned holdings
       const updatePromises = holdingsToUpdate.map(h =>
         fetch(`${API_ENDPOINTS.baseUrl}/routes/portfolio-holdings/${h.id}/assign-goal`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             goal_id: goalId,
-            monthly_sip_amount: sipAmounts[h.id] || 0
+            monthly_sip_amount: sipAmounts[h.id] || 0,
+            auto_debit_date: debitDates[h.id] || null
           })
         })
       );
@@ -284,18 +303,40 @@ export const AssignHoldingsModal = ({
                             </div>
                           </div>
                           {isSelected && (
-                            <div className="flex items-center gap-1">
-                              <IndianRupee className="h-3 w-3 text-gray-500" />
-                              <Input
-                                type="number"
-                                placeholder="Monthly SIP"
-                                value={sipAmounts[holding.id] || ''}
-                                onChange={(e) => handleSipAmountChange(holding.id, e.target.value)}
-                                onClick={(e) => e.stopPropagation()}
-                                className="h-8 w-28 text-xs"
-                                min="0"
-                                step="500"
-                              />
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-1">
+                                <IndianRupee className="h-3 w-3 text-gray-500" />
+                                <Input
+                                  type="number"
+                                  placeholder="Monthly SIP"
+                                  value={sipAmounts[holding.id] || ''}
+                                  onChange={(e) => handleSipAmountChange(holding.id, e.target.value)}
+                                  onClick={(e) => e.stopPropagation()}
+                                  className="h-8 w-28 text-xs"
+                                  min="0"
+                                  step="500"
+                                />
+                              </div>
+                              {sipAmounts[holding.id] > 0 && (
+                                <div className="flex items-center gap-1">
+                                  <Calendar className="h-3 w-3 text-gray-500" />
+                                  <Select
+                                    value={debitDates[holding.id]?.toString() || ''}
+                                    onValueChange={(value) => handleDebitDateChange(holding.id, value)}
+                                  >
+                                    <SelectTrigger className="h-8 w-28 text-xs" onClick={(e) => e.stopPropagation()}>
+                                      <SelectValue placeholder="Debit Date" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {Array.from({ length: 28 }, (_, i) => i + 1).map((day) => (
+                                        <SelectItem key={day} value={day.toString()}>
+                                          {day}{day === 1 ? 'st' : day === 2 ? 'nd' : day === 3 ? 'rd' : 'th'} of month
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              )}
                             </div>
                           )}
                         </div>

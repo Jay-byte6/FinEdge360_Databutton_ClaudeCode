@@ -79,6 +79,11 @@ export const API_ENDPOINTS = {
   // Action Items (Dashboard checklist)
   getUserActionItems: (userId: string) => `${API_BASE_URL}/routes/user-action-items/${userId}`,
   updateUserActionItems: (userId: string) => `${API_BASE_URL}/routes/user-action-items/${userId}`,
+
+  // SIP Execution Tracking
+  getSIPExecutions: (userId: string) => `${API_BASE_URL}/routes/sip-executions/${userId}`,
+  createSIPExecution: `${API_BASE_URL}/routes/sip-executions`,
+  updateSIPExecution: (executionId: string) => `${API_BASE_URL}/routes/sip-executions/${executionId}`,
 };
 
 // Helper function to check if we're in production

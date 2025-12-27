@@ -24,6 +24,7 @@ interface GoalHolding {
   profit: number;
   return_pct: number;
   monthly_sip_amount: number;
+  auto_debit_date?: number;
 }
 
 interface GoalSummary {
@@ -460,6 +461,7 @@ export const GoalInvestmentSummary = ({ userId }: GoalInvestmentSummaryProps) =>
                                     <th className="px-2 py-1.5 text-right font-medium text-gray-600">Value</th>
                                     <th className="px-2 py-1.5 text-right font-medium text-gray-600">Return</th>
                                     <th className="px-2 py-1.5 text-right font-medium text-cyan-600">SIP/mo</th>
+                                    <th className="px-2 py-1.5 text-center font-medium text-gray-600">Debit Date</th>
                                   </tr>
                                 </thead>
                                 <tbody>
@@ -481,6 +483,14 @@ export const GoalInvestmentSummary = ({ userId }: GoalInvestmentSummaryProps) =>
                                       </td>
                                       <td className="px-2 py-1.5 text-right font-medium text-cyan-700">
                                         {holding.monthly_sip_amount > 0 ? `₹${holding.monthly_sip_amount.toLocaleString()}` : '-'}
+                                      </td>
+                                      <td className="px-2 py-1.5 text-center text-xs text-gray-600">
+                                        {holding.auto_debit_date ? (
+                                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50 text-blue-700 rounded">
+                                            <Calendar className="h-3 w-3" />
+                                            {holding.auto_debit_date}{holding.auto_debit_date === 1 ? 'st' : holding.auto_debit_date === 2 ? 'nd' : holding.auto_debit_date === 3 ? 'rd' : 'th'}
+                                          </span>
+                                        ) : '-'}
                                       </td>
                                     </tr>
                                   ))}
