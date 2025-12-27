@@ -16,6 +16,7 @@ import { MilestoneProgressCard } from '@/components/MilestoneProgressCard';
 import { JourneyMapSimple } from '@/components/journey/JourneyMapSimple';
 import { UserJourneyState } from '@/components/journey/types';
 import { ActionItemsCard } from '@/components/ActionItemsCard';
+import { PortfolioHoldingsOverview } from '@/components/PortfolioHoldingsOverview';
 import { calculateNetWorth, calculateBasicFIRENumber } from '../utils/financialCalculations';
 import { isPremiumUser } from '../utils/premiumCheck';
 import { API_ENDPOINTS } from '@/config/api';
@@ -557,6 +558,46 @@ export default function Dashboard() {
             <Button onClick={() => navigate('/enter-details')} size="sm">
               Enter Your Financial Details
             </Button>
+          </div>
+        )}
+
+        {/* Portfolio Holdings Overview - Full Width */}
+        {financialData && (
+          <div className="mb-6">
+            <PortfolioHoldingsOverview
+              holdings={[
+                // Example holdings - replace with actual data from your backend
+                {
+                  id: '1',
+                  name: 'Equity Mutual Funds',
+                  type: 'equity',
+                  currentValue: financialData.investments?.mutualFunds || 0,
+                  investedValue: (financialData.investments?.mutualFunds || 0) * 0.85, // Assuming 15% gain
+                },
+                {
+                  id: '2',
+                  name: 'Fixed Deposits',
+                  type: 'debt',
+                  currentValue: financialData.investments?.fixedDeposits || 0,
+                  investedValue: financialData.investments?.fixedDeposits || 0,
+                },
+                {
+                  id: '3',
+                  name: 'Gold Holdings',
+                  type: 'gold',
+                  currentValue: financialData.investments?.gold || 0,
+                  investedValue: (financialData.investments?.gold || 0) * 0.92, // Assuming 8% gain
+                },
+                {
+                  id: '4',
+                  name: 'Real Estate',
+                  type: 'realestate',
+                  currentValue: financialData.investments?.realEstate || 0,
+                  investedValue: (financialData.investments?.realEstate || 0) * 0.88, // Assuming 12% gain
+                },
+              ].filter(h => h.currentValue > 0)}
+              totalValue={calculateNetWorth(financialData)}
+            />
           </div>
         )}
 
