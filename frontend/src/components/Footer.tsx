@@ -23,8 +23,8 @@ const Footer: React.FC = () => {
                   className="h-24 md:h-28 w-auto"
                   style={{
                     objectFit: 'contain',
-                    filter: 'contrast(1.3) brightness(1.05)',
-                    mixBlendMode: 'darken',
+                    filter: 'contrast(1.4) brightness(1.3) invert(1)',
+                    mixBlendMode: 'lighten',
                     transform: 'translateY(0)'
                   }}
                   aria-label="FIREMap - Your GPS to Financial Freedom"
