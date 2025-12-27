@@ -513,7 +513,7 @@ export default function Dashboard() {
 
         {/* Welcome Section */}
         <section className="mb-6 bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 rounded-xl p-6 shadow-sm border border-blue-100">
-          <h2 className="text-3xl md:text-4xl font-extrabold mb-2">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold mb-2">
             <span className="bg-gradient-to-r from-blue-700 via-purple-700 to-pink-700 bg-clip-text text-transparent">
               Welcome back, {financialData?.personalInfo?.name || profile?.full_name || user?.email?.split('@')[0] || "User"}! 👋
             </span>
@@ -526,7 +526,7 @@ export default function Dashboard() {
         {/* Financial Summary Section */}
         <div className="flex items-center gap-3 mb-4">
           <div className="h-1 w-10 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full"></div>
-          <h3 className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">
+          <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">
             💰 Your Financial Snapshot
           </h3>
           <div className="h-1 w-10 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-full"></div>
@@ -534,7 +534,7 @@ export default function Dashboard() {
         <p className="text-gray-600 text-sm md:text-base mb-6 -mt-2 ml-14">Key numbers that define your financial health</p>
 
         {isLoading ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-6">
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="bg-white rounded-lg shadow p-4 md:p-6 animate-pulse">
                 <div className="h-3 bg-gray-200 rounded w-3/4 mb-2"></div>
@@ -544,9 +544,9 @@ export default function Dashboard() {
             ))}
           </div>
         ) : financialData ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-6">
             <div className="bg-white rounded-lg shadow p-4 md:p-6">
-              <div className="text-xs md:text-sm font-medium text-gray-500 mb-1">Monthly Income</div>
+              <div className="text-sm md:text-base font-medium text-gray-500 mb-1">Monthly Income</div>
               <div className="text-lg md:text-2xl font-bold text-gray-800 mb-1">
                 {formatIndianCurrency(financialData.personalInfo.monthlySalary)}
               </div>
@@ -555,7 +555,7 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="bg-white rounded-lg shadow p-4 md:p-6">
-              <div className="text-xs md:text-sm font-medium text-gray-500 mb-1">Monthly Expenses</div>
+              <div className="text-sm md:text-base font-medium text-gray-500 mb-1">Monthly Expenses</div>
               <div className="text-lg md:text-2xl font-bold text-gray-800 mb-1">
                 {formatIndianCurrency(financialData.personalInfo.monthlyExpenses)}
               </div>
@@ -564,7 +564,7 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="bg-white rounded-lg shadow p-4 md:p-6">
-              <div className="text-xs md:text-sm font-medium text-gray-500 mb-1">Net Worth</div>
+              <div className="text-sm md:text-base font-medium text-gray-500 mb-1">Net Worth</div>
               <div className="text-lg md:text-2xl font-bold text-gray-800 mb-1">
                 {formatIndianCurrency(calculateNetWorth(financialData))}
               </div>
@@ -573,7 +573,7 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="bg-white rounded-lg shadow p-4 md:p-6">
-              <div className="text-xs md:text-sm font-medium text-gray-500 mb-1">Savings Rate</div>
+              <div className="text-sm md:text-base font-medium text-gray-500 mb-1">Savings Rate</div>
               <div className="text-lg md:text-2xl font-bold text-gray-800 mb-1">
                 {Math.round(((financialData.personalInfo.monthlySalary - financialData.personalInfo.monthlyExpenses) / financialData.personalInfo.monthlySalary) * 100)}%
               </div>
@@ -601,22 +601,24 @@ export default function Dashboard() {
         {/* PowerUp FIREMap - Share Your Ideas Button */}
         <div className="mb-6">
           <Card className="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-300 shadow-lg hover:shadow-xl transition-all">
-            <CardContent className="p-6">
+            <CardContent className="p-4 md:p-6">
               <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center">
-                    <span className="text-3xl">💡</span>
+                <div className="flex items-center gap-3 md:gap-4 w-full md:w-auto">
+                  <div className="flex-shrink-0 w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center">
+                    <span className="text-2xl md:text-3xl">💡</span>
                   </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-1">Help Us Improve FIREMap!</h3>
-                    <p className="text-sm text-gray-600">Share your ideas, suggestions, and feedback to make FIREMap even better</p>
+                  <div className="flex-1 md:flex-none">
+                    <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-1">Help Us Improve FIREMap!</h3>
+                    <p className="text-xs md:text-sm text-gray-600">Share your ideas, suggestions, and feedback to make FIREMap even better</p>
                   </div>
                 </div>
                 <Button
                   onClick={() => navigate('/feedback')}
-                  className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-gray-900 font-bold px-6 py-6 rounded-xl shadow-md hover:shadow-lg transition-all whitespace-nowrap"
+                  className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-gray-900 font-bold px-4 md:px-6 py-4 md:py-6 rounded-xl shadow-md hover:shadow-lg transition-all w-full md:w-auto flex-shrink-0"
                 >
-                  🚀 PowerUp FIREMap
+                  <span className="flex items-center justify-center gap-1 flex-wrap">
+                    <span>🚀 PowerUp FIREMap</span>
+                  </span>
                 </Button>
               </div>
             </CardContent>
@@ -628,7 +630,7 @@ export default function Dashboard() {
           <div className="space-y-6 mb-6">
             <div className="flex items-center gap-3 mb-2">
               <div className="h-1 w-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></div>
-              <h3 className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+              <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
                 🚀 Your Financial Journey
               </h3>
               <div className="h-1 w-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"></div>
@@ -636,7 +638,7 @@ export default function Dashboard() {
             <p className="text-gray-600 text-sm md:text-base -mt-2 ml-16">Track your progress, achieve your goals, reach FIRE</p>
 
             {/* Row 1: Daily Insights & Goal Roadmap */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-3 md:gap-6">
               <DailyInsightsCard
                 netWorth={netWorth}
                 coastFIRE={coastFIRE}
@@ -657,9 +659,9 @@ export default function Dashboard() {
             </div>
 
             {/* Row 2: Left Column (Progress + Journey Map) | Right Column (FIRE Scenarios + Premium FIRE) */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:items-start">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-3 md:gap-6 lg:items-start">
               {/* Left Column: Milestone Progress + Journey Map */}
-              <div className="flex flex-col gap-6">
+              <div className="flex flex-col gap-3 md:gap-6">
                 <MilestoneProgressCard
                   userId={user?.id || ''}
                   isPremium={isPremium}
@@ -822,7 +824,7 @@ export default function Dashboard() {
               </div>
 
               {/* Right Column: FIRE Scenarios + Premium NEW FIRE + Risk & Portfolio */}
-              <div className="flex flex-col gap-6">
+              <div className="flex flex-col gap-3 md:gap-6">
                 {/* FIRE Scenarios Overview */}
                 <FIREScenariosCard
                   financialData={financialData}
@@ -871,7 +873,7 @@ export default function Dashboard() {
         {/* Quick Actions Grid */}
         <div className="flex items-center gap-3 mb-4">
           <div className="h-1 w-10 bg-gradient-to-r from-indigo-500 to-cyan-500 rounded-full"></div>
-          <h3 className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-indigo-600 via-cyan-600 to-teal-600 bg-clip-text text-transparent">
+          <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-indigo-600 via-cyan-600 to-teal-600 bg-clip-text text-transparent">
             ⚡ Quick Actions
           </h3>
           <div className="h-1 w-10 bg-gradient-to-r from-cyan-500 to-teal-500 rounded-full"></div>
