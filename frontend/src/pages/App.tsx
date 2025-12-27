@@ -192,10 +192,10 @@ export default function App() {
       </nav>
 
       {/* HERO SECTION - "We Sell Peace of Mind" */}
-      <section className="relative bg-gradient-to-br from-emerald-50 via-white to-teal-50 py-20 md:py-32 overflow-hidden" style={{ position: 'relative', zIndex: 40 }}>
+      <section className="relative bg-gradient-to-br from-gray-900 via-emerald-950 to-teal-950 py-20 md:py-32 overflow-hidden" style={{ position: 'relative', zIndex: 40 }}>
         {/* Decorative elements */}
-        <div className="absolute top-20 left-10 w-72 h-72 bg-emerald-200/30 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-teal-200/30 rounded-full blur-3xl" />
+        <div className="absolute top-20 left-10 w-72 h-72 bg-emerald-600/20 rounded-full blur-3xl" />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-teal-600/20 rounded-full blur-3xl" />
 
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-7xl mx-auto">
@@ -206,7 +206,7 @@ export default function App() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="inline-flex items-center gap-2 bg-emerald-100 text-emerald-800 px-4 py-2 rounded-full mb-6 border border-emerald-200 md:mx-0"
+              className="inline-flex items-center gap-2 bg-emerald-500/20 text-emerald-300 px-4 py-2 rounded-full mb-6 border border-emerald-500/30 md:mx-0"
             >
               <Sparkles className="w-4 h-4" />
               <span className="text-sm font-bold">LIMITED TIME: ₹9,999 Premium - 100% FREE for Early Adopters</span>
@@ -216,17 +216,17 @@ export default function App() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="text-5xl md:text-7xl font-black mb-6 leading-tight text-gray-900"
+              className="text-5xl md:text-7xl font-black mb-6 leading-tight text-white"
             >
               Your GPS to
-              <span className="text-emerald-600"> Financial Freedom</span>
+              <span className="text-emerald-400"> Financial Freedom</span>
             </motion.h1>
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="text-2xl md:text-3xl font-bold text-gray-700 mb-6"
+              className="text-2xl md:text-3xl font-bold text-gray-300 mb-6"
             >
               No Gambling. No Shortcuts. No Nonsense.
             </motion.div>
@@ -235,9 +235,9 @@ export default function App() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="text-xl text-gray-600 mb-8 max-w-3xl md:max-w-none mx-auto md:mx-0 leading-relaxed"
+              className="text-xl text-gray-300 mb-8 max-w-3xl md:max-w-none mx-auto md:mx-0 leading-relaxed"
             >
-              <strong className="text-gray-900">Just clarity, control, and peace of mind.</strong>
+              <strong className="text-white">Just clarity, control, and peace of mind.</strong>
             </motion.p>
 
             <motion.div
@@ -270,22 +270,22 @@ export default function App() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6 }}
-              className="flex flex-wrap items-center justify-center md:justify-start gap-6 text-sm text-gray-600"
+              className="flex flex-wrap items-center justify-center md:justify-start gap-6 text-sm text-gray-300"
             >
               <div className="flex items-center gap-2">
-                <Shield className="w-5 h-5 text-emerald-600" />
+                <Shield className="w-5 h-5 text-emerald-400" />
                 <span className="font-semibold">SEBI Compliant</span>
               </div>
               <div className="flex items-center gap-2">
-                <Lock className="w-5 h-5 text-emerald-600" />
+                <Lock className="w-5 h-5 text-emerald-400" />
                 <span className="font-semibold">Bank-Grade Security</span>
               </div>
               <div className="flex items-center gap-2">
-                <Users className="w-5 h-5 text-emerald-600" />
+                <Users className="w-5 h-5 text-emerald-400" />
                 <span className="font-semibold">5,000+ Users</span>
               </div>
               <div className="flex items-center gap-2">
-                <Star className="w-5 h-5 text-emerald-600 fill-emerald-600" />
+                <Star className="w-5 h-5 text-emerald-400 fill-emerald-400" />
                 <span className="font-semibold">4.9/5 Rating</span>
               </div>
             </motion.div>
@@ -299,31 +299,31 @@ export default function App() {
                 className="hidden md:flex justify-center items-center relative"
               >
                 <div className="relative w-full max-w-lg">
-                  {/* Background circle matching logo gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-100 via-teal-100 to-blue-100 rounded-full opacity-60 blur-2xl transform scale-110" />
-
-                  {/* Character Image */}
+                  {/* Character Image - no background, blends with dark hero section */}
                   <img
                     src="/hero_page_caHARACTER.png"
                     alt="Calm person sitting peacefully on money - Financial peace of mind"
                     className="relative z-10 w-full h-auto drop-shadow-2xl"
+                    style={{
+                      filter: 'drop-shadow(0 25px 50px rgba(16, 185, 129, 0.3))'
+                    }}
                   />
 
                   {/* Floating elements for emphasis */}
                   <motion.div
                     animate={{ y: [0, -10, 0] }}
                     transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                    className="absolute top-10 right-10 bg-white rounded-full p-3 shadow-xl"
+                    className="absolute top-10 right-10 bg-emerald-500/10 backdrop-blur-sm rounded-full p-3 shadow-xl border border-emerald-500/30"
                   >
-                    <Shield className="w-6 h-6 text-emerald-600" />
+                    <Shield className="w-6 h-6 text-emerald-400" />
                   </motion.div>
 
                   <motion.div
                     animate={{ y: [0, 10, 0] }}
                     transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-                    className="absolute bottom-20 left-10 bg-white rounded-full p-3 shadow-xl"
+                    className="absolute bottom-20 left-10 bg-pink-500/10 backdrop-blur-sm rounded-full p-3 shadow-xl border border-pink-500/30"
                   >
-                    <Heart className="w-6 h-6 text-pink-500" />
+                    <Heart className="w-6 h-6 text-pink-400" />
                   </motion.div>
                 </div>
               </motion.div>
