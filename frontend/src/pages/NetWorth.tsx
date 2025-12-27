@@ -317,12 +317,12 @@ export default function NetWorth() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 py-12 px-4">
       <div className="container mx-auto max-w-6xl">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 flex items-center">
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 flex items-center">
             Net Worth Tracker
             <InfoTooltip content="Net Worth = Total Assets - Total Liabilities. It represents your true financial position. A positive net worth means you own more than you owe." />
           </h1>
-          <p className="text-gray-600">Visualize your assets and liabilities to track your financial health</p>
+          <p className="text-sm sm:text-base text-gray-600">Visualize your assets and liabilities to track your financial health</p>
         </div>
 
         {/* Net Worth Change Banner */}
@@ -335,32 +335,32 @@ export default function NetWorth() {
           />
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
           {/* Net Worth Summary Card */}
           <Card className="lg:col-span-3 bg-gradient-to-r from-blue-50 to-green-50 border-blue-100 shadow-md">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-2xl font-bold text-gray-800">Your Net Worth</CardTitle>
-              <CardDescription>The difference between what you own and what you owe</CardDescription>
+            <CardHeader className="pb-2 p-4 md:p-6">
+              <CardTitle className="text-xl sm:text-2xl font-bold text-gray-800">Your Net Worth</CardTitle>
+              <CardDescription className="text-sm sm:text-base">The difference between what you own and what you owe</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4 md:p-6">
               <div className="flex flex-col md:flex-row justify-between items-center">
-                <div className="text-4xl md:text-5xl font-bold text-center md:text-left mb-4 md:mb-0">
+                <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-center md:text-left mb-4 md:mb-0">
                   {formatIndianCurrency(netWorth)}
                 </div>
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <div className="bg-green-50 border border-green-100 p-4 rounded-lg text-center min-w-36">
-                    <p className="text-green-700 text-sm font-medium flex items-center justify-center">
+                <div className="flex flex-col sm:flex-row gap-3 md:gap-4 w-full md:w-auto">
+                  <div className="bg-green-50 border border-green-100 p-3 md:p-4 rounded-lg text-center min-w-[140px] sm:min-w-36">
+                    <p className="text-green-700 text-xs sm:text-sm font-medium flex items-center justify-center">
                       Total Assets
                       <InfoTooltip content="Assets are everything you own that has value: property, investments, savings, jewelry, etc." />
                     </p>
-                    <p className="text-green-800 text-xl font-bold">{formatIndianCurrency(totalAssets)}</p>
+                    <p className="text-green-800 text-lg sm:text-xl font-bold">{formatIndianCurrency(totalAssets)}</p>
                   </div>
-                  <div className="bg-red-50 border border-red-100 p-4 rounded-lg text-center min-w-36">
-                    <p className="text-red-700 text-sm font-medium flex items-center justify-center">
+                  <div className="bg-red-50 border border-red-100 p-3 md:p-4 rounded-lg text-center min-w-[140px] sm:min-w-36">
+                    <p className="text-red-700 text-xs sm:text-sm font-medium flex items-center justify-center">
                       Total Liabilities
                       <InfoTooltip content="Liabilities are all your debts and financial obligations: loans, mortgages, credit card debt, etc." />
                     </p>
-                    <p className="text-red-800 text-xl font-bold">{formatIndianCurrency(totalLiabilities)}</p>
+                    <p className="text-red-800 text-lg sm:text-xl font-bold">{formatIndianCurrency(totalLiabilities)}</p>
                   </div>
                 </div>
               </div>
@@ -369,13 +369,13 @@ export default function NetWorth() {
 
           {/* Main Chart Card */}
           <Card className="lg:col-span-2 shadow-md">
-            <CardHeader>
-              <CardTitle>Asset & Liability Breakdown</CardTitle>
-              <CardDescription>
+            <CardHeader className="p-4 md:p-6">
+              <CardTitle className="text-lg sm:text-xl">Asset & Liability Breakdown</CardTitle>
+              <CardDescription className="text-sm sm:text-base">
                 Visual distribution of your assets and liabilities
               </CardDescription>
             </CardHeader>
-            <CardContent className="h-[450px]"> {/* Increased height */}
+            <CardContent className="h-[350px] sm:h-[400px] md:h-[450px] p-4 md:p-6"> {/* Responsive height */}
               {chartData.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}> {/* Added margin */}
@@ -421,7 +421,7 @@ export default function NetWorth() {
                   </PieChart>
                 </ResponsiveContainer>
               ) : (
-                <div className="h-[450px] flex items-center justify-center text-gray-500"> {/* Matched height */}
+                <div className="h-[350px] sm:h-[400px] md:h-[450px] flex items-center justify-center text-gray-500 text-sm sm:text-base"> {/* Responsive height */}
                   <p>No asset or liability data available to display chart.</p>
                 </div>
               )}
@@ -430,15 +430,15 @@ export default function NetWorth() {
 
           {/* Detailed Breakdown Card */}
           <Card className="shadow-md">
-            <CardHeader>
-              <CardTitle>Detailed Breakdown</CardTitle>
-              <CardDescription>Itemized view of all assets and liabilities</CardDescription>
+            <CardHeader className="p-4 md:p-6">
+              <CardTitle className="text-lg sm:text-xl">Detailed Breakdown</CardTitle>
+              <CardDescription className="text-sm sm:text-base">Itemized view of all assets and liabilities</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4 md:p-6">
               <div className="space-y-4">
                 <div>
-                  <h3 className="font-medium text-green-700 mb-2">Assets</h3>
-                  <ul className="space-y-2">
+                  <h3 className="font-medium text-green-700 mb-2 text-sm sm:text-base">Assets</h3>
+                  <ul className="space-y-1.5 sm:space-y-2 text-sm sm:text-base">
                     {financialData && financialData.assets && financialData.assets.illiquid && Object.entries(financialData.assets.illiquid).map(([key, value]) => {
                       if (typeof value === 'number' && value > 0) {
                         return (
@@ -469,8 +469,8 @@ export default function NetWorth() {
                 </div>
                 
                 <div>
-                  <h3 className="font-medium text-red-700 mb-2">Liabilities</h3>
-                  <ul className="space-y-2">
+                  <h3 className="font-medium text-red-700 mb-2 text-sm sm:text-base">Liabilities</h3>
+                  <ul className="space-y-1.5 sm:space-y-2 text-sm sm:text-base">
                     {financialData && financialData.liabilities && Object.entries(financialData.liabilities).map(([key, value]) => {
                        if (typeof value === 'number' && value > 0) {
                         return (
@@ -503,61 +503,67 @@ export default function NetWorth() {
         </div>
 
         {/* Total Asset Summary Table Card */}
-        <Card className="mb-8 shadow-md">
-          <CardHeader>
-            <CardTitle>Total Asset Summary</CardTitle>
-            <CardDescription>Aggregated view of your asset classes and their contribution.</CardDescription>
+        <Card className="mb-6 md:mb-8 shadow-md">
+          <CardHeader className="p-4 md:p-6">
+            <CardTitle className="text-lg sm:text-xl">Total Asset Summary</CardTitle>
+            <CardDescription className="text-sm sm:text-base">Aggregated view of your asset classes and their contribution.</CardDescription>
           </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Particulars</TableHead>
-                  <TableHead className="text-right">Value (INR)</TableHead>
-                  <TableHead className="text-right">% Contribution</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {totalAssetSummary.map((item) => (
-                  <TableRow key={item.name}>
-                    <TableCell className={item.name === 'Total Assets' ? "font-bold" : ""}>{item.name}</TableCell>
-                    <TableCell className={`text-right ${item.name === 'Total Assets' ? "font-bold" : ""}`}>{formatCurrency(item.value)}</TableCell>
-                    <TableCell className={`text-right ${item.name === 'Total Assets' ? "font-bold" : ""}`}>{item.contribution}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+          <CardContent className="p-4 md:p-6">
+            <div className="overflow-x-auto -mx-4 sm:mx-0">
+              <div className="inline-block min-w-full align-middle px-4 sm:px-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="text-sm sm:text-base whitespace-nowrap">Particulars</TableHead>
+                      <TableHead className="text-right text-sm sm:text-base whitespace-nowrap">Value (INR)</TableHead>
+                      <TableHead className="text-right text-sm sm:text-base whitespace-nowrap">% Contribution</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {totalAssetSummary.map((item) => (
+                      <TableRow key={item.name}>
+                        <TableCell className={`text-sm sm:text-base whitespace-nowrap ${item.name === 'Total Assets' ? "font-bold" : ""}`}>{item.name}</TableCell>
+                        <TableCell className={`text-right text-sm sm:text-base whitespace-nowrap ${item.name === 'Total Assets' ? "font-bold" : ""}`}>{formatCurrency(item.value)}</TableCell>
+                        <TableCell className={`text-right text-sm sm:text-base whitespace-nowrap ${item.name === 'Total Assets' ? "font-bold" : ""}`}>{item.contribution}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
         {/* Current Investable Asset Allocation Card */}
-        <Card className="mb-8 shadow-md">
-          <CardHeader>
-            <CardTitle>Current Investable Asset Allocation</CardTitle>
-            <CardDescription>Breakdown of your current investable assets.</CardDescription>
+        <Card className="mb-6 md:mb-8 shadow-md">
+          <CardHeader className="p-4 md:p-6">
+            <CardTitle className="text-lg sm:text-xl">Current Investable Asset Allocation</CardTitle>
+            <CardDescription className="text-sm sm:text-base">Breakdown of your current investable assets.</CardDescription>
           </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Particulars</TableHead>
-                    <TableHead className="text-right">Value (INR)</TableHead>
-                    <TableHead className="text-right">% Contribution</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {investableAssetAllocation.map((item) => (
-                    <TableRow key={`investable-${item.name}`}>
-                      <TableCell className={item.name === 'Total Investable Assets' ? "font-bold" : ""}>{item.name}</TableCell>
-                      <TableCell className={`text-right ${item.name === 'Total Investable Assets' ? "font-bold" : ""}`}>{formatCurrency(item.value)}</TableCell>
-                      <TableCell className={`text-right ${item.name === 'Total Investable Assets' ? "font-bold" : ""}`}>{item.contribution}</TableCell>
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 p-4 md:p-6">
+            <div className="overflow-x-auto -mx-4 sm:mx-0">
+              <div className="inline-block min-w-full align-middle px-4 sm:px-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="text-sm sm:text-base whitespace-nowrap">Particulars</TableHead>
+                      <TableHead className="text-right text-sm sm:text-base whitespace-nowrap">Value (INR)</TableHead>
+                      <TableHead className="text-right text-sm sm:text-base whitespace-nowrap">% Contribution</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {investableAssetAllocation.map((item) => (
+                      <TableRow key={`investable-${item.name}`}>
+                        <TableCell className={`text-sm sm:text-base whitespace-nowrap ${item.name === 'Total Investable Assets' ? "font-bold" : ""}`}>{item.name}</TableCell>
+                        <TableCell className={`text-right text-sm sm:text-base whitespace-nowrap ${item.name === 'Total Investable Assets' ? "font-bold" : ""}`}>{formatCurrency(item.value)}</TableCell>
+                        <TableCell className={`text-right text-sm sm:text-base whitespace-nowrap ${item.name === 'Total Investable Assets' ? "font-bold" : ""}`}>{item.contribution}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </div>
-            <div className="h-80 md:h-96">
+            <div className="h-[300px] sm:h-80 md:h-96">
               {investableChartData.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
@@ -581,7 +587,7 @@ export default function NetWorth() {
                   </PieChart>
                 </ResponsiveContainer>
               ) : (
-                <div className="h-full flex items-center justify-center text-gray-500">
+                <div className="h-full flex items-center justify-center text-gray-500 text-sm sm:text-base">
                   <p>No investable asset data to display chart.</p>
                 </div>
               )}
@@ -591,16 +597,24 @@ export default function NetWorth() {
 
         {/* Net Worth Trend Graph */}
         {user?.id && (
-          <div className="mb-8">
+          <div className="mb-6 md:mb-8">
             <NetWorthGraph userId={user.id} />
           </div>
         )}
 
-        <div className="flex justify-between">
-          <Button variant="outline" onClick={() => navigate('/')}>
+        <div className="flex flex-col sm:flex-row justify-between gap-3 md:gap-4">
+          <Button
+            variant="outline"
+            onClick={() => navigate('/')}
+            className="h-10 sm:h-9 w-full sm:w-auto"
+          >
             Back to Home
           </Button>
-          <Button variant="outline" onClick={() => navigate('/enter-details')}>
+          <Button
+            variant="outline"
+            onClick={() => navigate('/enter-details')}
+            className="h-10 sm:h-9 w-full sm:w-auto"
+          >
             Update Financial Details
           </Button>
         </div>
