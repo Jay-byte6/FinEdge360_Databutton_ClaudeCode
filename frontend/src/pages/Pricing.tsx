@@ -325,7 +325,7 @@ const Pricing: React.FC = () => {
                             </span>
                           </div>
                           <div className="flex items-baseline gap-2">
-                            <span className="text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent animate-pulse">
+                            <span className="text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                               ₹{price.toLocaleString()}
                             </span>
                             <span className="text-gray-500">
@@ -333,7 +333,7 @@ const Pricing: React.FC = () => {
                             </span>
                           </div>
                           <p className="text-sm text-purple-600 font-semibold mt-1 animate-pulse">
-                            🎉 Freedom Price • Limited Time Offer
+                            🎉 Freedom Offer • Limited Time Only
                           </p>
                         </>
                       ) : (
