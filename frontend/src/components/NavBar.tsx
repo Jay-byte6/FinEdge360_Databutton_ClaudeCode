@@ -61,7 +61,7 @@ const NavBar: React.FC<NavBarProps> = ({ showFullNav = true }) => {
     <header className="bg-white border-b border-gray-200 shadow-sm sticky top-8 z-40">
       <div className="container mx-auto max-w-6xl">
         <div className="flex justify-between items-center py-2 h-20">
-          <div className="flex items-center cursor-pointer mr-8 md:mr-12" onClick={() => navigate('/')}>
+          <div className="flex items-end cursor-pointer mr-8 md:mr-12 pb-1" onClick={() => navigate('/')}>
             <div className="relative overflow-hidden flex items-center justify-center" style={{ height: '80px', width: 'auto' }}>
               <video
                 src="/FIREMap.mp4"
