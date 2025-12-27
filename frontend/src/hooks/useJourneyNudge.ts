@@ -17,6 +17,7 @@ interface NudgeState {
 const NUDGE_STORAGE_KEY = 'finedge360_journey_nudge_state';
 const NUDGE_COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes between nudges
 const NUDGE_DELAY_MS = 3000; // 3 seconds after page load
+const DATA_STABILIZATION_DELAY_MS = 2000; // Wait 2 seconds for data to stabilize before showing nudge
 
 // Smart route-to-milestone mapping - ONLY show nudges that make sense for that page
 // Philosophy: Don't interrupt users on pages where they're already working on the milestone
@@ -101,22 +102,29 @@ export const useJourneyNudge = (
   }, [userId]);
 
   // Update current milestone when completedMilestones changes
+  // DEBOUNCED to prevent rapid changes during data loading
   useEffect(() => {
-    // Find the next incomplete milestone
-    const totalMilestones = 10;
-    let nextMilestone = totalMilestones;
-    for (let i = 1; i <= totalMilestones; i++) {
-      if (!completedMilestones.includes(i)) {
-        nextMilestone = i;
-        break;
+    // Wait for data to stabilize before updating milestone
+    // This prevents multiple rapid nudges as data loads incrementally
+    const debounceTimer = setTimeout(() => {
+      // Find the next incomplete milestone
+      const totalMilestones = 10;
+      let nextMilestone = totalMilestones;
+      for (let i = 1; i <= totalMilestones; i++) {
+        if (!completedMilestones.includes(i)) {
+          nextMilestone = i;
+          break;
+        }
       }
-    }
 
-    setNudgeState(prev => ({
-      ...prev,
-      currentMilestone: nextMilestone,
-      completedMilestones,
-    }));
+      setNudgeState(prev => ({
+        ...prev,
+        currentMilestone: nextMilestone,
+        completedMilestones,
+      }));
+    }, DATA_STABILIZATION_DELAY_MS);
+
+    return () => clearTimeout(debounceTimer);
   }, [completedMilestones]);
 
   // Save nudge state to localStorage

@@ -21,6 +21,7 @@ interface JourneyMapSimpleProps {
 export const JourneyMapSimple: React.FC<JourneyMapSimpleProps> = ({ journeyState, onMilestoneClick }) => {
   const navigate = useNavigate();
   const [hoveredMilestone, setHoveredMilestone] = useState<number | null>(null);
+  const [clickedMilestone, setClickedMilestone] = useState<number | null>(null); // For mobile tap
   const [viewScale, setViewScale] = useState(1);
 
   // Curved road - start bottom-left, end top-right (NOT straight line!)
@@ -59,6 +60,36 @@ export const JourneyMapSimple: React.FC<JourneyMapSimpleProps> = ({ journeyState
       navigate(currentMilestone.actions[0].link);
     }
   };
+
+  // Handle milestone click - toggle tooltip for mobile
+  const handleMilestoneClick = (milestone: MilestoneData, e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    // If already clicked, close tooltip
+    if (clickedMilestone === milestone.id) {
+      setClickedMilestone(null);
+      setHoveredMilestone(null);
+    } else {
+      // Open this milestone's tooltip
+      setClickedMilestone(milestone.id);
+      setHoveredMilestone(milestone.id);
+      // Also call parent callback if provided
+      onMilestoneClick?.(milestone);
+    }
+  };
+
+  // Close tooltip when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      if (clickedMilestone !== null) {
+        setClickedMilestone(null);
+        setHoveredMilestone(null);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [clickedMilestone]);
 
   // Auto zoom to current milestone
   useEffect(() => {
@@ -265,8 +296,8 @@ export const JourneyMapSimple: React.FC<JourneyMapSimpleProps> = ({ journeyState
                 className="absolute"
                 style={{ left: pos.x - 30, top: pos.y - 30 }}
                 onMouseEnter={() => setHoveredMilestone(milestone.id)}
-                onMouseLeave={() => setHoveredMilestone(null)}
-                onClick={() => onMilestoneClick?.(milestone)}
+                onMouseLeave={() => !clickedMilestone && setHoveredMilestone(null)}
+                onClick={(e) => handleMilestoneClick(milestone, e)}
               >
                 <div className="relative cursor-pointer">
                   {/* Pulsing for current */}
