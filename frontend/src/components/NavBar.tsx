@@ -69,7 +69,7 @@ const NavBar: React.FC<NavBarProps> = ({ showFullNav = true }) => {
                 loop
                 muted
                 playsInline
-                className="h-44 md:h-52 w-auto"
+                className="h-48 md:h-56 w-auto"
                 style={{
                   objectFit: 'contain',
                   filter: 'contrast(1.3) brightness(1.05)',

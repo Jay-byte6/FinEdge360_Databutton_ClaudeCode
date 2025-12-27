@@ -17,6 +17,10 @@ const Footer: React.FC = () => {
                 src="/FIREMap_Logo_MapPin.png"
                 alt="FIREMap Icon"
                 className="w-8 h-8 object-contain"
+                style={{
+                  filter: 'contrast(1.2) brightness(1.1)',
+                  mixBlendMode: 'lighten'
+                }}
               />
               <span className="text-2xl font-black text-white">FIRE<span className="text-emerald-500">Map</span></span>
             </div>
