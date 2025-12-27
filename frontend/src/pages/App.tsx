@@ -279,70 +279,69 @@ export default function App() {
         </div>
       </section>
 
-      {/* PAIN POINT 1: Stop Losing Money in Scams - From Pitch */}
-      <section className="py-20 bg-white border-y-4 border-red-500">
+      {/* Problem-Solution Section */}
+      <section className="py-20 bg-white">
         <div className="container mx-auto px-4 max-w-6xl">
-          <div className="text-center mb-12">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              className="inline-flex items-center gap-3 bg-red-50 border-2 border-red-500 rounded-2xl px-8 py-4 mb-6"
-            >
-              <AlertTriangle className="w-12 h-12 text-red-600" />
-              <div className="text-left">
-                <div className="text-2xl font-black text-red-700">STOP LOSING MONEY</div>
-                <div className="text-sm text-red-600">Quick Money Destroys Families</div>
-              </div>
-            </motion.div>
+          <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-black mb-4 text-gray-900">
-              How many people do you know who lost money in...
+              Stop Losing Money. Start Building Wealth.
             </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Common financial problems that cost you lakhs every year - and how FIREMap solves them
+            </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          <div className="grid md:grid-cols-2 gap-6">
             {[
-              { name: "Dream11", icon: "🎮", amount: "₹2-5L lost on average" },
-              { name: "RummyCircle", icon: "🃏", amount: "₹3-10L lost on average" },
-              { name: "Options Trading", icon: "📉", amount: "₹5-50L lost on average" },
-              { name: "Crypto Scams", icon: "💸", amount: "₹1-25L lost on average" }
-            ].map((scam, index) => (
+              {
+                icon: <AlertCircle className="w-6 h-6" />,
+                problem: "Confused about when you can retire?",
+                solution: "Get your exact FIRE number in 5 minutes",
+                color: "from-emerald-500 to-teal-500"
+              },
+              {
+                icon: <TrendingDown className="w-6 h-6" />,
+                problem: "Losing money to unnecessary taxes?",
+                solution: "Save ₹2+ lakhs annually with smart planning",
+                color: "from-emerald-500 to-teal-500"
+              },
+              {
+                icon: <Target className="w-6 h-6" />,
+                problem: "Goals without a clear plan?",
+                solution: "AI-powered SIP calculator for every goal",
+                color: "from-emerald-500 to-teal-500"
+              },
+              {
+                icon: <BarChart3 className="w-6 h-6" />,
+                problem: "Don't know your real net worth?",
+                solution: "Track everything in one dashboard",
+                color: "from-emerald-500 to-teal-500"
+              }
+            ].map((item, index) => (
               <motion.div
                 key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                className="bg-gradient-to-br from-red-50 to-white rounded-2xl p-6 border-2 border-red-200 text-center"
+                className="bg-gray-50 rounded-2xl p-6 border-2 border-gray-200 hover:border-emerald-500 hover:shadow-lg transition-all"
               >
-                <div className="text-5xl mb-3">{scam.icon}</div>
-                <h3 className="text-xl font-bold mb-2 text-gray-900">{scam.name}</h3>
-                <p className="text-red-600 font-semibold text-sm">{scam.amount}</p>
+                <div className="flex items-start gap-4">
+                  <div className={`p-3 rounded-xl bg-gradient-to-br ${item.color} text-white`}>
+                    {item.icon}
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-red-600 font-semibold mb-2">❌ {item.problem}</p>
+                    <p className="text-emerald-600 font-bold text-lg">✅ {item.solution}</p>
+                  </div>
+                </div>
               </motion.div>
             ))}
           </div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="bg-gray-900 text-white rounded-2xl p-8 md:p-12 text-center"
-          >
-            <h3 className="text-3xl md:text-4xl font-black mb-4">
-              "Quick money is not just dangerous — it's destroying families."
-            </h3>
-            <p className="text-xl text-gray-300 mb-6">
-              We are losing lakhs... losing savings... some people are losing their mental peace... some even losing their lives.
-            </p>
-            <div className="inline-flex items-center gap-2 bg-red-600 text-white px-6 py-3 rounded-full font-bold">
-              <XCircle className="w-5 h-5" />
-              <span>STOP THE MADNESS</span>
-            </div>
-          </motion.div>
         </div>
       </section>
 
-      {/* PAIN POINT 2: Running Without Knowing WHERE - From Pitch */}
+      {/* Direction & Clarity Section */}
       <section className="py-20 bg-gradient-to-br from-gray-50 to-white">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -352,24 +351,23 @@ export default function App() {
               viewport={{ once: true }}
             >
               <h2 className="text-4xl md:text-5xl font-black mb-6 text-gray-900">
-                We're Running and Running...
-                <span className="block text-red-600 mt-2">But We Don't Know WHERE!</span>
+                Know Exactly Where You're Going
+                <span className="block text-emerald-600 mt-2">With a Clear Financial Roadmap</span>
               </h2>
               <p className="text-xl text-gray-700 mb-6 leading-relaxed">
-                Nobody taught us what to do with our salary.<br />
-                We run faster with AI... but we don't know where we are running.
+                Most people work hard but lack a clear financial direction. FIREMap gives you the clarity you need.
               </p>
               <p className="text-2xl font-bold text-gray-900 mb-4">
-                Result?
+                Get answers to:
               </p>
               <ul className="space-y-3">
                 {[
-                  "Financial freedom becomes a dream 💭",
-                  "Stress becomes normal 😰",
-                  "Scams look like shortcuts 🎯"
+                  "When can I achieve financial freedom? 🎯",
+                  "How much should I save each month? 💰",
+                  "Am I on track with my goals? 📊"
                 ].map((item, index) => (
                   <li key={index} className="flex items-start gap-3 text-lg text-gray-700">
-                    <AlertCircle className="w-6 h-6 text-red-500 flex-shrink-0 mt-1" />
+                    <CheckCircle2 className="w-6 h-6 text-emerald-500 flex-shrink-0 mt-1" />
                     <span>{item}</span>
                   </li>
                 ))}
@@ -411,18 +409,15 @@ export default function App() {
         </div>
       </section>
 
-      {/* REALITY CHECK: The Truth About Returns - From Pitch */}
+      {/* Realistic Expectations Section */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="text-center mb-12">
             <h2 className="text-4xl md:text-5xl font-black mb-4 text-gray-900">
-              The Uncomfortable Truth
+              Realistic Returns, Real Wealth
             </h2>
-            <p className="text-2xl font-bold text-red-600 mb-6">
-              No legal investment gives 100% in two weeks.
-            </p>
             <p className="text-xl text-gray-700 mb-8">
-              Even billion-dollar companies struggle to make 20-30% annually.
+              Understanding actual long-term investment returns in India
             </p>
           </div>
 
@@ -452,11 +447,8 @@ export default function App() {
               ))}
             </div>
             <div className="mt-8 text-center">
-              <p className="text-xl text-white font-semibold mb-2">
-                That's it. Reality is boring...
-              </p>
               <p className="text-2xl text-emerald-400 font-black">
-                But boring is what builds wealth.
+                Consistent returns build lasting wealth
               </p>
             </div>
           </div>
@@ -467,15 +459,15 @@ export default function App() {
             viewport={{ once: true }}
             className="bg-emerald-50 rounded-2xl p-8 border-2 border-emerald-200 text-center"
           >
-            <p className="text-xl text-gray-700 italic">
-              "Compounding is like going to the gym — you don't see results in two days.<br />
-              But stop going for two days? Your stomach immediately returns."
+            <p className="text-xl text-gray-700 font-semibold">
+              Smart investing is about time in the market, not timing the market.<br />
+              Start early, invest consistently, and let compounding work its magic.
             </p>
           </motion.div>
         </div>
       </section>
 
-      {/* SOLUTION: FIREMap as GPS - From Pitch */}
+      {/* FIREMap GPS Solution Section */}
       <section className="py-20 bg-gradient-to-br from-emerald-600 to-teal-600 text-white">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="text-center mb-12">
@@ -590,7 +582,7 @@ export default function App() {
         </div>
       </section>
 
-      {/* Expert Handholding - From Pitch */}
+      {/* Expert Handholding Section */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="text-center mb-12">
@@ -1040,7 +1032,7 @@ export default function App() {
         </div>
       </section>
 
-      {/* Final CTA - From Pitch Closing */}
+      {/* Final CTA */}
       <section className="py-20 bg-gradient-to-r from-emerald-600 to-teal-600 text-white">
         <div className="container mx-auto px-4 max-w-4xl text-center">
           <motion.div
@@ -1049,16 +1041,13 @@ export default function App() {
             viewport={{ once: true }}
           >
             <h2 className="text-4xl md:text-5xl font-black mb-6">
-              Know Your Direction.<br />
-              Know Your Future.<br />
-              <span className="text-emerald-200">Know Your FIRE.</span>
+              Ready to Achieve Financial Freedom?
             </h2>
             <p className="text-2xl mb-4 font-bold">
-              We don't need luck. We need a plan.
+              Start your journey to FIRE today
             </p>
             <p className="text-xl mb-8 text-emerald-100 max-w-2xl mx-auto leading-relaxed">
-              So instead of chasing '7 lakhs becomes 1 crore' scams...<br />
-              let's build a world where 1 crore is truly possible — <strong>slowly, steadily, peacefully.</strong>
+              Join 5,000+ professionals building wealth the smart way — with clarity, control, and a proven roadmap to financial independence.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
               <Button
