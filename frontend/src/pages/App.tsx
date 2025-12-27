@@ -299,32 +299,23 @@ export default function App() {
                 className="hidden md:flex justify-center items-center relative"
               >
                 <div className="relative w-full max-w-lg">
-                  {/* Character Image - no background, blends with dark hero section */}
-                  <img
+                  {/* Character Image - floating animation for peaceful feel */}
+                  <motion.img
                     src="/HeroSection_Character.png"
                     alt="Calm person sitting peacefully on money - Financial peace of mind"
                     className="relative z-10 w-full h-auto drop-shadow-2xl"
+                    animate={{
+                      y: [0, -15, 0],
+                    }}
+                    transition={{
+                      duration: 4,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
                     style={{
                       filter: 'drop-shadow(0 25px 50px rgba(16, 185, 129, 0.3))'
                     }}
                   />
-
-                  {/* Floating elements for emphasis */}
-                  <motion.div
-                    animate={{ y: [0, -10, 0] }}
-                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                    className="absolute top-10 right-10 bg-emerald-500/10 backdrop-blur-sm rounded-full p-3 shadow-xl border border-emerald-500/30"
-                  >
-                    <Shield className="w-6 h-6 text-emerald-400" />
-                  </motion.div>
-
-                  <motion.div
-                    animate={{ y: [0, 10, 0] }}
-                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-                    className="absolute bottom-20 left-10 bg-pink-500/10 backdrop-blur-sm rounded-full p-3 shadow-xl border border-pink-500/30"
-                  >
-                    <Heart className="w-6 h-6 text-pink-400" />
-                  </motion.div>
                 </div>
               </motion.div>
             </div>
