@@ -40,10 +40,21 @@ interface MilestoneNudgePopupProps {
 }
 
 // Milestone configuration with icons and guidance
+// IMPORTANT: Milestone 1 should be Expert Consultation - first immediate action
 const MILESTONE_CONFIG = {
   1: {
+    icon: Users,
+    title: '🎓 Book Free Expert Consultation',
+    description: 'Get personalized guidance to set up goals and align holdings properly',
+    action: 'Book Your Free Expert Session',
+    route: '/consultation',
+    color: 'from-violet-500 to-purple-500',
+    benefit: 'Professional advice tailored to your situation',
+    timeEstimate: '30 minutes (call)'
+  },
+  2: {
     icon: TrendingUp,
-    title: '📊 Start Your Journey',
+    title: '📊 Enter Your Financial Details',
     description: 'Track your net worth to understand your financial starting point',
     action: 'Enter Your Financial Details',
     route: '/enter-details',
@@ -51,7 +62,7 @@ const MILESTONE_CONFIG = {
     benefit: 'Know exactly where you stand financially',
     timeEstimate: '5-10 minutes'
   },
-  2: {
+  3: {
     icon: Target,
     title: '🎯 Set Your Goals',
     description: 'Define your short, mid, and long-term financial objectives',
@@ -61,7 +72,7 @@ const MILESTONE_CONFIG = {
     benefit: 'Clear roadmap for your financial future',
     timeEstimate: '10-15 minutes'
   },
-  3: {
+  4: {
     icon: Calculator,
     title: '🔢 Calculate Your FIRE Number',
     description: 'Discover how much you need to achieve financial independence',
@@ -71,7 +82,7 @@ const MILESTONE_CONFIG = {
     benefit: 'Your personalized path to early retirement',
     timeEstimate: '5 minutes'
   },
-  4: {
+  5: {
     icon: PiggyBank,
     title: '💰 Plan Your SIP Strategy',
     description: 'Create a systematic investment plan to reach your goals',
@@ -81,7 +92,7 @@ const MILESTONE_CONFIG = {
     benefit: 'Automated wealth building on autopilot',
     timeEstimate: '10 minutes'
   },
-  5: {
+  6: {
     icon: Shield,
     title: '🛡️ Assess Your Risk Profile',
     description: 'Understand your investment risk tolerance and optimal portfolio mix',
@@ -91,7 +102,7 @@ const MILESTONE_CONFIG = {
     benefit: 'Invest with confidence and peace of mind',
     timeEstimate: '5 minutes'
   },
-  6: {
+  7: {
     icon: TrendingUp,
     title: '📈 Optimize Your Portfolio',
     description: 'Get personalized recommendations to maximize returns',
@@ -101,7 +112,7 @@ const MILESTONE_CONFIG = {
     benefit: 'Better returns with lower risk',
     timeEstimate: '10 minutes'
   },
-  7: {
+  8: {
     icon: FileText,
     title: '📋 Master Tax Optimization',
     description: 'Learn smart tax-saving strategies to keep more of your money',
@@ -110,16 +121,6 @@ const MILESTONE_CONFIG = {
     color: 'from-rose-500 to-pink-500',
     benefit: 'Save lakhs in taxes legally',
     timeEstimate: '15 minutes'
-  },
-  8: {
-    icon: Users,
-    title: '🎓 Expert Consultation',
-    description: 'Get personalized guidance from certified financial experts',
-    action: 'Book Free Consultation',
-    route: '/consultation',
-    color: 'from-violet-500 to-purple-500',
-    benefit: 'Professional advice tailored to you',
-    timeEstimate: '30 minutes (call)'
   },
   9: {
     icon: Rocket,
