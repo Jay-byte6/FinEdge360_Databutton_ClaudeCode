@@ -301,7 +301,7 @@ export default function App() {
                 <div className="relative w-full max-w-lg">
                   {/* Character Image - no background, blends with dark hero section */}
                   <img
-                    src="/HeroSection_Character.jpg"
+                    src="/HeroSection_Character.png"
                     alt="Calm person sitting peacefully on money - Financial peace of mind"
                     className="relative z-10 w-full h-auto drop-shadow-2xl"
                     style={{
