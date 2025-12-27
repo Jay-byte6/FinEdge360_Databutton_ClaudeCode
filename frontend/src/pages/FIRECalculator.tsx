@@ -261,24 +261,24 @@ export default function FIRECalculator() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 py-12 px-4">
       <div className="container mx-auto max-w-6xl">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 flex items-center">
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 flex items-center">
             FIRE Calculator
             <InfoTooltip content="FIRE stands for Financial Independence, Retire Early. It's a movement focused on saving and investing to retire much earlier than traditional retirement age." />
           </h1>
-          <p className="text-gray-600">Track your journey to Financial Independence and Retire Early</p>
+          <p className="text-sm sm:text-base text-gray-600">Track your journey to Financial Independence and Retire Early</p>
         </div>
 
         {/* FIRE Calculator Input Section */}
-        <Card className="lg:col-span-3 mb-8 shadow-md" id="retirement-settings">
-          <CardHeader>
-            <CardTitle>FIRE Calculator Settings</CardTitle>
-            <CardDescription>Adjust parameters to see how your FIRE scenarios change in real-time</CardDescription>
+        <Card className="lg:col-span-3 mb-6 md:mb-8 shadow-md" id="retirement-settings">
+          <CardHeader className="p-4 md:p-6">
+            <CardTitle className="text-lg sm:text-xl">FIRE Calculator Settings</CardTitle>
+            <CardDescription className="text-sm sm:text-base">Adjust parameters to see how your FIRE scenarios change in real-time</CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <CardContent className="p-4 md:p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               <div>
-                <label htmlFor="inflationRate" className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                <label htmlFor="inflationRate" className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 flex items-center">
                   Inflation Rate (%)
                   <InfoTooltip content="The rate at which the general level of prices for goods and services rises, reducing purchasing power. In India, average inflation is around 5-6%." />
                 </label>
@@ -293,11 +293,11 @@ export default function FIRECalculator() {
                     onChange={(e) => setInflationRate(parseFloat(e.target.value))}
                     className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                   />
-                  <span className="ml-3 text-sm font-medium text-gray-900 w-12">{inflationRate}%</span>
+                  <span className="ml-2 sm:ml-3 text-xs sm:text-sm font-medium text-gray-900 w-10 sm:w-12">{inflationRate}%</span>
                 </div>
               </div>
               <div>
-                <label htmlFor="retirementAge" className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                <label htmlFor="retirementAge" className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 flex items-center">
                   Retirement Age (Max)
                   <InfoTooltip content="The maximum age at which you want to retire. Used in Scenarios 1, 2, and 4." />
                 </label>
@@ -312,11 +312,11 @@ export default function FIRECalculator() {
                     onChange={(e) => setRetirementAge(parseInt(e.target.value))}
                     className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                   />
-                  <span className="ml-3 text-sm font-medium text-gray-900 w-12">{retirementAge}</span>
+                  <span className="ml-2 sm:ml-3 text-xs sm:text-sm font-medium text-gray-900 w-10 sm:w-12">{retirementAge}</span>
                 </div>
               </div>
               <div>
-                <label htmlFor="stepUpPercentage" className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                <label htmlFor="stepUpPercentage" className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 flex items-center">
                   Savings Step-Up (%)
                   <InfoTooltip content="Annual increase in your savings amount. E.g., 10% means if you save ₹50k this year, you'll save ₹55k next year." />
                 </label>
@@ -331,11 +331,11 @@ export default function FIRECalculator() {
                     onChange={(e) => setStepUpPercentage(parseInt(e.target.value))}
                     className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                   />
-                  <span className="ml-3 text-sm font-medium text-gray-900 w-12">{stepUpPercentage}%</span>
+                  <span className="ml-2 sm:ml-3 text-xs sm:text-sm font-medium text-gray-900 w-10 sm:w-12">{stepUpPercentage}%</span>
                 </div>
               </div>
               <div>
-                <label htmlFor="supposeRetireAge" className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                <label htmlFor="supposeRetireAge" className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 flex items-center">
                   Scenario 3: Retire Age
                   <InfoTooltip content="What age do you want to explore retiring at? Used only in Scenario 3." />
                 </label>
@@ -350,11 +350,11 @@ export default function FIRECalculator() {
                     onChange={(e) => setSupposeRetireAge(parseInt(e.target.value))}
                     className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                   />
-                  <span className="ml-3 text-sm font-medium text-gray-900 w-12">{supposeRetireAge}</span>
+                  <span className="ml-2 sm:ml-3 text-xs sm:text-sm font-medium text-gray-900 w-10 sm:w-12">{supposeRetireAge}</span>
                 </div>
               </div>
               <div>
-                <label htmlFor="coastAge" className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                <label htmlFor="coastAge" className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 flex items-center">
                   Coast FIRE Age
                   <InfoTooltip content="Coast FIRE: The age when you've saved enough that compound growth will reach your FIRE goal by retirement. You can stop saving and just 'coast' on investment returns." />
                 </label>
@@ -369,7 +369,7 @@ export default function FIRECalculator() {
                     onChange={(e) => setCoastAge(parseInt(e.target.value))}
                     className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                   />
-                  <span className="ml-3 text-sm font-medium text-gray-900 w-12">{coastAge}</span>
+                  <span className="ml-2 sm:ml-3 text-xs sm:text-sm font-medium text-gray-900 w-10 sm:w-12">{coastAge}</span>
                 </div>
               </div>
             </div>
@@ -377,132 +377,136 @@ export default function FIRECalculator() {
         </Card>
 
         {fireMetrics && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
             {/* Primary FIRE Metrics Card */}
             <Card className="lg:col-span-3 bg-gradient-to-r from-blue-50 to-green-50 border-blue-100 shadow-md">
-              <CardHeader className="pb-2">
+              <CardHeader className="pb-2 p-4 md:p-6">
                 <div className="flex items-center gap-2">
-                  <CardTitle className="text-2xl font-bold text-gray-800">Your FIRE Number</CardTitle>
+                  <CardTitle className="text-xl sm:text-2xl font-bold text-gray-800">Your FIRE Number</CardTitle>
                   <InfoTooltip content="This is your Financial Independence number - the total wealth you need to retire comfortably. It's calculated using the famous '25x Rule': Your annual expenses × 25. This means you can safely withdraw 4% each year without running out of money. Think of it as your freedom number - once you reach this, you never have to work for money again!" />
                 </div>
-                <CardDescription>The amount you need to retire comfortably at age {fireMetrics.retirementAge}</CardDescription>
+                <CardDescription className="text-sm sm:text-base">The amount you need to retire comfortably at age {fireMetrics.retirementAge}</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-4 md:p-6">
                 <div className="flex flex-col md:flex-row justify-between items-center">
-                  <div className="text-4xl md:text-5xl font-bold text-center md:text-left mb-4 md:mb-0">
+                  <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-center md:text-left mb-4 md:mb-0">
                     {formatIndianCurrency(fireMetrics.requiredCorpus)}
                   </div>
-                  <div className="flex flex-col sm:flex-row gap-4">
-                    <div className="bg-blue-50 border border-blue-100 p-4 rounded-lg text-center min-w-40">
+                  <div className="flex flex-col sm:flex-row gap-3 md:gap-4 w-full md:w-auto">
+                    <div className="bg-blue-50 border border-blue-100 p-3 md:p-4 rounded-lg text-center min-w-[140px] sm:min-w-40">
                       <div className="flex items-center justify-center gap-1">
-                        <p className="text-blue-700 text-sm font-medium">Years to FIRE</p>
+                        <p className="text-blue-700 text-xs sm:text-sm font-medium">Years to FIRE</p>
                         <InfoTooltip content={`At your current pace, you'll reach FIRE in ${fireMetrics.yearsToFIRE.toFixed(1)} years! This is calculated based on: (1) Your current net worth of ${formatIndianCurrency(fireMetrics.currentNetWorth)}, (2) Your annual savings of ${formatIndianCurrency(fireMetrics.annualSavings)}, (3) Conservative 5% annual growth (safe like FDs). Don't worry if this seems long - the 4 scenarios below show you different paths to speed this up! Remember: Every rupee saved today brings you closer to freedom.`} />
                       </div>
-                      <p className="text-blue-800 text-xl font-bold">{fireMetrics.yearsToFIRE.toFixed(1)} years</p>
+                      <p className="text-blue-800 text-lg sm:text-xl font-bold">{fireMetrics.yearsToFIRE.toFixed(1)} years</p>
                     </div>
-                    <div className="bg-green-50 border border-green-100 p-4 rounded-lg text-center min-w-40">
+                    <div className="bg-green-50 border border-green-100 p-3 md:p-4 rounded-lg text-center min-w-[140px] sm:min-w-40">
                       <div className="flex items-center justify-center gap-1">
-                        <p className="text-green-700 text-sm font-medium">Savings Rate</p>
+                        <p className="text-green-700 text-xs sm:text-sm font-medium">Savings Rate</p>
                         <InfoTooltip content={`You're currently saving ${(fireMetrics.savingsRate * 100).toFixed(1)}% of your income - that's ${formatIndianCurrency(fireMetrics.annualSavings)} per year! Higher savings rate = faster FIRE. Here's the magic: 10% → 51 years to FIRE, 25% → 32 years, 50% → 17 years, 75% → 7 years. Even a 5% increase makes a huge difference. You're already on the path - every percentage point counts!`} />
                       </div>
-                      <p className="text-green-800 text-xl font-bold">{(fireMetrics.savingsRate * 100).toFixed(1)}%</p>
+                      <p className="text-green-800 text-lg sm:text-xl font-bold">{(fireMetrics.savingsRate * 100).toFixed(1)}%</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Expense table for current and retirement */}
-                <div className="mt-6 bg-white rounded-lg border border-gray-100 overflow-hidden">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Particulars</th>
-                        <th scope="col" className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Value (INR)</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200 bg-white">
-                      <tr>
-                        <td className="px-4 py-2 text-sm text-gray-900 bg-green-50">Desired monthly expenses (today)</td>
-                        <td className="px-4 py-2 text-sm text-right font-medium text-gray-900 bg-green-50">{formatCurrency(financialData?.personalInfo.monthlyExpenses || 0)}</td>
-                      </tr>
-                      <tr>
-                        <td className="px-4 py-2 text-sm text-gray-900 bg-green-50">Current age</td>
-                        <td className="px-4 py-2 text-sm text-right font-medium text-gray-900 bg-green-50">{financialData?.personalInfo.age || 30}</td>
-                      </tr>
-                      <tr>
-                        <td className="px-4 py-2 text-sm text-gray-900 bg-green-50">Retirement age</td>
-                        <td className="px-4 py-2 text-sm text-right font-medium text-gray-900 bg-green-50">{fireMetrics.retirementAge}</td>
-                      </tr>
-                      <tr>
-                        <td className="px-4 py-2 text-sm text-gray-900 bg-green-50 flex items-center gap-1">
-                          <span>Inflation</span>
-                          <InfoTooltip content="Inflation is the silent wealth killer - it makes everything more expensive over time. At 6% inflation, prices double every 12 years! That's why your FIRE number seems big - we're planning for future prices, not today's. The good news? Your investments will also grow to beat inflation. This is already factored into your FIRE number." />
-                        </td>
-                        <td className="px-4 py-2 text-sm text-right font-medium text-gray-900 bg-green-50">{fireMetrics.inflationRate}%</td>
-                      </tr>
-                      <tr>
-                        <td className="px-4 py-2 text-sm text-gray-900 bg-red-50">Yearly expenses (today)</td>
-                        <td className="px-4 py-2 text-sm text-right font-medium text-gray-900 bg-red-50">{formatCurrency(fireMetrics.yearlyExpensesToday)}</td>
-                      </tr>
-                      <tr>
-                        <td className="px-4 py-2 text-sm text-gray-900 bg-red-50 flex items-center gap-1">
-                          <span>Yearly expenses (retirement age)</span>
-                          <InfoTooltip content={`This might look scary, but it's just your current ${formatCurrency(fireMetrics.yearlyExpensesToday)} adjusted for ${fireMetrics.inflationRate}% inflation over ${retirementAge - (financialData?.personalInfo.age || 30)} years. Think of it this way: In ${retirementAge - (financialData?.personalInfo.age || 30)} years, what costs ${formatCurrency(100000)} today will cost ${formatCurrency(100000 * Math.pow(1.06, retirementAge - (financialData?.personalInfo.age || 30)))}. We're just planning ahead! Your investments will grow too, keeping pace with inflation.`} />
-                        </td>
-                        <td className="px-4 py-2 text-sm text-right font-medium text-gray-900 bg-red-50">{formatCurrency(fireMetrics.yearlyExpensesRetirement)}</td>
-                      </tr>
-                      <tr>
-                        <td className="px-4 py-2 text-sm font-medium text-gray-900 bg-red-50 flex items-center gap-1">
+                <div className="mt-4 md:mt-6 overflow-x-auto -mx-4 sm:mx-0">
+                  <div className="inline-block min-w-full align-middle px-4 sm:px-0">
+                    <div className="bg-white rounded-lg border border-gray-100 overflow-hidden">
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th scope="col" className="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Particulars</th>
+                            <th scope="col" className="px-3 sm:px-4 py-2 sm:py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Value (INR)</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200 bg-white">
+                          <tr>
+                            <td className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900 bg-green-50 whitespace-nowrap">Desired monthly expenses (today)</td>
+                            <td className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-right font-medium text-gray-900 bg-green-50 whitespace-nowrap">{formatCurrency(financialData?.personalInfo.monthlyExpenses || 0)}</td>
+                          </tr>
+                          <tr>
+                            <td className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900 bg-green-50 whitespace-nowrap">Current age</td>
+                            <td className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-right font-medium text-gray-900 bg-green-50 whitespace-nowrap">{financialData?.personalInfo.age || 30}</td>
+                          </tr>
+                          <tr>
+                            <td className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900 bg-green-50 whitespace-nowrap">Retirement age</td>
+                            <td className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-right font-medium text-gray-900 bg-green-50 whitespace-nowrap">{fireMetrics.retirementAge}</td>
+                          </tr>
+                          <tr>
+                            <td className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900 bg-green-50 flex items-center gap-1 whitespace-nowrap">
+                              <span>Inflation</span>
+                              <InfoTooltip content="Inflation is the silent wealth killer - it makes everything more expensive over time. At 6% inflation, prices double every 12 years! That's why your FIRE number seems big - we're planning for future prices, not today's. The good news? Your investments will also grow to beat inflation. This is already factored into your FIRE number." />
+                            </td>
+                            <td className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-right font-medium text-gray-900 bg-green-50 whitespace-nowrap">{fireMetrics.inflationRate}%</td>
+                          </tr>
+                          <tr>
+                            <td className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900 bg-red-50 whitespace-nowrap">Yearly expenses (today)</td>
+                            <td className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-right font-medium text-gray-900 bg-red-50 whitespace-nowrap">{formatCurrency(fireMetrics.yearlyExpensesToday)}</td>
+                          </tr>
+                          <tr>
+                            <td className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900 bg-red-50 flex items-center gap-1 whitespace-nowrap">
+                              <span>Yearly expenses (retirement age)</span>
+                              <InfoTooltip content={`This might look scary, but it's just your current ${formatCurrency(fireMetrics.yearlyExpensesToday)} adjusted for ${fireMetrics.inflationRate}% inflation over ${retirementAge - (financialData?.personalInfo.age || 30)} years. Think of it this way: In ${retirementAge - (financialData?.personalInfo.age || 30)} years, what costs ${formatCurrency(100000)} today will cost ${formatCurrency(100000 * Math.pow(1.06, retirementAge - (financialData?.personalInfo.age || 30)))}. We're just planning ahead! Your investments will grow too, keeping pace with inflation.`} />
+                            </td>
+                            <td className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-right font-medium text-gray-900 bg-red-50 whitespace-nowrap">{formatCurrency(fireMetrics.yearlyExpensesRetirement)}</td>
+                          </tr>
+                          <tr>
+                            <td className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-gray-900 bg-red-50 flex items-center gap-1 whitespace-nowrap">
                           <span>Lean FIRE</span>
                           <InfoTooltip content={`The minimalist path! This is 80% of your normal expenses - by living a bit more frugally, you can retire with ${formatCurrency(fireMetrics.leanFIRE)} instead of ${formatCurrency(fireMetrics.requiredCorpus)}. Many FIRE achievers start here and upgrade later. Small sacrifices = early freedom. Imagine retiring years earlier!`} />
                         </td>
-                        <td className="px-4 py-2 text-sm text-right font-bold text-gray-900 bg-red-50">{formatCurrency(fireMetrics.leanFIRE)}</td>
+                        <td className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-right font-bold text-gray-900 bg-red-50 whitespace-nowrap">{formatCurrency(fireMetrics.leanFIRE)}</td>
                       </tr>
                       <tr>
-                        <td className="px-4 py-2 text-sm font-medium text-gray-900 bg-red-50 flex items-center gap-1">
+                        <td className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-gray-900 bg-red-50 flex items-center gap-1 whitespace-nowrap">
                           <span>FIRE</span>
                           <InfoTooltip content="Your standard FIRE number - maintain your current lifestyle forever! This follows the 4% Safe Withdrawal Rule used by millions globally. With this corpus, you can withdraw 4% each year (adjusted for inflation) and it'll last forever. It's been tested across 150 years of market data. This is your sustainable freedom number!" />
                         </td>
-                        <td className="px-4 py-2 text-sm text-right font-bold text-gray-900 bg-red-50">{formatCurrency(fireMetrics.requiredCorpus)}</td>
+                        <td className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-right font-bold text-gray-900 bg-red-50 whitespace-nowrap">{formatCurrency(fireMetrics.requiredCorpus)}</td>
                       </tr>
                       <tr>
-                        <td className="px-4 py-2 text-sm font-medium text-gray-900 bg-red-50 flex items-center gap-1">
+                        <td className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-gray-900 bg-red-50 flex items-center gap-1 whitespace-nowrap">
                           <span>FAT FIRE</span>
                           <InfoTooltip content={`The luxury retirement! FAT FIRE lets you spend 2x your current lifestyle - think more travel, finer dining, bigger home. With ${formatCurrency(fireMetrics.fatFIRE)}, you can live large without worry. Many people start with regular FIRE and upgrade to FAT FIRE as their investments grow. Dream big!`} />
                         </td>
-                        <td className="px-4 py-2 text-sm text-right font-bold text-gray-900 bg-red-50">{formatCurrency(fireMetrics.fatFIRE)}</td>
+                        <td className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-right font-bold text-gray-900 bg-red-50 whitespace-nowrap">{formatCurrency(fireMetrics.fatFIRE)}</td>
                       </tr>
                       <tr>
-                        <td className="px-4 py-2 text-sm text-gray-900 bg-green-50">Desired Coast FIRE Age</td>
-                        <td className="px-4 py-2 text-sm text-right font-medium text-gray-900 bg-green-50">{fireMetrics.desiredCoastAge}</td>
+                        <td className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900 bg-green-50 whitespace-nowrap">Desired Coast FIRE Age</td>
+                        <td className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-right font-medium text-gray-900 bg-green-50 whitespace-nowrap">{fireMetrics.desiredCoastAge}</td>
                       </tr>
                       <tr>
-                        <td className="px-4 py-2 text-sm font-medium text-gray-900 bg-red-50 flex items-center gap-1">
+                        <td className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-gray-900 bg-red-50 flex items-center gap-1 whitespace-nowrap">
                           <span>Coast FIRE</span>
                           <InfoTooltip content={`The 'chill mode' number! Once you hit ${formatCurrency(fireMetrics.coastFIRE)} by age ${fireMetrics.desiredCoastAge}, you can stop saving aggressively. Your investments will grow on their own to reach your FIRE number by ${fireMetrics.retirementAge}. This means you could switch to a passion job, work part-time, or just cover living expenses. Financial stress ends much earlier than full FIRE!`} />
                         </td>
-                        <td className="px-4 py-2 text-sm text-right font-bold text-gray-900 bg-red-50">{formatCurrency(fireMetrics.coastFIRE)}</td>
+                        <td className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-right font-bold text-gray-900 bg-red-50 whitespace-nowrap">{formatCurrency(fireMetrics.coastFIRE)}</td>
                       </tr>
                     </tbody>
                   </table>
                 </div>
+              </div>
+            </div>
               </CardContent>
             </Card>
 
             {/* FIRE Types Card */}
             <Card className="shadow-md">
-              <CardHeader>
-                <CardTitle>FIRE Types</CardTitle>
-                <CardDescription>Different FIRE targets based on lifestyle</CardDescription>
+              <CardHeader className="p-4 md:p-6">
+                <CardTitle className="text-lg sm:text-xl">FIRE Types</CardTitle>
+                <CardDescription className="text-sm sm:text-base">Different FIRE targets based on lifestyle</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-4 md:p-6">
                 <div className="space-y-4">
                   <div>
                     <div className="flex justify-between items-center mb-1">
-                      <span className="text-sm text-gray-600 flex items-center">
+                      <span className="text-xs sm:text-sm text-gray-600 flex items-center">
                         Lean FIRE (80% expenses)
                         <InfoTooltip content="Lean FIRE: Achieve financial independence with a more frugal lifestyle, requiring only 80% of your standard expenses. Faster to achieve but requires disciplined spending." />
                       </span>
-                      <span className="text-sm font-medium">{formatIndianCurrency(fireMetrics.leanFIRE)}</span>
+                      <span className="text-xs sm:text-sm font-medium">{formatIndianCurrency(fireMetrics.leanFIRE)}</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2.5">
                       <div className="bg-blue-400 h-2.5 rounded-full" style={{ width: `80%` }}></div>
@@ -510,8 +514,8 @@ export default function FIRECalculator() {
                   </div>
                   <div>
                     <div className="flex justify-between items-center mb-1">
-                      <span className="text-sm text-gray-600">Regular FIRE</span>
-                      <span className="text-sm font-medium">{formatIndianCurrency(fireMetrics.requiredCorpus)}</span>
+                      <span className="text-xs sm:text-sm text-gray-600">Regular FIRE</span>
+                      <span className="text-xs sm:text-sm font-medium">{formatIndianCurrency(fireMetrics.requiredCorpus)}</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2.5">
                       <div className="bg-green-500 h-2.5 rounded-full" style={{ width: `100%` }}></div>
@@ -519,11 +523,11 @@ export default function FIRECalculator() {
                   </div>
                   <div>
                     <div className="flex justify-between items-center mb-1">
-                      <span className="text-sm text-gray-600 flex items-center">
+                      <span className="text-xs sm:text-sm text-gray-600 flex items-center">
                         Fat FIRE (200% expenses)
                         <InfoTooltip content="Fat FIRE: Retire with a luxurious lifestyle, requiring 200% of your standard expenses. Takes longer to achieve but provides maximum financial comfort." />
                       </span>
-                      <span className="text-sm font-medium">{formatIndianCurrency(fireMetrics.fatFIRE)}</span>
+                      <span className="text-xs sm:text-sm font-medium">{formatIndianCurrency(fireMetrics.fatFIRE)}</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2.5">
                       <div className="bg-purple-500 h-2.5 rounded-full" style={{ width: `100%` }}></div>
@@ -534,19 +538,19 @@ export default function FIRECalculator() {
             </Card>
 
             <Card className="shadow-md">
-              <CardHeader>
-                <CardTitle>Current Progress</CardTitle>
-                <CardDescription>Your net worth vs. required corpus</CardDescription>
+              <CardHeader className="p-4 md:p-6">
+                <CardTitle className="text-lg sm:text-xl">Current Progress</CardTitle>
+                <CardDescription className="text-sm sm:text-base">Your net worth vs. required corpus</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-4 md:p-6">
                 <div className="mb-4">
                   <div className="flex justify-between mb-1">
-                    <span className="text-sm text-gray-600">Current Net Worth</span>
-                    <span className="text-sm font-medium text-gray-800">{formatIndianCurrency(fireMetrics.currentNetWorth)}</span>
+                    <span className="text-xs sm:text-sm text-gray-600">Current Net Worth</span>
+                    <span className="text-xs sm:text-sm font-medium text-gray-800">{formatIndianCurrency(fireMetrics.currentNetWorth)}</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2.5">
-                    <div 
-                      className="bg-green-600 h-2.5 rounded-full" 
+                    <div
+                      className="bg-green-600 h-2.5 rounded-full"
                       style={{ width: `${Math.min((fireMetrics.currentNetWorth / fireMetrics.requiredCorpus) * 100, 100)}%` }}
                     ></div>
                   </div>
@@ -559,15 +563,15 @@ export default function FIRECalculator() {
             </Card>
 
             <Card className="shadow-md">
-              <CardHeader>
-                <CardTitle>Coast FIRE</CardTitle>
-                <CardDescription>Save until age {fireMetrics.desiredCoastAge}, then cover only expenses</CardDescription>
+              <CardHeader className="p-4 md:p-6">
+                <CardTitle className="text-lg sm:text-xl">Coast FIRE</CardTitle>
+                <CardDescription className="text-sm sm:text-base">Save until age {fireMetrics.desiredCoastAge}, then cover only expenses</CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-gray-800 mb-2">
+              <CardContent className="p-4 md:p-6">
+                <div className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
                   {formatIndianCurrency(fireMetrics.coastFIRE)}
                 </div>
-                <p className="text-sm text-gray-600">The amount you need by age {fireMetrics.desiredCoastAge} so your investments can grow until retirement at age {fireMetrics.retirementAge}</p>
+                <p className="text-xs sm:text-sm text-gray-600">The amount you need by age {fireMetrics.desiredCoastAge} so your investments can grow until retirement at age {fireMetrics.retirementAge}</p>
                 <div className="mt-4 p-3 bg-amber-50 rounded-md border border-amber-100">
                   <p className="text-xs text-amber-800">Your investments continue to grow at 5% annually (conservative) while you only cover your expenses after age {fireMetrics.desiredCoastAge}</p>
                 </div>
@@ -575,24 +579,24 @@ export default function FIRECalculator() {
             </Card>
 
           {/* Required Monthly SIPs Section - Simplified & Side-by-Side */}
-          <div className="mb-10 lg:col-span-3">
-            <h2 className="text-3xl font-bold text-gray-800 mb-2 text-center">Your SIP Investment Plan</h2>
-            <p className="text-md text-gray-600 mb-8 text-center">Key monthly investments to reach your financial independence.</p>
+          <div className="mb-8 md:mb-10 lg:col-span-3">
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2 text-center">Your SIP Investment Plan</h2>
+            <p className="text-sm sm:text-base text-gray-600 mb-6 md:mb-8 text-center">Key monthly investments to reach your financial independence.</p>
           </div>
           {/* SIP boxes made significantly WIDER */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10 max-w-screen-2xl mx-auto px-4 lg:col-span-3">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-8 md:mb-10 max-w-screen-2xl mx-auto px-4 lg:col-span-3">
             {/* Regular FIRE SIP Card - Simplified */}
             <Card className="shadow-xl border border-blue-200 hover:shadow-2xl transition-shadow duration-300 flex flex-col">
-              <CardHeader className="bg-blue-100 p-5">
-                <CardTitle className="text-xl font-semibold text-blue-800 text-center">Regular FIRE SIP Target</CardTitle>
+              <CardHeader className="bg-blue-100 p-4 md:p-5">
+                <CardTitle className="text-lg sm:text-xl font-semibold text-blue-800 text-center">Regular FIRE SIP Target</CardTitle>
               </CardHeader>
-              <CardContent className="p-6 flex flex-col flex-grow items-center justify-center">
+              <CardContent className="p-4 md:p-6 flex flex-col flex-grow items-center justify-center">
                 <div className="text-center mb-3">
-                  <span className="text-5xl font-extrabold text-blue-800">{formatCurrency(fireMetrics.monthlyInvestmentNeeded)}</span>
-                  <span className="text-xl font-normal text-gray-500"> /month</span>
+                  <span className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-blue-800">{formatCurrency(fireMetrics.monthlyInvestmentNeeded)}</span>
+                  <span className="text-base sm:text-lg md:text-xl font-normal text-gray-500"> /month</span>
                 </div>
                 <div className="p-3 bg-blue-50 rounded-lg border border-blue-200 mt-2 text-center w-full">
-                  <p className="text-sm text-blue-700">
+                  <p className="text-xs sm:text-sm text-blue-700">
                     Goal: <span className="font-bold text-blue-800">{formatIndianCurrency(fireMetrics.requiredCorpus)}</span> total corpus by age {fireMetrics.retirementAge} (includes current net worth). This SIP is the additional monthly investment needed.
                   </p>
                 </div>
@@ -601,16 +605,16 @@ export default function FIRECalculator() {
 
             {/* Coast FIRE SIP Card - Simplified */}
             <Card className="shadow-xl border border-green-200 hover:shadow-2xl transition-shadow duration-300 flex flex-col">
-              <CardHeader className="bg-green-100 p-5">
-                <CardTitle className="text-xl font-semibold text-green-800 text-center">Coast FIRE SIP Target</CardTitle>
+              <CardHeader className="bg-green-100 p-4 md:p-5">
+                <CardTitle className="text-lg sm:text-xl font-semibold text-green-800 text-center">Coast FIRE SIP Target</CardTitle>
               </CardHeader>
-              <CardContent className="p-6 flex flex-col flex-grow items-center justify-center">
+              <CardContent className="p-4 md:p-6 flex flex-col flex-grow items-center justify-center">
                 <div className="text-center mb-3">
-                  <span className="text-5xl font-extrabold text-green-800">{formatCurrency(fireMetrics.coastMonthlyInvestmentNeeded)}</span>
-                  <span className="text-xl font-normal text-gray-500"> /month</span>
+                  <span className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-green-800">{formatCurrency(fireMetrics.coastMonthlyInvestmentNeeded)}</span>
+                  <span className="text-base sm:text-lg md:text-xl font-normal text-gray-500"> /month</span>
                 </div>
                 <div className="p-3 bg-green-50 rounded-lg border border-green-200 mt-2 text-center w-full">
-                  <p className="text-sm text-green-700">
+                  <p className="text-xs sm:text-sm text-green-700">
                     Goal: <span className="font-bold text-green-800">{formatIndianCurrency(fireMetrics.coastFIRE)}</span> total corpus by age {fireMetrics.desiredCoastAge} (includes current net worth). This SIP is the additional monthly investment needed for this milestone.
                   </p>
                 </div>
@@ -632,13 +636,13 @@ export default function FIRECalculator() {
 
             {/* Projection Chart Card */}
             <Card className="lg:col-span-3 shadow-md" id="corpus-growth-projection">
-              <CardHeader>
-                <CardTitle>Corpus Growth Projection</CardTitle>
-                <CardDescription>Projected growth of your investments over time</CardDescription>
+              <CardHeader className="p-4 md:p-6">
+                <CardTitle className="text-lg sm:text-xl">Corpus Growth Projection</CardTitle>
+                <CardDescription className="text-sm sm:text-base">Projected growth of your investments over time</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-4 md:p-6">
                 {projectionData.length > 0 ? (
-                  <div className="h-80">
+                  <div className="h-[300px] sm:h-80 md:h-96">
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart
                         data={projectionData}
@@ -646,32 +650,32 @@ export default function FIRECalculator() {
                       >
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="year" label={{ value: 'Years', position: 'insideBottomRight', offset: -5 }} />
-                        <YAxis 
+                        <YAxis
                           tickFormatter={(value) => {
                             if (value >= 10000000) return `${(value / 10000000).toFixed(0)}Cr`;
                             if (value >= 100000) return `${(value / 100000).toFixed(0)}L`;
                             return value;
-                          }} 
-                          label={{ value: 'Amount (₹)', angle: -90, position: 'insideLeft' }} 
+                          }}
+                          label={{ value: 'Amount (₹)', angle: -90, position: 'insideLeft' }}
                         />
-                        <Tooltip 
-                          formatter={(value) => [formatCurrency(Number(value)), 'Amount']} 
+                        <Tooltip
+                          formatter={(value) => [formatCurrency(Number(value)), 'Amount']}
                           labelFormatter={(label) => `Year ${label}`}
                         />
                         <Legend />
-                        <Line 
-                          type="monotone" 
-                          dataKey="corpus" 
-                          name="Projected Corpus" 
-                          stroke="#4ade80" 
-                          activeDot={{ r: 8 }} 
+                        <Line
+                          type="monotone"
+                          dataKey="corpus"
+                          name="Projected Corpus"
+                          stroke="#4ade80"
+                          activeDot={{ r: 8 }}
                           strokeWidth={2}
                         />
-                        <Line 
-                          type="monotone" 
-                          dataKey="target" 
-                          name="FIRE Target" 
-                          stroke="#f87171" 
+                        <Line
+                          type="monotone"
+                          dataKey="target"
+                          name="FIRE Target"
+                          stroke="#f87171"
                           strokeDasharray="5 5"
                           strokeWidth={2}
                         />
@@ -679,8 +683,8 @@ export default function FIRECalculator() {
                     </ResponsiveContainer>
                   </div>
                 ) : (
-                  <div className="h-80 flex items-center justify-center text-gray-500">
-                    <p>No projection data available</p>
+                  <div className="h-[300px] sm:h-80 md:h-96 flex items-center justify-center text-gray-500">
+                    <p className="text-sm sm:text-base">No projection data available</p>
                   </div>
                 )}
               </CardContent>
@@ -688,87 +692,87 @@ export default function FIRECalculator() {
 
             {/* FIRE Summary Card */}
             <Card className="lg:col-span-3 shadow-md" id="fire-strategy-dashboard">
-              <CardHeader>
-                <CardTitle>FIRE Strategy Dashboard</CardTitle>
-                <CardDescription>Comprehensive overview of your financial independence path</CardDescription>
+              <CardHeader className="p-4 md:p-6">
+                <CardTitle className="text-lg sm:text-xl">FIRE Strategy Dashboard</CardTitle>
+                <CardDescription className="text-sm sm:text-base">Comprehensive overview of your financial independence path</CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <CardContent className="p-4 md:p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                   <div className="space-y-4">
-                    <h3 className="font-medium text-gray-800">Current Financial Snapshot</h3>
+                    <h3 className="text-sm sm:text-base font-medium text-gray-800">Current Financial Snapshot</h3>
                     <ul className="space-y-2">
                       <li className="flex justify-between">
-                        <span className="text-gray-600">Current Age</span>
-                        <span className="font-medium">{financialData?.personalInfo.age || 30} years</span>
+                        <span className="text-xs sm:text-sm text-gray-600">Current Age</span>
+                        <span className="text-xs sm:text-sm font-medium">{financialData?.personalInfo.age || 30} years</span>
                       </li>
                       <li className="flex justify-between">
-                        <span className="text-gray-600">Monthly Income</span>
-                        <span className="font-medium">{formatCurrency(financialData?.personalInfo.monthlySalary || 0)}</span>
+                        <span className="text-xs sm:text-sm text-gray-600">Monthly Income</span>
+                        <span className="text-xs sm:text-sm font-medium">{formatCurrency(financialData?.personalInfo.monthlySalary || 0)}</span>
                       </li>
                       <li className="flex justify-between">
-                        <span className="text-gray-600">Monthly Expenses</span>
-                        <span className="font-medium">{formatCurrency(financialData?.personalInfo.monthlyExpenses || 0)}</span>
+                        <span className="text-xs sm:text-sm text-gray-600">Monthly Expenses</span>
+                        <span className="text-xs sm:text-sm font-medium">{formatCurrency(financialData?.personalInfo.monthlyExpenses || 0)}</span>
                       </li>
                       <li className="flex justify-between">
-                        <span className="text-gray-600">Monthly Savings</span>
-                        <span className="font-medium">{formatCurrency((financialData?.personalInfo.monthlySalary || 0) - (financialData?.personalInfo.monthlyExpenses || 0))}</span>
+                        <span className="text-xs sm:text-sm text-gray-600">Monthly Savings</span>
+                        <span className="text-xs sm:text-sm font-medium">{formatCurrency((financialData?.personalInfo.monthlySalary || 0) - (financialData?.personalInfo.monthlyExpenses || 0))}</span>
                       </li>
                       <li className="flex justify-between">
-                        <span className="text-gray-600">Current Net Worth</span>
-                        <span className="font-medium">{formatCurrency(fireMetrics.currentNetWorth)}</span>
+                        <span className="text-xs sm:text-sm text-gray-600">Current Net Worth</span>
+                        <span className="text-xs sm:text-sm font-medium">{formatCurrency(fireMetrics.currentNetWorth)}</span>
                       </li>
                       <li className="flex justify-between">
-                        <span className="text-gray-600">Years to Retirement</span>
-                        <span className="font-medium">{retirementAge - (financialData?.personalInfo.age || 30)} years</span>
+                        <span className="text-xs sm:text-sm text-gray-600">Years to Retirement</span>
+                        <span className="text-xs sm:text-sm font-medium">{retirementAge - (financialData?.personalInfo.age || 30)} years</span>
                       </li>
                     </ul>
                   </div>
                   <div className="space-y-4">
-                    <h3 className="font-medium text-gray-800">FIRE Strategies Comparison</h3>
+                    <h3 className="text-sm sm:text-base font-medium text-gray-800">FIRE Strategies Comparison</h3>
                     <ul className="space-y-2">
                       <li className="flex justify-between">
-                        <span className="text-gray-600">Lean FIRE (80% expenses)</span>
-                        <span className="font-medium">{formatCurrency(fireMetrics.leanFIRE)}</span>
+                        <span className="text-xs sm:text-sm text-gray-600">Lean FIRE (80% expenses)</span>
+                        <span className="text-xs sm:text-sm font-medium">{formatCurrency(fireMetrics.leanFIRE)}</span>
                       </li>
                       <li className="flex justify-between">
-                        <span className="text-gray-600">Standard FIRE</span>
-                        <span className="font-medium">{formatCurrency(fireMetrics.requiredCorpus)}</span>
+                        <span className="text-xs sm:text-sm text-gray-600">Standard FIRE</span>
+                        <span className="text-xs sm:text-sm font-medium">{formatCurrency(fireMetrics.requiredCorpus)}</span>
                       </li>
                       <li className="flex justify-between">
-                        <span className="text-gray-600">Fat FIRE (200% expenses)</span>
-                        <span className="font-medium">{formatCurrency(fireMetrics.fatFIRE)}</span>
+                        <span className="text-xs sm:text-sm text-gray-600">Fat FIRE (200% expenses)</span>
+                        <span className="text-xs sm:text-sm font-medium">{formatCurrency(fireMetrics.fatFIRE)}</span>
                       </li>
                       <li className="flex justify-between">
-                        <span className="text-gray-600">Coast FIRE (at age {fireMetrics.desiredCoastAge})</span>
-                        <span className="font-medium">{formatCurrency(fireMetrics.coastFIRE)}</span>
+                        <span className="text-xs sm:text-sm text-gray-600">Coast FIRE (at age {fireMetrics.desiredCoastAge})</span>
+                        <span className="text-xs sm:text-sm font-medium">{formatCurrency(fireMetrics.coastFIRE)}</span>
                       </li>
                       <li className="flex justify-between">
-                        <span className="text-gray-600">Current Savings Rate</span>
-                        <span className="font-medium">{(fireMetrics.savingsRate * 100).toFixed(1)}%</span>
+                        <span className="text-xs sm:text-sm text-gray-600">Current Savings Rate</span>
+                        <span className="text-xs sm:text-sm font-medium">{(fireMetrics.savingsRate * 100).toFixed(1)}%</span>
                       </li>
                       <li className="flex justify-between">
-                        <span className="text-gray-600">Monthly SIP (Regular FIRE)</span>
-                        <span className="font-medium">{formatCurrency(fireMetrics.monthlyInvestmentNeeded)}</span>
+                        <span className="text-xs sm:text-sm text-gray-600">Monthly SIP (Regular FIRE)</span>
+                        <span className="text-xs sm:text-sm font-medium">{formatCurrency(fireMetrics.monthlyInvestmentNeeded)}</span>
                       </li>
                       <li className="flex justify-between">
-                        <span className="text-gray-600">Monthly SIP (Coast FIRE)</span>
-                        <span className="font-medium">{formatCurrency(fireMetrics.coastMonthlyInvestmentNeeded)}</span>
+                        <span className="text-xs sm:text-sm text-gray-600">Monthly SIP (Coast FIRE)</span>
+                        <span className="text-xs sm:text-sm font-medium">{formatCurrency(fireMetrics.coastMonthlyInvestmentNeeded)}</span>
                       </li>
                     </ul>
                   </div>
                 </div>
-                <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
-                    <h3 className="font-medium text-blue-800 mb-2">FIRE Timeline Insights</h3>
-                    <p className="text-sm text-blue-700">
-                      With your current savings rate of <span className="font-bold">{(fireMetrics.savingsRate * 100).toFixed(1)}%</span>, you could achieve financial independence in approximately <span className="font-bold">{fireMetrics.yearsToFIRE.toFixed(1)} years</span>. 
+                <div className="mt-4 md:mt-6 grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                  <div className="p-3 md:p-4 bg-blue-50 rounded-lg border border-blue-100">
+                    <h3 className="text-sm sm:text-base font-medium text-blue-800 mb-2">FIRE Timeline Insights</h3>
+                    <p className="text-xs sm:text-sm text-blue-700">
+                      With your current savings rate of <span className="font-bold">{(fireMetrics.savingsRate * 100).toFixed(1)}%</span>, you could achieve financial independence in approximately <span className="font-bold">{fireMetrics.yearsToFIRE.toFixed(1)} years</span>.
                       Increasing your monthly SIP to {formatCurrency(fireMetrics.monthlyInvestmentNeeded * 1.2)} could reduce this timeline by about {Math.max(1, Math.floor(fireMetrics.yearsToFIRE * 0.2))} years.
                     </p>
                   </div>
-                  <div className="p-4 bg-amber-50 rounded-lg border border-amber-100">
-                    <h3 className="font-medium text-amber-800 mb-2">Coast FIRE Strategy</h3>
-                    <p className="text-sm text-amber-700">
-                      If you save {formatIndianCurrency(fireMetrics.coastFIRE)} by age {fireMetrics.desiredCoastAge}, you could potentially stop adding to investments and only cover your expenses until retirement. 
+                  <div className="p-3 md:p-4 bg-amber-50 rounded-lg border border-amber-100">
+                    <h3 className="text-sm sm:text-base font-medium text-amber-800 mb-2">Coast FIRE Strategy</h3>
+                    <p className="text-xs sm:text-sm text-amber-700">
+                      If you save {formatIndianCurrency(fireMetrics.coastFIRE)} by age {fireMetrics.desiredCoastAge}, you could potentially stop adding to investments and only cover your expenses until retirement.
                       Your investments would continue growing at an assumed 5% annually (conservative) to reach your FIRE number of {formatIndianCurrency(fireMetrics.requiredCorpus)} by age {fireMetrics.retirementAge}.
                     </p>
                   </div>
@@ -777,21 +781,21 @@ export default function FIRECalculator() {
             </Card>
 
             {/* 4 FIRE SCENARIOS SECTION */}
-            <div className="lg:col-span-3 mt-8" id="fire-scenarios">
-              <div className="text-center mb-8">
-                <h2 className="text-4xl font-extrabold bg-gradient-to-r from-orange-600 via-red-600 to-pink-600 bg-clip-text text-transparent mb-3">
+            <div className="lg:col-span-3 mt-6 md:mt-8" id="fire-scenarios">
+              <div className="text-center mb-6 md:mb-8">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-orange-600 via-red-600 to-pink-600 bg-clip-text text-transparent mb-2 md:mb-3">
                   🔥 Your 4 FIRE Scenarios
                 </h2>
-                <p className="text-lg font-semibold text-gray-700 mb-2">
+                <p className="text-base sm:text-lg font-semibold text-gray-700 mb-2">
                   Discover Your Path to Financial Freedom
                 </p>
-                <p className="text-sm text-gray-600 max-w-3xl mx-auto">
+                <p className="text-xs sm:text-sm text-gray-600 max-w-3xl mx-auto px-4">
                   Four personalized scenarios showing exactly when and how you can achieve Financial Independence.
                   Each scenario is tailored to your unique financial situation and goals.
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4">
                 {/* Scenario 1: RETIRE NOW */}
                 {(() => {
                   const currentAge = financialData?.personalInfo.age || 30;
@@ -807,16 +811,16 @@ export default function FIRECalculator() {
 
                   return (
                     <Card className="border-2 border-orange-400 hover:border-orange-500 bg-gradient-to-br from-orange-50 to-amber-50 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                      <CardHeader className="pb-2 pt-4 bg-gradient-to-r from-orange-100 to-amber-100 border-b-2 border-orange-200">
+                      <CardHeader className="pb-2 pt-3 md:pt-4 p-3 md:p-4 bg-gradient-to-r from-orange-100 to-amber-100 border-b-2 border-orange-200">
                         <div className="flex items-center justify-between">
-                          <CardTitle className="text-lg font-bold text-orange-900 flex items-center gap-2">
-                            <span className="text-2xl">🏖️</span>
+                          <CardTitle className="text-base sm:text-lg font-bold text-orange-900 flex items-center gap-1 sm:gap-2">
+                            <span className="text-xl sm:text-2xl">🏖️</span>
                             <span>What if I RETIRE NOW?</span>
                           </CardTitle>
                           <InfoTooltip content="Imagine retiring today and living off your current savings until age 60. This scenario assumes your money grows slowly (just matching inflation at 6% per year), with no additional income. It answers: 'Can I stop working right now and still maintain my lifestyle?' This is your 'Coast FIRE' dream - the ultimate freedom test!" />
                         </div>
                       </CardHeader>
-                      <CardContent className="space-y-2 pt-2 pb-3">
+                      <CardContent className="space-y-2 pt-2 pb-3 p-3 md:p-4">
                         <div className="flex justify-between items-center py-1.5 px-2 bg-gray-50 rounded">
                           <span className="text-xs text-gray-600">Money Needed Today</span>
                           <span className="text-lg font-bold text-gray-900">₹{(totalExpensesTillRetirement / 10000000).toFixed(2)} Cr</span>
@@ -884,16 +888,16 @@ export default function FIRECalculator() {
 
                   return (
                     <Card className="border-2 border-blue-400 hover:border-blue-500 bg-gradient-to-br from-blue-50 to-cyan-50 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                      <CardHeader className="pb-2 pt-4 bg-gradient-to-r from-blue-100 to-cyan-100 border-b-2 border-blue-200">
+                      <CardHeader className="pb-2 pt-3 md:pt-4 p-3 md:p-4 bg-gradient-to-r from-blue-100 to-cyan-100 border-b-2 border-blue-200">
                         <div className="flex items-center justify-between">
-                          <CardTitle className="text-lg font-bold text-blue-900 flex items-center gap-2">
-                            <span className="text-2xl">⏰</span>
+                          <CardTitle className="text-base sm:text-lg font-bold text-blue-900 flex items-center gap-1 sm:gap-2">
+                            <span className="text-xl sm:text-2xl">⏰</span>
                             <span>When Can I RETIRE?</span>
                           </CardTitle>
                           <InfoTooltip content="Your personalized retirement timeline! This shows exactly when you can retire if you keep saving consistently. We factor in your increasing savings (as your income grows by 10% yearly) and conservative 6% investment returns. It answers: 'When will I have enough to never work again?' This is your countdown to freedom - the date that changes your life!" />
                         </div>
                       </CardHeader>
-                      <CardContent className="space-y-2 pt-2 pb-3">
+                      <CardContent className="space-y-2 pt-2 pb-3 p-3 md:p-4">
                         {canRetireEarly ? (
                           <div className="border border-green-400 bg-green-50 p-2 rounded text-center">
                             <p className="text-xs font-semibold text-green-900 mb-1">✨ Can retire in</p>
@@ -967,16 +971,16 @@ export default function FIRECalculator() {
 
                   return (
                     <Card className="border-2 border-purple-400 hover:border-purple-500 bg-gradient-to-br from-purple-50 to-pink-50 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                      <CardHeader className="pb-2 pt-4 bg-gradient-to-r from-purple-100 to-pink-100 border-b-2 border-purple-200">
+                      <CardHeader className="pb-2 pt-3 md:pt-4 p-3 md:p-4 bg-gradient-to-r from-purple-100 to-pink-100 border-b-2 border-purple-200">
                         <div className="flex items-center justify-between">
-                          <CardTitle className="text-lg font-bold text-purple-900 flex items-center gap-2">
-                            <span className="text-2xl">🎯</span>
+                          <CardTitle className="text-base sm:text-lg font-bold text-purple-900 flex items-center gap-1 sm:gap-2">
+                            <span className="text-xl sm:text-2xl">🎯</span>
                             <span>SUPPOSE I RETIRE at {supposeRetireAge}?</span>
                           </CardTitle>
                           <InfoTooltip content={`Your 'What-If' early retirement scenario! Ever dreamed of retiring at a specific age? This shows if you can hit FIRE at your target age (currently set to ${supposeRetireAge}). We calculate your wealth at that age with your growing savings and see if it covers your expenses till 60. It answers: 'Can I really retire at ${supposeRetireAge}?' This is your early retirement reality check - turn your dream age into an actionable plan!`} />
                         </div>
                       </CardHeader>
-                      <CardContent className="space-y-2 pt-2 pb-3">
+                      <CardContent className="space-y-2 pt-2 pb-3 p-3 md:p-4">
                         <div className="flex justify-between items-center py-1.5 px-2 bg-gray-50 rounded">
                           <div className="flex items-center gap-1">
                             <span className="text-xs text-gray-600">FIRE Need at {supposeRetireAge}</span>
@@ -1053,16 +1057,16 @@ export default function FIRECalculator() {
 
                   return (
                     <Card className="border-2 border-green-400 hover:border-green-500 bg-gradient-to-br from-green-50 to-emerald-50 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                      <CardHeader className="pb-2 pt-4 bg-gradient-to-r from-green-100 to-emerald-100 border-b-2 border-green-200">
+                      <CardHeader className="pb-2 pt-3 md:pt-4 p-3 md:p-4 bg-gradient-to-r from-green-100 to-emerald-100 border-b-2 border-green-200">
                         <div className="flex items-center justify-between">
-                          <CardTitle className="text-lg font-bold text-green-900 flex items-center gap-2">
-                            <span className="text-2xl">💰</span>
+                          <CardTitle className="text-base sm:text-lg font-bold text-green-900 flex items-center gap-1 sm:gap-2">
+                            <span className="text-xl sm:text-2xl">💰</span>
                             <span>My ACTUAL FIRE at {retirementAge}</span>
                           </CardTitle>
                           <InfoTooltip content={`Your complete financial independence picture at traditional retirement age (${retirementAge})! This is the most realistic scenario - it shows exactly how much wealth you'll have if you keep saving and investing consistently. We account for inflation eating away at your money and your rising income boosting your savings. It answers: 'Will I have enough at 60, and by how much?' This is your financial security scorecard - your peace of mind number!`} />
                         </div>
                       </CardHeader>
-                      <CardContent className="space-y-2 pt-2 pb-3">
+                      <CardContent className="space-y-2 pt-2 pb-3 p-3 md:p-4">
                         <div className="flex justify-between items-center py-1.5 px-2 bg-gray-50 rounded">
                           <div className="flex items-center gap-1">
                             <span className="text-xs text-gray-600">FIRE at {retirementAge}</span>
@@ -1119,11 +1123,11 @@ export default function FIRECalculator() {
           </div>
         )}
 
-        <div className="flex justify-between">
-          <Button variant="outline" onClick={() => navigate('/')}>
+        <div className="flex flex-col sm:flex-row justify-between gap-3 md:gap-4">
+          <Button variant="outline" onClick={() => navigate('/')} className="w-full sm:w-auto h-10 sm:h-9">
             Back to Home
           </Button>
-          <Button variant="outline" onClick={() => navigate('/enter-details')}>
+          <Button variant="outline" onClick={() => navigate('/enter-details')} className="w-full sm:w-auto h-10 sm:h-9">
             Update Financial Details
           </Button>
         </div>
