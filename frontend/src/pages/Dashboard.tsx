@@ -18,6 +18,7 @@ import { JourneyMapSimple } from '@/components/journey/JourneyMapSimple';
 import { UserJourneyState } from '@/components/journey/types';
 import { ActionItemsCard } from '@/components/ActionItemsCard';
 import { PortfolioHoldingsOverview } from '@/components/PortfolioHoldingsOverview';
+import { PortfolioSummaryCards } from '@/components/PortfolioSummaryCards';
 import { calculateNetWorth, calculateBasicFIRENumber } from '../utils/financialCalculations';
 import { isPremiumUser } from '../utils/premiumCheck';
 import { API_ENDPOINTS } from '@/config/api';
@@ -570,43 +571,10 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Portfolio Holdings Overview - Full Width */}
-        {(holdings.length > 0 || financialData) && (
+        {/* Portfolio Holdings Summary Cards - from Portfolio Page */}
+        {summary && holdings.length > 0 && (
           <div className="mb-6">
-            <PortfolioHoldingsOverview
-              holdings={holdings.length > 0 ? holdings : [
-                // Fallback to basic financial data if no detailed holdings
-                {
-                  id: '1',
-                  name: 'Equity Mutual Funds',
-                  type: 'equity',
-                  currentValue: financialData?.investments?.mutualFunds || 0,
-                  investedValue: (financialData?.investments?.mutualFunds || 0) * 0.85,
-                },
-                {
-                  id: '2',
-                  name: 'Fixed Deposits',
-                  type: 'debt',
-                  currentValue: financialData?.investments?.fixedDeposits || 0,
-                  investedValue: financialData?.investments?.fixedDeposits || 0,
-                },
-                {
-                  id: '3',
-                  name: 'Gold Holdings',
-                  type: 'gold',
-                  currentValue: financialData?.investments?.gold || 0,
-                  investedValue: (financialData?.investments?.gold || 0) * 0.92,
-                },
-                {
-                  id: '4',
-                  name: 'Real Estate',
-                  type: 'realestate',
-                  currentValue: financialData?.investments?.realEstate || 0,
-                  investedValue: (financialData?.investments?.realEstate || 0) * 0.88,
-                },
-              ].filter(h => h.currentValue > 0)}
-              totalValue={holdings.length > 0 ? summary.totalValue : calculateNetWorth(financialData)}
-            />
+            <PortfolioSummaryCards summary={summary} />
           </div>
         )}
 
