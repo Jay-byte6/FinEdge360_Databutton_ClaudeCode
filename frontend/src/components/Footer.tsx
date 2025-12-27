@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Shield, Lock, AlertTriangle, ExternalLink } from 'lucide-react';
+import { Shield, Lock, AlertTriangle, ExternalLink, Flame } from 'lucide-react';
 
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
@@ -12,26 +12,11 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-6">
           {/* Company Info */}
           <div>
-            <div className="mb-4">
-              <div className="relative overflow-hidden flex items-center justify-start" style={{ height: '80px', width: 'auto' }}>
-                <video
-                  src="/FIREMap.mp4"
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  className="h-32 md:h-36 w-auto"
-                  style={{
-                    objectFit: 'contain',
-                    filter: 'contrast(1.8) brightness(3) saturate(1.2) drop-shadow(0 0 8px rgba(255,255,255,0.3))',
-                    mixBlendMode: 'screen',
-                    transform: 'translateY(0)'
-                  }}
-                  aria-label="FIREMap - Your GPS to Financial Freedom"
-                />
-              </div>
+            <div className="flex items-center gap-2 mb-4">
+              <Flame className="w-8 h-8 text-emerald-500" />
+              <span className="text-2xl font-black text-white">FIRE<span className="text-emerald-500">Map</span></span>
             </div>
-            <p className="text-sm text-blue-300 font-medium mb-3 italic">Your GPS to Financial Freedom</p>
+            <p className="text-sm text-gray-400 mb-3">Your GPS to Financial Freedom</p>
             <p className="text-sm text-gray-300 mb-3">
               Your trusted educational financial planning tool for achieving Financial Independence
               and Retire Early (FIRE) goals.
