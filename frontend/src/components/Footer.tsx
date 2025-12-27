@@ -13,15 +13,23 @@ const Footer: React.FC = () => {
           {/* Company Info */}
           <div>
             <div className="mb-3">
-              <video
-                src="/FIREMap.mp4"
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="h-16 w-auto object-contain"
-                aria-label="FIREMap - Your GPS to Financial Freedom"
-              />
+              <div className="relative overflow-hidden flex items-center justify-center" style={{ height: '64px', width: 'auto' }}>
+                <video
+                  src="/FIREMap.mp4"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="h-24 md:h-28 w-auto"
+                  style={{
+                    objectFit: 'contain',
+                    filter: 'contrast(1.3) brightness(1.05)',
+                    mixBlendMode: 'darken',
+                    transform: 'translateY(0)'
+                  }}
+                  aria-label="FIREMap - Your GPS to Financial Freedom"
+                />
+              </div>
             </div>
             <p className="text-sm text-blue-300 font-medium mb-3 italic">Your GPS to Financial Freedom</p>
             <p className="text-sm text-gray-300 mb-3">

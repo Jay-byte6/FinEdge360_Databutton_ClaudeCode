@@ -231,15 +231,23 @@ export default function Login() {
             className="flex justify-center items-center mb-4 cursor-pointer"
             onClick={handleGoToHome}
           >
-            <video
-              src="/FIREMap.mp4"
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="h-32 md:h-40 w-auto object-contain"
-              aria-label="FIREMap - Your GPS to Financial Freedom"
-            />
+            <div className="relative overflow-hidden flex items-center justify-center" style={{ height: '120px', width: 'auto' }}>
+              <video
+                src="/FIREMap.mp4"
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="h-40 md:h-48 w-auto"
+                style={{
+                  objectFit: 'contain',
+                  filter: 'contrast(1.3) brightness(1.05)',
+                  mixBlendMode: 'darken',
+                  transform: 'translateY(0)'
+                }}
+                aria-label="FIREMap - Your GPS to Financial Freedom"
+              />
+            </div>
           </div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent mb-1">
             Welcome to FIREMap
