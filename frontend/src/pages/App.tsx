@@ -237,8 +237,7 @@ export default function App() {
               transition={{ delay: 0.4 }}
               className="text-xl text-gray-600 mb-8 max-w-3xl md:max-w-none mx-auto md:mx-0 leading-relaxed"
             >
-              <strong className="text-gray-900">Just clarity, control, and peace of mind.</strong><br />
-              Stop losing money in scams. Start building wealth the right way - safely and securely.
+              <strong className="text-gray-900">Just clarity, control, and peace of mind.</strong>
             </motion.p>
 
             <motion.div
