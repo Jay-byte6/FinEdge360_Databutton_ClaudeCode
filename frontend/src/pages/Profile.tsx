@@ -163,38 +163,38 @@ export default function Profile() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
-      <main className="container mx-auto max-w-6xl py-8 px-4">
+      <main className="container mx-auto max-w-6xl py-6 md:py-8 px-4">
         {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Your Profile</h1>
-          <p className="text-gray-600">View and manage your financial profile</p>
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-2">Your Profile</h1>
+          <p className="text-sm sm:text-base text-gray-600">View and manage your financial profile</p>
         </div>
 
         {/* User Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
           {/* Email Card */}
           <Card className="bg-white">
-            <CardHeader className="pb-3">
+            <CardHeader className="pb-3 p-4 md:p-6">
               <div className="flex items-center gap-2">
-                <Mail className="h-5 w-5 text-blue-600" />
-                <CardTitle className="text-lg">Email</CardTitle>
+                <Mail className="h-4 h-4 sm:h-5 sm:w-5 text-blue-600" />
+                <CardTitle className="text-base sm:text-lg">Email</CardTitle>
               </div>
             </CardHeader>
-            <CardContent>
-              <p className="text-gray-700">{user?.email || 'Not available'}</p>
+            <CardContent className="p-4 md:p-6 pt-0">
+              <p className="text-sm sm:text-base text-gray-700">{user?.email || 'Not available'}</p>
             </CardContent>
           </Card>
 
           {/* Age Card */}
           <Card className="bg-white">
-            <CardHeader className="pb-3">
+            <CardHeader className="pb-3 p-4 md:p-6">
               <div className="flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-green-600" />
-                <CardTitle className="text-lg">Age</CardTitle>
+                <Calendar className="h-4 h-4 sm:h-5 sm:w-5 text-green-600" />
+                <CardTitle className="text-base sm:text-lg">Age</CardTitle>
               </div>
             </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold text-gray-800">
+            <CardContent className="p-4 md:p-6 pt-0">
+              <p className="text-xl sm:text-2xl font-bold text-gray-800">
                 {financialData?.personalInfo?.age || '-'} years
               </p>
             </CardContent>
@@ -202,14 +202,14 @@ export default function Profile() {
 
           {/* Monthly Salary Card */}
           <Card className="bg-white">
-            <CardHeader className="pb-3">
+            <CardHeader className="pb-3 p-4 md:p-6">
               <div className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-teal-600" />
-                <CardTitle className="text-lg">Monthly Salary</CardTitle>
+                <TrendingUp className="h-4 h-4 sm:h-5 sm:w-5 text-teal-600" />
+                <CardTitle className="text-base sm:text-lg">Monthly Salary</CardTitle>
               </div>
             </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold text-gray-800">
+            <CardContent className="p-4 md:p-6 pt-0">
+              <p className="text-xl sm:text-2xl font-bold text-gray-800">
                 {financialData?.personalInfo?.monthlySalary
                   ? formatCurrency(financialData.personalInfo.monthlySalary)
                   : '-'}
@@ -219,14 +219,14 @@ export default function Profile() {
 
           {/* Monthly Expenses Card */}
           <Card className="bg-white">
-            <CardHeader className="pb-3">
+            <CardHeader className="pb-3 p-4 md:p-6">
               <div className="flex items-center gap-2">
-                <TrendingDown className="h-5 w-5 text-red-600" />
-                <CardTitle className="text-lg">Monthly Expenses</CardTitle>
+                <TrendingDown className="h-4 h-4 sm:h-5 sm:w-5 text-red-600" />
+                <CardTitle className="text-base sm:text-lg">Monthly Expenses</CardTitle>
               </div>
             </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold text-gray-800">
+            <CardContent className="p-4 md:p-6 pt-0">
+              <p className="text-xl sm:text-2xl font-bold text-gray-800">
                 {financialData?.personalInfo?.monthlyExpenses
                   ? formatCurrency(financialData.personalInfo.monthlyExpenses)
                   : '-'}
@@ -236,14 +236,14 @@ export default function Profile() {
 
           {/* Net Worth Card */}
           <Card className="bg-gradient-to-br from-green-50 to-teal-50 border-green-200">
-            <CardHeader className="pb-3">
+            <CardHeader className="pb-3 p-4 md:p-6">
               <div className="flex items-center gap-2">
-                <DollarSign className="h-5 w-5 text-green-600" />
-                <CardTitle className="text-lg">Net Worth</CardTitle>
+                <DollarSign className="h-4 h-4 sm:h-5 sm:w-5 text-green-600" />
+                <CardTitle className="text-base sm:text-lg">Net Worth</CardTitle>
               </div>
             </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold text-green-700">
+            <CardContent className="p-4 md:p-6 pt-0">
+              <p className="text-xl sm:text-2xl font-bold text-green-700">
                 {formatCurrency(netWorth)}
               </p>
             </CardContent>
@@ -252,21 +252,21 @@ export default function Profile() {
         </div>
 
         {/* 3 FIRE Scenarios Section */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Your FIRE Journey Scenarios 🎯</h2>
-          <p className="text-gray-600 mb-6">Three pathways to financial independence based on different strategies</p>
+        <div className="mb-6 md:mb-8">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 mb-3 md:mb-4">Your FIRE Journey Scenarios 🎯</h2>
+          <p className="text-sm sm:text-base text-gray-600 mb-4 md:mb-6">Three pathways to financial independence based on different strategies</p>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
             {/* FIRE #1: Coast FIRE - Retire Now */}
             <Card className="bg-gradient-to-br from-orange-50 to-amber-50 border-2 border-orange-300 shadow-lg">
-              <CardHeader className="pb-3">
+              <CardHeader className="pb-3 p-4 md:p-6">
                 <div className="flex items-center gap-2">
-                  <Target className="h-5 w-5 text-orange-600" />
-                  <CardTitle className="text-lg">🏖️ Coast FIRE</CardTitle>
+                  <Target className="h-4 h-4 sm:h-5 sm:w-5 text-orange-600" />
+                  <CardTitle className="text-base sm:text-lg">🏖️ Coast FIRE</CardTitle>
                 </div>
-                <p className="text-xs text-orange-700 mt-1">Retire NOW - Stop working today!</p>
+                <p className="text-xs sm:text-sm text-orange-700 mt-1">Retire NOW - Stop working today!</p>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-4 md:p-6 pt-0">
                 <div className="space-y-3">
                   <div>
                     <p className="text-sm text-gray-600">Corpus Needed Now:</p>
@@ -308,14 +308,14 @@ export default function Profile() {
 
             {/* FIRE #2: Conservative FIRE at 60 */}
             <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 border-2 border-blue-300 shadow-lg">
-              <CardHeader className="pb-3">
+              <CardHeader className="pb-3 p-4 md:p-6">
                 <div className="flex items-center gap-2">
-                  <Target className="h-5 w-5 text-blue-600" />
-                  <CardTitle className="text-lg">💼 Conservative FIRE</CardTitle>
+                  <Target className="h-4 h-4 sm:h-5 sm:w-5 text-blue-600" />
+                  <CardTitle className="text-base sm:text-lg">💼 Conservative FIRE</CardTitle>
                 </div>
-                <p className="text-xs text-blue-700 mt-1">Traditional retirement at 60</p>
+                <p className="text-xs sm:text-sm text-blue-700 mt-1">Traditional retirement at 60</p>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-4 md:p-6 pt-0">
                 <div className="space-y-3">
                   <div>
                     <p className="text-sm text-gray-600">Target Corpus at 60:</p>
@@ -359,14 +359,14 @@ export default function Profile() {
             {/* FIRE #3: Premium NEW FIRE */}
             <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-400 relative shadow-lg">
               <span className="absolute top-2 right-2 bg-green-600 text-white text-xs px-2 py-1 rounded-full font-bold z-10">PREMIUM</span>
-              <CardHeader className="pb-3">
+              <CardHeader className="pb-3 p-4 md:p-6">
                 <div className="flex items-center gap-2">
-                  <Target className="h-5 w-5 text-green-600" />
-                  <CardTitle className="text-lg">🚀 NEW FIRE</CardTitle>
+                  <Target className="h-4 h-4 sm:h-5 sm:w-5 text-green-600" />
+                  <CardTitle className="text-base sm:text-lg">🚀 NEW FIRE</CardTitle>
                 </div>
-                <p className="text-xs text-green-700 mt-1">Optimized portfolio strategy</p>
+                <p className="text-xs sm:text-sm text-green-700 mt-1">Optimized portfolio strategy</p>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-4 md:p-6 pt-0">
                 <div className="space-y-3">
                   <div>
                     <p className="text-sm text-gray-600">Target Corpus:</p>
@@ -416,15 +416,15 @@ export default function Profile() {
 
         {/* Risk Assessment Card */}
         {riskAnalysis && (
-          <Card className="bg-white mb-8">
-            <CardHeader>
+          <Card className="bg-white mb-6 md:mb-8">
+            <CardHeader className="p-4 md:p-6">
               <div className="flex items-center gap-2">
-                <Shield className="h-5 w-5 text-purple-600" />
-                <CardTitle>Risk Assessment</CardTitle>
+                <Shield className="h-4 h-4 sm:h-5 sm:w-5 text-purple-600" />
+                <CardTitle className="text-lg sm:text-xl">Risk Assessment</CardTitle>
               </div>
             </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <CardContent className="p-4 md:p-6 pt-0">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Risk Score</p>
                   <p className="text-3xl font-bold text-purple-700">
@@ -452,14 +452,14 @@ export default function Profile() {
 
         {/* Portfolio Allocation Card */}
         {portfolioAllocation && (
-          <Card className="bg-white mb-8">
-            <CardHeader>
+          <Card className="bg-white mb-6 md:mb-8">
+            <CardHeader className="p-4 md:p-6">
               <div className="flex items-center gap-2">
-                <PieChart className="h-5 w-5 text-indigo-600" />
-                <CardTitle>Current Portfolio Allocation</CardTitle>
+                <PieChart className="h-4 h-4 sm:h-5 sm:w-5 text-indigo-600" />
+                <CardTitle className="text-lg sm:text-xl">Current Portfolio Allocation</CardTitle>
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4 md:p-6 pt-0">
               <div className="space-y-3">
                 {Object.entries(portfolioAllocation).map(([category, percentage]) => (
                   <div key={category} className="flex items-center justify-between">
@@ -628,44 +628,44 @@ export default function Profile() {
         )}
 
         {/* Actions Section */}
-        <Card className="bg-white mb-8">
-          <CardHeader>
-            <CardTitle>Actions</CardTitle>
-            <CardDescription>Manage your profile and data</CardDescription>
+        <Card className="bg-white mb-6 md:mb-8">
+          <CardHeader className="p-4 md:p-6">
+            <CardTitle className="text-lg sm:text-xl">Actions</CardTitle>
+            <CardDescription className="text-sm sm:text-base">Manage your profile and data</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 p-4 md:p-6 pt-0">
             <Button
               onClick={handleDownloadPDF}
               disabled={isGeneratingPDF || !financialData}
-              className="w-full md:w-auto"
+              className="w-full sm:w-auto text-sm sm:text-base"
             >
-              <Download className="h-4 w-4 mr-2" />
+              <Download className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
               {isGeneratingPDF ? 'Generating PDF...' : 'Download Financial Profile PDF'}
             </Button>
           </CardContent>
         </Card>
 
         {/* Danger Zone */}
-        <Card className="bg-red-50 border-red-200 mb-8">
-          <CardHeader>
+        <Card className="bg-red-50 border-red-200 mb-6 md:mb-8">
+          <CardHeader className="p-4 md:p-6">
             <div className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-red-600" />
-              <CardTitle className="text-red-800">Danger Zone</CardTitle>
+              <AlertTriangle className="h-4 h-4 sm:h-5 sm:w-5 text-red-600" />
+              <CardTitle className="text-lg sm:text-xl text-red-800">Danger Zone</CardTitle>
             </div>
-            <CardDescription className="text-red-700">
+            <CardDescription className="text-sm sm:text-base text-red-700">
               Irreversible and destructive actions
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-4 md:p-6 pt-0">
             <Button
               variant="destructive"
               onClick={() => setShowDeleteDialog(true)}
-              className="w-full md:w-auto"
+              className="w-full sm:w-auto text-sm sm:text-base"
             >
-              <Trash2 className="h-4 w-4 mr-2" />
+              <Trash2 className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
               Delete Account
             </Button>
-            <p className="text-sm text-red-600 mt-2">
+            <p className="text-xs sm:text-sm text-red-600 mt-2">
               This will permanently delete your account and all associated data. This action cannot be undone.
             </p>
           </CardContent>

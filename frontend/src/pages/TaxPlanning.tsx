@@ -662,13 +662,13 @@ export default function TaxPlanning() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 py-8 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 py-6 md:py-8 px-4">
       <div className="container mx-auto max-w-6xl">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">Tax Planning</h1>
-          <p className="text-gray-600">Compare old and new tax regimes to optimize your tax benefits</p>
-          <div className="mt-3 p-3 bg-blue-50 border-l-4 border-blue-500 rounded">
-            <p className="text-sm font-medium text-blue-900">
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800">Tax Planning</h1>
+          <p className="text-sm sm:text-base text-gray-600 mt-1">Compare old and new tax regimes to optimize your tax benefits</p>
+          <div className="mt-3 p-3 md:p-4 bg-blue-50 border-l-4 border-blue-500 rounded">
+            <p className="text-xs sm:text-sm font-medium text-blue-900">
               Financial Year: 2025-26 (AY 2026-27) | As per Union Budget 2025 | Effective from: April 1, 2025
             </p>
             <p className="text-xs text-blue-700 mt-1">
@@ -680,14 +680,14 @@ export default function TaxPlanning() {
         {/* Guideline Box */}
         <GuidelineBox />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
           <Card className="lg:col-span-3 bg-white shadow-md">
-            <CardHeader>
-              <CardTitle>Income & Deductions</CardTitle>
-              <CardDescription>Enter your yearly income and applicable deductions to calculate tax liability</CardDescription>
+            <CardHeader className="p-4 md:p-6">
+              <CardTitle className="text-lg sm:text-xl">Income & Deductions</CardTitle>
+              <CardDescription className="text-sm sm:text-base">Enter your yearly income and applicable deductions to calculate tax liability</CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <CardContent className="p-4 md:p-6">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
                 <div className="lg:col-span-1 space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="yearly-income">Yearly Salary Income (₹)</Label>
@@ -814,9 +814,9 @@ export default function TaxPlanning() {
                   </div>
                   {/* End HRA Inputs Section */}
                   
-                  <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
-                    <h3 className="font-medium text-blue-800 mb-2">Tax Savings Insight</h3>
-                    <p className="text-sm text-blue-700">
+                  <div className="p-3 md:p-4 bg-blue-50 rounded-lg border border-blue-100">
+                    <h3 className="text-sm sm:text-base font-medium text-blue-800 mb-2">Tax Savings Insight</h3>
+                    <p className="text-xs sm:text-sm text-blue-700">
                       {moreBeneficialRegime === 'old' ? (
                         <>The <strong>Old Regime</strong> is more beneficial for you with <strong>{formatCurrency(potentialRefund)}</strong> in savings.</>
                       ) : (
@@ -826,12 +826,12 @@ export default function TaxPlanning() {
                   </div>
 
                   {/* Smart Tax-Saving Tips Section - Moved to Left Column */}
-                  <div className="mt-6" id="smart-tax-tips">
-                    <h4 className="text-lg font-semibold mb-3 text-gray-700">Smart Tax-Saving Tips</h4>
+                  <div className="mt-4 md:mt-6" id="smart-tax-tips">
+                    <h4 className="text-base sm:text-lg font-semibold mb-2 md:mb-3 text-gray-700">Smart Tax-Saving Tips</h4>
                     {activeTips.length > 0 ? (
                       <TaxTipsDisplay tips={activeTips} />
                     ) : (
-                      <p className="text-sm text-gray-500 italic">
+                      <p className="text-xs sm:text-sm text-gray-500 italic">
                         No specific smart tips based on your current entries. General advice is available on the right.
                       </p>
                     )}
@@ -1184,21 +1184,21 @@ export default function TaxPlanning() {
 
         {/* Tax Comparison Section */}
         <Tabs defaultValue={selectedRegime === 'compare' ? 'comparison' : selectedRegime} value={selectedRegime === 'compare' ? 'comparison' : selectedRegime}>
-          <TabsList className="grid w-full grid-cols-3 mb-6">
-            <TabsTrigger value="comparison" onClick={() => setSelectedRegime('compare')}>Comparison</TabsTrigger>
-            <TabsTrigger value="old" onClick={() => setSelectedRegime('old')}>Old Regime</TabsTrigger>
-            <TabsTrigger value="new" onClick={() => setSelectedRegime('new')}>New Regime</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3 mb-4 md:mb-6 text-xs sm:text-sm">
+            <TabsTrigger value="comparison" onClick={() => setSelectedRegime('compare')} className="text-xs sm:text-sm">Comparison</TabsTrigger>
+            <TabsTrigger value="old" onClick={() => setSelectedRegime('old')} className="text-xs sm:text-sm">Old Regime</TabsTrigger>
+            <TabsTrigger value="new" onClick={() => setSelectedRegime('new')} className="text-xs sm:text-sm">New Regime</TabsTrigger>
           </TabsList>
 
           {/* Comparison Tab */}
-          <TabsContent value="comparison" className="space-y-6">
+          <TabsContent value="comparison" className="space-y-4 md:space-y-6">
             <Card className="bg-white shadow-md" id="tax-regime-comparison">
-              <CardHeader>
-                <CardTitle>Tax Regime Comparison</CardTitle>
-                <CardDescription>Compare your tax liability under both regimes</CardDescription>
+              <CardHeader className="p-4 md:p-6">
+                <CardTitle className="text-lg sm:text-xl">Tax Regime Comparison</CardTitle>
+                <CardDescription className="text-sm sm:text-base">Compare your tax liability under both regimes</CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <CardContent className="p-4 md:p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                   <div>
                     <h3 className="font-medium text-gray-800 mb-4">Tax Comparison</h3>
                     <div className="h-64">
@@ -1507,25 +1507,25 @@ export default function TaxPlanning() {
         </Tabs>
 
         {/* General Tax-Saving Advice Section - MOVED TO BOTTOM */}
-        <div className="mt-8 pt-6 border-t border-gray-300">
-          <h4 className="text-lg font-semibold mb-3 text-gray-700">General Tax-Saving Advice</h4>
-          <div className="space-y-3">
+        <div className="mt-6 md:mt-8 pt-4 md:pt-6 border-t border-gray-300">
+          <h4 className="text-base sm:text-lg font-semibold mb-3 md:mb-4 text-gray-700">General Tax-Saving Advice</h4>
+          <div className="space-y-2 md:space-y-3">
             {generalTaxTips.map(tip => (
-              <Card key={tip.id} className="bg-slate-50 border-slate-200 p-4 shadow-sm hover:shadow-md transition-shadow">
-                <p className="text-sm text-slate-800">{tip.text}</p>
+              <Card key={tip.id} className="bg-slate-50 border-slate-200 p-3 md:p-4 shadow-sm hover:shadow-md transition-shadow">
+                <p className="text-xs sm:text-sm text-slate-800">{tip.text}</p>
               </Card>
             ))}
           </div>
         </div>
 
-        <div className="flex justify-between items-center mt-8 gap-4">
-          <Button variant="outline" onClick={() => navigate('/dashboard')}>
+        <div className="flex flex-col sm:flex-row justify-between items-center mt-6 md:mt-8 gap-3 md:gap-4">
+          <Button variant="outline" onClick={() => navigate('/dashboard')} className="w-full sm:w-auto">
             Back to Dashboard
           </Button>
           <Button
             onClick={handleSaveTaxPlan}
             disabled={isSaving || yearlyIncome <= 0}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
+            className="bg-blue-600 hover:bg-blue-700 text-white w-full sm:w-auto"
           >
             {isSaving ? 'Saving...' : '💾 Save Tax Plan'}
           </Button>

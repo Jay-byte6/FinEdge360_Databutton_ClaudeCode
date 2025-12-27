@@ -161,28 +161,28 @@ const Pricing: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-950 dark:via-blue-950 dark:to-indigo-950">
-      <div className="container mx-auto px-4 py-12 max-w-7xl">
+      <div className="container mx-auto px-4 py-8 md:py-12 max-w-7xl">
         {/* Hero Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-12"
+          className="text-center mb-8 md:mb-12"
         >
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.2 }}
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-full mb-6 shadow-lg"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-full mb-4 sm:mb-6 shadow-lg text-sm sm:text-base"
           >
-            <Sparkles className="w-5 h-5" />
+            <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
             <span className="font-semibold">Choose Your Financial Freedom Path</span>
           </motion.div>
 
-          <h1 className="text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-3 md:mb-4 bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent">
             Transparent Pricing
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto px-4">
             Start free, upgrade when ready. No hidden fees, cancel anytime.
           </p>
         </motion.div>
@@ -193,36 +193,36 @@ const Pricing: React.FC = () => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="mb-12"
+            className="mb-8 md:mb-12"
           >
             <Card className="border-2 border-yellow-400 bg-gradient-to-r from-yellow-50 to-orange-50 shadow-xl">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between flex-wrap gap-4">
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full">
-                      <Flame className="w-8 h-8 text-white" />
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
+                    <div className="p-2 sm:p-3 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full">
+                      <Flame className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
                     </div>
-                    <div>
-                      <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                    <div className="flex-1 sm:flex-none">
+                      <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 flex flex-wrap items-center gap-2">
                         FOUNDER50 - Lifetime Access
-                        <Badge className="bg-red-600 text-white">LIMITED</Badge>
+                        <Badge className="bg-red-600 text-white text-xs">LIMITED</Badge>
                       </h3>
-                      <p className="text-gray-700 font-medium">₹14,999 one-time • Never pay subscription fees again!</p>
+                      <p className="text-sm sm:text-base text-gray-700 font-medium">₹14,999 one-time • Never pay subscription fees again!</p>
                     </div>
                   </div>
                   <Button
                     onClick={() => handleSelectPlan('founder50', 'lifetime')}
                     size="lg"
-                    className="bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700 text-white font-bold shadow-lg"
+                    className="bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700 text-white font-bold shadow-lg w-full sm:w-auto text-sm sm:text-base"
                   >
                     Claim Your Spot
-                    <ArrowRight className="w-5 h-5 ml-2" />
+                    <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
                   </Button>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-4 mt-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 sm:mt-6">
                   <div>
-                    <p className="text-sm font-semibold text-gray-700 mb-2">Spots Remaining:</p>
+                    <p className="text-xs sm:text-sm font-semibold text-gray-700 mb-2">Spots Remaining:</p>
                     <SpotsMeter
                       totalSlots={founder50Stats.total_slots}
                       usedSlots={founder50Stats.used_slots}
@@ -230,7 +230,7 @@ const Pricing: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-gray-700 mb-2">Time Remaining:</p>
+                    <p className="text-xs sm:text-sm font-semibold text-gray-700 mb-2">Time Remaining:</p>
                     <CountdownTimer endDate={founder50Stats.end_date} />
                   </div>
                 </div>
@@ -241,7 +241,7 @@ const Pricing: React.FC = () => {
 
 
         {/* Pricing Cards */}
-        <div className="grid md:grid-cols-3 gap-8 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mb-8 md:mb-12">
           {plans.map((plan, index) => {
             const Icon = plan.icon;
             const price = plan.price.monthly;
@@ -256,7 +256,7 @@ const Pricing: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 * index, duration: 0.5 }}
                 whileHover={{ y: -8 }}
-                className={`relative ${plan.popular || plan.featured ? 'md:scale-105' : ''}`}
+                className={`relative ${plan.popular || plan.featured ? 'sm:col-span-2 lg:col-span-1 lg:scale-105' : ''}`}
               >
                 <Card className={`h-full border-2 ${
                   plan.featured
@@ -266,27 +266,27 @@ const Pricing: React.FC = () => {
                     : 'border-gray-200 shadow-lg'
                 }`}>
                   {(plan.popular || plan.featured) && (
-                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
-                      <Badge className={`px-4 py-1 ${
+                    <div className="absolute -top-3 sm:-top-4 left-1/2 -translate-x-1/2 z-10">
+                      <Badge className={`px-3 sm:px-4 py-1 ${
                         plan.featured
                           ? 'bg-gradient-to-r from-purple-600 to-pink-600'
                           : 'bg-gradient-to-r from-blue-600 to-cyan-600'
-                      } text-white text-sm font-bold shadow-lg`}>
+                      } text-white text-xs sm:text-sm font-bold shadow-lg`}>
                         {plan.featured ? '👑 BEST VALUE' : '⭐ ONE-TIME PAYMENT'}
                       </Badge>
                     </div>
                   )}
 
-                  <CardHeader className="space-y-4 pt-8">
-                    <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${plan.gradient} flex items-center justify-center shadow-lg`}>
-                      <Icon className="w-8 h-8 text-white" />
+                  <CardHeader className="space-y-3 sm:space-y-4 pt-6 sm:pt-8 p-4 sm:p-6">
+                    <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br ${plan.gradient} flex items-center justify-center shadow-lg`}>
+                      <Icon className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
                     </div>
 
                     <div>
-                      <CardTitle className="text-2xl font-bold text-gray-900">
+                      <CardTitle className="text-xl sm:text-2xl font-bold text-gray-900">
                         {plan.displayName}
                       </CardTitle>
-                      <CardDescription className="text-gray-600 mt-1">
+                      <CardDescription className="text-sm sm:text-base text-gray-600 mt-1">
                         {plan.tagline}
                       </CardDescription>
                     </div>
@@ -358,16 +358,16 @@ const Pricing: React.FC = () => {
                     </div>
                   </CardHeader>
 
-                  <CardContent className="space-y-6">
+                  <CardContent className="space-y-4 sm:space-y-6 p-4 sm:p-6">
                     {/* Features List */}
-                    <div className="space-y-3">
+                    <div className="space-y-2 sm:space-y-3">
                       {plan.features.map((feature, idx) => (
-                        <div key={idx} className="flex items-start gap-3">
+                        <div key={idx} className="flex items-start gap-2 sm:gap-3">
                           <div className={`mt-0.5 ${feature.included ? 'text-green-600' : 'text-gray-300'}`}>
-                            <Check className="w-5 h-5" />
+                            <Check className="w-4 h-4 sm:w-5 sm:h-5" />
                           </div>
                           <div className="flex items-center gap-2 flex-1">
-                            <span className={`text-sm ${feature.included ? 'text-gray-700' : 'text-gray-400'}`}>
+                            <span className={`text-xs sm:text-sm ${feature.included ? 'text-gray-700' : 'text-gray-400'}`}>
                               {feature.text}
                             </span>
                             {feature.comingSoon && (
@@ -383,7 +383,7 @@ const Pricing: React.FC = () => {
                     {/* CTA Button */}
                     <Button
                       onClick={() => handleSelectPlan(plan.id, isPremium ? 'lifetime' : 'monthly')}
-                      className={`w-full py-6 text-lg font-semibold ${
+                      className={`w-full py-5 sm:py-6 text-base sm:text-lg font-semibold ${
                         plan.featured
                           ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white'
                           : plan.popular
@@ -393,7 +393,7 @@ const Pricing: React.FC = () => {
                       variant={plan.buttonVariant || 'default'}
                     >
                       {plan.buttonText}
-                      <ArrowRight className="w-5 h-5 ml-2" />
+                      <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
                     </Button>
                   </CardContent>
                 </Card>
@@ -407,7 +407,7 @@ const Pricing: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
-          className="grid md:grid-cols-4 gap-6 mt-16"
+          className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mt-12 md:mt-16"
         >
           {[
             { icon: Shield, text: 'SEBI Registered Advisors', color: 'blue' },
@@ -418,12 +418,12 @@ const Pricing: React.FC = () => {
             <motion.div
               key={index}
               whileHover={{ scale: 1.05 }}
-              className="flex flex-col items-center text-center p-6 bg-white rounded-xl shadow-lg"
+              className="flex flex-col items-center text-center p-4 sm:p-6 bg-white rounded-xl shadow-lg"
             >
-              <div className={`w-12 h-12 rounded-full bg-${item.color}-100 flex items-center justify-center mb-3`}>
-                <item.icon className={`w-6 h-6 text-${item.color}-600`} />
+              <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-${item.color}-100 flex items-center justify-center mb-2 sm:mb-3`}>
+                <item.icon className={`w-5 h-5 sm:w-6 sm:h-6 text-${item.color}-600`} />
               </div>
-              <p className="font-semibold text-gray-900">{item.text}</p>
+              <p className="text-sm sm:text-base font-semibold text-gray-900">{item.text}</p>
             </motion.div>
           ))}
         </motion.div>

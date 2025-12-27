@@ -87,26 +87,27 @@ export const GoogleMapsJourney: React.FC<GoogleMapsJourneyProps> = ({ journeySta
     <div className="relative w-full min-h-screen bg-gradient-to-b from-blue-50 via-white to-emerald-50 overflow-hidden">
       {/* Header */}
       <div className="relative z-30 bg-white shadow-md border-b-2 border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 md:py-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
             <div>
-              <h1 className="text-3xl font-black text-gray-900 flex items-center gap-3">
-                <Navigation className="w-8 h-8 text-blue-600" />
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-gray-900 flex items-center gap-2 sm:gap-3">
+                <Navigation className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600" />
                 Financial Freedom Journey
               </h1>
-              <p className="text-gray-600 mt-1">
+              <p className="text-sm sm:text-base text-gray-600 mt-1">
                 Milestone {journeyState.currentMilestone} of {MILESTONES.length} • {journeyState.financialFreedomProgress}% Complete
               </p>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setFocusedMilestone(journeyState.currentMilestone)}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg font-bold shadow-lg hover:bg-blue-700 flex items-center gap-2"
+                className="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg font-bold shadow-lg hover:bg-blue-700 flex items-center gap-2 text-sm sm:text-base w-full sm:w-auto justify-center"
               >
-                <Zap className="w-4 h-4" />
-                Focus on Current
+                <Zap className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="hidden sm:inline">Focus on Current</span>
+                <span className="sm:hidden">Focus</span>
               </motion.button>
             </div>
           </div>
@@ -114,14 +115,14 @@ export const GoogleMapsJourney: React.FC<GoogleMapsJourneyProps> = ({ journeySta
       </div>
 
       {/* Guidance Card */}
-      <div className="relative z-20 max-w-7xl mx-auto px-6 pt-4">
+      <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 pt-3 md:pt-4">
         <Card className="bg-gradient-to-r from-teal-50 to-cyan-50 border-2 border-teal-300">
-          <CardContent className="py-3">
-            <div className="flex items-start gap-3">
-              <Info className="w-5 h-5 text-teal-600 flex-shrink-0 mt-0.5" />
+          <CardContent className="py-3 sm:py-4">
+            <div className="flex items-start gap-2 sm:gap-3">
+              <Info className="w-4 h-4 sm:w-5 sm:h-5 text-teal-600 flex-shrink-0 mt-0.5" />
               <div>
-                <h3 className="font-semibold text-teal-900 mb-1">Your Journey to Financial Freedom</h3>
-                <p className="text-sm text-teal-700">
+                <h3 className="text-sm sm:text-base font-semibold text-teal-900 mb-1">Your Journey to Financial Freedom</h3>
+                <p className="text-xs sm:text-sm text-teal-700">
                   This map shows your progress through 7 key milestones from financial stability to complete
                   independence. Complete each milestone to unlock the next step in your journey!
                 </p>
@@ -427,26 +428,26 @@ export const GoogleMapsJourney: React.FC<GoogleMapsJourneyProps> = ({ journeySta
       </div>
 
       {/* Legend - Fixed at bottom */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-30">
-        <div className="bg-white rounded-xl shadow-xl p-4 border-2 border-gray-200">
-          <div className="flex items-center gap-8">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-green-600 shadow-lg flex items-center justify-center">
-                <CheckCircle className="w-4 h-4 text-white" />
+      <div className="fixed bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-30 w-[95%] sm:w-auto">
+        <div className="bg-white rounded-xl shadow-xl p-3 sm:p-4 border-2 border-gray-200">
+          <div className="flex items-center justify-center gap-4 sm:gap-8">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-emerald-500 to-green-600 shadow-lg flex items-center justify-center">
+                <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
               </div>
-              <span className="text-sm font-bold text-gray-800">Completed</span>
+              <span className="text-xs sm:text-sm font-bold text-gray-800">Completed</span>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 shadow-lg flex items-center justify-center">
-                <MapPin className="w-4 h-4 text-white fill-white" />
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 shadow-lg flex items-center justify-center">
+                <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-white fill-white" />
               </div>
-              <span className="text-sm font-bold text-gray-800">Current</span>
+              <span className="text-xs sm:text-sm font-bold text-gray-800">Current</span>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-400 to-gray-600 shadow-lg flex items-center justify-center">
-                <Lock className="w-3 h-3 text-white" />
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-gray-400 to-gray-600 shadow-lg flex items-center justify-center">
+                <Lock className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" />
               </div>
-              <span className="text-sm font-bold text-gray-800">Locked</span>
+              <span className="text-xs sm:text-sm font-bold text-gray-800">Locked</span>
             </div>
           </div>
         </div>
