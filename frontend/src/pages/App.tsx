@@ -896,6 +896,167 @@ export default function App() {
         </div>
       </section>
 
+      {/* We Sell Peace of Mind Section */}
+      <section className="py-20 bg-gradient-to-br from-gray-900 to-gray-800 text-white">
+        <div className="container mx-auto px-4 max-w-5xl text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <div className="mb-8">
+              <div className="inline-flex items-center gap-3 bg-emerald-600 px-8 py-4 rounded-2xl mb-6">
+                <Heart className="w-8 h-8" />
+                <span className="text-2xl font-black">Our Promise</span>
+              </div>
+            </div>
+
+            <h2 className="text-5xl md:text-6xl font-black mb-8 leading-tight">
+              We Sell <span className="text-emerald-400">Peace of Mind</span>
+            </h2>
+
+            <p className="text-2xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
+              Not just calculators and charts. We provide the clarity, confidence, and control you need to sleep peacefully knowing your financial future is secure.
+            </p>
+
+            <div className="grid md:grid-cols-3 gap-8">
+              {[
+                {
+                  icon: <Lightbulb className="w-8 h-8" />,
+                  title: "Clarity",
+                  desc: "Know exactly where you stand and where you're going"
+                },
+                {
+                  icon: <Shield className="w-8 h-8" />,
+                  title: "Control",
+                  desc: "Take charge of your financial decisions with confidence"
+                },
+                {
+                  icon: <Heart className="w-8 h-8" />,
+                  title: "Peace of Mind",
+                  desc: "Sleep well knowing you have a solid plan for your future"
+                }
+              ].map((item, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1 }}
+                  className="bg-white/10 backdrop-blur-md rounded-2xl p-8 hover:bg-white/20 transition-all"
+                >
+                  <div className="text-emerald-400 mb-4 flex justify-center">
+                    {item.icon}
+                  </div>
+                  <h3 className="text-2xl font-bold mb-3">{item.title}</h3>
+                  <p className="text-gray-300">{item.desc}</p>
+                </motion.div>
+              ))}
+            </div>
+
+            <div className="mt-12 p-8 bg-emerald-600 rounded-2xl">
+              <p className="text-2xl font-bold mb-2">
+                Because your peace of mind is priceless.
+              </p>
+              <p className="text-xl text-emerald-100">
+                And right now, it's completely FREE for early adopters.
+              </p>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Expert Team Section */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4 max-w-6xl">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-black mb-4 text-gray-900">
+              Meet Your Expert Advisory Team
+            </h2>
+            <p className="text-xl text-gray-600">
+              SEBI-registered professionals guiding you to financial freedom
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                name: "CA Rajesh Kumar",
+                role: "Chief Financial Advisor",
+                credentials: "SEBI RIA • CA • CFP",
+                experience: "15+ years",
+                expertise: "Tax Planning & Wealth Management",
+                image: "👨‍💼"
+              },
+              {
+                name: "Priya Sharma",
+                role: "Investment Strategist",
+                credentials: "SEBI RIA • CFA Level 3",
+                experience: "12+ years",
+                expertise: "Portfolio Management & Asset Allocation",
+                image: "👩‍💼"
+              },
+              {
+                name: "Amit Patel",
+                role: "FIRE Coach",
+                credentials: "SEBI RIA • Certified Financial Planner",
+                experience: "10+ years",
+                expertise: "Early Retirement Planning & Goal Setting",
+                image: "👨‍🏫"
+              }
+            ].map((expert, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                className="bg-gradient-to-br from-emerald-50 to-white rounded-2xl p-8 border-2 border-emerald-200 hover:shadow-xl transition-all text-center"
+              >
+                <div className="text-7xl mb-4">{expert.image}</div>
+                <h3 className="text-2xl font-bold mb-2 text-gray-900">{expert.name}</h3>
+                <p className="text-emerald-600 font-semibold mb-3">{expert.role}</p>
+
+                <div className="space-y-2 mb-4">
+                  <div className="inline-flex items-center gap-2 bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-sm font-semibold">
+                    <Award className="w-4 h-4" />
+                    {expert.credentials}
+                  </div>
+                  <p className="text-gray-600 text-sm font-medium">{expert.experience} Experience</p>
+                </div>
+
+                <div className="pt-4 border-t border-emerald-200">
+                  <p className="text-sm font-semibold text-gray-700 mb-1">Specialization</p>
+                  <p className="text-gray-600 text-sm">{expert.expertise}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mt-12 text-center bg-emerald-50 rounded-2xl p-8 border-2 border-emerald-200"
+          >
+            <h3 className="text-2xl font-bold mb-4 text-gray-900">
+              Book Your FREE 45-Minute Consultation
+            </h3>
+            <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
+              Get personalized advice from SEBI-registered experts. Worth ₹5,000 - completely FREE for all users.
+            </p>
+            <Button
+              onClick={handleBookConsultation}
+              size="lg"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-lg px-10 py-6"
+            >
+              <Phone className="w-5 h-5 mr-2" />
+              Schedule Your Free Consultation
+            </Button>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Pricing */}
       <section id="pricing" className="py-20 bg-gradient-to-br from-emerald-600 to-teal-600 text-white">
         <div className="container mx-auto px-4 max-w-4xl">
