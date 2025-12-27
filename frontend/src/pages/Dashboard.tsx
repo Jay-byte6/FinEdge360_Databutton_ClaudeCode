@@ -624,6 +624,9 @@ export default function Dashboard() {
                 goalsOnTrack={goalsOnTrack}
                 totalGoals={goals.length}
                 isPremium={isPremium}
+                portfolioValue={summary?.current_value}
+                portfolioProfit={summary?.total_profit}
+                portfolioReturn={summary?.overall_return}
               />
 
               <PremiumGoalRoadmap

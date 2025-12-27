@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { TrendingUp, TrendingDown, Target, CheckCircle2, AlertTriangle, ArrowRight, Sparkles } from 'lucide-react';
+import { TrendingUp, TrendingDown, Target, CheckCircle2, AlertTriangle, ArrowRight, Sparkles, Briefcase } from 'lucide-react';
 import { LockedFeatureOverlay } from './LockedFeatureOverlay';
 
 interface DailyInsightsCardProps {
@@ -13,6 +13,11 @@ interface DailyInsightsCardProps {
   goalsOnTrack: number; // Number of goals on track
   totalGoals: number; // Total number of goals
   isPremium: boolean;
+  // Portfolio data
+  portfolioValue?: number; // Current portfolio value
+  portfolioProfit?: number; // Total profit/loss
+  portfolioReturn?: number; // Return percentage
+  portfolioChange?: number; // Daily change in portfolio value
 }
 
 const formatCurrency = (amount: number) => {
@@ -28,13 +33,19 @@ export const DailyInsightsCard: React.FC<DailyInsightsCardProps> = ({
   totalGoalsProgress,
   goalsOnTrack,
   totalGoals,
-  isPremium
+  isPremium,
+  portfolioValue,
+  portfolioProfit,
+  portfolioReturn,
+  portfolioChange
 }) => {
   const navigate = useNavigate();
 
   const isPositiveChange = netWorthChange !== undefined && netWorthChange >= 0;
   const allGoalsOnTrack = goalsOnTrack === totalGoals && totalGoals > 0;
   const coastFIREProgress = coastFIRE && coastFIRE > 0 ? (netWorth / coastFIRE) * 100 : 0;
+  const isPortfolioPositive = portfolioProfit !== undefined && portfolioProfit >= 0;
+  const isPortfolioDailyPositive = portfolioChange !== undefined && portfolioChange >= 0;
 
   return (
     <Card className="relative">
@@ -96,6 +107,62 @@ export const DailyInsightsCard: React.FC<DailyInsightsCardProps> = ({
             </div>
           )}
         </div>
+
+        {/* Portfolio Holdings Overview */}
+        {portfolioValue !== undefined && portfolioValue > 0 && (
+          <div
+            onClick={() => isPremium && navigate('/portfolio')}
+            className={`p-4 rounded-lg bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-200 ${
+              isPremium ? 'cursor-pointer hover:shadow-md transition-shadow' : ''
+            }`}
+          >
+            <div className="flex items-start justify-between mb-2">
+              <div>
+                <p className="text-sm text-gray-600 font-medium">Your Portfolio Value</p>
+                <p className="text-2xl font-bold text-gray-900">{formatCurrency(portfolioValue)}</p>
+              </div>
+              <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                <Briefcase className="h-5 w-5 text-indigo-600" />
+              </div>
+            </div>
+
+            {/* Portfolio Returns */}
+            {portfolioProfit !== undefined && (
+              <div className="mb-2">
+                <div className="flex items-center gap-2 text-sm">
+                  {isPortfolioPositive ? (
+                    <TrendingUp className="h-4 w-4 text-green-600" />
+                  ) : (
+                    <TrendingDown className="h-4 w-4 text-red-600" />
+                  )}
+                  <span className={isPortfolioPositive ? 'text-green-700 font-medium' : 'text-red-700 font-medium'}>
+                    {isPortfolioPositive ? '+' : ''}{formatCurrency(Math.abs(portfolioProfit))}
+                  </span>
+                  {portfolioReturn !== undefined && (
+                    <span className={`text-sm font-semibold ${isPortfolioPositive ? 'text-green-700' : 'text-red-700'}`}>
+                      ({isPortfolioPositive ? '+' : ''}{portfolioReturn.toFixed(2)}%)
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Daily Change */}
+            {portfolioChange !== undefined && portfolioChange !== 0 && (
+              <div className="flex items-center gap-1 text-xs pt-2 border-t border-indigo-200">
+                {isPortfolioDailyPositive ? (
+                  <TrendingUp className="h-3 w-3 text-green-600" />
+                ) : (
+                  <TrendingDown className="h-3 w-3 text-red-600" />
+                )}
+                <span className={isPortfolioDailyPositive ? 'text-green-600 font-medium' : 'text-red-600 font-medium'}>
+                  {isPortfolioDailyPositive ? '+' : ''}{formatCurrency(Math.abs(portfolioChange))}
+                </span>
+                <span className="text-gray-500">today</span>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Coast FIRE Number */}
         {coastFIRE !== undefined && coastFIRE > 0 && (
