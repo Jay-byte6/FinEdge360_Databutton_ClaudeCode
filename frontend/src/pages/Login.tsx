@@ -59,8 +59,11 @@ export default function Login() {
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      console.log('User is authenticated, redirecting to dashboard');
-      navigate("/dashboard");
+      // Check for redirect parameter in URL
+      const searchParams = new URLSearchParams(window.location.search);
+      const redirectPath = searchParams.get('redirect') || '/dashboard';
+      console.log('User is authenticated, redirecting to:', redirectPath);
+      navigate(redirectPath);
     }
   }, [isAuthenticated, navigate]);
 
