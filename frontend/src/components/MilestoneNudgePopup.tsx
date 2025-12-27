@@ -210,22 +210,26 @@ export const MilestoneNudgePopup: React.FC<MilestoneNudgePopupProps> = ({
             </div>
           )}
 
-          {/* Milestone Icon & Title */}
-          <div className="flex items-center gap-3 mb-2">
+          {/* Next Step Header */}
+          <div className="mb-3">
+            <p className="text-xs font-bold text-blue-600 uppercase tracking-wide">
+              Your Next Step (Milestone {nextMilestoneNumber}/10)
+            </p>
+          </div>
+
+          {/* Action Focus - Make it prominent */}
+          <div className="flex items-center gap-3 mb-3">
             <div className={`p-3 rounded-full bg-gradient-to-br ${milestone.color}`}>
               <Icon className="h-6 w-6 text-white" />
             </div>
             <div className="flex-1">
-              <DialogTitle className="text-xl font-bold">
-                Milestone {nextMilestoneNumber}/10
+              <DialogTitle className="text-2xl font-black text-gray-900">
+                {milestone.action}
               </DialogTitle>
-              <p className="text-lg font-semibold text-gray-800 mt-1">
-                {milestone.title}
-              </p>
             </div>
           </div>
 
-          <DialogDescription className="text-base text-gray-600">
+          <DialogDescription className="text-base text-gray-700 font-medium mb-2">
             {milestone.description}
           </DialogDescription>
         </DialogHeader>
@@ -268,7 +272,7 @@ export const MilestoneNudgePopup: React.FC<MilestoneNudgePopupProps> = ({
           <Button
             variant="outline"
             onClick={handleRemindLater}
-            className="w-full sm:w-auto"
+            className="w-full sm:w-auto order-2 sm:order-1"
           >
             Remind Me Later
           </Button>
@@ -276,17 +280,16 @@ export const MilestoneNudgePopup: React.FC<MilestoneNudgePopupProps> = ({
             <Button
               variant="ghost"
               onClick={onDismissForever}
-              className="w-full sm:w-auto text-xs text-gray-500"
+              className="w-full sm:w-auto text-xs text-gray-500 order-3 sm:order-2"
             >
               Don't Show Again
             </Button>
           )}
           <Button
             onClick={handleTakeAction}
-            className={`w-full sm:w-auto bg-gradient-to-r ${milestone.color} hover:opacity-90 text-white font-semibold`}
+            className={`w-full sm:w-auto bg-gradient-to-r ${milestone.color} hover:opacity-90 text-white font-bold text-base py-6 order-1 sm:order-3`}
           >
-            {milestone.action}
-            <ArrowRight className="h-4 w-4 ml-2" />
+            {milestone.action} →
           </Button>
         </DialogFooter>
       </DialogContent>
