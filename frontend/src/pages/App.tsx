@@ -466,13 +466,31 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-white">
+      {/* Running Announcement Banner */}
+      <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 text-white py-2 px-4 overflow-hidden">
+        <motion.div
+          animate={{ x: ["100%", "-100%"] }}
+          transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+          className="whitespace-nowrap text-sm md:text-base font-semibold"
+        >
+          🎉 LIMITED TIME OFFER: Worth ₹9,999/year - 100% FREE for First 5,000 Users! • Only 277 Spots Remaining • SEBI Compliant • Bank-Grade Security • Join 4,723 Smart Investors Now! 🎉
+        </motion.div>
+      </div>
+
       {/* Top Nav Bar */}
       <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-sm">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Flame className="w-8 h-8 text-emerald-600" />
-              <span className="text-2xl font-black text-gray-900">FIRE<span className="text-emerald-600">Map</span></span>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Flame className="w-8 h-8 text-emerald-600" />
+                <span className="text-2xl font-black text-gray-900">FIRE<span className="text-emerald-600">Map</span></span>
+              </div>
+              {/* SEBI Badge in Nav */}
+              <div className="hidden lg:flex items-center gap-2 px-3 py-1 bg-green-50 border border-green-200 rounded-full">
+                <Shield className="w-4 h-4 text-green-600" />
+                <span className="text-xs font-bold text-green-700">SEBI Compliant</span>
+              </div>
             </div>
 
             {/* Desktop Menu */}
@@ -632,6 +650,101 @@ export default function App() {
                 <div className="text-sm md:text-base text-emerald-100 font-medium">{stat.label}</div>
               </motion.div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SEBI Trust & Security Section */}
+      <section className="py-16 bg-white border-y-4 border-green-500">
+        <div className="container mx-auto px-4 max-w-6xl">
+          <div className="text-center mb-12">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              className="inline-flex items-center gap-3 bg-green-50 border-2 border-green-500 rounded-2xl px-8 py-4 mb-6"
+            >
+              <Shield className="w-12 h-12 text-green-600" />
+              <div className="text-left">
+                <div className="text-2xl font-black text-green-700">SEBI COMPLIANT</div>
+                <div className="text-sm text-green-600">Regulated & Trustworthy</div>
+              </div>
+            </motion.div>
+            <h2 className="text-3xl md:text-4xl font-black mb-4 text-gray-900">
+              Your Safety is Our Priority
+            </h2>
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+              Bank-grade security, regulatory compliance, and complete data protection
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="bg-gradient-to-br from-green-50 to-white rounded-2xl p-6 border-2 border-green-200 text-center"
+            >
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Shield className="w-8 h-8 text-green-600" />
+              </div>
+              <h3 className="text-xl font-bold mb-3 text-gray-900">SEBI Compliant</h3>
+              <p className="text-gray-600 text-sm leading-relaxed">
+                All financial recommendations follow SEBI guidelines. Expert consultations provided by SEBI-registered investment advisors only.
+              </p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="bg-gradient-to-br from-blue-50 to-white rounded-2xl p-6 border-2 border-blue-200 text-center"
+            >
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Lock className="w-8 h-8 text-blue-600" />
+              </div>
+              <h3 className="text-xl font-bold mb-3 text-gray-900">256-Bit Encryption</h3>
+              <p className="text-gray-600 text-sm leading-relaxed">
+                Bank-grade 256-bit AES encryption protects all your data. AWS servers in India comply with RBI data localization norms.
+              </p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+              className="bg-gradient-to-br from-purple-50 to-white rounded-2xl p-6 border-2 border-purple-200 text-center"
+            >
+              <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Eye className="w-8 h-8 text-purple-600" />
+              </div>
+              <h3 className="text-xl font-bold mb-3 text-gray-900">Zero Data Sharing</h3>
+              <p className="text-gray-600 text-sm leading-relaxed">
+                We NEVER share your data with third parties. No product commissions mean completely unbiased advice focused on YOUR goals.
+              </p>
+            </motion.div>
+          </div>
+
+          {/* Additional Trust Badges */}
+          <div className="mt-10 flex flex-wrap justify-center gap-6">
+            <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-lg border border-gray-200">
+              <CheckCircle2 className="w-5 h-5 text-green-600" />
+              <span className="text-sm font-semibold text-gray-700">RBI Compliant Servers</span>
+            </div>
+            <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-lg border border-gray-200">
+              <CheckCircle2 className="w-5 h-5 text-green-600" />
+              <span className="text-sm font-semibold text-gray-700">Third-Party Audited</span>
+            </div>
+            <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-lg border border-gray-200">
+              <CheckCircle2 className="w-5 h-5 text-green-600" />
+              <span className="text-sm font-semibold text-gray-700">2FA Available</span>
+            </div>
+            <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-lg border border-gray-200">
+              <CheckCircle2 className="w-5 h-5 text-green-600" />
+              <span className="text-sm font-semibold text-gray-700">Data Export Anytime</span>
+            </div>
           </div>
         </div>
       </section>
