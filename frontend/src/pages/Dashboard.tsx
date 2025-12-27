@@ -26,6 +26,7 @@ import { PrelaunchOfferBanner } from '@/components/PrelaunchOfferBanner';
 import { MilestoneNudgePopup } from '@/components/MilestoneNudgePopup';
 import { MilestoneCelebration } from '@/components/MilestoneCelebration';
 import { useJourneyNudge } from '@/hooks/useJourneyNudge';
+import { getDailyChange } from '../utils/portfolioSnapshotTracker';
 
 type DashboardCard = {
   title: string;
@@ -54,6 +55,7 @@ export default function Dashboard() {
   const [showCelebration, setShowCelebration] = useState(false);
   const [celebrationMilestone, setCelebrationMilestone] = useState<number>(1);
   const [milestonesLoading, setMilestonesLoading] = useState(true); // Track milestone data loading
+  const [portfolioChange, setPortfolioChange] = useState<number | undefined>(undefined);
 
   // Journey nudge system - only show after ALL data is loaded
   const journeyNudge = useJourneyNudge(
@@ -122,6 +124,24 @@ export default function Dashboard() {
       fetchHoldings(user.id);
     }
   }, [user?.id, fetchHoldings]);
+
+  // Load portfolio daily change
+  useEffect(() => {
+    const loadDailyChange = async () => {
+      if (!user?.id || !summary) return;
+
+      try {
+        const changeData = await getDailyChange(user.id);
+        if (changeData && changeData.has_data) {
+          setPortfolioChange(changeData.daily_change);
+        }
+      } catch (error) {
+        console.error('[Dashboard] Error loading portfolio daily change:', error);
+      }
+    };
+
+    loadDailyChange();
+  }, [user?.id, summary]);
 
   // Load goals for premium users
   useEffect(() => {
@@ -627,6 +647,7 @@ export default function Dashboard() {
                 portfolioValue={summary?.current_value}
                 portfolioProfit={summary?.total_profit}
                 portfolioReturn={summary?.overall_return}
+                portfolioChange={portfolioChange}
               />
 
               <PremiumGoalRoadmap

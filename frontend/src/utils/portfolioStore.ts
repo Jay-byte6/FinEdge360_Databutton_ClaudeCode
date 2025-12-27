@@ -6,6 +6,7 @@ import {
   PortfolioNotification,
   UploadResult
 } from '@/types/portfolio';
+import { autoSaveSnapshot } from './portfolioSnapshotTracker';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
@@ -51,6 +52,14 @@ const usePortfolioStore = create<PortfolioState>((set, get) => ({
         summary: data.summary || null,
         isLoading: false
       });
+
+      // Auto-save daily snapshot for historical tracking
+      if (data.summary && data.summary.holdings_count > 0) {
+        autoSaveSnapshot(userId, data.summary, data.holdings).catch(err => {
+          console.warn('[Portfolio Store] Failed to save snapshot:', err);
+          // Don't show error to user - this is a background operation
+        });
+      }
     } catch (error) {
       console.error('[Portfolio Store] Error fetching holdings:', error);
       set({
