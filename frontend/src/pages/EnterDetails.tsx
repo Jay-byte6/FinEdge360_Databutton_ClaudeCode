@@ -421,9 +421,9 @@ export default function EnterDetails() {
           </div>
 
           {/* Tab Navigation */}
-          <div className="px-8 pt-6">
+          <div className="px-4 sm:px-8 pt-6">
             <div className="border-b border-gray-200">
-              <nav className="-mb-px flex space-x-8">
+              <nav className="-mb-px flex space-x-4 sm:space-x-8 overflow-x-auto pb-2 scrollbar-hide">
                 {tabs.map((tab, index) => (
                   <button
                     key={index}
@@ -434,7 +434,7 @@ export default function EnterDetails() {
                       } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
                   >
                     <div className="flex items-center">
-                      <div className={`${activeTab >= index ? 'bg-blue-500' : 'bg-gray-200'} text-white rounded-full h-5 w-5 flex items-center justify-center mr-2`}>
+                      <div className={`${activeTab >= index ? 'bg-blue-500' : 'bg-gray-200'} text-white rounded-full h-6 w-6 sm:h-5 sm:w-5 flex items-center justify-center mr-2 text-xs sm:text-sm flex-shrink-0`}>
                         {index + 1}
                       </div>
                       {tab.name}
@@ -462,7 +462,7 @@ export default function EnterDetails() {
                 </DisclaimerAlert>
 
                 {/* Personal Info Form Fields - Will be implemented with React Hook Form */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Name</label>
                     <input
@@ -542,7 +542,7 @@ export default function EnterDetails() {
                     <CardHeader>
                       <CardTitle className="text-md font-medium text-gray-700">Illiquid Assets</CardTitle>
                     </CardHeader>
-                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 p-4 md:p-6">
                       {(Object.keys(defaultAssets.illiquid) as Array<keyof AssetsValues['illiquid']>).map((key) => {
                         const assetInfo = illiquidAssetDescriptions[key];
                         return (
@@ -555,7 +555,7 @@ export default function EnterDetails() {
                                 <TooltipProvider>
                                   <Tooltip delayDuration={300}>
                                     <TooltipTrigger asChild>
-                                      <Info className="h-4 w-4 text-gray-400 cursor-help" />
+                                      <Info className="h-5 w-5 sm:h-4 sm:w-4 text-gray-400 cursor-help" />
                                     </TooltipTrigger>
                                     <TooltipContent className="max-w-xs p-3 bg-gray-800 text-white rounded-md shadow-lg">
                                       <p className="font-semibold mb-1">{assetInfo.label}</p>
@@ -595,7 +595,7 @@ export default function EnterDetails() {
                     <CardHeader>
                       <CardTitle className="text-md font-medium text-gray-700">Liquid Assets</CardTitle>
                     </CardHeader>
-                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 p-4 md:p-6">
                       {(Object.keys(defaultAssets.liquid) as Array<keyof AssetsValues['liquid']>).map((key) => {
                         const assetInfo = liquidAssetDescriptions[key];
                         return (
@@ -608,7 +608,7 @@ export default function EnterDetails() {
                                 <TooltipProvider>
                                   <Tooltip delayDuration={300}>
                                     <TooltipTrigger asChild>
-                                      <Info className="h-4 w-4 text-gray-400 cursor-help" />
+                                      <Info className="h-5 w-5 sm:h-4 sm:w-4 text-gray-400 cursor-help" />
                                     </TooltipTrigger>
                                     <TooltipContent className="max-w-xs p-3 bg-gray-800 text-white rounded-md shadow-lg">
                                       <p className="font-semibold mb-1">{assetInfo.label}</p>
@@ -658,7 +658,7 @@ export default function EnterDetails() {
                   <CardHeader>
                     <CardTitle className="text-md font-medium text-gray-700">Liabilities</CardTitle>
                   </CardHeader>
-                  <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 p-4 md:p-6">
                     {(Object.keys(defaultLiabilities) as Array<keyof LiabilitiesValues>).map((key) => {
                       const liabilityInfo = liabilityDescriptions[key];
                       return (
