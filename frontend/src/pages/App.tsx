@@ -198,12 +198,15 @@ export default function App() {
         <div className="absolute bottom-20 right-10 w-96 h-96 bg-teal-200/30 rounded-full blur-3xl" />
 
         <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-5xl mx-auto text-center">
+          <div className="max-w-7xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+              {/* Left side - Text content */}
+              <div className="text-center md:text-left">
             {/* Prelaunch Badge */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="inline-flex items-center gap-2 bg-emerald-100 text-emerald-800 px-4 py-2 rounded-full mb-6 border border-emerald-200"
+              className="inline-flex items-center gap-2 bg-emerald-100 text-emerald-800 px-4 py-2 rounded-full mb-6 border border-emerald-200 md:mx-0"
             >
               <Sparkles className="w-4 h-4" />
               <span className="text-sm font-bold">LIMITED TIME: ₹9,999 Premium - 100% FREE for Early Adopters</span>
@@ -232,7 +235,7 @@ export default function App() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed"
+              className="text-xl text-gray-600 mb-8 max-w-3xl md:max-w-none mx-auto md:mx-0 leading-relaxed"
             >
               <strong className="text-gray-900">Just clarity, control, and peace of mind.</strong><br />
               Stop losing money in scams. Start building wealth the right way - safely and securely.
@@ -242,7 +245,7 @@ export default function App() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
-              className="flex flex-col sm:flex-row gap-4 justify-center mb-8"
+              className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start mb-8"
             >
               <Button
                 size="lg"
@@ -268,7 +271,7 @@ export default function App() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6 }}
-              className="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-600"
+              className="flex flex-wrap items-center justify-center md:justify-start gap-6 text-sm text-gray-600"
             >
               <div className="flex items-center gap-2">
                 <Shield className="w-5 h-5 text-emerald-600" />
@@ -287,6 +290,45 @@ export default function App() {
                 <span className="font-semibold">4.9/5 Rating</span>
               </div>
             </motion.div>
+              </div>
+
+              {/* Right side - Character Image */}
+              <motion.div
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.7, duration: 0.8 }}
+                className="hidden md:flex justify-center items-center relative"
+              >
+                <div className="relative w-full max-w-lg">
+                  {/* Background circle matching logo gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-100 via-teal-100 to-blue-100 rounded-full opacity-60 blur-2xl transform scale-110" />
+
+                  {/* Character Image */}
+                  <img
+                    src="/hero_page_caHARACTER.png"
+                    alt="Calm person sitting peacefully on money - Financial peace of mind"
+                    className="relative z-10 w-full h-auto drop-shadow-2xl"
+                  />
+
+                  {/* Floating elements for emphasis */}
+                  <motion.div
+                    animate={{ y: [0, -10, 0] }}
+                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute top-10 right-10 bg-white rounded-full p-3 shadow-xl"
+                  >
+                    <Shield className="w-6 h-6 text-emerald-600" />
+                  </motion.div>
+
+                  <motion.div
+                    animate={{ y: [0, 10, 0] }}
+                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+                    className="absolute bottom-20 left-10 bg-white rounded-full p-3 shadow-xl"
+                  >
+                    <Heart className="w-6 h-6 text-pink-500" />
+                  </motion.div>
+                </div>
+              </motion.div>
+            </div>
           </div>
         </div>
       </section>
