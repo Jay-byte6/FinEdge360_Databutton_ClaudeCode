@@ -550,7 +550,7 @@ const FIREPlanner: React.FC = () => {
           </div>
 
           {/* Preview Features - 6 PREMIUM-ONLY Boxes */}
-          <div className="grid md:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 mb-8">
             <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-blue-500 hover:shadow-xl transition-shadow relative">
               <span className="absolute top-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full font-bold">PREMIUM</span>
               <div className="text-4xl mb-3">📊</div>
@@ -671,7 +671,7 @@ const FIREPlanner: React.FC = () => {
             </div>
             <button
               onClick={() => window.location.href = '/pricing'}
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 px-6 rounded-xl font-bold text-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl transform hover:scale-105"
+              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 px-6 rounded-xl font-bold text-base sm:text-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 min-h-[48px]"
             >
               🚀 View Pricing Plans & Subscribe →
             </button>
@@ -679,7 +679,7 @@ const FIREPlanner: React.FC = () => {
 
           {/* Contact & Support Footer */}
           <div className="mt-6 pt-4 border-t border-gray-300">
-            <div className="grid md:grid-cols-3 gap-4 text-center text-sm text-gray-600">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-center text-sm text-gray-600">
               <div>
                 <p className="font-semibold text-gray-700 mb-1">📧 Support</p>
                 <a href="mailto:support@finedge360.com" className="text-blue-600 hover:underline">
@@ -707,7 +707,7 @@ const FIREPlanner: React.FC = () => {
 
   if (isLoadingData) {
     return (
-      <div className="container mx-auto p-4">
+      <div className="container mx-auto px-4 py-4 sm:px-6 lg:px-8">
         <Card className="mb-8 shadow-lg border-2 border-blue-300">
           <CardContent className="py-12">
             <div className="flex flex-col items-center justify-center">
@@ -721,10 +721,10 @@ const FIREPlanner: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto px-4 py-4 sm:px-6 lg:px-8">
       <header className="mb-6 text-center">
-        <h1 className="text-4xl font-bold text-gray-800">Detailed SIP Goal Planner</h1>
-        <p className="text-lg text-gray-600">Plan your investments with inflation-adjusted calculations</p>
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800">Detailed SIP Goal Planner</h1>
+        <p className="text-base sm:text-lg text-gray-600">Plan your investments with inflation-adjusted calculations</p>
       </header>
 
       {/* Unsaved Changes Warning */}
@@ -789,26 +789,28 @@ const FIREPlanner: React.FC = () => {
             .catch(error => console.error('[FIRE Planner] Error refreshing allocations:', error));
         }
       }}>
-        <TabsList className="grid w-full grid-cols-3 mb-6 h-auto shadow-md">
-          <TabsTrigger value="goals" className="flex-col gap-1 py-3 px-2">
-            <span className="text-xs font-semibold text-blue-600">Step 1</span>
-            <span className="text-sm md:text-base font-medium">
-              <span className="hidden md:inline">Set </span>Goals
-            </span>
-          </TabsTrigger>
-          <TabsTrigger value="allocation" className="flex-col gap-1 py-3 px-2">
-            <span className="text-xs font-semibold text-green-600">Step 2</span>
-            <span className="text-sm md:text-base font-medium">
-              <span className="hidden md:inline">Asset </span>Allocation
-            </span>
-          </TabsTrigger>
-          <TabsTrigger value="sipplan" className="flex-col gap-1 py-3 px-2">
-            <span className="text-xs font-semibold text-purple-600">Step 3</span>
-            <span className="text-sm md:text-base font-medium">
-              <span className="hidden md:inline">FIRE </span>Planning
-            </span>
-          </TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto mb-4 -mx-4 px-4 sm:mx-0 sm:px-0">
+          <TabsList className="grid w-full grid-cols-3 mb-6 h-auto shadow-md min-w-max sm:min-w-0 gap-2 sm:gap-1">
+            <TabsTrigger value="goals" className="flex-col gap-1 py-3 px-3 sm:px-2 min-h-[60px] sm:min-h-0">
+              <span className="text-xs font-semibold text-blue-600">Step 1</span>
+              <span className="text-sm md:text-base font-medium">
+                <span className="hidden md:inline">Set </span>Goals
+              </span>
+            </TabsTrigger>
+            <TabsTrigger value="allocation" className="flex-col gap-1 py-3 px-3 sm:px-2 min-h-[60px] sm:min-h-0">
+              <span className="text-xs font-semibold text-green-600">Step 2</span>
+              <span className="text-sm md:text-base font-medium">
+                <span className="hidden md:inline">Asset </span>Allocation
+              </span>
+            </TabsTrigger>
+            <TabsTrigger value="sipplan" className="flex-col gap-1 py-3 px-3 sm:px-2 min-h-[60px] sm:min-h-0">
+              <span className="text-xs font-semibold text-purple-600">Step 3</span>
+              <span className="text-sm md:text-base font-medium">
+                <span className="hidden md:inline">FIRE </span>Planning
+              </span>
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         {/* TAB 1: Set Goals (existing goal planning table) */}
         <TabsContent value="goals">
@@ -831,85 +833,87 @@ const FIREPlanner: React.FC = () => {
         </Card>
 
       {/* Action Buttons */}
-      <div className="flex gap-4 mb-6">
-        <Button onClick={handleAddGoal} className="bg-green-600 hover:bg-green-700">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6">
+        <Button onClick={handleAddGoal} className="bg-green-600 hover:bg-green-700 h-12 sm:h-10 text-base sm:text-sm">
           <Plus className="w-4 h-4 mr-2" />
           Add New Goal
         </Button>
         <Button
           onClick={handleSave}
-          className={hasUnsavedChanges ? "bg-orange-600 hover:bg-orange-700 animate-pulse" : "bg-blue-600 hover:bg-blue-700"}
+          className={hasUnsavedChanges ? "bg-orange-600 hover:bg-orange-700 animate-pulse h-12 sm:h-10 text-base sm:text-sm" : "bg-blue-600 hover:bg-blue-700 h-12 sm:h-10 text-base sm:text-sm"}
         >
           {hasUnsavedChanges ? "⚠️ Save Goals" : "Save Goals"}
         </Button>
       </div>
 
       {/* Goals Table */}
-      <div className="overflow-x-auto mb-6">
-        <table className="w-full border-collapse border border-gray-300 bg-white shadow-lg">
+      <div className="overflow-x-auto mb-6 -mx-4 px-4 sm:mx-0 sm:px-0">
+        <div className="inline-block min-w-full align-middle">
+          <div className="overflow-hidden shadow-lg ring-1 ring-black ring-opacity-5 rounded-lg">
+            <table className="min-w-full border-collapse border border-gray-300 bg-white">
           <thead>
             <tr className="bg-blue-900 text-white">
-              <th className="border border-gray-300 px-3 py-2 text-sm">
+              <th className="border border-gray-300 px-2 sm:px-3 py-3 text-xs sm:text-sm">
                 <ColumnHeader
                   title="Goal"
                   tooltip="Enter a descriptive name for your financial goal (e.g., 'Emergency Fund', 'Home Down Payment')"
                 />
               </th>
-              <th className="border border-gray-300 px-3 py-2 text-sm">
+              <th className="border border-gray-300 px-2 sm:px-3 py-3 text-xs sm:text-sm">
                 <ColumnHeader
                   title="Priority"
                   tooltip="Rank your goals by importance. Lower numbers = higher priority. Goals are auto-sorted by priority."
                 />
               </th>
-              <th className="border border-gray-300 px-3 py-2 text-sm">
+              <th className="border border-gray-300 px-2 sm:px-3 py-3 text-xs sm:text-sm">
                 <ColumnHeader
                   title="Time (Years)"
                   tooltip="Number of years until you need to achieve this goal. This affects expected returns and calculations."
                 />
               </th>
-              <th className="border border-gray-300 px-3 py-2 text-sm">
+              <th className="border border-gray-300 px-2 sm:px-3 py-3 text-xs sm:text-sm">
                 <ColumnHeader
                   title="Goal Type"
                   tooltip="Auto-determined based on years: ≤3 years = Short-Term (6% return), 4-7 years = Mid-Term (9% return), 8+ years = Long-Term (11% return)."
                 />
               </th>
-              <th className="border border-gray-300 px-3 py-2 text-sm">
+              <th className="border border-gray-300 px-2 sm:px-3 py-3 text-xs sm:text-sm">
                 <ColumnHeader
                   title="Amount Required (Today)"
                   tooltip="The total amount you need for this goal in today's money (without inflation). This is what the goal would cost right now."
                 />
               </th>
-              <th className="border border-gray-300 px-3 py-2 text-sm">
+              <th className="border border-gray-300 px-2 sm:px-3 py-3 text-xs sm:text-sm">
                 <ColumnHeader
                   title="Amount Available (Today)"
                   tooltip="Lump sum amount from your current investments/savings that you plan to allocate to this goal. Max available from your investable assets shown in summary."
                 />
               </th>
-              <th className="border border-gray-300 px-3 py-2 text-sm">
+              <th className="border border-gray-300 px-2 sm:px-3 py-3 text-xs sm:text-sm">
                 <ColumnHeader
                   title="Goal Inflation %"
                   tooltip="Expected annual inflation rate for this specific goal. Typically 5-7% for general goals, higher for education/healthcare."
                 />
               </th>
-              <th className="border border-gray-300 px-3 py-2 text-sm">
+              <th className="border border-gray-300 px-2 sm:px-3 py-3 text-xs sm:text-sm">
                 <ColumnHeader
                   title="Amount Required (Future)"
                   tooltip="Auto-calculated: Goal amount adjusted for inflation and reduced by the future value of amount available today. This is the gap you need to fill with SIP."
                 />
               </th>
-              <th className="border border-gray-300 px-3 py-2 text-sm">
+              <th className="border border-gray-300 px-2 sm:px-3 py-3 text-xs sm:text-sm">
                 <ColumnHeader
                   title="Step Up %"
                   tooltip="Annual increase in your SIP amount (typically matches your expected salary increment). For example, 10% means you'll increase your SIP by 10% each year."
                 />
               </th>
-              <th className="border border-gray-300 px-3 py-2 text-sm">
+              <th className="border border-gray-300 px-2 sm:px-3 py-3 text-xs sm:text-sm">
                 <ColumnHeader
                   title="SIP Required"
                   tooltip="Monthly SIP amount needed to achieve this goal. Click 'Calculate' to compute. Considers step-up, time horizon, and expected returns."
                 />
               </th>
-              <th className="border border-gray-300 px-3 py-2 text-sm">
+              <th className="border border-gray-300 px-2 sm:px-3 py-3 text-xs sm:text-sm">
                 <ColumnHeader
                   title="Actions"
                   tooltip="Calculate SIP for this goal, Remove SIP calculation, or Delete the goal entirely."
@@ -921,17 +925,17 @@ const FIREPlanner: React.FC = () => {
             {goals.map((goal, index) => (
               <tr key={goal.id} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
                 {/* Goal Name - Editable */}
-                <td className="border border-gray-300 px-2 py-1">
+                <td className="border border-gray-300 px-2 py-2 sm:py-1">
                   <Input
                     value={goal.name}
                     onChange={(e) => handleUpdateGoal(goal.id, 'name', e.target.value)}
                     placeholder="Goal name"
-                    className="min-w-[150px] bg-green-50"
+                    className="min-w-[150px] bg-green-50 h-10 sm:h-9 text-base sm:text-sm"
                   />
                 </td>
 
                 {/* Priority - Editable */}
-                <td className="border border-gray-300 px-2 py-1">
+                <td className="border border-gray-300 px-2 py-2 sm:py-1">
                   <Input
                     type="number"
                     value={goal.priority || ''}
@@ -939,13 +943,13 @@ const FIREPlanner: React.FC = () => {
                       const val = e.target.value === '' ? 1 : parseInt(e.target.value);
                       handleUpdateGoal(goal.id, 'priority', isNaN(val) ? 1 : Math.max(1, val));
                     }}
-                    className="w-20 bg-green-50"
+                    className="w-20 bg-green-50 h-10 sm:h-9 text-base sm:text-sm"
                     min="1"
                   />
                 </td>
 
                 {/* Time (Years) - Editable */}
-                <td className="border border-gray-300 px-2 py-1">
+                <td className="border border-gray-300 px-2 py-2 sm:py-1">
                   <Input
                     type="number"
                     value={goal.timeYears || ''}
@@ -953,13 +957,13 @@ const FIREPlanner: React.FC = () => {
                       const val = e.target.value === '' ? 1 : parseInt(e.target.value);
                       handleUpdateGoal(goal.id, 'timeYears', isNaN(val) ? 1 : Math.max(1, val));
                     }}
-                    className="w-20 bg-green-50"
+                    className="w-20 bg-green-50 h-10 sm:h-9 text-base sm:text-sm"
                     min="1"
                   />
                 </td>
 
                 {/* Goal Type - Auto-determined (read-only display) */}
-                <td className="border border-gray-300 px-2 py-1 bg-blue-50">
+                <td className="border border-gray-300 px-2 py-2 sm:py-1 bg-blue-50">
                   <div className="text-sm font-semibold text-gray-700 text-center">
                     {goal.goalType ? goal.goalType.replace('-', ' ') : 'Short Term'}
                   </div>
@@ -969,7 +973,7 @@ const FIREPlanner: React.FC = () => {
                 </td>
 
                 {/* Amount Required (Today) - Editable */}
-                <td className="border border-gray-300 px-2 py-1">
+                <td className="border border-gray-300 px-2 py-2 sm:py-1">
                   <Input
                     type="number"
                     value={goal.amountRequiredToday || ''}
@@ -977,14 +981,14 @@ const FIREPlanner: React.FC = () => {
                       const val = e.target.value === '' ? 0 : parseFloat(e.target.value);
                       handleUpdateGoal(goal.id, 'amountRequiredToday', isNaN(val) ? 0 : val);
                     }}
-                    className="w-32 bg-green-50"
+                    className="w-32 bg-green-50 h-10 sm:h-9 text-base sm:text-sm"
                     placeholder="0"
                   />
                   <FormattedNumberDisplay value={goal.amountRequiredToday || 0} />
                 </td>
 
                 {/* Amount Available (Today) - Editable */}
-                <td className="border border-gray-300 px-2 py-1">
+                <td className="border border-gray-300 px-2 py-2 sm:py-1">
                   <Input
                     type="number"
                     value={goal.amountAvailableToday || ''}
@@ -992,14 +996,14 @@ const FIREPlanner: React.FC = () => {
                       const val = e.target.value === '' ? 0 : parseFloat(e.target.value);
                       handleUpdateGoal(goal.id, 'amountAvailableToday', isNaN(val) ? 0 : val);
                     }}
-                    className="w-32 bg-green-50"
+                    className="w-32 bg-green-50 h-10 sm:h-9 text-base sm:text-sm"
                     placeholder="0"
                   />
                   <FormattedNumberDisplay value={goal.amountAvailableToday || 0} />
                 </td>
 
                 {/* Goal Inflation % - Editable */}
-                <td className="border border-gray-300 px-2 py-1">
+                <td className="border border-gray-300 px-2 py-2 sm:py-1">
                   <Input
                     type="number"
                     value={goal.goalInflation === 0 ? '' : goal.goalInflation}
@@ -1007,7 +1011,7 @@ const FIREPlanner: React.FC = () => {
                       const val = e.target.value === '' ? 0 : parseFloat(e.target.value);
                       handleUpdateGoal(goal.id, 'goalInflation', isNaN(val) ? 0 : val);
                     }}
-                    className="w-20 bg-green-50"
+                    className="w-20 bg-green-50 h-10 sm:h-9 text-base sm:text-sm"
                     min="0"
                     max="100"
                     step="0.1"
@@ -1016,7 +1020,7 @@ const FIREPlanner: React.FC = () => {
                 </td>
 
                 {/* Amount Required (Future) - Calculated */}
-                <td className="border border-gray-300 px-2 py-1 bg-red-50">
+                <td className="border border-gray-300 px-2 py-2 sm:py-1 bg-red-50">
                   <span className="text-sm font-semibold text-gray-700">
                     {goal.amountRequiredFuture !== null && !isNaN(goal.amountRequiredFuture) && goal.amountRequiredFuture > 0
                       ? `₹${Math.round(goal.amountRequiredFuture).toLocaleString()}`
@@ -1025,7 +1029,7 @@ const FIREPlanner: React.FC = () => {
                 </td>
 
                 {/* Step Up % - Editable */}
-                <td className="border border-gray-300 px-2 py-1">
+                <td className="border border-gray-300 px-2 py-2 sm:py-1">
                   <Input
                     type="number"
                     value={goal.stepUp === 0 ? '' : goal.stepUp}
@@ -1033,7 +1037,7 @@ const FIREPlanner: React.FC = () => {
                       const val = e.target.value === '' ? 0 : parseFloat(e.target.value);
                       handleUpdateGoal(goal.id, 'stepUp', isNaN(val) ? 0 : val);
                     }}
-                    className="w-20 bg-green-50"
+                    className="w-20 bg-green-50 h-10 sm:h-9 text-base sm:text-sm"
                     min="0"
                     max="100"
                     step="1"
@@ -1042,7 +1046,7 @@ const FIREPlanner: React.FC = () => {
                 </td>
 
                 {/* SIP Required - Calculated */}
-                <td className="border border-gray-300 px-2 py-1 bg-red-50">
+                <td className="border border-gray-300 px-2 py-2 sm:py-1 bg-red-50">
                   <span className="text-sm font-semibold text-gray-700">
                     {goal.sipCalculated && goal.sipRequired !== null
                       ? `₹${Math.round(goal.sipRequired).toLocaleString()}`
@@ -1051,13 +1055,13 @@ const FIREPlanner: React.FC = () => {
                 </td>
 
                 {/* Actions */}
-                <td className="border border-gray-300 px-2 py-1">
-                  <div className="flex gap-1">
+                <td className="border border-gray-300 px-2 py-2 sm:py-1">
+                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-1">
                     {!goal.sipCalculated ? (
                       <Button
                         size="sm"
                         onClick={() => handleCalculateSIP(goal.id)}
-                        className="bg-blue-600 hover:bg-blue-700 text-xs"
+                        className="bg-blue-600 hover:bg-blue-700 text-xs h-10 sm:h-8"
                       >
                         <Calculator className="w-3 h-3 mr-1" />
                         Calculate
@@ -1066,7 +1070,7 @@ const FIREPlanner: React.FC = () => {
                       <Button
                         size="sm"
                         onClick={() => handleRemoveSIP(goal.id)}
-                        className="bg-orange-600 hover:bg-orange-700 text-xs"
+                        className="bg-orange-600 hover:bg-orange-700 text-xs h-10 sm:h-8"
                       >
                         <X className="w-3 h-3 mr-1" />
                         Remove
@@ -1076,7 +1080,7 @@ const FIREPlanner: React.FC = () => {
                       size="sm"
                       variant="destructive"
                       onClick={() => handleDeleteGoal(goal.id)}
-                      className="text-xs"
+                      className="text-xs h-10 sm:h-8"
                     >
                       <Trash2 className="w-3 h-3" />
                     </Button>
@@ -1086,12 +1090,14 @@ const FIREPlanner: React.FC = () => {
             ))}
           </tbody>
         </table>
+          </div>
+        </div>
       </div>
 
       {/* Summary Section - Now on the same page */}
       <div className="space-y-6 mt-8">
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
           <Card className="shadow-lg">
             <CardHeader>
               <CardTitle>Lump Sum Summary</CardTitle>
@@ -1207,7 +1213,7 @@ const FIREPlanner: React.FC = () => {
         )}
 
         {/* Next Step Button - Always visible and PROMINENT */}
-        <div className="mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200">
+        <div className="mt-8 p-4 sm:p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200">
           <div className="flex flex-col items-center gap-3">
             <p className="text-sm md:text-base text-gray-700 font-medium text-center">
               ✅ Great! Now let's design your asset allocation strategy
@@ -1215,7 +1221,7 @@ const FIREPlanner: React.FC = () => {
             <Button
               size="lg"
               onClick={() => setActiveTab("allocation")}
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold px-8 md:px-12 py-6 text-base md:text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold px-6 sm:px-8 md:px-12 py-4 sm:py-6 text-base md:text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 min-h-[48px] w-full sm:w-auto"
             >
               <span className="mr-2">Continue to Step 2: Asset Allocation</span>
               <ChevronRight className="h-5 w-5" />
@@ -1247,7 +1253,7 @@ const FIREPlanner: React.FC = () => {
           <AssetAllocationStrategy />
 
           {/* Next Step Button - Always visible and PROMINENT */}
-          <div className="mt-8 p-6 bg-gradient-to-r from-green-50 to-teal-50 rounded-xl border-2 border-green-200">
+          <div className="mt-8 p-4 sm:p-6 bg-gradient-to-r from-green-50 to-teal-50 rounded-xl border-2 border-green-200">
             <div className="flex flex-col items-center gap-3">
               <p className="text-sm md:text-base text-gray-700 font-medium text-center">
                 ✅ Perfect! Now calculate your monthly SIP requirements
@@ -1255,7 +1261,7 @@ const FIREPlanner: React.FC = () => {
               <Button
                 size="lg"
                 onClick={() => setActiveTab("sipplan")}
-                className="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white font-bold px-8 md:px-12 py-6 text-base md:text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+                className="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white font-bold px-6 sm:px-8 md:px-12 py-4 sm:py-6 text-base md:text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 min-h-[48px] w-full sm:w-auto"
               >
                 <span className="mr-2">Continue to Step 3: FIRE Planning</span>
                 <ChevronRight className="h-5 w-5" />
@@ -1280,7 +1286,7 @@ const FIREPlanner: React.FC = () => {
                   <Button onClick={() => {
                     const tab = document.querySelector('[value="allocation"]') as HTMLElement;
                     if (tab) tab.click();
-                  }} className="bg-blue-600 hover:bg-blue-700">
+                  }} className="bg-blue-600 hover:bg-blue-700 h-12 sm:h-10 text-base sm:text-sm">
                     Set Asset Allocation
                   </Button>
                 </CardContent>
@@ -1296,7 +1302,7 @@ const FIREPlanner: React.FC = () => {
                   <Button onClick={() => {
                     const tab = document.querySelector('[value="goals"]') as HTMLElement;
                     if (tab) tab.click();
-                  }} className="bg-green-600 hover:bg-green-700">
+                  }} className="bg-green-600 hover:bg-green-700 h-12 sm:h-10 text-base sm:text-sm">
                     Add Goals
                   </Button>
                 </CardContent>
@@ -1366,48 +1372,50 @@ const FIREPlanner: React.FC = () => {
                 {/* SIP Plan Table with Asset Class Breakdown */}
                 <Card className="shadow-lg">
                   <CardHeader>
-                    <CardTitle>Your SIP Investment Plan - Diversified Across Asset Classes</CardTitle>
+                    <CardTitle className="text-lg sm:text-xl">Your SIP Investment Plan - Diversified Across Asset Classes</CardTitle>
                     <p className="text-sm text-gray-600">This shows how your monthly SIP should be split across different asset classes (Equity, Debt, Gold, etc.) as per your desired asset allocation strategy for each goal</p>
                   </CardHeader>
                   <CardContent>
-                    <div className="overflow-x-auto">
-                      <table className="w-full border-collapse border border-gray-300 text-sm">
+                    <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+                      <div className="inline-block min-w-full align-middle">
+                        <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg">
+                      <table className="min-w-full border-collapse border border-gray-300 text-xs sm:text-sm">
                         <thead>
                           <tr className="bg-gray-900 text-white">
-                            <th className="border border-gray-300 px-3 py-2 text-left sticky left-0 bg-gray-900">Goal</th>
-                            <th className="border border-gray-300 px-3 py-2">Years</th>
-                            <th className="border border-gray-300 px-3 py-2">Type</th>
-                            <th className="border border-gray-300 px-3 py-2">Future Value</th>
-                            <th className="border border-gray-300 px-3 py-2 bg-gray-800">Total SIP</th>
-                            <th className="border border-gray-300 px-3 py-2 bg-blue-600">Equity</th>
-                            <th className="border border-gray-300 px-3 py-2 bg-purple-600">US Equity</th>
-                            <th className="border border-gray-300 px-3 py-2 bg-green-600">Debt</th>
-                            <th className="border border-gray-300 px-3 py-2 bg-yellow-600">Gold</th>
-                            <th className="border border-gray-300 px-3 py-2 bg-orange-600">REITs</th>
-                            <th className="border border-gray-300 px-3 py-2 bg-indigo-600">Crypto</th>
-                            <th className="border border-gray-300 px-3 py-2 bg-gray-600">Cash</th>
+                            <th className="border border-gray-300 px-2 sm:px-3 py-3 text-left sticky left-0 bg-gray-900">Goal</th>
+                            <th className="border border-gray-300 px-2 sm:px-3 py-3">Years</th>
+                            <th className="border border-gray-300 px-2 sm:px-3 py-3">Type</th>
+                            <th className="border border-gray-300 px-2 sm:px-3 py-3">Future Value</th>
+                            <th className="border border-gray-300 px-2 sm:px-3 py-3 bg-gray-800">Total SIP</th>
+                            <th className="border border-gray-300 px-2 sm:px-3 py-3 bg-blue-600">Equity</th>
+                            <th className="border border-gray-300 px-2 sm:px-3 py-3 bg-purple-600">US Equity</th>
+                            <th className="border border-gray-300 px-2 sm:px-3 py-3 bg-green-600">Debt</th>
+                            <th className="border border-gray-300 px-2 sm:px-3 py-3 bg-yellow-600">Gold</th>
+                            <th className="border border-gray-300 px-2 sm:px-3 py-3 bg-orange-600">REITs</th>
+                            <th className="border border-gray-300 px-2 sm:px-3 py-3 bg-indigo-600">Crypto</th>
+                            <th className="border border-gray-300 px-2 sm:px-3 py-3 bg-gray-600">Cash</th>
                           </tr>
                         </thead>
                         <tbody>
                           {sipPlanData.goalsWithBreakdown.map((goal, index) => (
                             <tr key={goal.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                              <td className="border border-gray-300 px-3 py-2 font-semibold sticky left-0 bg-inherit">{goal.name}</td>
-                              <td className="border border-gray-300 px-3 py-2 text-center">{goal.timeYears}</td>
-                              <td className="border border-gray-300 px-3 py-2 text-center text-xs">{goal.goalType.replace('-', ' ')}</td>
-                              <td className="border border-gray-300 px-3 py-2 text-right">₹{Math.round(goal.amountRequiredFuture || 0).toLocaleString()}</td>
-                              <td className="border border-gray-300 px-3 py-2 text-right font-bold bg-gray-100">₹{Math.round(goal.sipRequired || 0).toLocaleString()}</td>
+                              <td className="border border-gray-300 px-2 sm:px-3 py-2 font-semibold sticky left-0 bg-inherit">{goal.name}</td>
+                              <td className="border border-gray-300 px-2 sm:px-3 py-2 text-center">{goal.timeYears}</td>
+                              <td className="border border-gray-300 px-2 sm:px-3 py-2 text-center text-xs">{goal.goalType.replace('-', ' ')}</td>
+                              <td className="border border-gray-300 px-2 sm:px-3 py-2 text-right">₹{Math.round(goal.amountRequiredFuture || 0).toLocaleString()}</td>
+                              <td className="border border-gray-300 px-2 sm:px-3 py-2 text-right font-bold bg-gray-100">₹{Math.round(goal.sipRequired || 0).toLocaleString()}</td>
                               {goal.assetBreakdown ? (
                                 <>
-                                  <td className="border border-gray-300 px-3 py-2 text-right bg-blue-50">₹{Math.round(goal.assetBreakdown.equity).toLocaleString()}</td>
-                                  <td className="border border-gray-300 px-3 py-2 text-right bg-purple-50">₹{Math.round(goal.assetBreakdown.us_equity).toLocaleString()}</td>
-                                  <td className="border border-gray-300 px-3 py-2 text-right bg-green-50">₹{Math.round(goal.assetBreakdown.debt).toLocaleString()}</td>
-                                  <td className="border border-gray-300 px-3 py-2 text-right bg-yellow-50">₹{Math.round(goal.assetBreakdown.gold).toLocaleString()}</td>
-                                  <td className="border border-gray-300 px-3 py-2 text-right bg-orange-50">₹{Math.round(goal.assetBreakdown.reits).toLocaleString()}</td>
-                                  <td className="border border-gray-300 px-3 py-2 text-right bg-indigo-50">₹{Math.round(goal.assetBreakdown.crypto).toLocaleString()}</td>
-                                  <td className="border border-gray-300 px-3 py-2 text-right bg-gray-50">₹{Math.round(goal.assetBreakdown.cash).toLocaleString()}</td>
+                                  <td className="border border-gray-300 px-2 sm:px-3 py-2 text-right bg-blue-50">₹{Math.round(goal.assetBreakdown.equity).toLocaleString()}</td>
+                                  <td className="border border-gray-300 px-2 sm:px-3 py-2 text-right bg-purple-50">₹{Math.round(goal.assetBreakdown.us_equity).toLocaleString()}</td>
+                                  <td className="border border-gray-300 px-2 sm:px-3 py-2 text-right bg-green-50">₹{Math.round(goal.assetBreakdown.debt).toLocaleString()}</td>
+                                  <td className="border border-gray-300 px-2 sm:px-3 py-2 text-right bg-yellow-50">₹{Math.round(goal.assetBreakdown.gold).toLocaleString()}</td>
+                                  <td className="border border-gray-300 px-2 sm:px-3 py-2 text-right bg-orange-50">₹{Math.round(goal.assetBreakdown.reits).toLocaleString()}</td>
+                                  <td className="border border-gray-300 px-2 sm:px-3 py-2 text-right bg-indigo-50">₹{Math.round(goal.assetBreakdown.crypto).toLocaleString()}</td>
+                                  <td className="border border-gray-300 px-2 sm:px-3 py-2 text-right bg-gray-50">₹{Math.round(goal.assetBreakdown.cash).toLocaleString()}</td>
                                 </>
                               ) : (
-                                <td colSpan={7} className="border border-gray-300 px-3 py-2 text-center text-red-600 text-xs">
+                                <td colSpan={7} className="border border-gray-300 px-2 sm:px-3 py-2 text-center text-red-600 text-xs">
                                   No allocation found for {goal.goalType}
                                 </td>
                               )}
@@ -1415,35 +1423,37 @@ const FIREPlanner: React.FC = () => {
                           ))}
                           {/* Totals Row */}
                           <tr className="bg-gray-800 text-white font-bold">
-                            <td className="border border-gray-300 px-3 py-2 sticky left-0 bg-gray-800">TOTAL</td>
-                            <td colSpan={3} className="border border-gray-300 px-3 py-2"></td>
-                            <td className="border border-gray-300 px-3 py-2 text-right text-lg">₹{Math.round(sipPlanData.totals.totalSIP).toLocaleString()}</td>
-                            <td className="border border-gray-300 px-3 py-2 text-right bg-blue-700">₹{Math.round(sipPlanData.totals.equity).toLocaleString()}</td>
-                            <td className="border border-gray-300 px-3 py-2 text-right bg-purple-700">₹{Math.round(sipPlanData.totals.us_equity).toLocaleString()}</td>
-                            <td className="border border-gray-300 px-3 py-2 text-right bg-green-700">₹{Math.round(sipPlanData.totals.debt).toLocaleString()}</td>
-                            <td className="border border-gray-300 px-3 py-2 text-right bg-yellow-700">₹{Math.round(sipPlanData.totals.gold).toLocaleString()}</td>
-                            <td className="border border-gray-300 px-3 py-2 text-right bg-orange-700">₹{Math.round(sipPlanData.totals.reits).toLocaleString()}</td>
-                            <td className="border border-gray-300 px-3 py-2 text-right bg-indigo-700">₹{Math.round(sipPlanData.totals.crypto).toLocaleString()}</td>
-                            <td className="border border-gray-300 px-3 py-2 text-right bg-gray-700">₹{Math.round(sipPlanData.totals.cash).toLocaleString()}</td>
+                            <td className="border border-gray-300 px-2 sm:px-3 py-2 sticky left-0 bg-gray-800">TOTAL</td>
+                            <td colSpan={3} className="border border-gray-300 px-2 sm:px-3 py-2"></td>
+                            <td className="border border-gray-300 px-2 sm:px-3 py-2 text-right text-base sm:text-lg">₹{Math.round(sipPlanData.totals.totalSIP).toLocaleString()}</td>
+                            <td className="border border-gray-300 px-2 sm:px-3 py-2 text-right bg-blue-700">₹{Math.round(sipPlanData.totals.equity).toLocaleString()}</td>
+                            <td className="border border-gray-300 px-2 sm:px-3 py-2 text-right bg-purple-700">₹{Math.round(sipPlanData.totals.us_equity).toLocaleString()}</td>
+                            <td className="border border-gray-300 px-2 sm:px-3 py-2 text-right bg-green-700">₹{Math.round(sipPlanData.totals.debt).toLocaleString()}</td>
+                            <td className="border border-gray-300 px-2 sm:px-3 py-2 text-right bg-yellow-700">₹{Math.round(sipPlanData.totals.gold).toLocaleString()}</td>
+                            <td className="border border-gray-300 px-2 sm:px-3 py-2 text-right bg-orange-700">₹{Math.round(sipPlanData.totals.reits).toLocaleString()}</td>
+                            <td className="border border-gray-300 px-2 sm:px-3 py-2 text-right bg-indigo-700">₹{Math.round(sipPlanData.totals.crypto).toLocaleString()}</td>
+                            <td className="border border-gray-300 px-2 sm:px-3 py-2 text-right bg-gray-700">₹{Math.round(sipPlanData.totals.cash).toLocaleString()}</td>
                           </tr>
                         </tbody>
                       </table>
+                        </div>
+                      </div>
                     </div>
 
                     {/* Capacity Summary */}
-                    <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="p-4 bg-blue-50 rounded-lg">
+                    <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+                      <div className="p-4 sm:p-5 bg-blue-50 rounded-lg">
                         <p className="text-sm text-gray-600">Monthly Capacity</p>
-                        <p className="text-2xl font-bold text-blue-600">₹{Math.round(monthlySavings).toLocaleString()}</p>
+                        <p className="text-xl sm:text-2xl font-bold text-blue-600">₹{Math.round(monthlySavings).toLocaleString()}</p>
                       </div>
-                      <div className="p-4 bg-green-50 rounded-lg">
+                      <div className="p-4 sm:p-5 bg-green-50 rounded-lg">
                         <p className="text-sm text-gray-600">Total SIP Used</p>
-                        <p className="text-2xl font-bold text-green-600">₹{Math.round(totalSIPRequired).toLocaleString()}</p>
+                        <p className="text-xl sm:text-2xl font-bold text-green-600">₹{Math.round(totalSIPRequired).toLocaleString()}</p>
                         <p className="text-xs text-gray-500">{Math.round((totalSIPRequired / monthlySavings) * 100)}% of capacity</p>
                       </div>
-                      <div className={`p-4 rounded-lg ${sipSurplusOrDeficit >= 0 ? 'bg-green-50' : 'bg-red-50'}`}>
+                      <div className={`p-4 sm:p-5 rounded-lg sm:col-span-2 md:col-span-1 ${sipSurplusOrDeficit >= 0 ? 'bg-green-50' : 'bg-red-50'}`}>
                         <p className="text-sm text-gray-600">{sipSurplusOrDeficit >= 0 ? 'Remaining' : 'Deficit'}</p>
-                        <p className={`text-2xl font-bold ${sipSurplusOrDeficit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        <p className={`text-xl sm:text-2xl font-bold ${sipSurplusOrDeficit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                           ₹{Math.round(Math.abs(sipSurplusOrDeficit)).toLocaleString()}
                         </p>
                       </div>
@@ -1555,7 +1565,7 @@ const FIREPlanner: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mt-6">
                       {/* Scenario 1: Coast FIRE - Retire NOW */}
                       {(() => {
                         const retirementAge = 60;
