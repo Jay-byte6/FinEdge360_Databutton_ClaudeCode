@@ -13,7 +13,11 @@ const Footer: React.FC = () => {
           {/* Company Info */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <Flame className="w-8 h-8 text-emerald-500" />
+              <img
+                src="/FIREMap_Logo_MapPin.png"
+                alt="FIREMap Icon"
+                className="w-8 h-8 object-contain"
+              />
               <span className="text-2xl font-black text-white">FIRE<span className="text-emerald-500">Map</span></span>
             </div>
             <p className="text-sm text-gray-400 mb-3">Your GPS to Financial Freedom</p>
