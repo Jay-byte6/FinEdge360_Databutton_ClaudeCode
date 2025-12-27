@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button"; // Added this line
+import { motion, useScroll, useTransform, useInView } from "framer-motion";
+import { Button } from "@/components/ui/button";
 import {
   Carousel,
   CarouselContent,
@@ -11,11 +12,79 @@ import {
 } from "@/components/ui/carousel";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import useAuthStore from "../utils/authStore";
+import {
+  TrendingUp,
+  Target,
+  Shield,
+  Sparkles,
+  Rocket,
+  Lock,
+  ChevronRight,
+  Check,
+  Star,
+  Users,
+  Award,
+  Zap,
+  BarChart3,
+  PiggyBank,
+  Calculator,
+  FileText
+} from "lucide-react";
+
+// Animated counter component
+const AnimatedCounter = ({ value, duration = 2000 }: { value: number; duration?: number }) => {
+  const [count, setCount] = useState(0);
+  const nodeRef = useRef<HTMLDivElement>(null);
+  const isInView = useInView(nodeRef, { once: true });
+
+  useEffect(() => {
+    if (!isInView) return;
+
+    let startTime: number | null = null;
+    const animate = (timestamp: number) => {
+      if (!startTime) startTime = timestamp;
+      const progress = (timestamp - startTime) / duration;
+
+      if (progress < 1) {
+        setCount(Math.floor(value * progress));
+        requestAnimationFrame(animate);
+      } else {
+        setCount(value);
+      }
+    };
+
+    requestAnimationFrame(animate);
+  }, [isInView, value, duration]);
+
+  return <div ref={nodeRef}>{count.toLocaleString()}</div>;
+};
+
+// Floating element component
+const FloatingElement = ({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) => (
+  <motion.div
+    animate={{
+      y: [0, -20, 0],
+    }}
+    transition={{
+      duration: 3,
+      repeat: Infinity,
+      ease: "easeInOut",
+      delay,
+    }}
+  >
+    {children}
+  </motion.div>
+);
 
 export default function App() {
   const [uspApi, setUspApi] = useState<CarouselApi>();
-  const autoplayIntervalUSP = 2000; // 3 seconds
+  const autoplayIntervalUSP = 3000;
   const autoplayRefUSP = useRef<NodeJS.Timeout | null>(null);
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuthStore();
+  const { scrollY } = useScroll();
+  const heroOpacity = useTransform(scrollY, [0, 300], [1, 0]);
+  const heroScale = useTransform(scrollY, [0, 300], [1, 0.95]);
 
   const stopAutoplayUSP = useCallback(() => {
     if (autoplayRefUSP.current) {
@@ -26,137 +95,23 @@ export default function App() {
 
   const startAutoplayUSP = useCallback(() => {
     if (!uspApi) return;
-    stopAutoplayUSP(); // Clear any existing interval before starting a new one
+    stopAutoplayUSP();
     autoplayRefUSP.current = setInterval(() => {
       if (uspApi.canScrollNext()) {
         uspApi.scrollNext();
       } else {
-        uspApi.scrollTo(0); // Loop back to start
+        uspApi.scrollTo(0);
       }
     }, autoplayIntervalUSP);
   }, [uspApi, stopAutoplayUSP]);
 
   useEffect(() => {
-    if (!uspApi) {
-      return;
-    }
+    if (!uspApi) return;
     startAutoplayUSP();
     return () => stopAutoplayUSP();
   }, [uspApi, startAutoplayUSP, stopAutoplayUSP]);
 
-  const navigate = useNavigate();
-  const { isAuthenticated } = useAuthStore();
-
-  const scrollBenefitPanelsData = [
-    {
-      id: "overview",
-      title: "End-to-End Financial Planning",
-      copy: "Track Net Worth, Plan FIRE, Build tailored SIP Plans, Do intelligent Tax Planning, and get diversified portfolio suggestions all in one platform.",
-      bgColor: "bg-purple-50",
-      placeholderColor: "bg-purple-200",
-      textColor: "text-purple-800",
-      titleColor: "text-purple-900",
-    },
-    {
-      id: "insights", // New ID for this specific phrasing
-      title: "Personalized & Instant Insights (No Advisor Needed)",
-      copy: "Get comprehensive reports and insights instantly by just entering your numbers, no advisor calls needed.",
-      bgColor: "bg-cyan-50",
-      placeholderColor: "bg-cyan-200",
-      textColor: "text-cyan-800",
-      titleColor: "text-cyan-900",
-    },
-    {
-      id: "tax",
-      title: "Maximize Your Tax Savings",
-      copy: "Stop overpaying on taxes and discover hidden opportunities to keep more of your hard-earned money.",
-      bgColor: "bg-emerald-50",
-      placeholderColor: "bg-emerald-200",
-      textColor: "text-emerald-800",
-      titleColor: "text-emerald-900",
-    },
-    {
-      id: "quickinsights", // New ID for this variant
-      title: "Instant Personalized Insights",
-      copy: "See immediate financial projections and key metrics as soon as you input your data, visualized clearly for quick understanding.",
-      bgColor: "bg-lime-50",
-      placeholderColor: "bg-lime-200",
-      textColor: "text-lime-800",
-      titleColor: "text-lime-900",
-    },
-    {
-      id: "goals",
-      title: "Unlock Smart Financial Guidance",
-      copy: "Receive personalized tips and alerts that empower you to make smarter financial decisions, effortlessly.",
-      bgColor: "bg-amber-50",
-      placeholderColor: "bg-amber-200",
-      textColor: "text-amber-800",
-      titleColor: "text-amber-900",
-    },
-    {
-      id: "dreams",
-      title: "Reach Your Financial Dreams",
-      copy: "Turn your biggest financial goals, like early retirement or a dream home, into an actionable reality.",
-      bgColor: "bg-rose-50",
-      placeholderColor: "bg-rose-200",
-      textColor: "text-rose-800",
-      titleColor: "text-rose-900",
-    },
-    {
-      id: "fire",
-      title: "Built For Professionals Like You",
-      copy: "Finally, a financial tool that understands the specific needs and ambitions of salaried and IT experts.",
-      bgColor: "bg-sky-50",
-      placeholderColor: "bg-sky-200",
-      textColor: "text-sky-800",
-      titleColor: "text-sky-900",
-    },
-    {
-      id: "security",
-      title: "Your Data, Secured",
-      copy: "Feel confident knowing your most sensitive financial information is protected with ironclad security.",
-      bgColor: "bg-slate-100",
-      placeholderColor: "bg-slate-300",
-      textColor: "text-slate-800",
-      titleColor: "text-slate-900",
-    },
-  ];
-
-  const featuresData = [
-    {
-      title: "FIRE Calculator",
-      description: "Chart your path to early retirement. Understand your FIRE number and timeline with precision.",
-      icon: (<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-blue-600"> <path strokeLinecap="round" strokeLinejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6c.001.03.002.06.002.091.001.031.002.061.002.092a4.5 4.5 0 108.084-2.174c.002-.03.003-.06.003-.091.001-.031.002-.061.002-.092a4.5 4.5 0 00-2.724-4.176zM12 15c-1.657 0-3-1.343-3-3s1.343-3 3-3 3 1.343 3 3-1.343 3-3 3z" /> </svg>),
-      iconBgColor: "bg-blue-100",
-      path: "/FIRECalculator",
-    },
-    {
-      title: "SIP Goal Planner",
-      description: "Achieve your dreams. Plan your Systematic Investment Plans for every financial goal.",
-      icon: (<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-green-600"> <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" /> </svg>),
-      iconBgColor: "bg-green-100",
-      path: "/SIPPlanner",
-    },
-    {
-      title: "Net Worth Tracker",
-      description: "See your complete financial picture. Track assets & liabilities in real-time.",
-      icon: (<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-teal-600"> <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5M12 6.75h.008v.008H12V6.75z" /> </svg>),
-      iconBgColor: "bg-teal-100",
-      path: "/NetWorth",
-    },
-    {
-      title: "Tax Optimizer",
-      description: "Maximize your savings. Get smart insights for efficient tax planning and optimization.",
-      icon: (<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-indigo-600"> <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622a11.99 11.99 0 00-.598-3.75c-.381-1.162-.924-2.255-1.564-3.224a11.959 11.959 0 01-2.18-2.673A11.959 11.959 0 0112 2.25z" /> </svg>),
-      iconBgColor: "bg-indigo-100",
-      path: "/TaxPlanning",
-    },
-  ];
-
-
-
   const handleGetStarted = () => {
-    // Navigate to Enter Details page if authenticated, otherwise go to login
     if (isAuthenticated) {
       navigate("/enter-details");
     } else {
@@ -169,429 +124,731 @@ export default function App() {
   };
 
   const handleBookConsultation = () => {
-    // Require authentication before booking consultation
     if (isAuthenticated) {
-      // Navigate to consultation booking
       navigate("/consultation");
     } else {
-      // Redirect to login with return URL
       navigate("/login");
     }
   };
 
+  const featuresData = [
+    {
+      title: "FIRE Calculator",
+      description: "Chart your path to early retirement with precision timing and clarity",
+      icon: <Rocket className="w-8 h-8" />,
+      color: "from-blue-500 to-cyan-500",
+      iconBg: "bg-blue-50",
+      path: "/fire-calculator",
+    },
+    {
+      title: "SIP Goal Planner",
+      description: "Transform dreams into reality with systematic investment strategies",
+      icon: <Target className="w-8 h-8" />,
+      color: "from-emerald-500 to-green-500",
+      iconBg: "bg-emerald-50",
+      path: "/fire-planner",
+    },
+    {
+      title: "Net Worth Tracker",
+      description: "Complete financial picture with real-time asset monitoring",
+      icon: <TrendingUp className="w-8 h-8" />,
+      color: "from-purple-500 to-pink-500",
+      iconBg: "bg-purple-50",
+      path: "/net-worth",
+    },
+    {
+      title: "Tax Optimizer",
+      description: "Maximize savings with intelligent tax planning insights",
+      icon: <FileText className="w-8 h-8" />,
+      color: "from-amber-500 to-orange-500",
+      iconBg: "bg-amber-50",
+      path: "/tax-planning",
+    },
+  ];
+
+  const benefitsData = [
+    {
+      id: 1,
+      title: "End-to-End Financial Planning",
+      description: "Complete financial ecosystem in one platform",
+      icon: <BarChart3 className="w-6 h-6" />,
+      color: "from-blue-500/10 to-cyan-500/10",
+    },
+    {
+      id: 2,
+      title: "Instant Personalized Insights",
+      description: "No advisor needed - get comprehensive reports instantly",
+      icon: <Zap className="w-6 h-6" />,
+      color: "from-purple-500/10 to-pink-500/10",
+    },
+    {
+      id: 3,
+      title: "Maximize Tax Savings",
+      description: "Keep more of your hard-earned money legally",
+      icon: <PiggyBank className="w-6 h-6" />,
+      color: "from-emerald-500/10 to-green-500/10",
+    },
+    {
+      id: 4,
+      title: "Built For Professionals",
+      description: "Designed for salaried and IT experts like you",
+      icon: <Users className="w-6 h-6" />,
+      color: "from-amber-500/10 to-orange-500/10",
+    },
+    {
+      id: 5,
+      title: "Your Data, Secured",
+      description: "Bank-grade encryption protects your information",
+      icon: <Lock className="w-6 h-6" />,
+      color: "from-slate-500/10 to-gray-500/10",
+    },
+    {
+      id: 6,
+      title: "Reach Financial Dreams",
+      description: "Turn goals into actionable reality",
+      icon: <Award className="w-6 h-6" />,
+      color: "from-rose-500/10 to-red-500/10",
+    },
+  ];
+
+  const statsData = [
+    { value: 5000, label: "Active Users", suffix: "+" },
+    { value: 10, label: "Core Features", suffix: "" },
+    { value: 99, label: "User Satisfaction", suffix: "%" },
+    { value: 50, label: "Crores Managed", suffix: "Cr+" },
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-blue-700 via-green-600 to-teal-700 text-white py-20 md:py-32">
-        {/* Optional: Subtle pattern or overlay for depth can be added if desired later */}
-        <div className="container mx-auto px-6 relative z-1"> {/* text-center removed, will be applied to text column */}
-          <div className="flex flex-col md:flex-row items-center justify-between gap-120 py-10 md:py-10"> {/* Added padding for container, and gap for columns */}
-            {/* Text Content */}
-            <div className="md:w-3/5 text-center md:text-left">
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-3 leading-tight tracking-tight">
-                Unlock Your Financial Potential. <span className="block sm:inline">Secure Your Future.</span>
-              </h2>
-              <p className="text-lg md:text-xl text-blue-200 mb-6 max-w-3xl mx-auto md:mx-0 italic font-medium">
-                Your GPS to Financial Freedom
-              </p>
-              <p className="text-xl md:text-2xl text-blue-100 mb-8 max-w-3xl mx-auto md:mx-0">
+    <div className="min-h-screen bg-white overflow-hidden">
+      {/* Hero Section - Modern Gradient with Animations */}
+      <motion.section
+        style={{ opacity: heroOpacity, scale: heroScale }}
+        className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50"
+      >
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          <motion.div
+            animate={{
+              scale: [1, 1.2, 1],
+              rotate: [0, 90, 0],
+            }}
+            transition={{
+              duration: 20,
+              repeat: Infinity,
+              ease: "linear",
+            }}
+            className="absolute -top-40 -left-40 w-80 h-80 bg-gradient-to-br from-blue-400/30 to-purple-400/30 rounded-full blur-3xl"
+          />
+          <motion.div
+            animate={{
+              scale: [1, 1.3, 1],
+              rotate: [0, -90, 0],
+            }}
+            transition={{
+              duration: 25,
+              repeat: Infinity,
+              ease: "linear",
+            }}
+            className="absolute -bottom-40 -right-40 w-96 h-96 bg-gradient-to-br from-purple-400/30 to-pink-400/30 rounded-full blur-3xl"
+          />
+          <motion.div
+            animate={{
+              scale: [1, 1.1, 1],
+            }}
+            transition={{
+              duration: 15,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-gradient-to-br from-cyan-400/20 to-blue-400/20 rounded-full blur-3xl"
+          />
+        </div>
+
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-12 py-12">
+            {/* Hero Text Content */}
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8 }}
+              className="flex-1 text-center lg:text-left"
+            >
+              {/* Prelaunch Badge */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-full mb-6 shadow-lg"
+              >
+                <Sparkles className="w-4 h-4" />
+                <span className="text-sm font-semibold">Limited Time: Free Premium for Early Adopters</span>
+              </motion.div>
+
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="text-4xl sm:text-5xl lg:text-7xl font-black mb-6 leading-tight"
+              >
+                <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                  Your GPS to
+                </span>
+                <br />
+                <span className="text-gray-900">Financial Freedom</span>
+              </motion.h1>
+
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="text-xl sm:text-2xl text-gray-700 mb-4 font-medium"
+              >
                 Plan Smart. Retire Early. Save Max Tax.
-              </p>
-              <p className="text-lg text-blue-200 mb-12 max-w-2xl mx-auto md:mx-0">
-                FIREMap empowers <span className="font-semibold text-white">Salaried & IT Professionals</span> with intelligent tools for goal planning, investment tracking, and tax optimization – all designed for your dynamic career.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+              </motion.p>
+
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto lg:mx-0"
+              >
+                FIREMap empowers{" "}
+                <span className="font-bold text-blue-600">Salaried & IT Professionals</span>{" "}
+                with intelligent tools for goal planning, investment tracking, and tax optimization
+              </motion.p>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
+                className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
+              >
                 <Button
                   size="lg"
                   onClick={handleGetStarted}
-                  className="bg-white text-blue-700 hover:bg-blue-50 font-semibold text-lg px-12 py-5 shadow-xl hover:shadow-2xl rounded-lg transform transition-all duration-300 ease-in-out hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300"
+                  className="group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold text-lg px-8 py-6 shadow-2xl hover:shadow-blue-500/50 transition-all duration-300"
                 >
                   Start My Financial Plan
+                  <ChevronRight className="ml-2 group-hover:translate-x-1 transition-transform" />
                 </Button>
                 <Button
                   size="lg"
                   onClick={handleBookConsultation}
                   variant="outline"
-                  className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-blue-700 font-semibold text-lg px-8 py-5 shadow-xl hover:shadow-2xl rounded-lg transform transition-all duration-300 ease-in-out hover:scale-105 focus:outline-none focus:ring-4 focus:ring-white"
+                  className="border-2 border-blue-600 text-blue-600 hover:bg-blue-50 font-bold text-lg px-8 py-6 shadow-lg"
                 >
-                  📞 Book FREE Consultation
+                  Book FREE Consultation
                 </Button>
-              </div>
-            </div>
-            {/* Image Content */}
-            <div className="md:w-2/5 flex justify-center md:justify-end mt-10 md:mt-0">
-              <img
-                src="https://cdn3d.iconscout.com/3d/premium/thumb/man-seat-on-money-stack-and-achieve-financial-freedom-7303350-6000052.png"
-                alt="Man achieving financial freedom with FIREMap"
-                className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg rounded-lg object-contain"
-              />
-            </div>
+              </motion.div>
+
+              {/* Trust Badges */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.8 }}
+                className="flex flex-wrap items-center justify-center lg:justify-start gap-6 mt-8"
+              >
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <Shield className="w-5 h-5 text-green-600" />
+                  <span className="font-semibold">SEBI Compliant</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <Lock className="w-5 h-5 text-blue-600" />
+                  <span className="font-semibold">Bank-Grade Security</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+                  <span className="font-semibold">5000+ Users</span>
+                </div>
+              </motion.div>
+            </motion.div>
+
+            {/* Hero Image with Float Animation */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.4, duration: 0.8 }}
+              className="flex-1 flex justify-center lg:justify-end"
+            >
+              <FloatingElement>
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-400/30 to-purple-400/30 rounded-full blur-3xl" />
+                  <img
+                    src="https://cdn3d.iconscout.com/3d/premium/thumb/man-seat-on-money-stack-and-achieve-financial-freedom-7303350-6000052.png"
+                    alt="Financial Freedom"
+                    className="relative w-full max-w-md lg:max-w-lg object-contain"
+                  />
+                </div>
+              </FloatingElement>
+            </motion.div>
           </div>
         </div>
-      </section>
 
-      {/* Feature Highlights Section */}
-      <section className="py-16 md:py-24 bg-white px-4">
-        <div className="container mx-auto max-w-7xl">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Core Pillars of Your Financial Strategy
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Empowering you with the tools and insights for a secure and prosperous financial future.
-            </p>
+        {/* Scroll Indicator */}
+        <motion.div
+          animate={{ y: [0, 10, 0] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2"
+        >
+          <div className="w-6 h-10 border-2 border-gray-400 rounded-full flex justify-center">
+            <div className="w-1.5 h-3 bg-gray-400 rounded-full mt-2" />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {/* This map function assumes 'featuresData' is defined in the component scope */}
-            {featuresData.map((feature, index) => (
-              <div
+        </motion.div>
+      </motion.section>
+
+      {/* Stats Section */}
+      <section className="py-12 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+            {statsData.map((stat, index) => (
+              <motion.div
                 key={index}
-                className="bg-slate-50 p-8 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:-translate-y-1.5 flex flex-col items-center text-center cursor-pointer group"
-                onClick={() => navigate(feature.path)}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                className="text-center text-white"
               >
-                <div className={`p-4 ${feature.iconBgColor} rounded-full mb-6 inline-block transition-transform duration-300 group-hover:scale-110`}>
-                  {feature.icon}
+                <div className="text-4xl lg:text-5xl font-black mb-2">
+                  <AnimatedCounter value={stat.value} />
+                  {stat.suffix}
                 </div>
-                <h3 className="text-xl font-semibold mb-3 text-gray-800 group-hover:text-blue-600 transition-colors duration-300">
-                  {feature.title}
-                </h3>
-                <p className="text-gray-500 text-sm leading-relaxed">
-                  {feature.description}
-                </p>
-              </div>
+                <div className="text-sm lg:text-base text-white/80 font-medium">{stat.label}</div>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
+      {/* Core Features Section */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4 max-w-7xl">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl lg:text-5xl font-black mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Core Pillars of Your Financial Strategy
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Everything you need to achieve financial independence, all in one platform
+            </p>
+          </motion.div>
 
-      {/* User Benefits / USPs Section - New Side-by-Side Scroll */}
-      {/* User Benefits / USPs Section - Horizontal Carousel */}
-      <section className="py-12 md:py-16 bg-slate-50">
-        <div className="text-center mb-12 md:mb-16 px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            How FIREMap Transforms Your Finances
-          </h2>
-          <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
-            Swipe or use the arrows to explore the key benefits and take control of your financial future.
-          </p>
-        </div>
-        <Carousel
-          setApi={setUspApi}
-          opts={{ align: "start", loop: true }}
-          onMouseEnter={stopAutoplayUSP}
-          onMouseLeave={startAutoplayUSP}
-          className="w-full max-w-6xl mx-auto px-4 md:px-6 lg:px-0"
-        >
-          <CarouselContent className="-ml-4">
-            {scrollBenefitPanelsData.map((panel, index) => {
-              const { id, bgColor, textColor, titleColor, title, copy, placeholderColor } = panel;
-              let iconContent = null;
-              if (id === "fire") {
-                iconContent = (
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-16 h-16 md:w-20 md:h-20 text-sky-600">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6c.001.03.002.06.002.091.001.031.002.061.002.092a4.5 4.5 0 108.084-2.174c.002-.03.003-.06.003-.091.001-.031.002-.061.002-.092a4.5 4.5 0 00-2.724-4.176zM12 15c-1.657 0-3-1.343-3-3s1.343-3 3-3 3 1.343 3 3-1.343 3-3 3z" />
-                  </svg>
-                );
-              } else if (id === "tax") {
-                iconContent = (
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-16 h-16 md:w-20 md:h-20 text-emerald-600">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m15 3a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 9m12 3c0 1.657-1.343 3-3 3s-3-1.343-3-3m6 0c0-1.657-1.343-3-3-3S9 7.343 9 9m4.5 0a2.25 2.25 0 012.25-2.25h.008c.414 0 .75.336.75.75s-.336.75-.75.75h-.008a2.25 2.25 0 01-2.25-2.25zM12 9.75A.75.75 0 0112.75 9h.008a.75.75 0 01.75.75v.008a.75.75 0 01-.75.75h-.008A.75.75 0 0112 9.75z" />
-                  </svg>
-                );
-              } else if (id === "goals") {
-                iconContent = (
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-16 h-16 md:w-20 md:h-20 text-amber-600">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" />
-                  </svg>
-                );
-              } else if (id === "overview") {
-                iconContent = (
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-16 h-16 md:w-20 md:h-20 text-purple-600">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z" />
-                  </svg>
-                );
-              } else if (id === "insights") { // New ID
-                iconContent = (
-                  // Lightbulb icon
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-16 h-16 md:w-20 md:h-20 text-cyan-600">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.311V21m-3.75-2.311V21m0 0a3 3 0 01-3-3V6.75A3 3 0 019 3.75h6a3 3 0 013 3v8.25a3 3 0 01-3 3z" />
-                  </svg>
-                );
-              } else if (id === "quickinsights") { // New ID
-                iconContent = (
-                  // Bar chart icon
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-16 h-16 md:w-20 md:h-20 text-lime-600">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
-                  </svg>
-                );
-              } else if (id === "goals") { // Existing, ensure it's after new ones if order matters for if/else
-                iconContent = (
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-16 h-16 md:w-20 md:h-20 text-amber-600">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" />
-                  </svg>
-                );
-              } else if (id === "dreams") {
-                iconContent = (
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-16 h-16 md:w-20 md:h-20 text-rose-600">
-                    {/* Re-using goals line graph for dreams, colored rose */}
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" />
-                  </svg>
-                );
-              } else if (id === "fire") {
-                iconContent = (
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-16 h-16 md:w-20 md:h-20 text-sky-600">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6c.001.03.002.06.002.091.001.031.002.061.002.092a4.5 4.5 0 108.084-2.174c.002-.03.003-.06.003-.091.001-.031.002-.061.002-.092a4.5 4.5 0 00-2.724-4.176zM12 15c-1.657 0-3-1.343-3-3s1.343-3 3-3 3 1.343 3 3-1.343 3-3 3z" />
-                  </svg>
-                );
-              } else if (id === "security") {
-                iconContent = (
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-16 h-16 md:w-20 md:h-20 text-slate-600">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-                  </svg>
-                );
-              }
-              return (
-                <CarouselItem key={id} className="pl-4 basis-full md:basis-1/2 lg:basis-1/3">
-                  <div className={`p-6 rounded-xl shadow-lg flex flex-col items-center text-center h-full ${bgColor} border border-gray-200 min-h-[420px] md:min-h-[450px]`}>
-                    <div className={`mb-6 mt-2 p-4 rounded-full ${placeholderColor}`}>
-                      {iconContent}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {featuresData.map((feature, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                whileHover={{ y: -8, scale: 1.02 }}
+                onClick={() => navigate(feature.path)}
+                className="group relative bg-white rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer border border-gray-100 overflow-hidden"
+              >
+                {/* Gradient Background on Hover */}
+                <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
+
+                {/* Content */}
+                <div className="relative z-10">
+                  <div className={`${feature.iconBg} w-16 h-16 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                    <div className={`bg-gradient-to-br ${feature.color} bg-clip-text text-transparent`}>
+                      {feature.icon}
                     </div>
-                    <h3 className={`text-xl lg:text-2xl font-semibold mb-3 ${titleColor}`}>
-                      {title}
-                    </h3>
-                    <p className={`text-sm lg:text-base leading-relaxed ${textColor} px-2`}>
-                      {copy}
-                    </p>
                   </div>
-                </CarouselItem>
-              );
-            })}
-          </CarouselContent>
-          <div className="hidden md:block">
-            <CarouselPrevious className="absolute left-[-20px] sm:left-[-24px] top-1/2 -translate-y-1/2" />
-            <CarouselNext className="absolute right-[-20px] sm:right-[-24px] top-1/2 -translate-y-1/2" />
+                  <h3 className="text-xl font-bold mb-2 text-gray-900 group-hover:text-blue-600 transition-colors">
+                    {feature.title}
+                  </h3>
+                  <p className="text-gray-600 text-sm leading-relaxed">
+                    {feature.description}
+                  </p>
+                </div>
+
+                {/* Arrow Icon */}
+                <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <ChevronRight className="w-6 h-6 text-blue-600" />
+                </div>
+              </motion.div>
+            ))}
           </div>
-        </Carousel>
+        </div>
       </section>
 
-      {/* New CTA Section */}
-      <section className="py-16 sm:py-20 px-4 bg-gradient-to-r from-sky-500 via-blue-500 to-indigo-600 text-white">
-        <div className="container mx-auto max-w-3xl text-center">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6">
-            Ready to Transform Your Financial Future?
-          </h2>
-          <p className="text-lg sm:text-xl mb-10 opacity-90 max-w-2xl mx-auto">
-            Take the first step towards financial clarity and independence. FIREMap empowers you with the tools and insights you need.
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-            <Button
-              onClick={handleGetStarted}
-              size="lg"
-              className="bg-white text-blue-600 hover:bg-gray-100 shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out transform hover:scale-105 w-full sm:w-auto"
-            >
-              Get Started Today
-            </Button>
-            <Button
-              onClick={handleLogin}
-              size="lg"
-              variant="outline"
-              className="border-white text-white hover:bg-white hover:text-blue-700 transition-all duration-300 ease-in-out transform hover:scale-105 w-full sm:w-auto"
-            >
-              Sign In
-            </Button>
+      {/* Key Benefits Section */}
+      <section className="py-20 bg-gradient-to-br from-gray-50 to-blue-50/50">
+        <div className="container mx-auto px-4 max-w-7xl">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl lg:text-5xl font-black mb-4 text-gray-900">
+              How FIREMap Transforms Your Finances
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Powerful features designed to accelerate your path to financial freedom
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {benefitsData.map((benefit, index) => (
+              <motion.div
+                key={benefit.id}
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                whileHover={{ scale: 1.05 }}
+                className={`relative bg-gradient-to-br ${benefit.color} backdrop-blur-sm rounded-2xl p-6 border border-white/50 shadow-lg hover:shadow-xl transition-all duration-300`}
+              >
+                <div className="flex items-start gap-4">
+                  <div className="bg-white/80 backdrop-blur-sm p-3 rounded-xl shadow-sm">
+                    <div className="bg-gradient-to-br from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                      {benefit.icon}
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-bold text-gray-900 mb-2">
+                      {benefit.title}
+                    </h3>
+                    <p className="text-sm text-gray-700 leading-relaxed">
+                      {benefit.description}
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
           </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 relative overflow-hidden">
+        {/* Animated Background */}
+        <div className="absolute inset-0">
+          <motion.div
+            animate={{
+              scale: [1, 1.2, 1],
+              rotate: [0, 180, 0],
+            }}
+            transition={{
+              duration: 20,
+              repeat: Infinity,
+              ease: "linear",
+            }}
+            className="absolute top-0 left-0 w-96 h-96 bg-white/10 rounded-full blur-3xl"
+          />
+          <motion.div
+            animate={{
+              scale: [1, 1.3, 1],
+              rotate: [0, -180, 0],
+            }}
+            transition={{
+              duration: 25,
+              repeat: Infinity,
+              ease: "linear",
+            }}
+            className="absolute bottom-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl"
+          />
+        </div>
+
+        <div className="container mx-auto px-4 max-w-4xl relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center text-white"
+          >
+            <h2 className="text-4xl lg:text-5xl font-black mb-6">
+              Ready to Transform Your Financial Future?
+            </h2>
+            <p className="text-xl mb-10 opacity-90 max-w-2xl mx-auto">
+              Join 5000+ professionals who are already on their path to financial independence
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button
+                onClick={handleGetStarted}
+                size="lg"
+                className="bg-white text-blue-600 hover:bg-gray-100 font-bold text-lg px-10 py-6 shadow-2xl hover:shadow-white/20"
+              >
+                Start Your Journey Now
+              </Button>
+              <Button
+                onClick={handleLogin}
+                size="lg"
+                variant="outline"
+                className="border-2 border-white text-white hover:bg-white hover:text-blue-600 font-bold text-lg px-10 py-6"
+              >
+                Sign In
+              </Button>
+            </div>
+          </motion.div>
         </div>
       </section>
 
       {/* Our Experts Section */}
-      <section className="py-16 sm:py-20 px-4 bg-gray-50">
-        <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-12 sm:mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              Our Experts
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4 max-w-7xl">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl lg:text-5xl font-black mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Meet Our Expert Team
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Meet the professionals dedicated to your financial success.
+            <p className="text-xl text-gray-600">
+              Seasoned professionals dedicated to your financial success
             </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
               {
                 name: "Ramesh Narayan",
                 title: "Senior Wealth Advisor & Financial Coach",
                 image: "/experts/Ramesh_Narayan_FinPlanner_image.jpg",
                 credentials: [
-                  "20+ years in Financial Planning, Analysis & Technology.",
-                  "Experience at Volvo, HP, NetApp.",
-                  "Author: 'Hit a Six, Don't Get Caught'.",
-                  "Founder: The Wealthy Wickets & Ramesh Narayan International.",
-                  "Renowned for integrating profound financial acumen with a result-driven coaching approach."
-                ]
+                  "20+ years in Financial Planning",
+                  "Ex-Volvo, HP, NetApp",
+                  "Author: 'Hit a Six, Don't Get Caught'",
+                ],
               },
               {
                 name: "V Arun Menon",
-                title: "Financial Wellness Coach & Founder of VAM FinProServ",
+                title: "Financial Wellness Coach",
                 image: "/experts/Arun_FinExpert_image.jpg",
                 credentials: [
-                  "32+ years of overall experience, 22+ insurance.",
-                  "Manages AUM of ₹50 Crore+ in Mutual Funds.",
-                  "Serves 1000+ clients.",
-                  "Certified Insurance Advisor, Expert Financial Goal Planner & Wealth Manager."
-                ]
+                  "32+ years experience",
+                  "₹50 Crore+ AUM",
+                  "1000+ satisfied clients",
+                ],
               },
               {
                 name: "Sai Santhosh",
-                title: "Chartered Accountant & Startup Management Partner",
+                title: "Chartered Accountant",
                 image: "/experts/Santhosh_CA_edited.png",
                 credentials: [
-                  "VCFO (6+ Years): Your financial co-pilot.",
-                  "Investment & Planning: Growth-focused strategies.",
-                  "Compliance Pro: GST, ITR, ROC simplified.",
-                  "Funding Facilitator: End-to-end support. Both Private and Banks."
-                ]
+                  "VCFO with 6+ years",
+                  "Startup specialist",
+                  "Tax & compliance expert",
+                ],
               },
               {
                 name: "Sameer Heda",
-                title: "CA turned Credit Card Expert",
+                title: "CA & Credit Card Expert",
                 image: "/experts/Sameer_CA.png",
                 credentials: [
-                  "8+ years in business finance, tax, & credit card strategy.",
-                  "Founder of Mera Mai Card (AI-powered credit card optimization).",
-                  "Guided 100+ clients in maximizing credit card rewards.",
-                  "Simplifies complex credit card programs."
-                ]
-              }
+                  "8+ years in finance",
+                  "Founder: Mera Mai Card",
+                  "100+ clients guided",
+                ],
+              },
             ].map((expert, index) => (
-              <div key={index} className="bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 ease-in-out p-6 flex flex-col items-center text-center">
-                <img
-                  src={expert.image}
-                  alt={expert.name}
-                  className="w-28 h-28 rounded-full mb-4 border-3 border-gray-200 object-cover"
-                />
-                <h3 className="text-lg font-bold text-gray-900 mb-2">{expert.name}</h3>
-                <p className="text-sm text-blue-600 font-medium mb-4">{expert.title}</p>
-                <ul className="text-left text-xs text-gray-700 space-y-2">
-                  {expert.credentials.map((credential, idx) => (
-                    <li key={idx} className="flex items-start">
-                      <svg className="w-4 h-4 text-green-500 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                      <span>{credential}</span>
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                whileHover={{ y: -8 }}
+                className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-6 border border-gray-100"
+              >
+                <div className="relative mb-4">
+                  <div className="w-24 h-24 mx-auto rounded-full overflow-hidden border-4 border-blue-100">
+                    <img
+                      src={expert.image}
+                      alt={expert.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="absolute bottom-0 right-1/2 translate-x-12 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-2 rounded-full">
+                    <Award className="w-4 h-4" />
+                  </div>
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 mb-1 text-center">
+                  {expert.name}
+                </h3>
+                <p className="text-sm text-blue-600 font-medium mb-4 text-center">
+                  {expert.title}
+                </p>
+                <ul className="space-y-2">
+                  {expert.credentials.map((cred, idx) => (
+                    <li key={idx} className="flex items-start gap-2 text-xs text-gray-600">
+                      <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                      <span>{cred}</span>
                     </li>
                   ))}
                 </ul>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Social Proof/Testimonials Section */}
-      <section className="py-16 sm:py-20 px-4 bg-slate-50">
-        <div className="container mx-auto max-w-5xl">
-          <h2 className="text-3xl sm:text-4xl font-bold text-center mb-12 sm:mb-16 text-gray-800">
-            Trusted by 5000+ Professionals Like You
-          </h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {/* Testimonials Section */}
+      <section className="py-20 bg-gradient-to-br from-gray-50 to-blue-50/50">
+        <div className="container mx-auto px-4 max-w-6xl">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl lg:text-5xl font-black mb-4 text-gray-900">
+              Trusted by 5000+ Professionals
+            </h2>
+            <p className="text-xl text-gray-600">
+              See what our users have to say about their journey to financial freedom
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-3 gap-8">
             {[
               {
-                quote: "FIREMap has revolutionized how I manage my finances. The clarity and insights are unparalleled!",
+                quote:
+                  "FIREMap has revolutionized how I manage my finances. The clarity and insights are unparalleled!",
                 name: "Priya S.",
                 title: "IT Project Manager",
-                avatar: "PS"
+                avatar: "PS",
               },
               {
-                quote: "Finally, a tool that understands the unique financial needs of salaried professionals in India. Highly recommended!",
+                quote:
+                  "Finally, a tool that understands the unique financial needs of salaried professionals in India.",
                 name: "Arjun K.",
                 title: "Software Development Lead",
-                avatar: "AK"
+                avatar: "AK",
               },
               {
-                quote: "The tax planning and FIRE calculator are game-changers. I feel much more in control of my financial future.",
+                quote:
+                  "The tax planning and FIRE calculator are game-changers. I feel in control of my future.",
                 name: "Neha R.",
                 title: "Management Consultant",
-                avatar: "NR"
+                avatar: "NR",
               },
             ].map((testimonial, index) => (
-              <div key={index} className="bg-white p-6 md:p-8 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 ease-in-out flex flex-col">
-                <svg className="w-10 h-10 text-blue-500 mb-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10.5 4.078c.328-.087.672-.087 1 0C12.167 4.26 13 5.27 13 6.5c0 .48-.147.922-.398 1.297Q12.211 8.25 12 8.5q-.211.25-.398.453A1.993 1.993 0 0011 10.5c0 .933.667 1.74 1.5 2.25.328.187.789.347 1.297.398.453.049.909-.02 1.297-.147q.25-.079.453-.147c.933-.328 1.74-.667 2.25-1.5.187-.328.347-.789.398-1.297.049-.453-.02-.909-.147-1.297q-.079-.25-.147-.453c-.328-.933-.667-1.74-1.5-2.25A4.016 4.016 0 0015.5 5c-.933-.667-1.74-.667-2.25-1.5A4.004 4.004 0 0011.953.398C11.5.347 11.047.211 10.5 0 9.953.211 9.5.347 9.047.398A4.004 4.004 0 007.75 1.5C7.083.833 6.26.833 5.5 1.5A4.016 4.016 0 004.203 5c-.933.667-1.74.667-2.25 1.5q-.079.25-.147.453c-.127.388-.196.844-.147 1.297.049.453.211.909.398 1.297.504.833 1.309 1.172 2.25 1.5q.25.079.453.147c.388.127.844.196 1.297.147.504-.049.951-.211 1.297-.398.833-.504 1.5-1.317 1.5-2.25A1.993 1.993 0 008.953 8.953Q8.789 8.75 8.5 8.5q-.211-.25-.398-.453A1.993 1.993 0 017.5 6.5c0-1.23.833-2.24 1.5-2.422.328-.087.672-.087 1 0zM4.5 6.5c0 .933-.667 1.74-1.5 2.25-.328.187-.789.347-1.297.398-.453.049-.909-.02-1.297-.147q-.25-.079-.453-.147c-.933-.328-1.74-.667-2.25-1.5A1.993 1.993 0 01-2.5 5c.667-.933 1.317-1.5 2.25-1.5q.388-.127.844-.196c.453-.049.909.02 1.297.147q.25.079.453.147c.933.328 1.74.667 2.25 1.5A1.993 1.993 0 014.5 6.5z" />
-                </svg>
-                <p className="text-gray-700 italic text-base leading-relaxed mb-6 flex-grow">
-                  \"{testimonial.quote}\"
-                </p>
-                <div className="mt-auto pt-4 border-t border-slate-200">
-                  <p className="text-gray-800 font-semibold text-md">{testimonial.name}</p>
-                  <p className="text-gray-500 text-sm">{testimonial.title}</p>
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                whileHover={{ y: -8 }}
+                className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100"
+              >
+                <div className="flex gap-1 mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                  ))}
                 </div>
-              </div>
+                <p className="text-gray-700 mb-6 leading-relaxed italic">
+                  "{testimonial.quote}"
+                </p>
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
+                    {testimonial.avatar}
+                  </div>
+                  <div>
+                    <div className="font-bold text-gray-900">{testimonial.name}</div>
+                    <div className="text-sm text-gray-600">{testimonial.title}</div>
+                  </div>
+                </div>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
       {/* FAQ Section */}
-      <section className="py-16 sm:py-20 px-4 bg-white">
-        <div className="container mx-auto max-w-3xl">
-          <h2 className="text-3xl sm:text-4xl font-bold text-center mb-12 sm:mb-16 text-gray-800">
-            Frequently Asked Questions
-          </h2>
-          <Accordion type="single" collapsible className="w-full">
-            {[
-              {
-                id: "faq-1",
-                question: "Is my data secure with FIREMap?",
-                answer: "Absolutely. We prioritize your data security using industry-standard encryption and security protocols to ensure your financial information is always protected. Your trust is paramount to us."
-              },
-              {
-                id: "faq-2",
-                question: "Who is FIREMap designed for?",
-                answer: "FIREMap is specifically tailored for salaried employees and IT professionals in India who are looking to take proactive control of their financial planning – from goal setting and SIPs to tax optimization and FIRE (Financial Independence, Retire Early) planning."
-              },
-              {
-                id: "faq-3",
-                question: "How does the FIRE calculator work?",
-                answer: "Our FIRE calculator uses your current income, expenses, savings rate, and personalized investment return assumptions to project your required retirement corpus. It then estimates the number of years it will take for you to reach financial independence based on your contributions."
-              },
-              {
-                id: "faq-4",
-                question: "What kind of support do you offer if I have questions?",
-                answer: "We're here to assist you! You can reach our support team via email at support@finedge360.com or through other contact options available within the app once you're logged in. We are committed to helping you make the most of FIREMap."
-              }
-            ].map((faq) => (
-              <AccordionItem value={faq.id} key={faq.id} className="border-b last:border-b-0">
-                <AccordionTrigger className="text-left hover:no-underline py-4 text-lg font-medium text-gray-700 hover:text-blue-600">
-                  {faq.question}
-                </AccordionTrigger>
-                <AccordionContent className="pt-2 pb-4 text-base text-gray-600 leading-relaxed">
-                  {faq.answer}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl lg:text-5xl font-black mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-xl text-gray-600">
+              Everything you need to know about FIREMap
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <Accordion type="single" collapsible className="w-full">
+              {[
+                {
+                  id: "faq-1",
+                  question: "Is my data secure with FIREMap?",
+                  answer:
+                    "Absolutely. We prioritize your data security using industry-standard encryption and security protocols. Your financial information is protected with bank-grade security.",
+                },
+                {
+                  id: "faq-2",
+                  question: "Who is FIREMap designed for?",
+                  answer:
+                    "FIREMap is specifically tailored for salaried employees and IT professionals in India who want to take control of their financial planning – from goal setting and SIPs to tax optimization and FIRE planning.",
+                },
+                {
+                  id: "faq-3",
+                  question: "How does the FIRE calculator work?",
+                  answer:
+                    "Our FIRE calculator uses your current income, expenses, savings rate, and investment return assumptions to project your retirement corpus and estimate when you'll achieve financial independence.",
+                },
+                {
+                  id: "faq-4",
+                  question: "What support do you offer?",
+                  answer:
+                    "We provide comprehensive support via email at support@finedge360.com and within the app. Our team is committed to helping you make the most of FIREMap.",
+                },
+              ].map((faq) => (
+                <AccordionItem value={faq.id} key={faq.id} className="border-b">
+                  <AccordionTrigger className="text-left hover:no-underline py-5 text-lg font-semibold text-gray-900 hover:text-blue-600">
+                    {faq.question}
+                  </AccordionTrigger>
+                  <AccordionContent className="pb-5 text-gray-600 leading-relaxed">
+                    {faq.answer}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </motion.div>
         </div>
       </section>
 
-
       {/* Footer */}
-      <footer className="py-8 px-4 bg-gray-50 border-t border-gray-200">
-        <div className="container mx-auto max-w-6xl">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center mb-4 md:mb-0">
+      <footer className="py-12 bg-gradient-to-br from-gray-900 to-gray-800 text-white">
+        <div className="container mx-auto px-4 max-w-6xl">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="flex items-center gap-3">
               <video
                 src="/FIREMap.mp4"
                 autoPlay
                 loop
                 muted
                 playsInline
-                className="h-20 w-auto mr-2 object-contain"
+                className="h-16 w-auto object-contain"
                 aria-label="FIREMap Logo"
               />
+              <div>
+                <div className="font-bold text-xl">FIREMap</div>
+                <div className="text-sm text-gray-400">Your GPS to Financial Freedom</div>
+              </div>
             </div>
-            <div className="text-gray-500 text-sm">
-              © {new Date().getFullYear()} FIREMap. All rights reserved.
+            <div className="text-center md:text-right text-gray-400 text-sm">
+              <p>© {new Date().getFullYear()} FIREMap. All rights reserved.</p>
+              <p className="mt-1">Made with care for your financial independence</p>
             </div>
           </div>
         </div>
