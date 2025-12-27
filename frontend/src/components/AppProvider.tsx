@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import NavBar from "./NavBar";
 import Footer from "./Footer";
 import { useLocation, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 
 interface Props {
   children: ReactNode;
@@ -117,9 +118,13 @@ export const AppProvider = ({ children }: Props) => {
       {/* Sticky Announcement Banner for All Pages */}
       {shouldShowNavbar && (
         <div className="sticky top-0 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 text-white py-2 px-4 overflow-hidden z-50">
-          <div className="text-center text-sm md:text-base font-semibold whitespace-nowrap overflow-x-auto scrollbar-hide">
+          <motion.div
+            animate={{ x: ["100%", "-100%"] }}
+            transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+            className="whitespace-nowrap text-sm md:text-base font-semibold"
+          >
             🎉 LIMITED TIME: Worth ₹9,999/year - 100% FREE for First 5,000 Users! • Only 277 Spots Left • SEBI Compliant • Bank-Grade Security • Join 4,723 Smart Investors Now! 🎉
-          </div>
+          </motion.div>
         </div>
       )}
       {shouldShowNavbar && <NavBar showFullNav={location.pathname !== "/"} />}
