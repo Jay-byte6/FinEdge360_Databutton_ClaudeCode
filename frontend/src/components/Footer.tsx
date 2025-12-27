@@ -12,19 +12,19 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-6">
           {/* Company Info */}
           <div>
-            <div className="mb-3">
-              <div className="relative overflow-hidden flex items-center justify-center" style={{ height: '64px', width: 'auto' }}>
+            <div className="mb-4">
+              <div className="relative overflow-hidden flex items-center justify-start" style={{ height: '80px', width: 'auto' }}>
                 <video
                   src="/FIREMap.mp4"
                   autoPlay
                   loop
                   muted
                   playsInline
-                  className="h-24 md:h-28 w-auto"
+                  className="h-32 md:h-36 w-auto"
                   style={{
                     objectFit: 'contain',
-                    filter: 'contrast(1.4) brightness(1.3) invert(1)',
-                    mixBlendMode: 'lighten',
+                    filter: 'contrast(1.8) brightness(3) saturate(1.2) drop-shadow(0 0 8px rgba(255,255,255,0.3))',
+                    mixBlendMode: 'screen',
                     transform: 'translateY(0)'
                   }}
                   aria-label="FIREMap - Your GPS to Financial Freedom"
