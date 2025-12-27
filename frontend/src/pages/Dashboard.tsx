@@ -589,7 +589,7 @@ export default function Dashboard() {
                 {/* Journey Map */}
                 <Card
                   className="relative cursor-pointer hover:shadow-lg transition-shadow"
-                  onClick={() => isPremium && navigate('/journey-map')}
+                  onClick={() => isPremium && navigate('/journey3d')}
                 >
                 <CardHeader>
                   <div className="flex items-center justify-between">
