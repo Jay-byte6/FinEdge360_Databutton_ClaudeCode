@@ -426,9 +426,9 @@ const PortfolioPage: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4 md:p-6 lg:p-8">
-      <header className="mb-8 text-center">
-        <h1 className="text-4xl font-bold text-gray-800">AI-Powered Portfolio Analyzer</h1>
-        <p className="text-lg text-gray-600">
+      <header className="mb-6 md:mb-8 text-center">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800">AI-Powered Portfolio Analyzer</h1>
+        <p className="text-sm sm:text-base md:text-lg text-gray-600 mt-2">
           Discover your ideal asset mix with personalized risk assessment and portfolio recommendations
         </p>
       </header>
@@ -456,7 +456,7 @@ const PortfolioPage: React.FC = () => {
                 <Button
                   onClick={() => setShowAddModal(true)}
                   variant="default"
-                  className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white"
+                  className="w-full sm:w-auto h-10 sm:h-9 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white"
                 >
                   <Plus className="mr-2 h-4 w-4" />
                   Add Holding Manually
@@ -468,12 +468,12 @@ const PortfolioPage: React.FC = () => {
           ) : (
             <>
               {/* Action Buttons */}
-              <div className="flex justify-end gap-3 mb-4">
+              <div className="flex flex-col sm:flex-row justify-end gap-3 md:gap-4 mb-4">
                 <Button
                   onClick={handleRefreshData}
                   disabled={isRefreshing}
                   variant="outline"
-                  className="border-blue-300 text-blue-600 hover:bg-blue-50"
+                  className="w-full sm:w-auto h-10 sm:h-9 border-blue-300 text-blue-600 hover:bg-blue-50"
                 >
                   <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
                   {isRefreshing ? 'Refreshing...' : 'Refresh Data'}
@@ -481,7 +481,7 @@ const PortfolioPage: React.FC = () => {
                 <Button
                   onClick={() => setShowUploadCard(true)}
                   variant="outline"
-                  className="border-purple-300 text-purple-600 hover:bg-purple-50"
+                  className="w-full sm:w-auto h-10 sm:h-9 border-purple-300 text-purple-600 hover:bg-purple-50"
                 >
                   <Upload className="mr-2 h-4 w-4" />
                   Re-upload Statement
@@ -489,7 +489,7 @@ const PortfolioPage: React.FC = () => {
                 <Button
                   onClick={() => setShowAddModal(true)}
                   variant="default"
-                  className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white"
+                  className="w-full sm:w-auto h-10 sm:h-9 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white"
                 >
                   <Plus className="mr-2 h-4 w-4" />
                   Add Holding Manually
@@ -516,20 +516,20 @@ const PortfolioPage: React.FC = () => {
 
                   {/* No Goals Banner */}
                   {holdings.length > 0 && goals.length === 0 && (
-                    <div className="mt-6 p-4 bg-blue-50 border-2 border-blue-300 rounded-lg">
+                    <div className="mt-6 p-4 md:p-6 bg-blue-50 border-2 border-blue-300 rounded-lg">
                       <div className="flex items-start gap-3">
                         <Target className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
                         <div className="flex-1">
-                          <h4 className="font-semibold text-blue-900 mb-1">
+                          <h4 className="text-base sm:text-lg font-semibold text-blue-900 mb-1">
                             Track Your Investment Goals
                           </h4>
-                          <p className="text-sm text-blue-800 mb-3">
+                          <p className="text-xs sm:text-sm text-blue-800 mb-3">
                             Create financial goals in the FIRE Planner page to track which holdings contribute to each goal. This helps you visualize your progress and maintain proper asset allocation.
                           </p>
                           <Button
                             onClick={() => navigate('/fire-planner')}
                             size="sm"
-                            className="bg-blue-600 hover:bg-blue-700"
+                            className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700"
                           >
                             <Rocket className="h-4 w-4 mr-2" />
                             Create Goals in FIRE Planner
@@ -569,15 +569,18 @@ const PortfolioPage: React.FC = () => {
 
       {/* Missing Data Warning - Only show if no financial data */}
       {!hasFinancialData && (
-        <Card className="mb-8 shadow-lg bg-yellow-50 border-yellow-300">
-          <CardHeader>
-            <CardTitle className="text-yellow-700">Important: Complete Your Profile</CardTitle>
+        <Card className="mb-6 md:mb-8 shadow-lg bg-yellow-50 border-yellow-300">
+          <CardHeader className="p-4 md:p-6">
+            <CardTitle className="text-base sm:text-lg text-yellow-700">Important: Complete Your Profile</CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="text-yellow-600 mb-4">
+          <CardContent className="p-4 md:p-6">
+            <p className="text-xs sm:text-sm text-yellow-600 mb-4">
               To see your personalized portfolio allocation, please complete your financial details first.
             </p>
-            <Button onClick={() => navigate('/enter-details')} className="bg-yellow-500 hover:bg-yellow-600 text-white">
+            <Button
+              onClick={() => navigate('/enter-details')}
+              className="w-full sm:w-auto h-10 sm:h-9 bg-yellow-500 hover:bg-yellow-600 text-white"
+            >
               Go to Enter Details
             </Button>
           </CardContent>
@@ -589,11 +592,11 @@ const PortfolioPage: React.FC = () => {
         <>
           {/* Loading State */}
           {isLoadingAnalysis && (
-            <Card className="mb-8 shadow-lg border-2 border-blue-300 bg-gradient-to-br from-blue-50 to-indigo-50">
-              <CardContent className="py-12">
+            <Card className="mb-6 md:mb-8 shadow-lg border-2 border-blue-300 bg-gradient-to-br from-blue-50 to-indigo-50">
+              <CardContent className="p-4 md:p-6 py-8 md:py-12">
                 <div className="flex flex-col items-center justify-center">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-                  <p className="text-blue-700 font-medium">Loading your risk assessment...</p>
+                  <p className="text-sm sm:text-base text-blue-700 font-medium">Loading your risk assessment...</p>
                 </div>
               </CardContent>
             </Card>
@@ -601,53 +604,56 @@ const PortfolioPage: React.FC = () => {
 
           {/* Start Assessment Card */}
           {!isLoadingAnalysis && !showQuiz && !analysisGenerated && (
-            <Card className="mb-8 shadow-lg border-2 border-blue-300 bg-gradient-to-br from-blue-50 to-indigo-50">
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <Target className="h-8 w-8 text-blue-600" />
+            <Card className="mb-6 md:mb-8 shadow-lg border-2 border-blue-300 bg-gradient-to-br from-blue-50 to-indigo-50">
+              <CardHeader className="p-4 md:p-6">
+                <div className="flex items-start sm:items-center gap-3">
+                  <Target className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600 flex-shrink-0" />
                   <div>
-                    <CardTitle className="text-2xl text-blue-900">Risk Assessment & Portfolio Analysis</CardTitle>
-                    <p className="text-sm text-blue-700 mt-1">
+                    <CardTitle className="text-lg sm:text-xl md:text-2xl text-blue-900">Risk Assessment & Portfolio Analysis</CardTitle>
+                    <p className="text-xs sm:text-sm text-blue-700 mt-1">
                       Get personalized portfolio recommendations based on your financial profile and risk tolerance
                     </p>
                   </div>
                 </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-4 md:p-6">
                 <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="p-4 bg-white rounded-lg border border-blue-200">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+                    <div className="p-3 md:p-4 bg-white rounded-lg border border-blue-200">
                       <div className="flex items-center gap-2 mb-2">
-                        <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold">
+                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm">
                           1
                         </div>
-                        <h3 className="font-semibold text-gray-800">Risk Assessment</h3>
+                        <h3 className="text-sm sm:text-base font-semibold text-gray-800">Risk Assessment</h3>
                       </div>
-                      <p className="text-sm text-gray-600">Answer 10 questions to determine your risk profile</p>
+                      <p className="text-xs sm:text-sm text-gray-600">Answer 10 questions to determine your risk profile</p>
                     </div>
-                    <div className="p-4 bg-white rounded-lg border border-blue-200">
+                    <div className="p-3 md:p-4 bg-white rounded-lg border border-blue-200">
                       <div className="flex items-center gap-2 mb-2">
-                        <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold">
+                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm">
                           2
                         </div>
-                        <h3 className="font-semibold text-gray-800">Portfolio Analysis</h3>
+                        <h3 className="text-sm sm:text-base font-semibold text-gray-800">Portfolio Analysis</h3>
                       </div>
-                      <p className="text-sm text-gray-600">Compare current vs ideal allocation</p>
+                      <p className="text-xs sm:text-sm text-gray-600">Compare current vs ideal allocation</p>
                     </div>
-                    <div className="p-4 bg-white rounded-lg border border-blue-200">
+                    <div className="p-3 md:p-4 bg-white rounded-lg border border-blue-200">
                       <div className="flex items-center gap-2 mb-2">
-                        <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold">
+                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm">
                           3
                         </div>
-                        <h3 className="font-semibold text-gray-800">Actionable Insights</h3>
+                        <h3 className="text-sm sm:text-base font-semibold text-gray-800">Actionable Insights</h3>
                       </div>
-                      <p className="text-sm text-gray-600">Receive educational recommendations</p>
+                      <p className="text-xs sm:text-sm text-gray-600">Receive educational recommendations</p>
                     </div>
                   </div>
 
                   <div className="flex justify-center pt-4">
-                    <Button onClick={handleStartAssessment} className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-6 text-lg">
-                      <TrendingUp className="mr-2 h-5 w-5" />
+                    <Button
+                      onClick={handleStartAssessment}
+                      className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 sm:px-8 py-3 sm:py-6 text-base sm:text-lg h-12 sm:h-auto"
+                    >
+                      <TrendingUp className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                       Start Risk Assessment
                     </Button>
                   </div>
@@ -669,10 +675,14 @@ const PortfolioPage: React.FC = () => {
 
           {/* Portfolio Comparison & Analysis */}
           {analysisGenerated && riskAnalysis && (
-            <div className="space-y-6">
+            <div className="space-y-4 md:space-y-6">
               {/* Retake Quiz Button */}
               <div className="flex justify-end">
-                <Button onClick={handleRetakeQuiz} variant="outline" className="border-blue-300 text-blue-600 hover:bg-blue-50">
+                <Button
+                  onClick={handleRetakeQuiz}
+                  variant="outline"
+                  className="w-full sm:w-auto h-10 sm:h-9 border-blue-300 text-blue-600 hover:bg-blue-50"
+                >
                   Retake Risk Assessment
                 </Button>
               </div>
@@ -701,26 +711,26 @@ const PortfolioPage: React.FC = () => {
 
       {/* PowerFIRE Tips - Savings Scenarios */}
       {financialData && Object.keys(financialData).length > 0 && (
-        <div className="mt-8" id="powerfire-tips">
+        <div className="mt-6 md:mt-8" id="powerfire-tips">
           <Card className="bg-gradient-to-r from-orange-50 to-red-50 border-2 border-orange-300 shadow-lg">
-            <CardHeader>
-              <CardTitle className="text-2xl text-orange-900 flex items-center gap-2">
-                <Flame className="w-6 h-6" />
+            <CardHeader className="p-4 md:p-6">
+              <CardTitle className="text-lg sm:text-xl md:text-2xl text-orange-900 flex items-center gap-2">
+                <Flame className="w-5 h-5 sm:w-6 sm:h-6" />
                 🔥 PowerFIRE Tips: Accelerate Your FIRE Journey
               </CardTitle>
-              <CardDescription className="text-orange-700">
+              <CardDescription className="text-xs sm:text-sm text-orange-700">
                 Smart savings scenarios to boost your path to Financial Independence
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="grid md:grid-cols-2 gap-6">
+            <CardContent className="p-4 md:p-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
                 {/* Scenario 1: Increase Savings Rate */}
-                <div className="bg-white p-4 rounded-lg border-2 border-orange-200">
-                  <h3 className="font-bold text-orange-900 mb-2 flex items-center gap-2">
-                    <Target className="w-5 h-5" />
+                <div className="bg-white p-3 md:p-4 rounded-lg border-2 border-orange-200">
+                  <h3 className="text-sm sm:text-base font-bold text-orange-900 mb-2 flex items-center gap-2">
+                    <Target className="w-4 h-4 sm:w-5 sm:h-5" />
                     💰 Increase Your Savings Rate
                   </h3>
-                  <div className="space-y-2 text-sm">
+                  <div className="space-y-2 text-xs sm:text-sm">
                     <p className="text-gray-700">
                       <strong>Current Monthly Savings:</strong> ₹{((financialData?.personalInfo?.monthlySalary || 0) - (financialData?.personalInfo?.monthlyExpenses || 0)).toLocaleString('en-IN')}
                     </p>
@@ -736,12 +746,12 @@ const PortfolioPage: React.FC = () => {
                 </div>
 
                 {/* Scenario 2: Tax Optimization */}
-                <div className="bg-white p-4 rounded-lg border-2 border-orange-200">
-                  <h3 className="font-bold text-orange-900 mb-2 flex items-center gap-2">
-                    <TrendingUp className="w-5 h-5" />
+                <div className="bg-white p-3 md:p-4 rounded-lg border-2 border-orange-200">
+                  <h3 className="text-sm sm:text-base font-bold text-orange-900 mb-2 flex items-center gap-2">
+                    <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5" />
                     📈 Optimize Tax Savings (₹1.5L under 80C)
                   </h3>
-                  <div className="space-y-2 text-sm">
+                  <div className="space-y-2 text-xs sm:text-sm">
                     <p className="text-gray-700">
                       <strong>Potential annual tax savings:</strong> ₹45,000
                     </p>
@@ -758,12 +768,12 @@ const PortfolioPage: React.FC = () => {
                 </div>
 
                 {/* Scenario 3: Expense Reduction */}
-                <div className="bg-white p-4 rounded-lg border-2 border-orange-200">
-                  <h3 className="font-bold text-orange-900 mb-2 flex items-center gap-2">
-                    <Wallet className="w-5 h-5" />
+                <div className="bg-white p-3 md:p-4 rounded-lg border-2 border-orange-200">
+                  <h3 className="text-sm sm:text-base font-bold text-orange-900 mb-2 flex items-center gap-2">
+                    <Wallet className="w-4 h-4 sm:w-5 sm:h-5" />
                     💳 Cut Expenses by 10%
                   </h3>
-                  <div className="space-y-2 text-sm">
+                  <div className="space-y-2 text-xs sm:text-sm">
                     <p className="text-gray-700">
                       <strong>Scenario:</strong> Reduce monthly expenses by just 10%
                     </p>
@@ -783,12 +793,12 @@ const PortfolioPage: React.FC = () => {
                 </div>
 
                 {/* Scenario 4: Side Hustle */}
-                <div className="bg-white p-4 rounded-lg border-2 border-orange-200">
-                  <h3 className="font-bold text-orange-900 mb-2 flex items-center gap-2">
-                    <Zap className="w-5 h-5" />
+                <div className="bg-white p-3 md:p-4 rounded-lg border-2 border-orange-200">
+                  <h3 className="text-sm sm:text-base font-bold text-orange-900 mb-2 flex items-center gap-2">
+                    <Zap className="w-4 h-4 sm:w-5 sm:h-5" />
                     ⚡ Start a Side Hustle (₹10K/mo)
                   </h3>
-                  <div className="space-y-2 text-sm">
+                  <div className="space-y-2 text-xs sm:text-sm">
                     <p className="text-gray-700">
                       <strong>Scenario:</strong> Earn extra ₹10,000/month
                     </p>
@@ -807,12 +817,12 @@ const PortfolioPage: React.FC = () => {
               </div>
 
               {/* Combined Power */}
-              <div className="mt-6 p-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg">
-                <h3 className="font-bold text-xl mb-2">🚀 Combine All 4 Strategies:</h3>
-                <div className="grid md:grid-cols-2 gap-4 text-sm">
+              <div className="mt-4 md:mt-6 p-3 md:p-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg">
+                <h3 className="text-base sm:text-lg md:text-xl font-bold mb-2">🚀 Combine All 4 Strategies:</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 text-xs sm:text-sm">
                   <div>
                     <p className="font-semibold">Extra Monthly Investment:</p>
-                    <p className="text-2xl font-bold">
+                    <p className="text-xl sm:text-2xl font-bold">
                       ₹{(
                         (((financialData?.personalInfo?.monthlySalary || 0) - (financialData?.personalInfo?.monthlyExpenses || 0)) * 0.2) +
                         (45000 / 12) +
@@ -823,7 +833,7 @@ const PortfolioPage: React.FC = () => {
                   </div>
                   <div>
                     <p className="font-semibold">Corpus in 10 Years @ 12%:</p>
-                    <p className="text-3xl font-bold">
+                    <p className="text-2xl sm:text-3xl font-bold">
                       ₹{(
                         ((((financialData?.personalInfo?.monthlySalary || 0) - (financialData?.personalInfo?.monthlyExpenses || 0)) * 0.2) +
                         (45000 / 12) +
@@ -844,26 +854,26 @@ const PortfolioPage: React.FC = () => {
 
       {/* Risk Coverage Tips */}
       {financialData && Object.keys(financialData).length > 0 && (
-        <div className="mt-8" id="risk-coverage">
+        <div className="mt-6 md:mt-8" id="risk-coverage">
           <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 shadow-lg">
-            <CardHeader>
-              <CardTitle className="text-2xl text-blue-900 flex items-center gap-2">
-                <Shield className="w-6 h-6" />
+            <CardHeader className="p-4 md:p-6">
+              <CardTitle className="text-lg sm:text-xl md:text-2xl text-blue-900 flex items-center gap-2">
+                <Shield className="w-5 h-5 sm:w-6 sm:h-6" />
                 🛡️ Risk Coverage: Protect Your FIRE Journey
               </CardTitle>
-              <CardDescription className="text-blue-700">
+              <CardDescription className="text-xs sm:text-sm text-blue-700">
                 Essential insurance coverage to safeguard your financial independence plan
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
+            <CardContent className="p-4 md:p-6">
+              <div className="space-y-4 md:space-y-6">
                 {/* Life Insurance Coverage */}
-                <div className="bg-white p-4 rounded-lg border-2 border-blue-200">
-                  <h3 className="font-bold text-blue-900 mb-3 flex items-center gap-2 text-lg">
-                    <Heart className="w-5 h-5" />
+                <div className="bg-white p-3 md:p-4 rounded-lg border-2 border-blue-200">
+                  <h3 className="text-base sm:text-lg font-bold text-blue-900 mb-3 flex items-center gap-2">
+                    <Heart className="w-4 h-4 sm:w-5 sm:h-5" />
                     1. Life Insurance (Term Plan)
                   </h3>
-                  <div className="grid md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                     <div className="space-y-2">
                       <p className="text-sm text-gray-700">
                         <strong>Recommended Coverage:</strong>
@@ -897,12 +907,12 @@ const PortfolioPage: React.FC = () => {
                 </div>
 
                 {/* Health Insurance */}
-                <div className="bg-white p-4 rounded-lg border-2 border-green-200">
-                  <h3 className="font-bold text-green-900 mb-3 flex items-center gap-2 text-lg">
-                    <Activity className="w-5 h-5" />
+                <div className="bg-white p-3 md:p-4 rounded-lg border-2 border-green-200">
+                  <h3 className="text-base sm:text-lg font-bold text-green-900 mb-3 flex items-center gap-2">
+                    <Activity className="w-4 h-4 sm:w-5 sm:h-5" />
                     2. Health Insurance
                   </h3>
-                  <div className="grid md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
                     <div className="bg-green-50 p-3 rounded border border-green-200">
                       <p className="text-xs text-gray-600 mb-1">Base Coverage</p>
                       <p className="text-xl font-bold text-green-900">₹10-15 Lakh</p>
@@ -919,7 +929,7 @@ const PortfolioPage: React.FC = () => {
                       <p className="text-xs text-gray-600 mt-1">Separate policy</p>
                     </div>
                   </div>
-                  <div className="mt-3 grid md:grid-cols-2 gap-3">
+                  <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="bg-blue-50 p-3 rounded border border-blue-200">
                       <p className="text-sm font-semibold text-blue-900 mb-1">Tax Benefits:</p>
                       <ul className="text-xs text-blue-800 space-y-1">
@@ -941,10 +951,10 @@ const PortfolioPage: React.FC = () => {
                 </div>
 
                 {/* Critical Illness & Disability */}
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="bg-white p-4 rounded-lg border-2 border-orange-200">
-                    <h3 className="font-bold text-orange-900 mb-2 flex items-center gap-2">
-                      <AlertTriangle className="w-5 h-5" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
+                  <div className="bg-white p-3 md:p-4 rounded-lg border-2 border-orange-200">
+                    <h3 className="text-sm sm:text-base font-bold text-orange-900 mb-2 flex items-center gap-2">
+                      <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5" />
                       3. Critical Illness Cover
                     </h3>
                     <div className="space-y-2">
@@ -964,9 +974,9 @@ const PortfolioPage: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="bg-white p-4 rounded-lg border-2 border-purple-200">
-                    <h3 className="font-bold text-purple-900 mb-2 flex items-center gap-2">
-                      <Users className="w-5 h-5" />
+                  <div className="bg-white p-3 md:p-4 rounded-lg border-2 border-purple-200">
+                    <h3 className="text-sm sm:text-base font-bold text-purple-900 mb-2 flex items-center gap-2">
+                      <Users className="w-4 h-4 sm:w-5 sm:h-5" />
                       4. Disability Insurance
                     </h3>
                     <div className="space-y-2">
@@ -988,9 +998,9 @@ const PortfolioPage: React.FC = () => {
                 </div>
 
                 {/* Total Investment & Impact */}
-                <div className="p-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg">
-                  <h3 className="font-bold text-xl mb-3">💰 Total Risk Coverage Investment</h3>
-                  <div className="grid md:grid-cols-3 gap-4 text-sm">
+                <div className="p-3 md:p-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg">
+                  <h3 className="text-base sm:text-lg md:text-xl font-bold mb-3">💰 Total Risk Coverage Investment</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 text-xs sm:text-sm">
                     <div>
                       <p className="opacity-90 mb-1">Term Insurance (₹1Cr)</p>
                       <p className="text-2xl font-bold">~₹12K/year</p>
@@ -1005,23 +1015,23 @@ const PortfolioPage: React.FC = () => {
                     </div>
                   </div>
                   <div className="mt-4 pt-4 border-t border-white/20">
-                    <div className="flex justify-between items-center">
-                      <span className="text-lg font-semibold">Total Annual Investment:</span>
-                      <span className="text-3xl font-bold">~₹47K/year</span>
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                      <span className="text-base sm:text-lg font-semibold">Total Annual Investment:</span>
+                      <span className="text-2xl sm:text-3xl font-bold">~₹47K/year</span>
                     </div>
-                    <p className="text-sm mt-2 opacity-90">
+                    <p className="text-xs sm:text-sm mt-2 opacity-90">
                       💡 <strong>Just ₹4,000/month</strong> to protect your entire financial future!
                     </p>
                   </div>
                 </div>
 
                 {/* Action Items */}
-                <div className="bg-white p-4 rounded-lg border-2 border-green-300">
-                  <h3 className="font-bold text-green-900 mb-3 flex items-center gap-2">
-                    <TrendingUp className="w-5 h-5" />
+                <div className="bg-white p-3 md:p-4 rounded-lg border-2 border-green-300">
+                  <h3 className="text-base sm:text-lg font-bold text-green-900 mb-3 flex items-center gap-2">
+                    <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5" />
                     ✅ Action Checklist
                   </h3>
-                  <div className="grid md:grid-cols-2 gap-3 text-sm">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm">
                     <div className="space-y-2">
                       <label className="flex items-center gap-2">
                         <input type="checkbox" className="w-4 h-4" />
