@@ -112,7 +112,7 @@ const Pricing: React.FC = () => {
       displayName: 'Expert Plus',
       tagline: 'Complete financial management',
       icon: Crown,
-      price: { monthly: 1999, yearly: 19999 },
+      price: { monthly: 199, yearly: 1999 },
       featured: true,
       features: [
         { text: 'Everything in Premium', included: true },
@@ -312,6 +312,28 @@ const Pricing: React.FC = () => {
                           </div>
                           <p className="text-sm text-green-600 font-semibold mt-1">
                             Lifetime access • No recurring fees
+                          </p>
+                        </>
+                      ) : isExpertPlus && price > 0 ? (
+                        <>
+                          <div className="flex items-baseline gap-2 mb-1">
+                            <span className="text-2xl font-semibold text-gray-400 line-through">
+                              ₹1,999
+                            </span>
+                            <span className="text-sm text-red-600 font-bold bg-red-50 px-2 py-0.5 rounded">
+                              90% OFF
+                            </span>
+                          </div>
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent animate-pulse">
+                              ₹{price.toLocaleString()}
+                            </span>
+                            <span className="text-gray-500">
+                              /month
+                            </span>
+                          </div>
+                          <p className="text-sm text-purple-600 font-semibold mt-1 animate-pulse">
+                            🎉 Freedom Price • Limited Time Offer
                           </p>
                         </>
                       ) : (
