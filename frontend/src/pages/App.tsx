@@ -409,61 +409,107 @@ export default function App() {
         </div>
       </section>
 
-      {/* Realistic Expectations Section */}
+      {/* Smart Investment Benefits Section */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="text-center mb-12">
             <h2 className="text-4xl md:text-5xl font-black mb-4 text-gray-900">
-              Realistic Returns, Real Wealth
+              Balanced Portfolio, Optimized Returns
             </h2>
             <p className="text-xl text-gray-700 mb-8">
-              Understanding actual long-term investment returns in India
+              Expert-advised risk-balanced portfolio with automatic tracking
             </p>
           </div>
 
-          <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-8 md:p-12 mb-8">
-            <h3 className="text-2xl font-bold text-white mb-8 text-center">
-              Actual Long-Term CAGR in India (Reality):
-            </h3>
-            <div className="grid md:grid-cols-4 gap-6">
-              {[
-                { asset: "Equity", return: "~12%", color: "emerald" },
-                { asset: "Gold", return: "~9%", color: "teal" },
-                { asset: "Real Estate", return: "~8%", color: "emerald" },
-                { asset: "Debt", return: "~6-7%", color: "teal" }
-              ].map((item, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                  className="bg-white rounded-xl p-6 text-center"
-                >
-                  <div className="text-sm font-semibold text-gray-600 mb-2">{item.asset}</div>
-                  <div className={`text-4xl font-black text-${item.color}-600 mb-2`}>{item.return}</div>
-                  <div className="text-xs text-gray-500">Per year</div>
-                </motion.div>
-              ))}
-            </div>
-            <div className="mt-8 text-center">
-              <p className="text-2xl text-emerald-400 font-black">
-                Consistent returns build lasting wealth
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            {[
+              {
+                icon: <Shield className="w-8 h-8" />,
+                title: "Risk-Free Returns",
+                desc: "Expert-advised balanced portfolio tailored to your risk profile",
+                color: "emerald"
+              },
+              {
+                icon: <TrendingUp className="w-8 h-8" />,
+                title: "Automatic Portfolio Tracking",
+                desc: "Real-time monitoring of all your investments in one place",
+                color: "teal"
+              },
+              {
+                icon: <Target className="w-8 h-8" />,
+                title: "Net Worth Tracking",
+                desc: "See your complete financial picture update automatically",
+                color: "emerald"
+              },
+              {
+                icon: <Map className="w-8 h-8" />,
+                title: "Your Live Roadmap",
+                desc: "Just like Google Maps for your financial journey",
+                color: "teal"
+              },
+              {
+                icon: <Navigation className="w-8 h-8" />,
+                title: "Off-Track? We Guide You Back",
+                desc: "Get alerts and suggestions when you drift from your goals",
+                color: "emerald"
+              },
+              {
+                icon: <DollarSign className="w-8 h-8" />,
+                title: "Got Lumpsum? We Tell You Where",
+                desc: "Invest wisely to achieve all your goals faster",
+                color: "teal"
+              }
+            ].map((item, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                className="bg-gradient-to-br from-emerald-50 to-white rounded-2xl p-6 border-2 border-emerald-200 hover:shadow-xl transition-all"
+              >
+                <div className={`text-${item.color}-600 mb-4`}>
+                  {item.icon}
+                </div>
+                <h3 className="text-xl font-bold mb-2 text-gray-900">{item.title}</h3>
+                <p className="text-gray-600">{item.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="bg-gradient-to-br from-gray-900 to-gray-800 text-white rounded-2xl p-8"
+            >
+              <h3 className="text-2xl font-bold mb-4">Never Had Goals Aligned to Investments?</h3>
+              <p className="text-gray-300 mb-4">
+                We've got you covered. FIREMap automatically maps every investment to your specific goals.
               </p>
-            </div>
-          </div>
+              <div className="flex items-center gap-2 text-emerald-400">
+                <CheckCircle2 className="w-5 h-5" />
+                <span className="font-semibold">Track what investment is for what purpose</span>
+              </div>
+            </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="bg-emerald-50 rounded-2xl p-8 border-2 border-emerald-200 text-center"
-          >
-            <p className="text-xl text-gray-700 font-semibold">
-              Smart investing is about time in the market, not timing the market.<br />
-              Start early, invest consistently, and let compounding work its magic.
-            </p>
-          </motion.div>
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="bg-gradient-to-br from-emerald-600 to-teal-600 text-white rounded-2xl p-8"
+            >
+              <h3 className="text-2xl font-bold mb-4">Don't Know Which Investments for What?</h3>
+              <p className="text-emerald-100 mb-4">
+                We help you align existing investments to your goals - no need to start from scratch.
+              </p>
+              <div className="flex items-center gap-2 text-white">
+                <CheckCircle2 className="w-5 h-5" />
+                <span className="font-semibold">Get clarity on your entire portfolio instantly</span>
+              </div>
+            </motion.div>
+          </div>
         </div>
       </section>
 
@@ -981,28 +1027,28 @@ export default function App() {
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
-                name: "CA Rajesh Kumar",
+                name: "CA Santhosh",
                 role: "Chief Financial Advisor",
                 credentials: "SEBI RIA • CA • CFP",
                 experience: "15+ years",
                 expertise: "Tax Planning & Wealth Management",
-                image: "👨‍💼"
+                image: "/experts/Santhosh_CA_edited.png"
               },
               {
-                name: "Priya Sharma",
+                name: "Sameer Patel, CA",
                 role: "Investment Strategist",
-                credentials: "SEBI RIA • CFA Level 3",
+                credentials: "SEBI RIA • Chartered Accountant",
                 experience: "12+ years",
                 expertise: "Portfolio Management & Asset Allocation",
-                image: "👩‍💼"
+                image: "/experts/Sameer_CA.png"
               },
               {
-                name: "Amit Patel",
-                role: "FIRE Coach",
+                name: "Chethan Bhagavat",
+                role: "FIRE Coach & Wealth Advisor",
                 credentials: "SEBI RIA • Certified Financial Planner",
                 experience: "10+ years",
                 expertise: "Early Retirement Planning & Goal Setting",
-                image: "👨‍🏫"
+                image: "/experts/Chethan_Bhagvat.png"
               }
             ].map((expert, index) => (
               <motion.div
@@ -1013,7 +1059,13 @@ export default function App() {
                 transition={{ delay: index * 0.1 }}
                 className="bg-gradient-to-br from-emerald-50 to-white rounded-2xl p-8 border-2 border-emerald-200 hover:shadow-xl transition-all text-center"
               >
-                <div className="text-7xl mb-4">{expert.image}</div>
+                <div className="mb-4 flex justify-center">
+                  <img
+                    src={expert.image}
+                    alt={expert.name}
+                    className="w-32 h-32 rounded-full object-cover border-4 border-emerald-200 shadow-lg"
+                  />
+                </div>
                 <h3 className="text-2xl font-bold mb-2 text-gray-900">{expert.name}</h3>
                 <p className="text-emerald-600 font-semibold mb-3">{expert.role}</p>
 
