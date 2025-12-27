@@ -208,7 +208,7 @@ export const MilestoneCompletionCard: React.FC<MilestoneCompletionProps> = ({
           navigate(nextMilestoneRoute);
         } else {
           // If no more milestones, go to Journey Map
-          navigate('/journey');
+          navigate('/journey3d');
         }
       }, 3000);
     } catch (error) {
@@ -235,7 +235,7 @@ export const MilestoneCompletionCard: React.FC<MilestoneCompletionProps> = ({
       navigate(previousMilestoneRoute);
     } else {
       // If there's no previous milestone, go to Journey Map
-      navigate('/journey');
+      navigate('/journey3d');
     }
   };
 
@@ -247,7 +247,7 @@ export const MilestoneCompletionCard: React.FC<MilestoneCompletionProps> = ({
       navigate(nextMilestoneRoute);
     } else {
       // If there's no next milestone, go to Journey Map
-      navigate('/journey');
+      navigate('/journey3d');
       toast.success('Congratulations! You\'ve completed all milestones!', {
         description: 'Review your complete journey on the FIRE Map.',
       });

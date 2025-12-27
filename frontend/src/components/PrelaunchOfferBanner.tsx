@@ -44,7 +44,7 @@ export const PrelaunchOfferBanner: React.FC<PrelaunchOfferBannerProps> = ({
       navigate('/premium-upgrade');
     } else {
       // Show what's remaining
-      navigate('/journey');
+      navigate('/journey3d');
     }
   };
 

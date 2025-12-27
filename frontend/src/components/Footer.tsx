@@ -52,7 +52,7 @@ const Footer: React.FC = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/journey" className="text-gray-300 hover:text-white transition-colors">
+                <Link to="/journey3d" className="text-gray-300 hover:text-white transition-colors">
                   FIRE Journey Map
                 </Link>
               </li>
