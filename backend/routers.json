@@ -49,6 +49,36 @@
       "name": "consultation",
       "version": "2025-12-04T00:00:00",
       "disableAuth": true
+    },
+    "support": {
+      "name": "support",
+      "version": "2026-01-03T00:00:00",
+      "disableAuth": true
+    },
+    "feedback": {
+      "name": "feedback",
+      "version": "2026-01-03T00:00:00",
+      "disableAuth": true
+    },
+    "portfolio": {
+      "name": "portfolio",
+      "version": "2026-01-03T00:00:00",
+      "disableAuth": true
+    },
+    "action_items": {
+      "name": "action_items",
+      "version": "2026-01-03T00:00:00",
+      "disableAuth": true
+    },
+    "portfolio_snapshots": {
+      "name": "portfolio_snapshots",
+      "version": "2026-01-03T00:00:00",
+      "disableAuth": true
+    },
+    "sip_planner": {
+      "name": "sip_planner",
+      "version": "2026-01-03T00:00:00",
+      "disableAuth": true
     }
   }
 }
