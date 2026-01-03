@@ -159,7 +159,7 @@ const NavBar: React.FC<NavBarProps> = ({ showFullNav = true }) => {
                     Step 3: Optimize Your Taxes
                   </DropdownMenuItem>
                   <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/portfolio")}>
-                    Step 4: Assess Yourself
+                    Step 4: Portfolio Analyzer
                   </DropdownMenuItem>
                   <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/fire-planner?tab=set-goals")}>
                     Step 5: Set your Goals
