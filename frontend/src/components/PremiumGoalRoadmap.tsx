@@ -155,14 +155,14 @@ export const PremiumGoalRoadmap: React.FC<PremiumGoalRoadmapProps> = ({ userId, 
                       onClick={() => navigate('/fire-planner?tab=set-goals')}
                       className="flex gap-4 cursor-pointer hover:bg-gray-50 p-3 rounded-lg transition-colors"
                     >
-                      {/* Icon & Year Badge */}
-                      <div className="flex-shrink-0">
-                        <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center relative z-10">
+                      {/* Icon & Year Badge with Sticky Effect */}
+                      <div className="flex-shrink-0 sticky top-16 self-start z-20">
+                        <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center relative shadow-lg">
                           <GoalIcon className="h-6 w-6 text-white" />
                         </div>
-                        <div className="mt-2 text-center">
-                          <div className="text-xs font-semibold text-blue-600">{targetYear}</div>
-                          <div className="text-xs text-gray-500">{goal.timeYears}Y</div>
+                        <div className="mt-2 text-center bg-white rounded-md px-1.5 py-1 shadow-sm">
+                          <div className="text-xs font-bold text-blue-600">{targetYear}</div>
+                          <div className="text-xs text-gray-500 font-medium">{goal.timeYears}Y</div>
                         </div>
                       </div>
 
