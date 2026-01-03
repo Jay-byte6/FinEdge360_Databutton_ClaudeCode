@@ -65,9 +65,9 @@ const RazorpayCheckout: React.FC<RazorpayCheckoutProps> = ({
   // Plan pricing (in rupees)
   const planPricing = {
     premium: {
-      monthly: 3999,
-      yearly: 3999,
-      lifetime: 3999
+      monthly: 9999,
+      yearly: 9999,
+      lifetime: 9999
     },
     expert_plus: {
       monthly: 1999,
@@ -92,7 +92,7 @@ const RazorpayCheckout: React.FC<RazorpayCheckoutProps> = ({
     if (planName === 'founder50' && billingCycle === 'lifetime') {
       return planPricing.founder50.lifetime;
     }
-    // Regular plans (including Premium lifetime at ₹3,999)
+    // Regular plans (including Premium lifetime at ₹9,999)
     return planPricing[planName as keyof typeof planPricing]?.[billingCycle] || 0;
   };
 

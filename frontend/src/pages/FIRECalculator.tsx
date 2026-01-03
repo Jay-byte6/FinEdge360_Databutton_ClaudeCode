@@ -859,23 +859,50 @@ export default function FIRECalculator() {
                   const annualSavings = monthlySavings * 12;
                   const annualExpenses = monthlyExpenses * 12;
 
-                  // Calculate years with dynamic step-up savings
+                  // CRITICAL FIX: Proper FIRE calculation with wealth accumulation
+                  console.log('=== FIRE CALCULATOR SCENARIO 2 ===');
+                  console.log('Current Net Worth:', fireMetrics?.currentNetWorth);
+                  console.log('Annual Expenses:', annualExpenses);
+                  console.log('Annual Savings:', annualSavings);
+
                   const stepUpRate = stepUpPercentage / 100;
+                  const inflationRate = 0.06; // 6% inflation
                   let yearCount = 0;
-                  let totalSavings = 0;
-                  let currentSavings = annualSavings;
+                  let totalWealth = fireMetrics?.currentNetWorth || 0;
+                  let currentYearSavings = annualSavings;
+                  let found = false;
 
-                  while (yearCount < 50) {
-                    totalSavings += currentSavings;
-                    const expensesCovered = annualExpenses * yearCount;
+                  // Incremental simulation: check each year if we can retire
+                  for (let year = 0; year <= 50; year++) {
+                    // Calculate inflation-adjusted FIRE number needed at this year
+                    const inflationMultiplier = Math.pow(1 + inflationRate, year);
+                    const adjustedAnnualExpenses = annualExpenses * inflationMultiplier;
+                    const fireNumberNeeded = adjustedAnnualExpenses * 25; // 4% rule
 
-                    if (totalSavings >= expensesCovered) {
+                    console.log(`Year ${year}: Wealth=₹${(totalWealth/10000000).toFixed(2)}Cr, FIRE=₹${(fireNumberNeeded/10000000).toFixed(2)}Cr`);
+
+                    // Check if we can retire at this year
+                    if (totalWealth >= fireNumberNeeded) {
+                      yearCount = year;
+                      found = true;
+                      console.log(`✓ CAN RETIRE at year ${year}`);
                       break;
                     }
 
-                    currentSavings *= (1 + stepUpRate);
-                    yearCount++;
+                    // Grow wealth for next year
+                    if (year < 50) {
+                      totalWealth = totalWealth * 1.12; // 12% investment return
+                      totalWealth += currentYearSavings;
+                      currentYearSavings *= (1 + stepUpRate);
+                    }
                   }
+
+                  if (!found) {
+                    yearCount = 50;
+                    console.log('✗ Cannot retire within 50 years');
+                  }
+
+                  console.log('Final yearCount:', yearCount);
 
                   const retireAge = currentAge + yearCount;
                   const canRetireEarly = retireAge < retirementAge;

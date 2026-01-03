@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Dialog,
   DialogContent,
@@ -23,6 +24,7 @@ import {
   Shield,
   X,
   Send,
+  Rocket,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import useAuthStore from '@/utils/authStore';
@@ -47,6 +49,7 @@ export const FeedbackNudge: React.FC<FeedbackNudgeProps> = ({
   featureName
 }) => {
   const { user } = useAuthStore();
+  const navigate = useNavigate();
   const [selectedRating, setSelectedRating] = useState<number | null>(null);
   const [sliderValue, setSliderValue] = useState([3]); // Default middle value
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
@@ -106,6 +109,11 @@ export const FeedbackNudge: React.FC<FeedbackNudgeProps> = ({
       // Store in localStorage to prevent showing same feedback again soon
       localStorage.setItem(`feedback_submitted_${feedbackType}`, Date.now().toString());
 
+      // Special flag for milestone 3 feedback
+      if (milestone === 3) {
+        localStorage.setItem('milestone_3_feedback_given', 'true');
+      }
+
       onClose();
     } catch (error) {
       console.error('Error submitting feedback:', error);
@@ -117,8 +125,32 @@ export const FeedbackNudge: React.FC<FeedbackNudgeProps> = ({
 
   const handleDismissForever = () => {
     localStorage.setItem(`feedback_dismissed_${feedbackType}`, 'true');
+    // Special flag for milestone 3 feedback
+    if (milestone === 3) {
+      localStorage.setItem('milestone_3_feedback_given', 'true');
+    }
     toast.info('Got it! We won\'t ask again.');
     onClose();
+  };
+
+  const handlePowerUpClick = () => {
+    // Save to localStorage to never show this again
+    if (user?.id && milestone) {
+      localStorage.setItem(`last_feedback_milestone_${user.id}`, String(milestone));
+    }
+    localStorage.setItem(`feedback_dismissed_${feedbackType}`, 'true');
+
+    // Special flag for milestone 3 feedback
+    if (milestone === 3) {
+      localStorage.setItem('milestone_3_feedback_given', 'true');
+    }
+
+    onClose();
+
+    // Navigate to feedback page
+    setTimeout(() => {
+      navigate('/feedback');
+    }, 100);
   };
 
   const canSubmit = () => {
@@ -246,40 +278,20 @@ export const FeedbackNudge: React.FC<FeedbackNudgeProps> = ({
                 </div>
               </div>
               <DialogTitle className="text-center text-xl">
-                What's your PRIMARY financial goal?
+                🎉 Congratulations on completing FREE tier!
               </DialogTitle>
               <DialogDescription className="text-center">
-                This helps us personalize your experience
+                Help us make FIREMap even better for you and thousands of others
               </DialogDescription>
             </DialogHeader>
 
-            <div className="space-y-2 my-4">
-              {[
-                { id: 'early_retirement', label: '🏖️ Early Retirement (FIRE)', icon: '🔥' },
-                { id: 'emergency_fund', label: '🛡️ Build Emergency Fund', icon: '💰' },
-                { id: 'buy_home', label: '🏠 Save for Home', icon: '🏡' },
-                { id: 'child_education', label: '🎓 Children\'s Education', icon: '📚' },
-                { id: 'tax_optimization', label: '💼 Tax Optimization', icon: '📋' },
-                { id: 'grow_wealth', label: '📈 Grow Wealth', icon: '💎' },
-              ].map((goal) => (
-                <button
-                  key={goal.id}
-                  onClick={() => setSelectedOption(goal.id)}
-                  className={`w-full p-3 rounded-lg border-2 text-left transition-all ${
-                    selectedOption === goal.id
-                      ? 'bg-green-50 border-green-500 shadow-md'
-                      : 'bg-white border-gray-200 hover:border-green-300 hover:bg-green-50'
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="text-2xl">{goal.icon}</span>
-                    <span className="font-medium text-gray-800">{goal.label}</span>
-                    {selectedOption === goal.id && (
-                      <span className="ml-auto text-green-600">✓</span>
-                    )}
-                  </div>
-                </button>
-              ))}
+            <div className="my-4 p-4 rounded-lg bg-gradient-to-br from-blue-50 to-purple-50 border border-blue-200">
+              <p className="text-sm text-gray-700 text-center mb-3">
+                You've completed the first 3 milestones! Your feedback is invaluable in shaping the future of FIREMap.
+              </p>
+              <p className="text-xs text-gray-600 text-center">
+                Share your experience, suggestions, and help us build the ultimate FIRE journey platform.
+              </p>
             </div>
           </>
         );
@@ -432,20 +444,30 @@ export const FeedbackNudge: React.FC<FeedbackNudgeProps> = ({
           >
             Maybe Later
           </Button>
-          <Button
-            onClick={handleSubmit}
-            disabled={!canSubmit() || isSubmitting}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white order-1 sm:order-3"
-          >
-            {isSubmitting ? (
-              'Submitting...'
-            ) : (
-              <>
-                <Send className="w-4 h-4 mr-2" />
-                Submit Feedback
-              </>
-            )}
-          </Button>
+          {feedbackType === 'goal_selection' ? (
+            <Button
+              onClick={handlePowerUpClick}
+              className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white order-1 sm:order-3 font-bold"
+            >
+              <Rocket className="w-4 h-4 mr-2" />
+              🚀 PowerUp FIREMap
+            </Button>
+          ) : (
+            <Button
+              onClick={handleSubmit}
+              disabled={!canSubmit() || isSubmitting}
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white order-1 sm:order-3"
+            >
+              {isSubmitting ? (
+                'Submitting...'
+              ) : (
+                <>
+                  <Send className="w-4 h-4 mr-2" />
+                  Submit Feedback
+                </>
+              )}
+            </Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>

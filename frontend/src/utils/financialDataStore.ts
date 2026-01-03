@@ -98,7 +98,19 @@ const useFinancialDataStore = create<FinancialDataState>((set, get) => ({
 
       if (!response.ok) {
         console.error('[Store saveFinancialData] API returned error:', response.status, response.statusText);
-        throw new Error(`Failed to save financial data: ${response.statusText}`);
+
+        // Try to get error details from response
+        let errorMessage = `Failed to save financial data: ${response.statusText}`;
+        try {
+          const errorData = await response.json();
+          if (errorData.message || errorData.error) {
+            errorMessage = errorData.message || errorData.error;
+          }
+        } catch (e) {
+          // If response is not JSON, use default message
+        }
+
+        throw new Error(errorMessage);
       }
 
       const result = await response.json();
@@ -116,11 +128,21 @@ const useFinancialDataStore = create<FinancialDataState>((set, get) => ({
       }
     } catch (error) {
       console.error('[Store saveFinancialData] Error saving financial data:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+
       set({
-        error: 'Failed to save financial data',
+        error: errorMessage,
         isLoading: false
       });
-      toast.error("Error saving data. Please check your form inputs and try again.");
+
+      // Show more specific error message
+      if (errorMessage.includes('Invalid user ID')) {
+        toast.error("Please log in again to save your data.");
+      } else if (errorMessage.includes('Network') || errorMessage.includes('fetch')) {
+        toast.error("Network error. Please check your internet connection and try again.");
+      } else {
+        toast.error(`Error saving data: ${errorMessage}`);
+      }
       return false;
     }
   },

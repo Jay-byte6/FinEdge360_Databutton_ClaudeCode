@@ -88,6 +88,13 @@ export const API_ENDPOINTS = {
   // Feedback Submissions
   submitFeedback: `${API_BASE_URL}/routes/submit-feedback`,
   getFeedback: (userId: string) => `${API_BASE_URL}/routes/feedback/${userId}`,
+
+  // Support Tickets
+  createSupportTicket: `${API_BASE_URL}/routes/support-tickets`,
+  getSupportTickets: (userId: string) => `${API_BASE_URL}/routes/support-tickets/${userId}`,
+  getAllSupportTickets: `${API_BASE_URL}/routes/support-tickets`,
+  updateSupportTicket: (ticketId: string) => `${API_BASE_URL}/routes/support-tickets/${ticketId}`,
+  getSupportTicket: (ticketId: string) => `${API_BASE_URL}/routes/support-tickets/ticket/${ticketId}`,
 };
 
 // Helper function to check if we're in production

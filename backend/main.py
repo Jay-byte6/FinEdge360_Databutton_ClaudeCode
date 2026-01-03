@@ -130,6 +130,7 @@ def import_api_routers() -> APIRouter:
             if isinstance(api_router, APIRouter):
                 auth_disabled = is_auth_disabled(router_config, name)
                 print(f"  - Auth disabled: {auth_disabled}")
+                print(f"  - Router has {len(api_router.routes)} routes before inclusion")
                 routes.include_router(
                     api_router,
                     dependencies=(
@@ -139,6 +140,7 @@ def import_api_routers() -> APIRouter:
                     ),
                 )
                 print(f"  - [OK] Router included successfully")
+                print(f"  - Main routes now has {len(routes.routes)} total routes")
         except Exception as e:
             print(f"  - [ERROR] {e}")
             import traceback

@@ -50,14 +50,14 @@ const FEEDBACK_QUESTIONS: Question[] = [
     id: 'i_like',
     type: 'text',
     question: "I LIKE... 💚",
-    subtitle: "Tell us what's working for you! What made you smile or relieved while using FIREMap?",
+    subtitle: "Tell us what's working for you! Examples: 'The clear financial overview', 'Goal setting is easy', 'Portfolio tracking is helpful'",
     required: true
   },
   {
     id: 'i_wish',
     type: 'text',
     question: "I WISH... ✨",
-    subtitle: "What would make FIREMap even more amazing? What's missing or could be better?",
+    subtitle: "What would make FIREMap better? Examples: 'Faster page loading', 'Video tutorials', 'Better mobile experience', 'Live chat support'",
     required: true
   },
   {
@@ -130,7 +130,7 @@ const FEEDBACK_QUESTIONS: Question[] = [
     id: 'anything_else',
     type: 'text',
     question: "Any parting words of wisdom for us? 🙏",
-    subtitle: "Ideas, rants, love letters, feature requests - we're all ears!",
+    subtitle: "Final thoughts, ideas, rants, love letters - we're all ears!",
     required: false
   }
 ];
@@ -271,26 +271,55 @@ export const TypeformFeedback: React.FC<TypeformFeedbackProps> = ({
         );
 
       case 'multipleChoice':
+        // Support multiple selection for checkbox-style questions
+        const isMultiSelect = currentQuestion.question.includes('Select all that apply');
+        const selectedOptions = Array.isArray(currentResponse) ? currentResponse : (currentResponse ? [currentResponse] : []);
+
+        const handleMultiChoiceClick = (option: string) => {
+          if (isMultiSelect) {
+            // Multiple selection mode (checkboxes)
+            const newSelection = selectedOptions.includes(option)
+              ? selectedOptions.filter(o => o !== option)
+              : [...selectedOptions, option];
+            handleResponse(newSelection.length > 0 ? newSelection : undefined);
+          } else {
+            // Single selection mode (radio buttons)
+            handleResponse(option);
+          }
+        };
+
         return (
-          <div className="space-y-3 mt-8">
-            {currentQuestion.options?.map(option => (
-              <button
-                key={option}
-                onClick={() => handleResponse(option)}
-                className={`w-full p-4 rounded-lg text-left transition-all ${
-                  currentResponse === option
-                    ? 'bg-blue-50 border-2 border-blue-500 shadow-md'
-                    : 'bg-gray-50 hover:bg-gray-100 border-2 border-transparent'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-medium text-gray-800">{option}</span>
-                  {currentResponse === option && (
-                    <CheckCircle2 className="h-5 w-5 text-blue-500" />
-                  )}
-                </div>
-              </button>
-            ))}
+          <div className="space-y-3 mt-8 max-h-[60vh] overflow-y-auto pr-2">
+            {currentQuestion.options?.map(option => {
+              const isSelected = isMultiSelect
+                ? selectedOptions.includes(option)
+                : currentResponse === option;
+
+              return (
+                <button
+                  key={option}
+                  onClick={() => handleMultiChoiceClick(option)}
+                  className={`w-full p-4 rounded-lg text-left transition-all ${
+                    isSelected
+                      ? 'bg-blue-50 border-2 border-blue-500 shadow-md'
+                      : 'bg-gray-50 hover:bg-gray-100 border-2 border-transparent'
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="font-medium text-gray-800 flex-1">{option}</span>
+                    <div className={`flex-shrink-0 w-5 h-5 rounded ${isMultiSelect ? '' : 'rounded-full'} border-2 flex items-center justify-center ${
+                      isSelected
+                        ? 'bg-blue-500 border-blue-500'
+                        : 'border-gray-300'
+                    }`}>
+                      {isSelected && (
+                        <CheckCircle2 className="h-4 w-4 text-white" />
+                      )}
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
           </div>
         );
 

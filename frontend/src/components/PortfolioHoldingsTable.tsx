@@ -17,12 +17,13 @@ interface Props {
   onEdit?: (holding: PortfolioHolding) => void;
   onDelete?: (holdingId: string) => void;
   onRefresh?: () => void;
+  lastRefreshedAt?: string; // Manual refresh timestamp override
 }
 
 type SortField = 'scheme_name' | 'market_value' | 'absolute_return_percentage';
 type SortDirection = 'asc' | 'desc';
 
-export const PortfolioHoldingsTable = ({ holdings, userId, goals = [], onEdit, onDelete, onRefresh }: Props) => {
+export const PortfolioHoldingsTable = ({ holdings, userId, goals = [], onEdit, onDelete, onRefresh, lastRefreshedAt }: Props) => {
   const [sortField, setSortField] = useState<SortField>('market_value');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [assigningGoal, setAssigningGoal] = useState<string | null>(null);
@@ -168,7 +169,8 @@ export const PortfolioHoldingsTable = ({ holdings, userId, goals = [], onEdit, o
     return new Date(Math.max(...timestamps)).toISOString();
   };
 
-  const lastNavFetch = getMostRecentNavFetch();
+  // Use manual refresh timestamp if provided, otherwise use database timestamp
+  const lastNavFetch = lastRefreshedAt || getMostRecentNavFetch();
 
   return (
     <Card>

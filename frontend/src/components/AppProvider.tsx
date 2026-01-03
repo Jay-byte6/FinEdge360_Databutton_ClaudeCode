@@ -119,8 +119,10 @@ export const AppProvider = ({ children }: Props) => {
       {shouldShowNavbar && (
         <div className="sticky top-0 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 text-white py-2 px-4 overflow-hidden z-50">
           <motion.div
-            animate={{ x: ["100%", "-100%"] }}
-            transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+            key="running-banner"
+            initial={{ x: "100%" }}
+            animate={{ x: "-100%" }}
+            transition={{ duration: 30, repeat: Infinity, ease: "linear", repeatType: "loop" }}
             className="whitespace-nowrap text-sm md:text-base font-semibold"
           >
             🎉 LIMITED TIME: Worth ₹9,999/year - 100% FREE for First 5,000 Users! • Only 277 Spots Left • SEBI Compliant • Bank-Grade Security • Join 4,723 Smart Investors Now! 🎉

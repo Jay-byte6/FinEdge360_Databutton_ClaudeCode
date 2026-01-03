@@ -495,6 +495,7 @@ export default function EnterDetails() {
                       </div>
                       <input
                         type="number"
+                        step="any"
                         className="pl-7 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                         placeholder="0.00"
                         {...personalInfoForm.register("monthlySalary")}
@@ -514,6 +515,7 @@ export default function EnterDetails() {
                       </div>
                       <input
                         type="number"
+                        step="any"
                         className="pl-7 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                         placeholder="0.00"
                         {...personalInfoForm.register("monthlyExpenses")}
@@ -575,6 +577,7 @@ export default function EnterDetails() {
                               <Input
                                 id={`illiquid-${key}`}
                                 type="number"
+                                step="any"
                                 className="pl-7 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                 placeholder="0.00"
                                 {...assetsForm.register(`illiquid.${key}`, { valueAsNumber: true })}
@@ -628,6 +631,7 @@ export default function EnterDetails() {
                               <Input
                                 id={`liquid-${key}`}
                                 type="number"
+                                step="any"
                                 className="pl-7 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                 placeholder="0.00"
                                 {...assetsForm.register(`liquid.${key}`, { valueAsNumber: true })}
@@ -691,6 +695,7 @@ export default function EnterDetails() {
                             <Input
                               id={`liability-${key}`}
                               type="number"
+                              step="any"
                               className="pl-7 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                               placeholder="0.00"
                               {...liabilitiesForm.register(key, { valueAsNumber: true })}
@@ -749,6 +754,7 @@ export default function EnterDetails() {
                               </div>
                               <input
                                 type="number"
+                                step="any"
                                 className="pl-7 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                 placeholder="0.00"
                                 {...goalsForm.register(`shortTermGoals.${index}.amount`)}
@@ -825,6 +831,7 @@ export default function EnterDetails() {
                               </div>
                               <input
                                 type="number"
+                                step="any"
                                 className="pl-7 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                 placeholder="0.00"
                                 {...goalsForm.register(`midTermGoals.${index}.amount`)}
@@ -901,6 +908,7 @@ export default function EnterDetails() {
                               </div>
                               <input
                                 type="number"
+                                step="any"
                                 className="pl-7 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                 placeholder="0.00"
                                 {...goalsForm.register(`longTermGoals.${index}.amount`)}

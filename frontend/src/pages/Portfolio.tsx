@@ -45,6 +45,7 @@ const PortfolioPage: React.FC = () => {
   const [editingHolding, setEditingHolding] = useState<PortfolioHolding | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [goals, setGoals] = useState<Array<{ id: string; goal_name: string }>>([]);
+  const [lastManualRefresh, setLastManualRefresh] = useState<string | undefined>(undefined);
 
   const ACCESS_CODE = "FIREDEMO"; // Demo code for everyone to try
 
@@ -164,6 +165,9 @@ const PortfolioPage: React.FC = () => {
           { duration: 3000 }
         );
       }
+
+      // Update last manual refresh timestamp for immediate UI update
+      setLastManualRefresh(new Date().toISOString());
 
       // Then fetch updated holdings to refresh the UI
       await fetchHoldings(user.id);
@@ -544,6 +548,7 @@ const PortfolioPage: React.FC = () => {
                       holdings={holdings}
                       userId={user?.id}
                       goals={goals}
+                      lastRefreshedAt={lastManualRefresh}
                       onEdit={(holding) => setEditingHolding(holding)}
                       onDelete={(holdingId) => {
                         // Delete is handled internally by the table component

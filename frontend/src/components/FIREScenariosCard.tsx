@@ -59,18 +59,66 @@ export const FIREScenariosCard: React.FC<FIREScenariosCardProps> = ({
   const shortfall1 = shortfallYears * annualExpenses;
 
   // SCENARIO 2: WHEN CAN I RETIRE
-  const stepUpRate = stepUpPercentage / 100;
-  let yearCount = 0;
-  let totalSavings = 0;
-  let currentSavingsCalc = annualSavings;
+  // CRITICAL FIX V2: Complete rewrite with proper incremental simulation
+  // Bug: Previous version still had year 0 issue - inner loop didn't run when yearCount=0
+  // Solution: Use incremental simulation that accumulates wealth year by year
 
-  while (yearCount < 50) {
-    totalSavings += currentSavingsCalc;
-    const expensesCovered = annualExpenses * yearCount;
-    if (totalSavings >= expensesCovered) break;
-    currentSavingsCalc *= (1 + stepUpRate);
-    yearCount++;
+  console.log('=== FIRE SCENARIO 2 DEBUG ===');
+  console.log('Current Age:', currentAge);
+  console.log('Current Net Worth:', currentNetWorth);
+  console.log('Annual Expenses:', annualExpenses);
+  console.log('Annual Savings:', annualSavings);
+  console.log('Monthly Salary:', monthlySalary);
+  console.log('Monthly Expenses:', monthlyExpenses);
+
+  const stepUpRate = stepUpPercentage / 100;
+  const inflationRateDecimal = inflationRate / 100;
+
+  // Start incremental simulation
+  let totalWealth = currentNetWorth;
+  let currentYearSavings = annualSavings;
+  let yearCount = 0;
+  let found = false;
+
+  // Incremental simulation: grow wealth year by year
+  for (let year = 0; year <= 50; year++) {
+    // Calculate FIRE number needed at this year (inflation-adjusted)
+    const inflationMultiplier = Math.pow(1 + inflationRateDecimal, year);
+    const adjustedAnnualExpenses = annualExpenses * inflationMultiplier;
+    const fireNumberNeeded = adjustedAnnualExpenses * 25; // 4% rule
+
+    console.log(`Year ${year}: Wealth=₹${(totalWealth/10000000).toFixed(2)}Cr, FIRE Needed=₹${(fireNumberNeeded/10000000).toFixed(2)}Cr`);
+
+    // Check if we can retire at this year
+    // IMPORTANT: Must have enough to cover 25x inflation-adjusted expenses
+    if (totalWealth >= fireNumberNeeded) {
+      yearCount = year;
+      found = true;
+      console.log(`✓ CAN RETIRE at year ${year}!`);
+      break;
+    }
+
+    // If not year 50, grow wealth for next year
+    if (year < 50) {
+      // Apply investment returns to existing wealth (12% assumed)
+      totalWealth = totalWealth * 1.12;
+
+      // Add this year's savings
+      totalWealth += currentYearSavings;
+
+      // Increase next year's savings with step-up
+      currentYearSavings = currentYearSavings * (1 + stepUpRate);
+    }
   }
+
+  // If still not found after 50 years, cap at 50
+  if (!found) {
+    yearCount = 50;
+    console.log('✗ Cannot retire within 50 years');
+  }
+
+  console.log('Final yearCount:', yearCount);
+  console.log('=== END DEBUG ===');
 
   const retireAge = currentAge + yearCount;
   const canRetireEarly = retireAge < retirementAge;
@@ -179,7 +227,11 @@ export const FIREScenariosCard: React.FC<FIREScenariosCardProps> = ({
                 <span className="text-lg">⏰</span>
                 When Can I RETIRE?
               </p>
-              {canRetireEarly ? (
+              {yearCount === 0 ? (
+                <p className="text-xs text-green-700 font-bold mt-1 bg-green-100 p-1 rounded">
+                  🎉 You can retire TODAY! (at age {retireAge})
+                </p>
+              ) : canRetireEarly ? (
                 <p className="text-xs text-green-700 font-semibold mt-1">
                   ✨ Can retire in {yearCount} years (at age {retireAge})
                 </p>

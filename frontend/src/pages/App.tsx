@@ -265,11 +265,35 @@ export default function App() {
               </Button>
             </motion.div>
 
+            {/* LIMITED OFFER - Access Code Banner */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.6 }}
+              className="mb-8"
+            >
+              <div className="bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 rounded-xl p-1 shadow-2xl">
+                <div className="bg-gray-900 rounded-lg p-4 md:p-6 text-center">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <Sparkles className="w-6 h-6 md:w-7 md:h-7 text-amber-400 animate-pulse" />
+                    <span className="text-xs md:text-sm font-bold text-amber-400 uppercase tracking-wider">Limited Time Offer</span>
+                    <Sparkles className="w-6 h-6 md:w-7 md:h-7 text-amber-400 animate-pulse" />
+                  </div>
+                  <h3 className="text-xl md:text-2xl lg:text-3xl font-black text-white mb-2">
+                    Find the <span className="text-amber-400">Access Code</span> Worth ₹9,999 Inside the App! 🎁
+                  </h3>
+                  <p className="text-sm md:text-base text-gray-300 max-w-2xl mx-auto">
+                    Unlock premium features worth ₹9,999/year absolutely <span className="font-bold text-emerald-400">FREE</span> - Hunt for the secret code hidden in your journey!
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+
             {/* Trust indicators */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.6 }}
+              transition={{ delay: 0.7 }}
               className="flex flex-wrap items-center justify-center md:justify-start gap-6 text-sm text-gray-300"
             >
               <div className="flex items-center gap-2">
@@ -305,10 +329,11 @@ export default function App() {
                     alt="Calm person sitting peacefully on money - Financial peace of mind"
                     className="relative z-10 w-full h-auto drop-shadow-2xl"
                     animate={{
-                      y: [0, -15, 0],
+                      y: [0, -30, 0], // Increased from -15 to -30 for more visible float
+                      rotate: [0, 2, 0, -2, 0], // Added subtle rotation for dynamic feel
                     }}
                     transition={{
-                      duration: 4,
+                      duration: 3, // Reduced from 4 to 3 for slightly faster, more visible movement
                       repeat: Infinity,
                       ease: "easeInOut"
                     }}

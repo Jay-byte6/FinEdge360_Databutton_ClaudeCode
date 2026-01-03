@@ -2,9 +2,11 @@ import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Menu, HelpCircle } from 'lucide-react';
 import useAuthStore from '../utils/authStore';
 import useFinancialDataStore from '../utils/financialDataStore';
 import { NotificationCenter } from './NotificationCenter';
+import { SupportTicketModal } from './SupportTicketModal';
 
 export interface NavBarProps {
   showFullNav?: boolean;
@@ -16,6 +18,7 @@ const NavBar: React.FC<NavBarProps> = ({ showFullNav = true }) => {
   const { user, profile, signOut, isAuthenticated } = useAuthStore();
   const { financialData } = useFinancialDataStore();
   const [firstName, setFirstName] = React.useState<string>('User');
+  const [showSupportModal, setShowSupportModal] = React.useState(false);
 
   // Extract first name from profile, financial data, or email
   React.useEffect(() => {
@@ -107,16 +110,16 @@ const NavBar: React.FC<NavBarProps> = ({ showFullNav = true }) => {
             {isAuthenticated ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-9 rounded-full px-3">
-                    <div className="flex items-center gap-2">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100 text-blue-600 font-semibold">
-                        {firstName.charAt(0).toUpperCase()}
-                      </div>
-                      <span className="text-sm font-medium text-gray-700 hidden sm:block">Hi, {firstName}</span>
-                    </div>
+                  <Button variant="ghost" className="relative h-10 px-3 rounded-md hover:bg-gray-100 flex items-center gap-2" aria-label="Menu">
+                    <Menu className="h-5 w-5 text-gray-700" />
+                    <span className="text-sm font-medium text-gray-700 hidden sm:inline-block">{firstName}</span>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56 max-h-[80vh] overflow-y-auto">
+                <DropdownMenuContent
+                  align="end"
+                  className="w-64 max-h-[80vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
+                  style={{ WebkitOverflowScrolling: 'touch' }}
+                >
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
                       <p className="text-sm font-semibold text-gray-900">{firstName}</p>
@@ -127,6 +130,10 @@ const NavBar: React.FC<NavBarProps> = ({ showFullNav = true }) => {
                   {/* Profile Section */}
                   <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/profile")}>
                     👤 My Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-pointer" onClick={() => setShowSupportModal(true)}>
+                    <HelpCircle className="h-4 w-4 mr-2" />
+                    Get Help
                   </DropdownMenuItem>
                   <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/dashboard")}>
                     📊 Dashboard
@@ -168,6 +175,10 @@ const NavBar: React.FC<NavBarProps> = ({ showFullNav = true }) => {
                   <DropdownMenuLabel className="text-xs font-semibold text-gray-600 px-2">
                     Support & Community
                   </DropdownMenuLabel>
+                  <DropdownMenuItem className="cursor-pointer" onClick={() => setShowSupportModal(true)}>
+                    <HelpCircle className="h-4 w-4 mr-2" />
+                    Get Help
+                  </DropdownMenuItem>
                   <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/pricing")}>
                     💎 View Plans & Pricing
                   </DropdownMenuItem>
@@ -197,6 +208,12 @@ const NavBar: React.FC<NavBarProps> = ({ showFullNav = true }) => {
           </div>
         </div>
       </div>
+
+      {/* Support Ticket Modal */}
+      <SupportTicketModal
+        open={showSupportModal}
+        onClose={() => setShowSupportModal(false)}
+      />
     </header>
   );
 };

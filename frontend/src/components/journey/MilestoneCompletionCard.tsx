@@ -26,6 +26,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { SupportTicketModal } from '@/components/SupportTicketModal';
+import { FeedbackNudge } from '@/components/FeedbackNudge';
 
 export interface MilestoneCompletionProps {
   milestoneNumber: number;
@@ -78,6 +80,9 @@ export const MilestoneCompletionCard: React.FC<MilestoneCompletionProps> = ({
   const [previousMilestoneCompleted, setPreviousMilestoneCompleted] = useState(true);
   const [showPreviousMilestoneAlert, setShowPreviousMilestoneAlert] = useState(false);
   const [showCongratulations, setShowCongratulations] = useState(false);
+  const [showSupportModal, setShowSupportModal] = useState(false);
+  const [showFeedbackNudge, setShowFeedbackNudge] = useState(false);
+  const [totalCompletedMilestones, setTotalCompletedMilestones] = useState(0);
 
   // Calculate completion percentage
   const completedCount = completionCriteria.filter(c => c.checked).length;
@@ -90,6 +95,7 @@ export const MilestoneCompletionCard: React.FC<MilestoneCompletionProps> = ({
     if (user?.id) {
       loadMilestoneProgress();
       checkPreviousMilestoneCompletion();
+      countTotalCompletedMilestones();
     }
   }, [user?.id, milestoneNumber]);
 
@@ -137,6 +143,30 @@ export const MilestoneCompletionCard: React.FC<MilestoneCompletionProps> = ({
     } catch (error) {
       console.error('Error checking previous milestone:', error);
       setPreviousMilestoneCompleted(false);
+    }
+  };
+
+  const countTotalCompletedMilestones = async () => {
+    if (!user?.id) return;
+
+    try {
+      let completedCount = 0;
+      // Check all 7 milestones
+      for (let i = 1; i <= 7; i++) {
+        const response = await fetch(
+          `${API_BASE_URL}/routes/get-milestone-progress/${user?.id}/${i}`
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.completed) {
+            completedCount++;
+          }
+        }
+      }
+      setTotalCompletedMilestones(completedCount);
+    } catch (error) {
+      console.error('Error counting completed milestones:', error);
     }
   };
 
@@ -195,35 +225,58 @@ export const MilestoneCompletionCard: React.FC<MilestoneCompletionProps> = ({
         onComplete();
       }
 
-      // Show congratulations popup
+      // Check if this is the 3rd milestone completion and feedback hasn't been given
+      const newTotalCompleted = totalCompletedMilestones + 1;
+      const feedbackGiven = localStorage.getItem('milestone_3_feedback_given') === 'true';
+
+      if (newTotalCompleted === 3 && !feedbackGiven) {
+        // Show feedback nudge after congratulations
+        setTimeout(() => {
+          setShowCongratulations(false);
+          setShowFeedbackNudge(true);
+        }, 3000);
+      } else {
+        // Show congratulations popup
+        setShowCongratulations(true);
+
+        // Auto-redirect to next milestone after 3 seconds
+        setTimeout(() => {
+          setShowCongratulations(false);
+          const nextMilestoneNumber = milestoneNumber + 1;
+          const nextMilestoneRoute = MILESTONE_ROUTES[nextMilestoneNumber];
+
+          if (nextMilestoneRoute) {
+            navigate(nextMilestoneRoute);
+          } else {
+            // If no more milestones, go to Journey Map
+            navigate('/journey3d');
+          }
+        }, 3000);
+      }
+
+      // Always show congratulations first
       setShowCongratulations(true);
-
-      // Auto-redirect to next milestone after 3 seconds
-      setTimeout(() => {
-        setShowCongratulations(false);
-        const nextMilestoneNumber = milestoneNumber + 1;
-        const nextMilestoneRoute = MILESTONE_ROUTES[nextMilestoneNumber];
-
-        if (nextMilestoneRoute) {
-          navigate(nextMilestoneRoute);
-        } else {
-          // If no more milestones, go to Journey Map
-          navigate('/journey3d');
-        }
-      }, 3000);
     } catch (error) {
       // Error already handled in saveMilestoneProgress
     }
   };
 
-  const handleNeedHelp = async () => {
-    try {
-      await saveMilestoneProgress({ needs_help: true });
-      toast.success('Help request noted', {
-        description: 'We\'ll prioritize improving this section with more resources.',
-      });
-    } catch (error) {
-      // Error already handled
+  const handleNeedHelp = () => {
+    // Open support ticket modal
+    setShowSupportModal(true);
+  };
+
+  const handleFeedbackNudgeClose = () => {
+    setShowFeedbackNudge(false);
+    // Navigate to next milestone after feedback is given/closed
+    const nextMilestoneNumber = milestoneNumber + 1;
+    const nextMilestoneRoute = MILESTONE_ROUTES[nextMilestoneNumber];
+
+    if (nextMilestoneRoute) {
+      navigate(nextMilestoneRoute);
+    } else {
+      // If no more milestones, go to Journey Map
+      navigate('/journey3d');
     }
   };
 
@@ -354,10 +407,9 @@ export const MilestoneCompletionCard: React.FC<MilestoneCompletionProps> = ({
                 variant="outline"
                 className="w-full justify-start"
                 onClick={handleNeedHelp}
-                disabled={saving || progressState.needs_help}
               >
                 <MessageCircle className="h-4 w-4 mr-2" />
-                {progressState.needs_help ? 'Help Requested' : 'Get Help'}
+                Get Help
               </Button>
             </div>
           </div>
@@ -502,6 +554,24 @@ export const MilestoneCompletionCard: React.FC<MilestoneCompletionProps> = ({
           </div>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Support Ticket Modal */}
+      <SupportTicketModal
+        open={showSupportModal}
+        onClose={() => setShowSupportModal(false)}
+        milestoneNumber={milestoneNumber}
+        milestoneName={title}
+        prefilledSubject={`Need help with Milestone ${milestoneNumber}: ${title}`}
+      />
+
+      {/* Feedback Nudge - Shows after 3rd milestone completion */}
+      <FeedbackNudge
+        open={showFeedbackNudge}
+        onClose={handleFeedbackNudgeClose}
+        feedbackType="quick_rating"
+        milestone={3}
+        featureName="Milestone Journey Progress"
+      />
     </Card>
   );
 };

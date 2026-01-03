@@ -621,6 +621,24 @@ export default function TaxPlanning() {
 
       toast.success('Tax plan saved successfully! Milestone 3 complete ✅');
 
+      // Mark milestone 3 as complete
+      try {
+        await fetch(API_ENDPOINTS.saveMilestoneProgress(user.id), {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            milestone_number: 3,
+            completed: true
+          }),
+        });
+        console.log('[Tax Planning] Milestone 3 marked as complete');
+      } catch (milestoneError) {
+        console.error('[Tax Planning] Error marking milestone as complete:', milestoneError);
+        // Don't fail the whole operation if milestone update fails
+      }
+
       // Refresh financial data to update Journey Map
       await fetchFinancialData(user.id);
     } catch (error) {
