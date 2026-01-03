@@ -332,7 +332,7 @@ export default function App() {
                       y: [0, -40, 0], // Pure bouncing with increased height (40px)
                     }}
                     transition={{
-                      duration: 3, // Reduced from 4 to 3 for slightly faster, more visible movement
+                      duration: 5, // Slower, more gentle bouncing
                       repeat: Infinity,
                       ease: "easeInOut"
                     }}
