@@ -1,287 +1,245 @@
 /**
- * useJourneyNudge - Hook to manage milestone nudge timing and display logic
- * Intelligently shows nudges at the right time without being annoying
+ * useJourneyNudge - Smart journey guidance system
+ * Shows ONE critical next action every login based on user's current progress
+ *
+ * PHILOSOPHY:
+ * - Show nudge EVERY login to guide user to most important next step
+ * - "Don't show again" only dismisses for current session (not permanent)
+ * - Dynamic based on what user hasn't completed
+ * - Clear, actionable guidance with direct links
  */
 
 import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
 
 interface NudgeState {
   shouldShow: boolean;
   currentMilestone: number;
-  completedMilestones: number[];
-  dismissedForever: boolean;
-  lastShownTime: number | null;
+  dismissedThisSession: boolean;
 }
 
-const NUDGE_STORAGE_KEY = 'finedge360_journey_nudge_state';
-const NUDGE_COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes between nudges
-const NUDGE_DELAY_MS = 3000; // 3 seconds after page load
-const DATA_STABILIZATION_DELAY_MS = 2000; // Wait 2 seconds for data to stabilize before showing nudge
+// Session-based dismissal key (cleared on new login)
+const SESSION_DISMISSAL_KEY = 'journey_nudge_dismissed_this_session';
 
-// Smart route-to-milestone mapping - ONLY show nudges that make sense for that page
-// Philosophy: Don't interrupt users on pages where they're already working on the milestone
-const ROUTE_NUDGE_RULES: Record<string, {
-  allowedMilestones: number[];
-  suppressMilestones: number[];
+// Milestone priority order - SEQUENTIAL because the journey is already in the right order!
+// Milestones 1-3: FREE tier (foundation)
+// Milestones 4-10: PREMIUM tier (optimization and growth)
+const MILESTONE_PRIORITY = [
+  1,  // Know Your Reality (Enter Details + Net Worth) - FREE
+  2,  // Discover Your FIRE Number (FIRE Calculator) - FREE
+  3,  // Master Tax Planning - FREE (END OF FREE TIER)
+  4,  // Financial Health Check (Risk Assessment) - PREMIUM
+  5,  // Design Your Portfolio (Asset Allocation) - PREMIUM
+  6,  // Set Financial Goals (FIRE Planner/SIP) - PREMIUM
+  7,  // Build Your Financial Plan - PREMIUM
+  8,  // Book Expert Consultation - PREMIUM
+  9,  // Automate Success (Auto-SIP) - PREMIUM
+  10, // Portfolio Monitoring - PREMIUM
+];
+
+// Milestone details - Matching the actual Financial Freedom Journey
+const MILESTONE_DETAILS: Record<number, {
+  title: string;
   description: string;
+  buttonText: string;
+  route: string;
+  icon: string;
+  urgency: 'critical' | 'high' | 'medium';
+  benefit: string;
 }> = {
-  '/': {
-    allowedMilestones: [1, 2, 8, 10], // Dashboard: Start journey, set goals, book consultation, upgrade
-    suppressMilestones: [3, 4, 5, 6, 7, 9], // Don't nudge for features when they're on dashboard
-    description: 'Dashboard - High-level nudges only'
+  1: {
+    title: "Know Your Reality",
+    description: "Enter your financial details and see your Net Worth instantly",
+    buttonText: "Start My Journey",
+    route: "/enter-details",
+    icon: "📊",
+    urgency: "critical",
+    benefit: "Foundation for your entire financial journey"
   },
-  '/enter-details': {
-    allowedMilestones: [], // NO nudges - they're already entering details
-    suppressMilestones: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-    description: 'Entering details - Let them focus'
+  2: {
+    title: "Discover Your FIRE Number",
+    description: "Find out exactly how much you need to retire early",
+    buttonText: "Calculate FIRE Number",
+    route: "/fire-calculator",
+    icon: "🔥",
+    urgency: "critical",
+    benefit: "Know your retirement target corpus"
   },
-  '/net-worth': {
-    allowedMilestones: [2, 3], // After viewing net worth, nudge for goals or FIRE calc
-    suppressMilestones: [1, 4, 5, 6, 7, 8, 9, 10],
-    description: 'Net Worth - Nudge next financial planning step'
+  3: {
+    title: "Master Tax Planning",
+    description: "Save lakhs in taxes with personalized strategies",
+    buttonText: "Optimize My Taxes",
+    route: "/tax-planning",
+    icon: "💰",
+    urgency: "critical",
+    benefit: "Keep more money working for you"
   },
-  '/fire-planner': {
-    allowedMilestones: [], // NO nudges - they're working on goals/SIPs
-    suppressMilestones: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-    description: 'FIRE Planner - Let them plan'
+  4: {
+    title: "Financial Health Check",
+    description: "Complete risk assessment and portfolio audit",
+    buttonText: "Check My Financial Health",
+    route: "/portfolio",
+    icon: "🏥",
+    urgency: "high",
+    benefit: "Understand your risk tolerance & financial fitness"
   },
-  '/fire-calculator': {
-    allowedMilestones: [4, 9], // After FIRE calc, nudge for SIP plan or automation
-    suppressMilestones: [1, 2, 3, 5, 6, 7, 8, 10],
-    description: 'FIRE Calculator - Nudge implementation next'
+  5: {
+    title: "Design Your Portfolio",
+    description: "Get personalized asset allocation recommendations",
+    buttonText: "Optimize My Portfolio",
+    route: "/portfolio",
+    icon: "📈",
+    urgency: "high",
+    benefit: "Build wealth with the right investment mix"
   },
-  '/portfolio': {
-    allowedMilestones: [5, 6], // Portfolio page - nudge for risk assessment or optimization
-    suppressMilestones: [1, 2, 3, 4, 7, 8, 9, 10],
-    description: 'Portfolio - Nudge portfolio-related actions only'
+  6: {
+    title: "Set Financial Goals",
+    description: "Define short, medium, and long-term goals with exact SIP amounts",
+    buttonText: "Plan My Goals",
+    route: "/fire-planner",
+    icon: "🎯",
+    urgency: "high",
+    benefit: "Clear roadmap to achieve all your dreams"
   },
-  '/tax-planning': {
-    allowedMilestones: [], // NO nudges - they're doing tax planning
-    suppressMilestones: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-    description: 'Tax Planning - Let them focus on taxes'
+  7: {
+    title: "Build Your Financial Plan",
+    description: "Match investments to goals with month-by-month action plan",
+    buttonText: "Create My Plan",
+    route: "/fire-planner",
+    icon: "📋",
+    urgency: "medium",
+    benefit: "Complete strategy for wealth creation"
   },
-  '/consultation': {
-    allowedMilestones: [], // NO nudges - they're booking consultation
-    suppressMilestones: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-    description: 'Consultation - Let them book'
+  8: {
+    title: "Book Expert Consultation",
+    description: "Get your plan validated by SEBI-registered advisors (FREE)",
+    buttonText: "Book Free Consultation",
+    route: "/consultation",
+    icon: "👨‍💼",
+    urgency: "medium",
+    benefit: "Expert guidance & personalized fund recommendations"
   },
-  '/profile': {
-    allowedMilestones: [8, 10], // Profile - nudge for consultation or premium
-    suppressMilestones: [1, 2, 3, 4, 5, 6, 7, 9],
-    description: 'Profile - High-level nudges only'
+  9: {
+    title: "Automate Success",
+    description: "Set up Auto-SIP and remove emotional investing decisions",
+    buttonText: "Automate My Investments",
+    route: "/fire-planner",
+    icon: "⚙️",
+    urgency: "medium",
+    benefit: "Set it and achieve it - peace of mind"
   },
+  10: {
+    title: "Portfolio Monitoring",
+    description: "Continuous tracking with smart rebalancing recommendations",
+    buttonText: "Start Monitoring",
+    route: "/portfolio",
+    icon: "📡",
+    urgency: "medium",
+    benefit: "Stay on track until all goals achieved"
+  }
 };
 
 export const useJourneyNudge = (
   userId: string | undefined,
   completedMilestones: number[],
-  isDataLoading: boolean = false // NEW: Don't show nudges while data is loading
+  isDataLoading: boolean = false
 ) => {
-  const location = useLocation();
   const [nudgeState, setNudgeState] = useState<NudgeState>({
     shouldShow: false,
     currentMilestone: 1,
-    completedMilestones: [],
-    dismissedForever: false,
-    lastShownTime: null,
+    dismissedThisSession: false,
   });
 
-  // Load saved nudge state from localStorage
+  // Initialize session dismissal state
   useEffect(() => {
-    if (!userId) return;
+    const dismissed = sessionStorage.getItem(SESSION_DISMISSAL_KEY) === 'true';
+    setNudgeState(prev => ({
+      ...prev,
+      dismissedThisSession: dismissed
+    }));
+  }, []);
 
-    const savedState = localStorage.getItem(`${NUDGE_STORAGE_KEY}_${userId}`);
-    if (savedState) {
-      try {
-        const parsed = JSON.parse(savedState);
-        setNudgeState(prev => ({ ...prev, ...parsed }));
-      } catch (error) {
-        console.error('Error loading nudge state:', error);
+  // Determine the most important next milestone
+  const getNextCriticalMilestone = (): number => {
+    // Find first incomplete milestone in priority order
+    for (const milestoneNum of MILESTONE_PRIORITY) {
+      if (!completedMilestones.includes(milestoneNum)) {
+        return milestoneNum;
       }
     }
-  }, [userId]);
+    // All milestones complete - return 10 (Premium) as default
+    return 10;
+  };
 
-  // Update current milestone when completedMilestones changes
-  // DEBOUNCED to prevent rapid changes during data loading
+  // Show nudge on login if not dismissed this session
   useEffect(() => {
-    // Wait for data to stabilize before updating milestone
-    // This prevents multiple rapid nudges as data loads incrementally
-    const debounceTimer = setTimeout(() => {
-      // Find the next incomplete milestone
-      const totalMilestones = 10;
-      let nextMilestone = totalMilestones;
-      for (let i = 1; i <= totalMilestones; i++) {
-        if (!completedMilestones.includes(i)) {
-          nextMilestone = i;
-          break;
-        }
-      }
+    if (!userId || isDataLoading) return;
 
-      setNudgeState(prev => ({
-        ...prev,
-        currentMilestone: nextMilestone,
-        completedMilestones,
-      }));
-    }, DATA_STABILIZATION_DELAY_MS);
+    const nextMilestone = getNextCriticalMilestone();
+    const alreadyDismissed = sessionStorage.getItem(SESSION_DISMISSAL_KEY) === 'true';
 
-    return () => clearTimeout(debounceTimer);
-  }, [completedMilestones]);
-
-  // Save nudge state to localStorage
-  const saveNudgeState = (newState: Partial<NudgeState>) => {
-    if (!userId) return;
-
-    const updatedState = { ...nudgeState, ...newState };
-    setNudgeState(updatedState);
-    localStorage.setItem(
-      `${NUDGE_STORAGE_KEY}_${userId}`,
-      JSON.stringify(updatedState)
-    );
-  };
-
-  // Determine next milestone to complete
-  const getNextMilestone = (): number => {
-    const totalMilestones = 10;
-    for (let i = 1; i <= totalMilestones; i++) {
-      if (!completedMilestones.includes(i)) {
-        return i;
-      }
-    }
-    return totalMilestones; // All complete
-  };
-
-  // Check if we should show nudge on current route - SMART CONTEXTUAL LOGIC
-  const shouldShowNudgeForRoute = (milestone: number): boolean => {
-    const currentPath = location.pathname;
-
-    // Find matching route rule
-    let routeRule = ROUTE_NUDGE_RULES[currentPath];
-
-    // If no exact match, try to find parent route
-    if (!routeRule) {
-      for (const [route, rule] of Object.entries(ROUTE_NUDGE_RULES)) {
-        if (currentPath.startsWith(route)) {
-          routeRule = rule;
-          break;
-        }
-      }
-    }
-
-    // If still no rule, default to dashboard behavior (conservative)
-    if (!routeRule) {
-      routeRule = ROUTE_NUDGE_RULES['/'];
-    }
-
-    // Check if this milestone is suppressed on this page
-    if (routeRule.suppressMilestones.includes(milestone)) {
-      return false; // Don't show - user is already on relevant page
-    }
-
-    // Check if this milestone is allowed on this page
-    if (routeRule.allowedMilestones.includes(milestone)) {
-      return true; // Show - this nudge makes sense here
-    }
-
-    // Default: don't show nudge if not explicitly allowed
-    return false;
-  };
-
-  // Check if enough time has passed since last nudge
-  const isCooldownExpired = (): boolean => {
-    if (!nudgeState.lastShownTime) return true;
-    return Date.now() - nudgeState.lastShownTime > NUDGE_COOLDOWN_MS;
-  };
-
-  // Main effect to determine when to show nudge - SMART & CONTEXTUAL
-  useEffect(() => {
-    // Don't show if user dismissed forever, not logged in, or data is still loading
-    if (!userId || nudgeState.dismissedForever || isDataLoading) {
-      // Hide nudge while loading to prevent showing wrong milestone
-      setNudgeState(prev => ({ ...prev, shouldShow: false }));
-      return;
-    }
-
-    const nextMilestone = getNextMilestone();
-    const isRelevantRoute = shouldShowNudgeForRoute(nextMilestone);
-    const cooldownExpired = isCooldownExpired();
-
-    // INTELLIGENT NUDGE DECISION:
-    // ✅ Show nudge ONLY if ALL conditions are met:
-    // 1. User data has fully loaded from backend (not showing wrong milestone)
-    // 2. User is on a page where this nudge makes sense (not interrupting their work)
-    // 3. Enough time has passed since last nudge (5 min cooldown)
-    // 4. User hasn't completed all milestones yet
-    // 5. This specific milestone is allowed on current page
-
-    if (
-      isRelevantRoute &&
-      cooldownExpired &&
-      completedMilestones.length < 10
-    ) {
-      // Delay showing nudge to not interrupt page load
-      // User should see the page content first, then get gentle guidance
+    // Show nudge if:
+    // 1. User is logged in
+    // 2. Data has loaded
+    // 3. Not dismissed this session
+    // 4. Not all milestones complete
+    if (!alreadyDismissed && completedMilestones.length < 10) {
+      // Delay showing by 7 seconds to let page fully load
       const timer = setTimeout(() => {
-        setNudgeState(prev => ({
-          ...prev,
+        console.log('[JourneyNudge] Showing nudge for milestone:', nextMilestone);
+        console.log('[JourneyNudge] Completed milestones:', completedMilestones);
+        setNudgeState({
           shouldShow: true,
           currentMilestone: nextMilestone,
-          completedMilestones,
-          lastShownTime: Date.now(),
-        }));
-      }, NUDGE_DELAY_MS);
+          dismissedThisSession: false,
+        });
+      }, 7000);
 
       return () => clearTimeout(timer);
-    } else {
-      // Don't show nudge - conditions not met
-      // This prevents annoying popups while user is working
-      setNudgeState(prev => ({
-        ...prev,
-        shouldShow: false,
-      }));
     }
-  }, [location.pathname, completedMilestones, userId, isDataLoading]);
+  }, [userId, completedMilestones, isDataLoading]);
 
-  // Functions to control nudge display
-  const closeNudge = () => {
-    saveNudgeState({ shouldShow: false, lastShownTime: Date.now() });
-  };
-
-  const dismissForever = () => {
-    saveNudgeState({
+  // Close nudge for this session
+  const dismissThisSession = () => {
+    sessionStorage.setItem(SESSION_DISMISSAL_KEY, 'true');
+    setNudgeState(prev => ({
+      ...prev,
       shouldShow: false,
-      dismissedForever: true,
-      lastShownTime: Date.now(),
-    });
+      dismissedThisSession: true,
+    }));
+    console.log('[JourneyNudge] Dismissed for this session - will show again on next login');
   };
 
+  // Close nudge temporarily (user clicked main action)
+  const closeNudge = () => {
+    setNudgeState(prev => ({
+      ...prev,
+      shouldShow: false,
+    }));
+  };
+
+  // Get details for current milestone
+  const getMilestoneDetails = () => {
+    return MILESTONE_DETAILS[nudgeState.currentMilestone] || MILESTONE_DETAILS[2];
+  };
+
+  // Force show nudge (for testing or manual trigger)
   const showNudgeNow = () => {
-    const nextMilestone = getNextMilestone();
-    saveNudgeState({
+    const nextMilestone = getNextCriticalMilestone();
+    setNudgeState({
       shouldShow: true,
       currentMilestone: nextMilestone,
-      completedMilestones,
-      lastShownTime: Date.now(),
-    });
-  };
-
-  const resetNudges = () => {
-    saveNudgeState({
-      shouldShow: false,
-      dismissedForever: false,
-      lastShownTime: null,
+      dismissedThisSession: false,
     });
   };
 
   return {
     shouldShow: nudgeState.shouldShow,
     currentMilestone: nudgeState.currentMilestone,
-    completedMilestones: nudgeState.completedMilestones,
+    milestoneDetails: getMilestoneDetails(),
     closeNudge,
-    dismissForever,
+    dismissThisSession,
     showNudgeNow,
-    resetNudges,
-    progress: (completedMilestones.length / 10) * 100,
-    nextMilestone: getNextMilestone(),
+    completedCount: completedMilestones.length,
+    totalMilestones: 10,
   };
 };

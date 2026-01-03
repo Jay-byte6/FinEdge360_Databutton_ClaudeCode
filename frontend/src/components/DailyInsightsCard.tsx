@@ -147,18 +147,34 @@ export const DailyInsightsCard: React.FC<DailyInsightsCardProps> = ({
               </div>
             )}
 
-            {/* Daily Change */}
-            {portfolioChange !== undefined && portfolioChange !== 0 && (
-              <div className="flex items-center gap-1 text-xs pt-2 border-t border-indigo-200">
-                {isPortfolioDailyPositive ? (
-                  <TrendingUp className="h-3 w-3 text-green-600" />
-                ) : (
-                  <TrendingDown className="h-3 w-3 text-red-600" />
+            {/* Daily Change - Always show when portfolio exists */}
+            {portfolioChange !== undefined && (
+              <div className="pt-2 border-t border-indigo-200">
+                <div className="flex items-center gap-1 text-xs">
+                  {portfolioChange === 0 ? (
+                    <span className="text-gray-500">─</span>
+                  ) : isPortfolioDailyPositive ? (
+                    <TrendingUp className="h-3 w-3 text-green-600" />
+                  ) : (
+                    <TrendingDown className="h-3 w-3 text-red-600" />
+                  )}
+                  <span className={
+                    portfolioChange === 0
+                      ? 'text-gray-600 font-medium'
+                      : isPortfolioDailyPositive
+                        ? 'text-green-600 font-medium'
+                        : 'text-red-600 font-medium'
+                  }>
+                    {portfolioChange === 0
+                      ? '₹0'
+                      : `${isPortfolioDailyPositive ? '+' : ''}${formatCurrency(Math.abs(portfolioChange))}`
+                    }
+                  </span>
+                  <span className="text-gray-500">today</span>
+                </div>
+                {portfolioChange === 0 && (
+                  <p className="text-xs text-gray-400 mt-0.5 italic">First day tracking - check back tomorrow!</p>
                 )}
-                <span className={isPortfolioDailyPositive ? 'text-green-600 font-medium' : 'text-red-600 font-medium'}>
-                  {isPortfolioDailyPositive ? '+' : ''}{formatCurrency(Math.abs(portfolioChange))}
-                </span>
-                <span className="text-gray-500">today</span>
               </div>
             )}
           </div>

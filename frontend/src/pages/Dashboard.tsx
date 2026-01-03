@@ -25,8 +25,10 @@ import { API_ENDPOINTS } from '@/config/api';
 import { PrelaunchOfferBanner } from '@/components/PrelaunchOfferBanner';
 import { MilestoneNudgePopup } from '@/components/MilestoneNudgePopup';
 import { MilestoneCelebration } from '@/components/MilestoneCelebration';
+import { FeedbackNudge } from '@/components/FeedbackNudge';
 import { useJourneyNudge } from '@/hooks/useJourneyNudge';
 import { getDailyChange } from '../utils/portfolioSnapshotTracker';
+import { useAutomaticPortfolioRefresh } from '@/hooks/useAutomaticPortfolioRefresh';
 
 type DashboardCard = {
   title: string;
@@ -56,6 +58,39 @@ export default function Dashboard() {
   const [celebrationMilestone, setCelebrationMilestone] = useState<number>(1);
   const [milestonesLoading, setMilestonesLoading] = useState(true); // Track milestone data loading
   const [portfolioChange, setPortfolioChange] = useState<number | undefined>(undefined);
+
+  // Feedback nudge state
+  const [showFeedbackNudge, setShowFeedbackNudge] = useState(false);
+  const [feedbackType, setFeedbackType] = useState<'quick_rating' | 'feature_satisfaction' | 'goal_selection' | 'yes_no_poll' | 'journey_confidence'>('quick_rating');
+  const [feedbackMilestone, setFeedbackMilestone] = useState<number | undefined>(undefined);
+
+  // Automatic portfolio refresh - updates NAV values automatically
+  const { refreshPortfolio, hasPortfolio } = useAutomaticPortfolioRefresh(user?.id, {
+    enabled: true,
+    refreshOnMount: true, // Refresh when dashboard loads
+    refreshInterval: 5 * 60 * 1000, // Refresh every 5 minutes
+    onRefresh: async () => {
+      console.log('[Dashboard] Portfolio auto-refreshed with latest NAV');
+      // Immediately refresh daily change after portfolio update
+      if (user?.id) {
+        try {
+          const changeData = await getDailyChange(user.id);
+          if (changeData) {
+            if (changeData.has_data) {
+              setPortfolioChange(changeData.daily_change);
+              console.log('[Dashboard] Daily change updated:', changeData.daily_change);
+            } else {
+              setPortfolioChange(0);
+              console.log('[Dashboard] No historical data yet - showing ₹0');
+            }
+          }
+        } catch (error) {
+          console.error('[Dashboard] Error refreshing daily change after auto-refresh:', error);
+          setPortfolioChange(0);
+        }
+      }
+    }
+  });
 
   // Journey nudge system - only show after ALL data is loaded
   const journeyNudge = useJourneyNudge(
@@ -132,11 +167,20 @@ export default function Dashboard() {
 
       try {
         const changeData = await getDailyChange(user.id);
-        if (changeData && changeData.has_data) {
-          setPortfolioChange(changeData.daily_change);
+        if (changeData) {
+          if (changeData.has_data) {
+            setPortfolioChange(changeData.daily_change);
+            console.log('[Dashboard] Daily change loaded:', changeData.daily_change);
+          } else {
+            // No historical data yet - set to 0 so it shows "₹0 today"
+            setPortfolioChange(0);
+            console.log('[Dashboard] No historical data yet - showing ₹0 daily change');
+          }
         }
       } catch (error) {
         console.error('[Dashboard] Error loading portfolio daily change:', error);
+        // On error, also set to 0 to show something
+        setPortfolioChange(0);
       }
     };
 
@@ -300,9 +344,16 @@ export default function Dashboard() {
 
       // Show celebration if a new milestone was just completed
       if (completedMilestones.length > prevCompleted) {
-        const newMilestone = completedMilestones[completedMilestones.length - 1];
-        setCelebrationMilestone(newMilestone);
-        setShowCelebration(true);
+        // Check if celebration popups are dismissed for this session
+        const celebrationDismissed = sessionStorage.getItem('celebration_popups_dismissed_this_session') === 'true';
+
+        if (!celebrationDismissed) {
+          const newMilestone = completedMilestones[completedMilestones.length - 1];
+          setCelebrationMilestone(newMilestone);
+          setShowCelebration(true);
+        } else {
+          console.log('[Dashboard] Celebration popup dismissed for this session - skipping');
+        }
       }
 
       // Milestone calculation complete - now safe to show nudges
@@ -311,6 +362,51 @@ export default function Dashboard() {
 
     calculateCurrentMilestone();
   }, [financialData, goals, user?.id, completedMilestonesArray.length]);
+
+  // Trigger feedback nudge after specific milestones
+  useEffect(() => {
+    if (milestonesLoading || !user?.id) return;
+
+    // Check if user already gave feedback for this milestone
+    const lastFeedbackMilestone = localStorage.getItem(`last_feedback_milestone_${user.id}`);
+    const highestCompleted = completedMilestonesArray.length > 0
+      ? Math.max(...completedMilestonesArray)
+      : 0;
+
+    // Trigger feedback after milestone 3, 6, or 10
+    const feedbackMilestones = [3, 6, 10];
+    const shouldTriggerFeedback = feedbackMilestones.includes(highestCompleted);
+
+    if (shouldTriggerFeedback && lastFeedbackMilestone !== String(highestCompleted)) {
+      // Delay for milestones 3 and 6 (5 minutes), immediate for milestone 10
+      const delay = highestCompleted === 10 ? 1000 : 5 * 60 * 1000;
+
+      const timer = setTimeout(() => {
+        // Set appropriate feedback type based on milestone
+        if (highestCompleted === 3) {
+          setFeedbackType('goal_selection'); // After setting goals
+        } else if (highestCompleted === 6) {
+          setFeedbackType('journey_confidence'); // After risk assessment
+        } else if (highestCompleted === 10) {
+          setFeedbackType('quick_rating'); // After journey complete
+        }
+
+        setFeedbackMilestone(highestCompleted);
+        setShowFeedbackNudge(true);
+      }, delay);
+
+      return () => clearTimeout(timer);
+    }
+  }, [completedMilestonesArray, milestonesLoading, user?.id]);
+
+  // Handle feedback nudge close
+  const handleFeedbackClose = () => {
+    if (user?.id && feedbackMilestone) {
+      // Remember that we showed feedback for this milestone
+      localStorage.setItem(`last_feedback_milestone_${user.id}`, String(feedbackMilestone));
+    }
+    setShowFeedbackNudge(false);
+  };
 
   // Dashboard cards configuration
   const dashboardCards: DashboardCard[] = [
@@ -466,14 +562,14 @@ export default function Dashboard() {
         totalMilestones={10}
       />
 
-      {/* Milestone Nudge Popup */}
+      {/* Milestone Nudge Popup - Simplified session-based system */}
       {journeyNudge.shouldShow && (
         <MilestoneNudgePopup
-          currentMilestone={journeyNudge.currentMilestone}
-          completedMilestones={completedMilestonesArray}
+          milestoneDetails={journeyNudge.milestoneDetails}
+          completedCount={journeyNudge.completedCount}
+          totalMilestones={journeyNudge.totalMilestones}
           onClose={journeyNudge.closeNudge}
-          onDismissForever={journeyNudge.dismissForever}
-          showPrelaunchOffer={completedMilestonesArray.length >= 5}
+          onDismissThisSession={journeyNudge.dismissThisSession}
         />
       )}
 
@@ -483,8 +579,23 @@ export default function Dashboard() {
           milestoneNumber={celebrationMilestone}
           milestoneTitle={`Milestone ${celebrationMilestone}`}
           onContinue={() => setShowCelebration(false)}
-          nextMilestoneRoute={journeyNudge.currentMilestone < 10 ? '/' : '/dashboard'}
+          nextMilestoneRoute={undefined} // Let component use its built-in route mapping
           totalCompleted={completedMilestonesArray.length}
+        />
+      )}
+
+      {/* Feedback Nudge */}
+      {showFeedbackNudge && (
+        <FeedbackNudge
+          open={showFeedbackNudge}
+          onClose={handleFeedbackClose}
+          feedbackType={feedbackType}
+          milestone={feedbackMilestone}
+          featureName={
+            feedbackMilestone === 3 ? "Goal Planning" :
+            feedbackMilestone === 6 ? "Risk Assessment" :
+            feedbackMilestone === 10 ? "Complete Journey" : undefined
+          }
         />
       )}
 
