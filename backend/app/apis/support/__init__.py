@@ -3,6 +3,9 @@ from pydantic import BaseModel
 from typing import Optional, List
 from datetime import datetime
 import os
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from supabase import create_client
 
 router = APIRouter(prefix="/routes")
@@ -21,6 +24,19 @@ if not supabase_key:
     print("CRITICAL_ERROR: SUPABASE_SERVICE_KEY is not set. Support ticket operations will fail.")
 elif supabase:
     print("[OK] Supabase client initialized successfully for support ticket operations")
+
+# Email configuration
+SMTP_SERVER = os.getenv("SMTP_SERVER", "smtp.gmail.com")
+SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
+SMTP_USERNAME = os.getenv("SMTP_USERNAME")
+SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
+FROM_EMAIL = os.getenv("FROM_EMAIL", "noreply@finedge360.com")
+ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "support@finedge360.com")  # Admin email for notifications
+
+print(f"Email configuration loaded:")
+print(f"  SMTP Server: {SMTP_SERVER}:{SMTP_PORT}")
+print(f"  SMTP Username configured: {'YES' if SMTP_USERNAME else 'NO'}")
+print(f"  Admin Email: {ADMIN_EMAIL}")
 
 
 class SupportTicketCreate(BaseModel):
@@ -59,6 +75,70 @@ class SupportTicketResponse(BaseModel):
     updatedAt: str
 
 
+def send_admin_notification_email(ticket_id: str, user_name: str, user_email: Optional[str], subject: str, description: str, priority: str, category: str):
+    """Send email notification to admin when a new support ticket is created"""
+    if not SMTP_USERNAME or not SMTP_PASSWORD:
+        print("[WARNING] SMTP credentials not configured. Skipping email notification.")
+        return
+
+    try:
+        # Create email message
+        message = MIMEMultipart("alternative")
+        message["Subject"] = f"[FIREMap Support] New Ticket #{ticket_id[:8]} - {priority.upper()} Priority"
+        message["From"] = FROM_EMAIL
+        message["To"] = ADMIN_EMAIL
+
+        # Create HTML email body
+        html_body = f"""
+        <html>
+            <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+                    <h2 style="color: #d9534f;">🎫 New Support Ticket Created</h2>
+
+                    <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                        <p><strong>Ticket ID:</strong> #{ticket_id}</p>
+                        <p><strong>Priority:</strong> <span style="color: {'#d9534f' if priority == 'urgent' else '#f0ad4e' if priority == 'high' else '#5bc0de'};">{priority.upper()}</span></p>
+                        <p><strong>Category:</strong> {category.replace('_', ' ').title()}</p>
+                    </div>
+
+                    <h3>User Information</h3>
+                    <p><strong>Name:</strong> {user_name}</p>
+                    <p><strong>Email:</strong> {user_email or 'Not provided'}</p>
+
+                    <h3>Issue Details</h3>
+                    <p><strong>Subject:</strong> {subject}</p>
+                    <p><strong>Description:</strong></p>
+                    <div style="background-color: #f4f4f4; padding: 10px; border-left: 4px solid #5bc0de; margin: 10px 0;">
+                        {description}
+                    </div>
+
+                    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
+                        <p style="font-size: 12px; color: #777;">
+                            This is an automated notification from FIREMap Support System.<br>
+                            Please respond to the user at {user_email or 'N/A'} within 24-48 hours.
+                        </p>
+                    </div>
+                </div>
+            </body>
+        </html>
+        """
+
+        # Attach HTML body
+        message.attach(MIMEText(html_body, "html"))
+
+        # Send email
+        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
+            server.starttls()
+            server.login(SMTP_USERNAME, SMTP_PASSWORD)
+            server.sendmail(FROM_EMAIL, ADMIN_EMAIL, message.as_string())
+
+        print(f"[OK] Admin notification email sent successfully for ticket {ticket_id}")
+
+    except Exception as e:
+        print(f"[ERROR] Failed to send admin notification email: {str(e)}")
+        raise
+
+
 @router.post("/support-tickets")
 async def create_support_ticket(ticket: SupportTicketCreate):
     """
@@ -92,6 +172,21 @@ async def create_support_ticket(ticket: SupportTicketCreate):
 
         ticket_id = response.data[0].get("id")
         print(f"[OK] Support ticket created successfully: {ticket_id} for user: {ticket.userName}")
+
+        # Send email notification to admin
+        try:
+            send_admin_notification_email(
+                ticket_id=ticket_id,
+                user_name=ticket.userName,
+                user_email=ticket.userEmail,
+                subject=ticket.subject,
+                description=ticket.description,
+                priority=ticket.priority,
+                category=ticket.category
+            )
+        except Exception as email_error:
+            print(f"[WARNING] Failed to send admin notification email: {str(email_error)}")
+            # Don't fail the ticket creation if email fails
 
         return {
             "success": True,

@@ -323,14 +323,13 @@ export default function App() {
                 className="hidden md:flex justify-center items-center relative"
               >
                 <div className="relative w-full max-w-lg">
-                  {/* Character Image - floating animation for peaceful feel */}
+                  {/* Character Image - simple bouncing animation */}
                   <motion.img
                     src="/HeroSection_Character.png"
                     alt="Calm person sitting peacefully on money - Financial peace of mind"
                     className="relative z-10 w-full h-auto drop-shadow-2xl"
                     animate={{
-                      y: [0, -30, 0], // Increased from -15 to -30 for more visible float
-                      rotate: [0, 2, 0, -2, 0], // Added subtle rotation for dynamic feel
+                      y: [0, -40, 0], // Pure bouncing with increased height (40px)
                     }}
                     transition={{
                       duration: 3, // Reduced from 4 to 3 for slightly faster, more visible movement
