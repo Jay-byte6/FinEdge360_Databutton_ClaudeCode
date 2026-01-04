@@ -28,6 +28,7 @@ class MilestoneProgressUpdate(BaseModel):
     completed: Optional[bool] = None
     needs_help: Optional[bool] = None
     notes: Optional[str] = None
+    completion_criteria: Optional[List[dict]] = None  # Store checkbox states
 
 
 class MilestoneProgressResponse(BaseModel):
@@ -87,6 +88,9 @@ async def save_milestone_progress(user_id: str, progress: MilestoneProgressUpdat
 
         if progress.notes is not None:
             data["notes"] = progress.notes
+
+        if progress.completion_criteria is not None:
+            data["completion_criteria"] = progress.completion_criteria
 
         if existing.data and len(existing.data) > 0:
             # Update existing record

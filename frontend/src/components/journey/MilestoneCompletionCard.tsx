@@ -49,6 +49,11 @@ interface MilestoneProgressState {
   completed: boolean;
   needs_help: boolean;
   notes?: string;
+  completion_criteria?: {
+    label: string;
+    checked: boolean;
+    description?: string;
+  }[];
 }
 
 // Mapping of milestone numbers to their page routes
@@ -84,9 +89,15 @@ export const MilestoneCompletionCard: React.FC<MilestoneCompletionProps> = ({
   const [showFeedbackNudge, setShowFeedbackNudge] = useState(false);
   const [totalCompletedMilestones, setTotalCompletedMilestones] = useState(0);
 
+  // Use stored criteria if milestone is completed and we have stored data
+  // Otherwise use the live criteria passed as props
+  const displayCriteria = (progressState.completed && progressState.completion_criteria)
+    ? progressState.completion_criteria
+    : completionCriteria;
+
   // Calculate completion percentage
-  const completedCount = completionCriteria.filter(c => c.checked).length;
-  const totalCount = completionCriteria.length;
+  const completedCount = displayCriteria.filter(c => c.checked).length;
+  const totalCount = displayCriteria.length;
   const completionPercentage = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
   const isFullyCompleted = completedCount === totalCount;
 
@@ -111,6 +122,7 @@ export const MilestoneCompletionCard: React.FC<MilestoneCompletionProps> = ({
           completed: data.completed || false,
           needs_help: data.needs_help || false,
           notes: data.notes,
+          completion_criteria: data.completion_criteria || undefined,
         });
       }
     } catch (error) {
@@ -219,7 +231,11 @@ export const MilestoneCompletionCard: React.FC<MilestoneCompletionProps> = ({
     }
 
     try {
-      await saveMilestoneProgress({ completed: true });
+      // Save completion status AND the current criteria state
+      await saveMilestoneProgress({
+        completed: true,
+        completion_criteria: completionCriteria  // Store the checkbox states
+      });
 
       if (onComplete) {
         onComplete();
@@ -351,7 +367,7 @@ export const MilestoneCompletionCard: React.FC<MilestoneCompletionProps> = ({
         {/* Completion Checklist */}
         <div className="space-y-3">
           <h3 className="font-semibold text-lg">Completion Checklist</h3>
-          {completionCriteria.map((criterion, index) => (
+          {displayCriteria.map((criterion, index) => (
             <div
               key={index}
               className={`flex items-start space-x-3 p-3 rounded-lg ${
