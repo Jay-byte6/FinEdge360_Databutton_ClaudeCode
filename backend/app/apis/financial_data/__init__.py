@@ -825,6 +825,41 @@ def save_sip_planner(data: SIPPlannerData) -> SIPPlannerResponse:
             supabase.from_("sip_planner_data").insert(sip_planner_data).execute()
             message = "SIP planner data saved successfully"
 
+        # CRITICAL: Also save goals to the goals table for portfolio alignment
+        # This allows portfolio page to show goals in dropdowns and track progress
+        print(f"[save-sip-planner] Saving {len(data.goals)} goals to goals table for portfolio alignment...")
+
+        for goal in data.goals:
+            # Only save calculated goals (sipCalculated = true)
+            if goal.sipCalculated:
+                goal_data = {
+                    "user_id": user_id_db,
+                    "name": goal.name,
+                    "amount": goal.amountRequiredFuture or goal.amountRequiredToday,
+                    "years": goal.timeYears,
+                    "goal_type": goal.goalType.lower().replace('-', '_'),  # "Short-Term" → "short_term"
+                    "amount_available_today": goal.amountAvailableToday,
+                    "amount_required_future": goal.amountRequiredFuture,
+                    "goal_inflation": goal.goalInflation,
+                    "step_up_percentage": goal.stepUp,
+                    "sip_required": goal.sipRequired,
+                    "priority": goal.priority,
+                    "personal_info_id": None  # Nullable as per migration 016
+                }
+
+                # Check if goal already exists (match by user_id + name)
+                existing_goal = supabase.from_("goals").select("id").eq("user_id", user_id_db).eq("name", goal.name).execute()
+
+                if existing_goal.data and len(existing_goal.data) > 0:
+                    # Update existing goal
+                    goal_id = existing_goal.data[0]["id"]
+                    supabase.from_("goals").update(goal_data).eq("id", goal_id).execute()
+                    print(f"[save-sip-planner] Updated goal in goals table: {goal.name}")
+                else:
+                    # Insert new goal
+                    supabase.from_("goals").insert(goal_data).execute()
+                    print(f"[save-sip-planner] Inserted new goal in goals table: {goal.name}")
+
         return SIPPlannerResponse(
             success=True,
             message=message,
