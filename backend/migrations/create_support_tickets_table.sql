@@ -1,6 +1,7 @@
 -- Create support_tickets table for milestone help requests
 CREATE TABLE IF NOT EXISTS support_tickets (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    ticket_id TEXT UNIQUE NOT NULL,  -- 7-digit alphanumeric ticket ID
     user_id TEXT NOT NULL,
     user_name TEXT NOT NULL,
     user_email TEXT,
@@ -18,6 +19,7 @@ CREATE TABLE IF NOT EXISTS support_tickets (
 );
 
 -- Create index for faster queries
+CREATE INDEX IF NOT EXISTS idx_support_tickets_ticket_id ON support_tickets(ticket_id);
 CREATE INDEX IF NOT EXISTS idx_support_tickets_user_id ON support_tickets(user_id);
 CREATE INDEX IF NOT EXISTS idx_support_tickets_status ON support_tickets(status);
 CREATE INDEX IF NOT EXISTS idx_support_tickets_milestone_number ON support_tickets(milestone_number);
@@ -42,6 +44,7 @@ CREATE POLICY "Service role can manage all support tickets" ON support_tickets
     WITH CHECK (true);
 
 COMMENT ON TABLE support_tickets IS 'Support tickets for user milestone help requests and technical issues';
+COMMENT ON COLUMN support_tickets.ticket_id IS '7-digit alphanumeric ticket ID shown to users (e.g., ABC1234)';
 COMMENT ON COLUMN support_tickets.milestone_number IS 'The milestone number (1-10) this ticket relates to';
 COMMENT ON COLUMN support_tickets.category IS 'Type of support: milestone_help, technical_issue, general_inquiry, feature_request';
 COMMENT ON COLUMN support_tickets.priority IS 'Ticket priority: low, medium, high, urgent';

@@ -4,6 +4,8 @@ from typing import Optional, List
 from datetime import datetime
 import os
 import smtplib
+import random
+import string
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from supabase import create_client
@@ -37,6 +39,12 @@ print(f"Email configuration loaded:")
 print(f"  SMTP Server: {SMTP_SERVER}:{SMTP_PORT}")
 print(f"  SMTP Username configured: {'YES' if SMTP_USERNAME else 'NO'}")
 print(f"  Admin Email: {ADMIN_EMAIL}")
+
+
+def generate_ticket_id() -> str:
+    """Generate a 7-digit alphanumeric ticket ID"""
+    characters = string.ascii_uppercase + string.digits
+    return ''.join(random.choices(characters, k=7))
 
 
 class SupportTicketCreate(BaseModel):
@@ -148,8 +156,20 @@ async def create_support_ticket(ticket: SupportTicketCreate):
         raise HTTPException(status_code=500, detail="Database not initialized")
 
     try:
+        # Generate 7-digit alphanumeric ticket ID
+        ticket_id = generate_ticket_id()
+
+        # Ensure uniqueness by checking if it already exists
+        max_retries = 5
+        for _ in range(max_retries):
+            existing = supabase.table("support_tickets").select("id").eq("ticket_id", ticket_id).execute()
+            if not existing.data:
+                break
+            ticket_id = generate_ticket_id()
+
         # Prepare ticket data
         ticket_data = {
+            "ticket_id": ticket_id,  # Custom 7-digit alphanumeric ID
             "user_id": ticket.userId,
             "user_name": ticket.userName,
             "user_email": ticket.userEmail,
@@ -169,8 +189,6 @@ async def create_support_ticket(ticket: SupportTicketCreate):
 
         if not response.data:
             raise HTTPException(status_code=500, detail="Failed to create support ticket")
-
-        ticket_id = response.data[0].get("id")
         print(f"[OK] Support ticket created successfully: {ticket_id} for user: {ticket.userName}")
 
         # Send email notification to admin
