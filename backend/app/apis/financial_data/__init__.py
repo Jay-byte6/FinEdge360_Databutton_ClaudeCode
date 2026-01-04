@@ -784,8 +784,26 @@ def save_sip_planner(data: SIPPlannerData) -> SIPPlannerResponse:
         if not supabase:
             raise HTTPException(status_code=500, detail="Database not initialized")
 
-        # Use the user ID directly from auth - no need to look up by email
+        # Use the user ID from auth
         user_id_db = data.userId
+
+        # Ensure user exists in public.users table (for foreign key constraint)
+        # Check if user exists
+        user_check = supabase.from_("users").select("id").eq("id", user_id_db).execute()
+
+        if not user_check.data or len(user_check.data) == 0:
+            # User doesn't exist in public.users, create entry
+            user_data = {
+                "id": user_id_db,
+                "email": data.userEmail if data.userEmail else f"user_{user_id_db}@temp.com",
+                "created_at": "now()",
+                "updated_at": "now()"
+            }
+            try:
+                supabase.from_("users").insert(user_data).execute()
+            except Exception as insert_error:
+                # User might have been created by another request, ignore duplicate key errors
+                print(f"User insert warning (may be duplicate): {insert_error}")
 
         # Prepare SIP planner data
         sip_planner_data = {
