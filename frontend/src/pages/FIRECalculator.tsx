@@ -219,15 +219,15 @@ export default function FIRECalculator() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 py-12 px-4">
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-white py-12 px-4">
         <div className="container mx-auto max-w-4xl">
-          <div className="bg-white rounded-xl shadow-lg p-8 text-center">
+          <div className="bg-white rounded-xl shadow-lg p-8 text-center border-2 border-emerald-200">
             <div className="animate-pulse flex flex-col items-center">
-              <div className="rounded-full bg-slate-200 h-24 w-24 mb-4"></div>
-              <div className="h-4 bg-slate-200 rounded w-3/4 mb-2"></div>
-              <div className="h-4 bg-slate-200 rounded w-1/2"></div>
+              <div className="rounded-full bg-emerald-200 h-24 w-24 mb-4"></div>
+              <div className="h-4 bg-emerald-200 rounded w-3/4 mb-2"></div>
+              <div className="h-4 bg-emerald-200 rounded w-1/2"></div>
             </div>
-            <p className="mt-4 text-gray-600">Calculating your path to financial independence...</p>
+            <p className="mt-4 text-emerald-700 font-medium">Calculating your path to financial independence...</p>
           </div>
         </div>
       </div>
@@ -236,9 +236,9 @@ export default function FIRECalculator() {
 
   if (displayError) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 py-12 px-4">
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-white py-12 px-4">
         <div className="container mx-auto max-w-4xl">
-          <div className="bg-white rounded-xl shadow-lg p-8 text-center">
+          <div className="bg-white rounded-xl shadow-lg p-8 text-center border-2 border-emerald-200">
             <div className="text-red-500 mb-4">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-12 h-12 mx-auto">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
@@ -259,14 +259,23 @@ export default function FIRECalculator() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-white py-12 px-4">
       <div className="container mx-auto max-w-6xl">
-        <div className="mb-6 md:mb-8">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 flex items-center">
-            FIRE Calculator
-            <InfoTooltip content="FIRE stands for Financial Independence, Retire Early. It's a movement focused on saving and investing to retire much earlier than traditional retirement age." />
-          </h1>
-          <p className="text-sm sm:text-base text-gray-600">Track your journey to Financial Independence and Retire Early</p>
+        {/* Modern Header with Brand Gradient */}
+        <div className="relative overflow-hidden bg-gradient-to-br from-gray-900 via-emerald-950 to-teal-950 py-8 md:py-12 px-6 md:px-8 rounded-3xl mb-8 shadow-2xl">
+          {/* Decorative floating gradient orbs */}
+          <div className="absolute top-0 left-0 w-48 md:w-64 h-48 md:h-64 bg-emerald-500/20 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-0 right-0 w-56 md:w-80 h-56 md:h-80 bg-teal-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+
+          <div className="relative z-10 text-center">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-3 flex items-center justify-center">
+              FIRE Calculator
+              <InfoTooltip content="FIRE stands for Financial Independence, Retire Early. It's a movement focused on saving and investing to retire much earlier than traditional retirement age." />
+            </h1>
+            <p className="text-base sm:text-lg md:text-xl text-emerald-200 max-w-3xl mx-auto">
+              Track your journey to Financial Independence and Retire Early
+            </p>
+          </div>
         </div>
 
         {/* FIRE Calculator Input Section */}

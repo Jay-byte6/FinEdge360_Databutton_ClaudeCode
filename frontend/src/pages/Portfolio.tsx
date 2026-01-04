@@ -430,12 +430,21 @@ const PortfolioPage: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4 md:p-6 lg:p-8">
-      <header className="mb-6 md:mb-8 text-center">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800">AI-Powered Portfolio Analyzer</h1>
-        <p className="text-sm sm:text-base md:text-lg text-gray-600 mt-2">
-          Discover your ideal asset mix with personalized risk assessment and portfolio recommendations
-        </p>
-      </header>
+      {/* Modern Header with Brand Gradient */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-gray-900 via-emerald-950 to-teal-950 py-8 md:py-12 px-6 md:px-8 rounded-3xl mb-8 shadow-2xl">
+        {/* Decorative floating gradient orbs */}
+        <div className="absolute top-0 left-0 w-48 md:w-64 h-48 md:h-64 bg-emerald-500/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-0 right-0 w-56 md:w-80 h-56 md:h-80 bg-teal-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+
+        <header className="relative z-10 text-center">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-3">
+            AI-Powered Portfolio Analyzer
+          </h1>
+          <p className="text-base sm:text-lg md:text-xl text-emerald-200 max-w-3xl mx-auto">
+            Discover your ideal asset mix with personalized risk assessment and portfolio recommendations
+          </p>
+        </header>
+      </div>
 
       {/* CAMS Portfolio Upload & Tracking - Show upload card or holdings */}
       {hasAccess && !portfolioLoading && (
@@ -460,7 +469,7 @@ const PortfolioPage: React.FC = () => {
                 <Button
                   onClick={() => setShowAddModal(true)}
                   variant="default"
-                  className="w-full sm:w-auto h-10 sm:h-9 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white"
+                  className="w-full sm:w-auto h-10 sm:h-9 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold shadow-lg hover:shadow-xl transition-all duration-300"
                 >
                   <Plus className="mr-2 h-4 w-4" />
                   Add Holding Manually
@@ -597,11 +606,11 @@ const PortfolioPage: React.FC = () => {
         <>
           {/* Loading State */}
           {isLoadingAnalysis && (
-            <Card className="mb-6 md:mb-8 shadow-lg border-2 border-blue-300 bg-gradient-to-br from-blue-50 to-indigo-50">
+            <Card className="mb-6 md:mb-8 shadow-lg border-2 border-emerald-300 bg-gradient-to-br from-emerald-50 to-teal-50">
               <CardContent className="p-4 md:p-6 py-8 md:py-12">
                 <div className="flex flex-col items-center justify-center">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-                  <p className="text-sm sm:text-base text-blue-700 font-medium">Loading your risk assessment...</p>
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mb-4"></div>
+                  <p className="text-sm sm:text-base text-emerald-700 font-medium">Loading your risk assessment...</p>
                 </div>
               </CardContent>
             </Card>
@@ -609,13 +618,13 @@ const PortfolioPage: React.FC = () => {
 
           {/* Start Assessment Card */}
           {!isLoadingAnalysis && !showQuiz && !analysisGenerated && (
-            <Card className="mb-6 md:mb-8 shadow-lg border-2 border-blue-300 bg-gradient-to-br from-blue-50 to-indigo-50">
-              <CardHeader className="p-4 md:p-6">
+            <Card className="mb-6 md:mb-8 shadow-xl border-2 border-emerald-300 bg-gradient-to-br from-emerald-50 to-teal-50 hover:shadow-2xl transition-all duration-300">
+              <CardHeader className="p-4 md:p-6 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-t-xl">
                 <div className="flex items-start sm:items-center gap-3">
-                  <Target className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600 flex-shrink-0" />
+                  <Target className="h-6 w-6 sm:h-8 sm:w-8 flex-shrink-0" />
                   <div>
-                    <CardTitle className="text-lg sm:text-xl md:text-2xl text-blue-900">Risk Assessment & Portfolio Analysis</CardTitle>
-                    <p className="text-xs sm:text-sm text-blue-700 mt-1">
+                    <CardTitle className="text-lg sm:text-xl md:text-2xl font-bold">Risk Assessment & Portfolio Analysis</CardTitle>
+                    <p className="text-xs sm:text-sm text-emerald-100 mt-1">
                       Get personalized portfolio recommendations based on your financial profile and risk tolerance
                     </p>
                   </div>
@@ -624,27 +633,27 @@ const PortfolioPage: React.FC = () => {
               <CardContent className="p-4 md:p-6">
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
-                    <div className="p-3 md:p-4 bg-white rounded-lg border border-blue-200">
+                    <div className="p-3 md:p-4 bg-white rounded-lg border-2 border-emerald-200 hover:border-emerald-400 transition-colors">
                       <div className="flex items-center gap-2 mb-2">
-                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm">
+                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm">
                           1
                         </div>
                         <h3 className="text-sm sm:text-base font-semibold text-gray-800">Risk Assessment</h3>
                       </div>
                       <p className="text-xs sm:text-sm text-gray-600">Answer 10 questions to determine your risk profile</p>
                     </div>
-                    <div className="p-3 md:p-4 bg-white rounded-lg border border-blue-200">
+                    <div className="p-3 md:p-4 bg-white rounded-lg border-2 border-emerald-200 hover:border-emerald-400 transition-colors">
                       <div className="flex items-center gap-2 mb-2">
-                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm">
+                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm">
                           2
                         </div>
                         <h3 className="text-sm sm:text-base font-semibold text-gray-800">Portfolio Analysis</h3>
                       </div>
                       <p className="text-xs sm:text-sm text-gray-600">Compare current vs ideal allocation</p>
                     </div>
-                    <div className="p-3 md:p-4 bg-white rounded-lg border border-blue-200">
+                    <div className="p-3 md:p-4 bg-white rounded-lg border-2 border-emerald-200 hover:border-emerald-400 transition-colors">
                       <div className="flex items-center gap-2 mb-2">
-                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm">
+                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm">
                           3
                         </div>
                         <h3 className="text-sm sm:text-base font-semibold text-gray-800">Actionable Insights</h3>
@@ -656,7 +665,7 @@ const PortfolioPage: React.FC = () => {
                   <div className="flex justify-center pt-4">
                     <Button
                       onClick={handleStartAssessment}
-                      className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 sm:px-8 py-3 sm:py-6 text-base sm:text-lg h-12 sm:h-auto"
+                      className="w-full sm:w-auto bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold px-6 sm:px-8 py-3 sm:py-6 text-base sm:text-lg h-12 sm:h-auto shadow-lg hover:shadow-xl transition-all duration-300"
                     >
                       <TrendingUp className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                       Start Risk Assessment
@@ -686,7 +695,7 @@ const PortfolioPage: React.FC = () => {
                 <Button
                   onClick={handleRetakeQuiz}
                   variant="outline"
-                  className="w-full sm:w-auto h-10 sm:h-9 border-blue-300 text-blue-600 hover:bg-blue-50"
+                  className="w-full sm:w-auto h-10 sm:h-9 border-emerald-300 text-emerald-600 hover:bg-emerald-50"
                 >
                   Retake Risk Assessment
                 </Button>
@@ -860,22 +869,22 @@ const PortfolioPage: React.FC = () => {
       {/* Risk Coverage Tips */}
       {financialData && Object.keys(financialData).length > 0 && (
         <div className="mt-6 md:mt-8" id="risk-coverage">
-          <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 shadow-lg">
+          <Card className="bg-gradient-to-r from-emerald-600 to-teal-600 border-2 border-emerald-400 shadow-2xl">
             <CardHeader className="p-4 md:p-6">
-              <CardTitle className="text-lg sm:text-xl md:text-2xl text-blue-900 flex items-center gap-2">
+              <CardTitle className="text-lg sm:text-xl md:text-2xl text-white flex items-center gap-2 font-bold">
                 <Shield className="w-5 h-5 sm:w-6 sm:h-6" />
                 🛡️ Risk Coverage: Protect Your FIRE Journey
               </CardTitle>
-              <CardDescription className="text-xs sm:text-sm text-blue-700">
+              <CardDescription className="text-xs sm:text-sm text-emerald-100">
                 Essential insurance coverage to safeguard your financial independence plan
               </CardDescription>
             </CardHeader>
             <CardContent className="p-4 md:p-6">
               <div className="space-y-4 md:space-y-6">
                 {/* Life Insurance Coverage */}
-                <div className="bg-white p-3 md:p-4 rounded-lg border-2 border-blue-200">
-                  <h3 className="text-base sm:text-lg font-bold text-blue-900 mb-3 flex items-center gap-2">
-                    <Heart className="w-4 h-4 sm:w-5 sm:h-5" />
+                <div className="bg-white p-3 md:p-4 rounded-lg border-2 border-emerald-200 hover:border-emerald-400 transition-colors">
+                  <h3 className="text-base sm:text-lg font-bold text-emerald-900 mb-3 flex items-center gap-2">
+                    <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />
                     1. Life Insurance (Term Plan)
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
@@ -883,8 +892,8 @@ const PortfolioPage: React.FC = () => {
                       <p className="text-sm text-gray-700">
                         <strong>Recommended Coverage:</strong>
                       </p>
-                      <div className="bg-blue-50 p-3 rounded border border-blue-200">
-                        <p className="text-2xl font-bold text-blue-900">
+                      <div className="bg-emerald-50 p-3 rounded border border-emerald-200">
+                        <p className="text-2xl font-bold text-emerald-900">
                           ₹{((financialData?.personalInfo?.monthlySalary || 0) * 12 * 15).toLocaleString('en-IN')}
                         </p>
                         <p className="text-xs text-gray-600 mt-1">15x your annual income</p>
@@ -935,9 +944,9 @@ const PortfolioPage: React.FC = () => {
                     </div>
                   </div>
                   <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="bg-blue-50 p-3 rounded border border-blue-200">
-                      <p className="text-sm font-semibold text-blue-900 mb-1">Tax Benefits:</p>
-                      <ul className="text-xs text-blue-800 space-y-1">
+                    <div className="bg-emerald-50 p-3 rounded border border-emerald-200">
+                      <p className="text-sm font-semibold text-emerald-900 mb-1">Tax Benefits:</p>
+                      <ul className="text-xs text-emerald-800 space-y-1">
                         <li>• ₹25,000 deduction (self & family) under 80D</li>
                         <li>• ₹50,000 for senior citizens under 80D</li>
                         <li>• Additional ₹25,000 for parents' premium</li>
