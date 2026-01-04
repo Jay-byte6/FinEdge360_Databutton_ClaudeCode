@@ -767,6 +767,7 @@ class SIPCalculation(BaseModel):
 
 class SIPPlannerData(BaseModel):
     userId: str
+    userEmail: Optional[str] = None  # User's actual email from Supabase auth
     goals: List[SIPGoal]
     sipCalculations: Optional[List[SIPCalculation]] = None
 
@@ -784,11 +785,16 @@ def save_sip_planner(data: SIPPlannerData) -> SIPPlannerResponse:
             raise HTTPException(status_code=500, detail="Database not initialized")
 
         # Get user ID from database
-        user_email = f"{sanitize_storage_key(data.userId)}@finnest.example.com"
+        # Use actual email if provided, otherwise fall back to legacy format
+        if data.userEmail:
+            user_email = data.userEmail
+        else:
+            user_email = f"{sanitize_storage_key(data.userId)}@finnest.example.com"
+
         user_response = supabase.from_("users").select("id").eq("email", user_email).execute()
 
         if not user_response.data or len(user_response.data) == 0:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise HTTPException(status_code=404, detail=f"User not found with email: {user_email}")
 
         user_id_db = user_response.data[0]["id"]
 

@@ -371,8 +371,8 @@ const FIREPlanner: React.FC = () => {
     toast.success("SIP calculated for goal");
   };
 
-  // Remove SIP calculation for a goal
-  const handleRemoveSIP = (id: string) => {
+  // Recalculate SIP for a goal (reset calculation)
+  const handleRecalculateSIP = (id: string) => {
     setGoals(goals.map(goal => {
       if (goal.id === id) {
         return {
@@ -384,7 +384,7 @@ const FIREPlanner: React.FC = () => {
       return goal;
     }));
     setHasUnsavedChanges(true);
-    toast.info("SIP removed for goal");
+    toast.info("Ready to recalculate SIP for goal");
   };
 
   // Sort goals by priority
@@ -403,13 +403,14 @@ const FIREPlanner: React.FC = () => {
 
   // Save to database
   const handleSave = async () => {
-    if (!user?.id) {
+    if (!user?.id || !user?.email) {
       toast.error("Please log in to save");
       return;
     }
 
     try {
       console.log('Saving SIP plan for user:', user.id);
+      console.log('User email:', user.email);
       console.log('Goals to save:', goals);
 
       // Clean up goals data - ensure all required fields are present and properly formatted
@@ -435,6 +436,7 @@ const FIREPlanner: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           userId: user.id,
+          userEmail: user.email,  // Send actual user email
           goals: cleanedGoals,
         }),
       });
@@ -1069,11 +1071,11 @@ const FIREPlanner: React.FC = () => {
                     ) : (
                       <Button
                         size="sm"
-                        onClick={() => handleRemoveSIP(goal.id)}
+                        onClick={() => handleRecalculateSIP(goal.id)}
                         className="bg-orange-600 hover:bg-orange-700 text-xs h-10 sm:h-8"
                       >
-                        <X className="w-3 h-3 mr-1" />
-                        Remove
+                        <RotateCcw className="w-3 h-3 mr-1" />
+                        Recalculate
                       </Button>
                     )}
                     <Button
