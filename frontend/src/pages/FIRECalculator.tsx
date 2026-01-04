@@ -387,72 +387,75 @@ export default function FIRECalculator() {
 
         {fireMetrics && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
-            {/* Primary FIRE Metrics Card */}
-            <Card className="lg:col-span-3 bg-gradient-to-r from-blue-50 to-green-50 border-blue-100 shadow-md">
-              <CardHeader className="pb-2 p-4 md:p-6">
+            {/* Primary FIRE Metrics Card - COMPLETELY REDESIGNED */}
+            <Card className="lg:col-span-3 relative overflow-hidden border-4 border-emerald-300 shadow-2xl hover:shadow-3xl transition-all duration-300">
+              {/* Gradient Background */}
+              <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 via-teal-50 to-white opacity-90"></div>
+
+              <CardHeader className="relative pb-2 p-4 md:p-6 bg-gradient-to-r from-emerald-600 to-teal-600 text-white">
                 <div className="flex items-center gap-2">
-                  <CardTitle className="text-xl sm:text-2xl font-bold text-gray-800">Your FIRE Number</CardTitle>
+                  <CardTitle className="text-2xl sm:text-3xl font-black">🎯 Your FIRE Number</CardTitle>
                   <InfoTooltip content="This is your Financial Independence number - the total wealth you need to retire comfortably. It's calculated using the famous '25x Rule': Your annual expenses × 25. This means you can safely withdraw 4% each year without running out of money. Think of it as your freedom number - once you reach this, you never have to work for money again!" />
                 </div>
-                <CardDescription className="text-sm sm:text-base">The amount you need to retire comfortably at age {fireMetrics.retirementAge}</CardDescription>
+                <CardDescription className="text-sm sm:text-base text-emerald-100">The amount you need to retire comfortably at age {fireMetrics.retirementAge}</CardDescription>
               </CardHeader>
-              <CardContent className="p-4 md:p-6">
-                <div className="flex flex-col md:flex-row justify-between items-center">
-                  <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-center md:text-left mb-4 md:mb-0">
+              <CardContent className="relative p-4 md:p-6">
+                <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+                  <div className="text-4xl sm:text-5xl md:text-6xl font-black text-center md:text-left bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
                     {formatIndianCurrency(fireMetrics.requiredCorpus)}
                   </div>
                   <div className="flex flex-col sm:flex-row gap-3 md:gap-4 w-full md:w-auto">
-                    <div className="bg-blue-50 border border-blue-100 p-3 md:p-4 rounded-lg text-center min-w-[140px] sm:min-w-40">
+                    <div className="bg-gradient-to-br from-emerald-500 to-teal-500 text-white border-2 border-emerald-400 p-4 md:p-5 rounded-xl text-center min-w-[140px] sm:min-w-40 shadow-lg transform hover:scale-105 transition-transform">
                       <div className="flex items-center justify-center gap-1">
-                        <p className="text-blue-700 text-xs sm:text-sm font-medium">Years to FIRE</p>
+                        <p className="text-white text-xs sm:text-sm font-bold">Years to FIRE</p>
                         <InfoTooltip content={`At your current pace, you'll reach FIRE in ${fireMetrics.yearsToFIRE.toFixed(1)} years! This is calculated based on: (1) Your current net worth of ${formatIndianCurrency(fireMetrics.currentNetWorth)}, (2) Your annual savings of ${formatIndianCurrency(fireMetrics.annualSavings)}, (3) Conservative 5% annual growth (safe like FDs). Don't worry if this seems long - the 4 scenarios below show you different paths to speed this up! Remember: Every rupee saved today brings you closer to freedom.`} />
                       </div>
-                      <p className="text-blue-800 text-lg sm:text-xl font-bold">{fireMetrics.yearsToFIRE.toFixed(1)} years</p>
+                      <p className="text-white text-2xl sm:text-3xl font-black drop-shadow-lg">{fireMetrics.yearsToFIRE.toFixed(1)} yrs</p>
                     </div>
-                    <div className="bg-green-50 border border-green-100 p-3 md:p-4 rounded-lg text-center min-w-[140px] sm:min-w-40">
+                    <div className="bg-gradient-to-br from-orange-500 to-red-500 text-white border-2 border-orange-400 p-4 md:p-5 rounded-xl text-center min-w-[140px] sm:min-w-40 shadow-lg transform hover:scale-105 transition-transform">
                       <div className="flex items-center justify-center gap-1">
-                        <p className="text-green-700 text-xs sm:text-sm font-medium">Savings Rate</p>
+                        <p className="text-white text-xs sm:text-sm font-bold">Savings Rate</p>
                         <InfoTooltip content={`You're currently saving ${(fireMetrics.savingsRate * 100).toFixed(1)}% of your income - that's ${formatIndianCurrency(fireMetrics.annualSavings)} per year! Higher savings rate = faster FIRE. Here's the magic: 10% → 51 years to FIRE, 25% → 32 years, 50% → 17 years, 75% → 7 years. Even a 5% increase makes a huge difference. You're already on the path - every percentage point counts!`} />
                       </div>
-                      <p className="text-green-800 text-lg sm:text-xl font-bold">{(fireMetrics.savingsRate * 100).toFixed(1)}%</p>
+                      <p className="text-white text-2xl sm:text-3xl font-black drop-shadow-lg">{(fireMetrics.savingsRate * 100).toFixed(1)}%</p>
                     </div>
                   </div>
                 </div>
 
-                {/* Expense table for current and retirement */}
-                <div className="mt-4 md:mt-6 overflow-x-auto -mx-4 sm:mx-0">
+                {/* Expense table for current and retirement - MODERNIZED */}
+                <div className="mt-6 md:mt-8 overflow-x-auto -mx-4 sm:mx-0">
                   <div className="inline-block min-w-full align-middle px-4 sm:px-0">
-                    <div className="bg-white rounded-lg border border-gray-100 overflow-hidden">
-                      <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
+                    <div className="bg-white rounded-xl border-2 border-emerald-200 overflow-hidden shadow-lg">
+                      <table className="min-w-full divide-y-2 divide-emerald-200">
+                        <thead className="bg-gradient-to-r from-emerald-600 to-teal-600">
                           <tr>
-                            <th scope="col" className="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Particulars</th>
-                            <th scope="col" className="px-3 sm:px-4 py-2 sm:py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Value (INR)</th>
+                            <th scope="col" className="px-3 sm:px-4 py-3 sm:py-4 text-left text-sm font-bold text-white uppercase tracking-wider whitespace-nowrap">Particulars</th>
+                            <th scope="col" className="px-3 sm:px-4 py-3 sm:py-4 text-right text-sm font-bold text-white uppercase tracking-wider whitespace-nowrap">Value (INR)</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-200 bg-white">
-                          <tr>
-                            <td className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900 bg-green-50 whitespace-nowrap">Desired monthly expenses (today)</td>
-                            <td className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-right font-medium text-gray-900 bg-green-50 whitespace-nowrap">{formatCurrency(financialData?.personalInfo.monthlyExpenses || 0)}</td>
+                        <tbody className="divide-y-2 divide-emerald-100 bg-white">
+                          <tr className="hover:bg-emerald-50/50 transition-colors">
+                            <td className="px-3 sm:px-4 py-3 text-sm font-medium text-gray-900 whitespace-nowrap">Desired monthly expenses (today)</td>
+                            <td className="px-3 sm:px-4 py-3 text-sm text-right font-bold text-emerald-700 whitespace-nowrap">{formatCurrency(financialData?.personalInfo.monthlyExpenses || 0)}</td>
                           </tr>
-                          <tr>
-                            <td className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900 bg-green-50 whitespace-nowrap">Current age</td>
-                            <td className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-right font-medium text-gray-900 bg-green-50 whitespace-nowrap">{financialData?.personalInfo.age || 30}</td>
+                          <tr className="hover:bg-emerald-50/50 transition-colors">
+                            <td className="px-3 sm:px-4 py-3 text-sm font-medium text-gray-900 whitespace-nowrap">Current age</td>
+                            <td className="px-3 sm:px-4 py-3 text-sm text-right font-bold text-emerald-700 whitespace-nowrap">{financialData?.personalInfo.age || 30}</td>
                           </tr>
-                          <tr>
-                            <td className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900 bg-green-50 whitespace-nowrap">Retirement age</td>
-                            <td className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-right font-medium text-gray-900 bg-green-50 whitespace-nowrap">{fireMetrics.retirementAge}</td>
+                          <tr className="hover:bg-emerald-50/50 transition-colors">
+                            <td className="px-3 sm:px-4 py-3 text-sm font-medium text-gray-900 whitespace-nowrap">Retirement age</td>
+                            <td className="px-3 sm:px-4 py-3 text-sm text-right font-bold text-emerald-700 whitespace-nowrap">{fireMetrics.retirementAge}</td>
                           </tr>
-                          <tr>
-                            <td className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900 bg-green-50 flex items-center gap-1 whitespace-nowrap">
+                          <tr className="hover:bg-emerald-50/50 transition-colors">
+                            <td className="px-3 sm:px-4 py-3 text-sm font-medium text-gray-900 flex items-center gap-1 whitespace-nowrap">
                               <span>Inflation</span>
                               <InfoTooltip content="Inflation is the silent wealth killer - it makes everything more expensive over time. At 6% inflation, prices double every 12 years! That's why your FIRE number seems big - we're planning for future prices, not today's. The good news? Your investments will also grow to beat inflation. This is already factored into your FIRE number." />
                             </td>
-                            <td className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-right font-medium text-gray-900 bg-green-50 whitespace-nowrap">{fireMetrics.inflationRate}%</td>
+                            <td className="px-3 sm:px-4 py-3 text-sm text-right font-bold text-emerald-700 whitespace-nowrap">{fireMetrics.inflationRate}%</td>
                           </tr>
-                          <tr>
-                            <td className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900 bg-red-50 whitespace-nowrap">Yearly expenses (today)</td>
-                            <td className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-right font-medium text-gray-900 bg-red-50 whitespace-nowrap">{formatCurrency(fireMetrics.yearlyExpensesToday)}</td>
+                          <tr className="bg-orange-50 hover:bg-orange-100 transition-colors">
+                            <td className="px-3 sm:px-4 py-3 text-sm font-medium text-gray-900 whitespace-nowrap">Yearly expenses (today)</td>
+                            <td className="px-3 sm:px-4 py-3 text-sm text-right font-bold text-orange-700 whitespace-nowrap">{formatCurrency(fireMetrics.yearlyExpensesToday)}</td>
                           </tr>
                           <tr>
                             <td className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900 bg-red-50 flex items-center gap-1 whitespace-nowrap">
