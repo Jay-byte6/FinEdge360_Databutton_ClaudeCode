@@ -1731,7 +1731,7 @@ const FIREPlanner: React.FC = () => {
                               <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-3">
                                 <label htmlFor="premiumCAGRSlider" className="block text-xs font-semibold text-green-900 mb-2 flex items-center gap-1">
                                   <span>Adjust Expected CAGR %</span>
-                                  <InfoTooltip content="Adjust the expected annual growth rate (CAGR) for your investments. Higher CAGR means faster wealth growth. Realistic range: 8-15%." />
+                                  <InfoTooltip content="CAGR = Compound Annual Growth Rate - How fast your money grows each year on average. Example: At 12% CAGR, ₹1 lakh becomes ₹3.11 lakh in 10 years! Higher CAGR = faster growth but higher risk. Realistic range: 8-15%." />
                                 </label>
                                 <div className="flex items-center gap-2">
                                   <input

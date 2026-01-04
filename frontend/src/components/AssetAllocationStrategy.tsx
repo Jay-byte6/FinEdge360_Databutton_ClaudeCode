@@ -313,13 +313,16 @@ export const AssetAllocationStrategy: React.FC = () => {
                   <TooltipTrigger>
                     <InfoIcon className="h-4 w-4 text-muted-foreground" />
                   </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Recommended allocation based on your {userRiskProfile} risk profile</p>
+                  <TooltipContent className="max-w-sm">
+                    <p className="font-semibold mb-1">What is "Ideal Allocation"?</p>
+                    <p className="text-xs mb-2">This is our expert-recommended way to divide your money based on your {userRiskProfile} risk profile. Think of it as a "ready-made recipe" created by financial experts.</p>
+                    <p className="text-xs font-semibold">Example:</p>
+                    <p className="text-xs">For short-term goals (like buying a car in 2 years), we recommend mostly safe investments (debt/cash). For long-term goals (like retirement in 30 years), we recommend more growth investments (equity).</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             </CardTitle>
-            <CardDescription>Based on your risk profile</CardDescription>
+            <CardDescription>Our expert-recommended mix based on your risk profile</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
@@ -379,7 +382,26 @@ export const AssetAllocationStrategy: React.FC = () => {
                   </tr>
                   {/* Expected CAGR Row */}
                   <tr className="border-t font-semibold bg-blue-50">
-                    <td className="py-2 px-3">Expected CAGR</td>
+                    <td className="py-2 px-3">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger className="flex items-center gap-1 cursor-help">
+                            Expected CAGR
+                            <InfoIcon className="h-3 w-3 text-blue-600" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-sm">
+                            <p className="font-semibold mb-1">What is CAGR?</p>
+                            <p className="text-xs mb-2"><strong>C</strong>ompound <strong>A</strong>nnual <strong>G</strong>rowth <strong>R</strong>ate - It's how fast your money grows each year on average.</p>
+                            <p className="text-xs font-semibold">Simple Example:</p>
+                            <p className="text-xs">If you invest ₹1 lakh at 12% CAGR:</p>
+                            <p className="text-xs">• After 1 year: ₹1.12 lakh</p>
+                            <p className="text-xs">• After 5 years: ₹1.76 lakh</p>
+                            <p className="text-xs">• After 10 years: ₹3.11 lakh</p>
+                            <p className="text-xs mt-2 text-blue-600">💡 Higher CAGR = Faster wealth growth (but usually higher risk)</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </td>
                     {GOAL_TYPES.map(goalType => {
                       const cagr = calculateWeightedCAGR(idealAllocations[goalType].allocations);
                       return (
@@ -405,13 +427,17 @@ export const AssetAllocationStrategy: React.FC = () => {
                   <TooltipTrigger>
                     <InfoIcon className="h-4 w-4 text-muted-foreground" />
                   </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Customize your allocation. Each column must total 100%</p>
+                  <TooltipContent className="max-w-sm">
+                    <p className="font-semibold mb-1">What is "Your Desired Allocation"?</p>
+                    <p className="text-xs mb-2">This is YOUR personalized way to divide your money. You can change the numbers to match your own preferences and comfort level.</p>
+                    <p className="text-xs font-semibold">Example:</p>
+                    <p className="text-xs">If you want to be more aggressive for long-term goals, you can increase Equity % from 60% to 70%. If you want to be safer, reduce it to 50%.</p>
+                    <p className="text-xs mt-2 text-amber-600">📝 Rule: Each column must add up to exactly 100%</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             </CardTitle>
-            <CardDescription>Customize your allocation (each column must total 100%)</CardDescription>
+            <CardDescription>Your personalized mix - change numbers to match your comfort level</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
@@ -478,7 +504,26 @@ export const AssetAllocationStrategy: React.FC = () => {
                   </tr>
                   {/* Expected CAGR Row */}
                   <tr className="border-t font-semibold bg-blue-50">
-                    <td className="py-2 px-3">Expected CAGR</td>
+                    <td className="py-2 px-3">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger className="flex items-center gap-1 cursor-help">
+                            Expected CAGR
+                            <InfoIcon className="h-3 w-3 text-blue-600" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-sm">
+                            <p className="font-semibold mb-1">What is CAGR?</p>
+                            <p className="text-xs mb-2"><strong>C</strong>ompound <strong>A</strong>nnual <strong>G</strong>rowth <strong>R</strong>ate - It's how fast your money grows each year on average.</p>
+                            <p className="text-xs font-semibold">Simple Example:</p>
+                            <p className="text-xs">If you invest ₹1 lakh at 12% CAGR:</p>
+                            <p className="text-xs">• After 1 year: ₹1.12 lakh</p>
+                            <p className="text-xs">• After 5 years: ₹1.76 lakh</p>
+                            <p className="text-xs">• After 10 years: ₹3.11 lakh</p>
+                            <p className="text-xs mt-2 text-blue-600">💡 Higher CAGR = Faster wealth growth (but usually higher risk)</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </td>
                     {GOAL_TYPES.map(goalType => {
                       const cagr = getCAGRRange(goalType);
                       return (
