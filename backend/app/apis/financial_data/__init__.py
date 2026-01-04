@@ -784,19 +784,8 @@ def save_sip_planner(data: SIPPlannerData) -> SIPPlannerResponse:
         if not supabase:
             raise HTTPException(status_code=500, detail="Database not initialized")
 
-        # Get user ID from database
-        # Use actual email if provided, otherwise fall back to legacy format
-        if data.userEmail:
-            user_email = data.userEmail
-        else:
-            user_email = f"{sanitize_storage_key(data.userId)}@finnest.example.com"
-
-        user_response = supabase.from_("users").select("id").eq("email", user_email).execute()
-
-        if not user_response.data or len(user_response.data) == 0:
-            raise HTTPException(status_code=404, detail=f"User not found with email: {user_email}")
-
-        user_id_db = user_response.data[0]["id"]
+        # Use the user ID directly from auth - no need to look up by email
+        user_id_db = data.userId
 
         # Prepare SIP planner data
         sip_planner_data = {
@@ -838,14 +827,8 @@ def get_sip_planner(user_id: str) -> Optional[Dict[str, Any]]:
         if not supabase:
             raise HTTPException(status_code=500, detail="Database not initialized")
 
-        # Get user ID from database
-        user_email = f"{sanitize_storage_key(user_id)}@finnest.example.com"
-        user_response = supabase.from_("users").select("id").eq("email", user_email).execute()
-
-        if not user_response.data or len(user_response.data) == 0:
-            return None  # User not found, return None instead of error
-
-        user_id_db = user_response.data[0]["id"]
+        # Use the user ID directly - no need to look up by email
+        user_id_db = user_id
 
         # Get SIP planner data
         planner_response = supabase.from_("sip_planner_data").select("*").eq("user_id", user_id_db).execute()
