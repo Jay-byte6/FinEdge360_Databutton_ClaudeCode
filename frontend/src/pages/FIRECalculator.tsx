@@ -549,86 +549,94 @@ export default function FIRECalculator() {
               </CardContent>
             </Card>
 
-            <Card className="shadow-md">
-              <CardHeader className="p-4 md:p-6">
-                <CardTitle className="text-lg sm:text-xl">Current Progress</CardTitle>
-                <CardDescription className="text-sm sm:text-base">Your net worth vs. required corpus</CardDescription>
+            <Card className="shadow-xl border-4 border-emerald-300 hover:shadow-2xl transition-all duration-300">
+              <CardHeader className="p-4 md:p-6 bg-gradient-to-r from-emerald-600 to-teal-600 text-white">
+                <CardTitle className="text-xl sm:text-2xl font-black">📈 Current Progress</CardTitle>
+                <CardDescription className="text-sm sm:text-base text-emerald-100">Your net worth vs. required corpus</CardDescription>
               </CardHeader>
-              <CardContent className="p-4 md:p-6">
+              <CardContent className="p-4 md:p-6 bg-gradient-to-br from-emerald-50 to-white">
                 <div className="mb-4">
-                  <div className="flex justify-between mb-1">
-                    <span className="text-xs sm:text-sm text-gray-600">Current Net Worth</span>
-                    <span className="text-xs sm:text-sm font-medium text-gray-800">{formatIndianCurrency(fireMetrics.currentNetWorth)}</span>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-sm sm:text-base font-bold text-gray-800">Current Net Worth</span>
+                    <span className="text-sm sm:text-base font-black text-emerald-700">{formatIndianCurrency(fireMetrics.currentNetWorth)}</span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2.5">
+                  <div className="w-full bg-emerald-100 rounded-full h-4 shadow-inner">
                     <div
-                      className="bg-green-600 h-2.5 rounded-full"
+                      className="bg-gradient-to-r from-emerald-500 to-teal-500 h-4 rounded-full shadow-lg transition-all duration-1000 ease-out"
                       style={{ width: `${Math.min((fireMetrics.currentNetWorth / fireMetrics.requiredCorpus) * 100, 100)}%` }}
                     ></div>
                   </div>
-                  <div className="flex justify-between mt-1">
-                    <span className="text-xs text-gray-500">{(fireMetrics.currentNetWorth / fireMetrics.requiredCorpus * 100).toFixed(1)}% complete</span>
-                    <span className="text-xs text-gray-500">Target: {formatIndianCurrency(fireMetrics.requiredCorpus)}</span>
+                  <div className="flex justify-between mt-2">
+                    <span className="text-sm font-bold text-emerald-700">{(fireMetrics.currentNetWorth / fireMetrics.requiredCorpus * 100).toFixed(1)}% complete</span>
+                    <span className="text-sm font-medium text-gray-600">Target: {formatIndianCurrency(fireMetrics.requiredCorpus)}</span>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="shadow-md">
-              <CardHeader className="p-4 md:p-6">
-                <CardTitle className="text-lg sm:text-xl">Coast FIRE</CardTitle>
-                <CardDescription className="text-sm sm:text-base">Save until age {fireMetrics.desiredCoastAge}, then cover only expenses</CardDescription>
+            <Card className="shadow-xl border-4 border-teal-300 hover:shadow-2xl transition-all duration-300">
+              <CardHeader className="p-4 md:p-6 bg-gradient-to-r from-teal-600 to-cyan-600 text-white">
+                <CardTitle className="text-xl sm:text-2xl font-black">🏖️ Coast FIRE</CardTitle>
+                <CardDescription className="text-sm sm:text-base text-teal-100">Save until age {fireMetrics.desiredCoastAge}, then cover only expenses</CardDescription>
               </CardHeader>
-              <CardContent className="p-4 md:p-6">
-                <div className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
+              <CardContent className="p-4 md:p-6 bg-gradient-to-br from-teal-50 to-white">
+                <div className="text-3xl sm:text-4xl font-black text-transparent bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text mb-3">
                   {formatIndianCurrency(fireMetrics.coastFIRE)}
                 </div>
-                <p className="text-xs sm:text-sm text-gray-600">The amount you need by age {fireMetrics.desiredCoastAge} so your investments can grow until retirement at age {fireMetrics.retirementAge}</p>
-                <div className="mt-4 p-3 bg-amber-50 rounded-md border border-amber-100">
-                  <p className="text-xs text-amber-800">Your investments continue to grow at 5% annually (conservative) while you only cover your expenses after age {fireMetrics.desiredCoastAge}</p>
+                <p className="text-sm sm:text-base text-gray-700 font-medium">The amount you need by age {fireMetrics.desiredCoastAge} so your investments can grow until retirement at age {fireMetrics.retirementAge}</p>
+                <div className="mt-4 p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg border-2 border-amber-200">
+                  <p className="text-sm text-amber-900 font-medium">💡 Your investments continue to grow at 5% annually (conservative) while you only cover your expenses after age {fireMetrics.desiredCoastAge}</p>
                 </div>
               </CardContent>
             </Card>
 
-          {/* Required Monthly SIPs Section - Simplified & Side-by-Side */}
-          <div className="mb-8 md:mb-10 lg:col-span-3">
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2 text-center">Your SIP Investment Plan</h2>
-            <p className="text-sm sm:text-base text-gray-600 mb-6 md:mb-8 text-center">Key monthly investments to reach your financial independence.</p>
+          {/* Required Monthly SIPs Section - DRAMATICALLY REDESIGNED */}
+          <div className="mb-8 md:mb-10 lg:col-span-3 text-center">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-transparent bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text mb-3">💰 Your SIP Investment Plan</h2>
+            <p className="text-base sm:text-lg text-gray-600 mb-6 md:mb-8">Key monthly investments to reach your financial independence.</p>
           </div>
-          {/* SIP boxes made significantly WIDER */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-8 md:mb-10 max-w-screen-2xl mx-auto px-4 lg:col-span-3">
-            {/* Regular FIRE SIP Card - Simplified */}
-            <Card className="shadow-xl border border-blue-200 hover:shadow-2xl transition-shadow duration-300 flex flex-col">
-              <CardHeader className="bg-blue-100 p-4 md:p-5">
-                <CardTitle className="text-lg sm:text-xl font-semibold text-blue-800 text-center">Regular FIRE SIP Target</CardTitle>
+          {/* SIP boxes - MASSIVELY REDESIGNED */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 mb-8 md:mb-10 max-w-screen-2xl mx-auto px-4 lg:col-span-3">
+            {/* Regular FIRE SIP Card - TRANSFORMED */}
+            <Card className="relative overflow-hidden shadow-2xl border-4 border-emerald-400 hover:shadow-3xl hover:scale-105 transition-all duration-300 flex flex-col">
+              {/* Background gradient */}
+              <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-500 opacity-10"></div>
+
+              <CardHeader className="relative bg-gradient-to-r from-emerald-600 to-teal-600 p-5 md:p-6">
+                <CardTitle className="text-xl sm:text-2xl font-black text-white text-center">🎯 Regular FIRE SIP Target</CardTitle>
               </CardHeader>
-              <CardContent className="p-4 md:p-6 flex flex-col flex-grow items-center justify-center">
-                <div className="text-center mb-3">
-                  <span className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-blue-800">{formatCurrency(fireMetrics.monthlyInvestmentNeeded)}</span>
-                  <span className="text-base sm:text-lg md:text-xl font-normal text-gray-500"> /month</span>
+              <CardContent className="relative p-6 md:p-8 flex flex-col flex-grow items-center justify-center bg-gradient-to-br from-emerald-50 to-white">
+                <div className="text-center mb-4">
+                  <span className="text-4xl sm:text-5xl md:text-6xl font-black text-transparent bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text">{formatCurrency(fireMetrics.monthlyInvestmentNeeded)}</span>
+                  <span className="text-xl sm:text-2xl font-bold text-gray-600"> /month</span>
                 </div>
-                <div className="p-3 bg-blue-50 rounded-lg border border-blue-200 mt-2 text-center w-full">
-                  <p className="text-xs sm:text-sm text-blue-700">
-                    Goal: <span className="font-bold text-blue-800">{formatIndianCurrency(fireMetrics.requiredCorpus)}</span> total corpus by age {fireMetrics.retirementAge} (includes current net worth). This SIP is the additional monthly investment needed.
+                <div className="p-4 bg-white rounded-xl border-2 border-emerald-300 mt-3 text-center w-full shadow-lg">
+                  <p className="text-sm sm:text-base text-emerald-800 font-medium">
+                    🎯 Goal: <span className="font-black text-emerald-700">{formatIndianCurrency(fireMetrics.requiredCorpus)}</span> total corpus by age {fireMetrics.retirementAge}
                   </p>
+                  <p className="text-xs sm:text-sm text-gray-600 mt-2">This SIP is the additional monthly investment needed (includes current net worth).</p>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Coast FIRE SIP Card - Simplified */}
-            <Card className="shadow-xl border border-green-200 hover:shadow-2xl transition-shadow duration-300 flex flex-col">
-              <CardHeader className="bg-green-100 p-4 md:p-5">
-                <CardTitle className="text-lg sm:text-xl font-semibold text-green-800 text-center">Coast FIRE SIP Target</CardTitle>
+            {/* Coast FIRE SIP Card - TRANSFORMED */}
+            <Card className="relative overflow-hidden shadow-2xl border-4 border-orange-400 hover:shadow-3xl hover:scale-105 transition-all duration-300 flex flex-col">
+              {/* Background gradient */}
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-500 to-red-500 opacity-10"></div>
+
+              <CardHeader className="relative bg-gradient-to-r from-orange-500 to-red-500 p-5 md:p-6">
+                <CardTitle className="text-xl sm:text-2xl font-black text-white text-center">🏖️ Coast FIRE SIP Target</CardTitle>
               </CardHeader>
-              <CardContent className="p-4 md:p-6 flex flex-col flex-grow items-center justify-center">
-                <div className="text-center mb-3">
-                  <span className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-green-800">{formatCurrency(fireMetrics.coastMonthlyInvestmentNeeded)}</span>
-                  <span className="text-base sm:text-lg md:text-xl font-normal text-gray-500"> /month</span>
+              <CardContent className="relative p-6 md:p-8 flex flex-col flex-grow items-center justify-center bg-gradient-to-br from-orange-50 to-white">
+                <div className="text-center mb-4">
+                  <span className="text-4xl sm:text-5xl md:text-6xl font-black text-transparent bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text">{formatCurrency(fireMetrics.coastMonthlyInvestmentNeeded)}</span>
+                  <span className="text-xl sm:text-2xl font-bold text-gray-600"> /month</span>
                 </div>
-                <div className="p-3 bg-green-50 rounded-lg border border-green-200 mt-2 text-center w-full">
-                  <p className="text-xs sm:text-sm text-green-700">
-                    Goal: <span className="font-bold text-green-800">{formatIndianCurrency(fireMetrics.coastFIRE)}</span> total corpus by age {fireMetrics.desiredCoastAge} (includes current net worth). This SIP is the additional monthly investment needed for this milestone.
+                <div className="p-4 bg-white rounded-xl border-2 border-orange-300 mt-3 text-center w-full shadow-lg">
+                  <p className="text-sm sm:text-base text-orange-800 font-medium">
+                    🎯 Goal: <span className="font-black text-orange-700">{formatIndianCurrency(fireMetrics.coastFIRE)}</span> total corpus by age {fireMetrics.desiredCoastAge}
                   </p>
+                  <p className="text-xs sm:text-sm text-gray-600 mt-2">This SIP is the additional monthly investment needed for this milestone.</p>
                 </div>
               </CardContent>
             </Card>
@@ -637,12 +645,12 @@ export default function FIRECalculator() {
           {/* Removed Disclaimer Box */}
 
           <div className="text-center mb-12 lg:col-span-3">
-            <Button 
+            <Button
               size="lg"
-              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold py-4 px-8 rounded-lg shadow-lg hover:shadow-xl transition-transform duration-150 ease-in-out transform hover:scale-105"
+              className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-lg py-6 px-10 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-110"
               onClick={() => navigate('/portfolio')}
             >
-              Unlock Your Faster FIRE Path: Optimize with Portfolio Allocator!
+              🚀 Unlock Your Faster FIRE Path: Optimize with Portfolio Allocator!
             </Button>
           </div>
 
