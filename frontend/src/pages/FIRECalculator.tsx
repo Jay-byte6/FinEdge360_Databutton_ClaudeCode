@@ -830,10 +830,10 @@ export default function FIRECalculator() {
                   const shortfall = shortfallYears * annualExpenses;
 
                   return (
-                    <Card className="border-2 border-orange-400 hover:border-orange-500 bg-gradient-to-br from-orange-50 to-amber-50 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                      <CardHeader className="pb-2 pt-3 md:pt-4 p-3 md:p-4 bg-gradient-to-r from-orange-100 to-amber-100 border-b-2 border-orange-200">
+                    <Card className="border-4 border-orange-400 hover:border-orange-500 bg-gradient-to-br from-orange-50 to-red-50 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 hover:scale-105">
+                      <CardHeader className="pb-2 pt-3 md:pt-4 p-3 md:p-4 bg-gradient-to-r from-orange-500 to-red-500 border-b-4 border-orange-400">
                         <div className="flex items-center justify-between">
-                          <CardTitle className="text-base sm:text-lg font-bold text-orange-900 flex items-center gap-1 sm:gap-2">
+                          <CardTitle className="text-base sm:text-lg font-black text-white flex items-center gap-1 sm:gap-2">
                             <span className="text-xl sm:text-2xl">🏖️</span>
                             <span>What if I RETIRE NOW?</span>
                           </CardTitle>
@@ -934,10 +934,10 @@ export default function FIRECalculator() {
                     : 0;
 
                   return (
-                    <Card className="border-2 border-blue-400 hover:border-blue-500 bg-gradient-to-br from-blue-50 to-cyan-50 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                      <CardHeader className="pb-2 pt-3 md:pt-4 p-3 md:p-4 bg-gradient-to-r from-blue-100 to-cyan-100 border-b-2 border-blue-200">
+                    <Card className="border-4 border-emerald-400 hover:border-emerald-500 bg-gradient-to-br from-emerald-50 to-teal-50 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 hover:scale-105">
+                      <CardHeader className="pb-2 pt-3 md:pt-4 p-3 md:p-4 bg-gradient-to-r from-emerald-600 to-teal-600 border-b-4 border-emerald-400">
                         <div className="flex items-center justify-between">
-                          <CardTitle className="text-base sm:text-lg font-bold text-blue-900 flex items-center gap-1 sm:gap-2">
+                          <CardTitle className="text-base sm:text-lg font-black text-white flex items-center gap-1 sm:gap-2">
                             <span className="text-xl sm:text-2xl">⏰</span>
                             <span>When Can I RETIRE?</span>
                           </CardTitle>
