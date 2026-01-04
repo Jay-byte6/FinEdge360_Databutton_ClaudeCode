@@ -185,12 +185,13 @@ const NavBar: React.FC<NavBarProps> = ({ showFullNav = true }) => {
                   <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/consultation-new")}>
                     📞 Book Expert Consultation
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="cursor-pointer" onClick={() => window.open("https://wa.me/yourwhatsapplink", "_blank")}>
+                  {/* Temporarily disabled - will be built later */}
+                  {/* <DropdownMenuItem className="cursor-pointer" onClick={() => window.open("https://wa.me/yourwhatsapplink", "_blank")}>
                     💬 Talk to Expert
                   </DropdownMenuItem>
                   <DropdownMenuItem className="cursor-pointer" onClick={() => window.open("https://chat.whatsapp.com/yourcommunitylink", "_blank")}>
                     👥 Join Community
-                  </DropdownMenuItem>
+                  </DropdownMenuItem> */}
                   <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/feedback")}>
                     🚀 PowerUp FIREMap
                   </DropdownMenuItem>

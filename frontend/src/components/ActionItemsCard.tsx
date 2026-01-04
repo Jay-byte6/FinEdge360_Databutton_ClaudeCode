@@ -400,18 +400,18 @@ export const ActionItemsCard: React.FC<ActionItemsCardProps> = ({ userId, financ
         actionPath: '/fire-calculator#fire-scenarios',
       });
 
-      // 17. Join FIRE Community
-      items.push({
-        id: 'join-fire-community',
-        title: 'Join WhatsApp FIRE Community',
-        benefit: `Connect with 500+ FIRE enthusiasts, share tips, get motivated`,
-        why: `FIRE is a journey, not a sprint. Join community to: (1) Share strategies (2) Learn from others (3) Stay motivated (4) Get answers to questions. Active daily discussions`,
-        where: 'Profile Menu → Join Community',
-        monetaryValue: 10000,
-        riskScore: 2,
-        tier: 3, // Monetary benefit (community support)
-        actionPath: '/dashboard',
-      });
+      // 17. Join FIRE Community - DISABLED (will be built later)
+      // items.push({
+      //   id: 'join-fire-community',
+      //   title: 'Join WhatsApp FIRE Community',
+      //   benefit: `Connect with 500+ FIRE enthusiasts, share tips, get motivated`,
+      //   why: `FIRE is a journey, not a sprint. Join community to: (1) Share strategies (2) Learn from others (3) Stay motivated (4) Get answers to questions. Active daily discussions`,
+      //   where: 'Profile Menu → Join Community',
+      //   monetaryValue: 10000,
+      //   riskScore: 2,
+      //   tier: 3, // Monetary benefit (community support)
+      //   actionPath: '/dashboard',
+      // });
 
       // 18. Set Up Auto-Debit for SIPs (TIER 1 if user has SIP plan!)
       try {
