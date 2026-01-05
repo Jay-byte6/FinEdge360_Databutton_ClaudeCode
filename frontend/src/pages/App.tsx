@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import useAuthStore from "../utils/authStore";
+import { BasicFIRECalculator } from "@/components/BasicFIRECalculator";
 import {
   TrendingUp,
   Target,
@@ -476,6 +477,9 @@ export default function App() {
           </div>
         </div>
       </section>
+
+      {/* Basic FIRE Calculator - Pre-Login */}
+      <BasicFIRECalculator />
 
       {/* Smart Investment Benefits Section */}
       <section className="py-20 bg-white">
