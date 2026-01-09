@@ -1,9 +1,11 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
 from datetime import datetime, date, timedelta
 import os
 from supabase import create_client
+from databutton_app.mw.auth_mw import User, get_authorized_user
+from app.security import verify_user_ownership, sanitize_user_id
 
 router = APIRouter(prefix="/routes")
 
@@ -44,11 +46,18 @@ class SnapshotResponse(BaseModel):
 
 
 @router.post("/portfolio-snapshots")
-async def save_portfolio_snapshot(snapshot: PortfolioSnapshot):
+async def save_portfolio_snapshot(
+    snapshot: PortfolioSnapshot,
+    current_user: User = Depends(get_authorized_user)
+):
     """
     Save or update a daily portfolio snapshot
     Uses UPSERT to avoid duplicates (one snapshot per user per day)
     """
+    # SECURITY: Verify user can only save their own snapshots
+    snapshot.user_id = sanitize_user_id(snapshot.user_id)
+    verify_user_ownership(current_user, snapshot.user_id)
+
     if not supabase:
         raise HTTPException(status_code=500, detail="Database not initialized")
 
@@ -107,7 +116,8 @@ async def get_portfolio_snapshots(
     user_id: str,
     days: Optional[int] = 30,
     start_date: Optional[str] = None,
-    end_date: Optional[str] = None
+    end_date: Optional[str] = None,
+    current_user: User = Depends(get_authorized_user)
 ):
     """
     Get portfolio snapshots for a user
@@ -118,6 +128,10 @@ async def get_portfolio_snapshots(
     - start_date: Optional start date (YYYY-MM-DD)
     - end_date: Optional end date (YYYY-MM-DD)
     """
+    # SECURITY: Verify user can only access their own snapshots
+    user_id = sanitize_user_id(user_id)
+    verify_user_ownership(current_user, user_id)
+
     if not supabase:
         raise HTTPException(status_code=500, detail="Database not initialized")
 
@@ -150,10 +164,17 @@ async def get_portfolio_snapshots(
 
 
 @router.get("/portfolio-snapshots/{user_id}/daily-change")
-async def get_daily_change(user_id: str):
+async def get_daily_change(
+    user_id: str,
+    current_user: User = Depends(get_authorized_user)
+):
     """
     Get the daily change in portfolio value (today vs yesterday)
     """
+    # SECURITY: Verify user can only access their own daily change
+    user_id = sanitize_user_id(user_id)
+    verify_user_ownership(current_user, user_id)
+
     if not supabase:
         raise HTTPException(status_code=500, detail="Database not initialized")
 
@@ -216,10 +237,18 @@ async def get_daily_change(user_id: str):
 
 
 @router.get("/portfolio-snapshots/{user_id}/weekly")
-async def get_weekly_snapshots(user_id: str, weeks: int = 12):
+async def get_weekly_snapshots(
+    user_id: str,
+    weeks: int = 12,
+    current_user: User = Depends(get_authorized_user)
+):
     """
     Get weekly portfolio snapshots (last day of each week)
     """
+    # SECURITY: Verify user can only access their own weekly snapshots
+    user_id = sanitize_user_id(user_id)
+    verify_user_ownership(current_user, user_id)
+
     if not supabase:
         raise HTTPException(status_code=500, detail="Database not initialized")
 
@@ -268,10 +297,18 @@ async def get_weekly_snapshots(user_id: str, weeks: int = 12):
 
 
 @router.get("/portfolio-snapshots/{user_id}/monthly")
-async def get_monthly_snapshots(user_id: str, months: int = 12):
+async def get_monthly_snapshots(
+    user_id: str,
+    months: int = 12,
+    current_user: User = Depends(get_authorized_user)
+):
     """
     Get monthly portfolio snapshots (last day of each month)
     """
+    # SECURITY: Verify user can only access their own monthly snapshots
+    user_id = sanitize_user_id(user_id)
+    verify_user_ownership(current_user, user_id)
+
     if not supabase:
         raise HTTPException(status_code=500, detail="Database not initialized")
 
@@ -319,10 +356,17 @@ async def get_monthly_snapshots(user_id: str, months: int = 12):
 
 
 @router.delete("/portfolio-snapshots/{user_id}")
-async def delete_user_snapshots(user_id: str):
+async def delete_user_snapshots(
+    user_id: str,
+    current_user: User = Depends(get_authorized_user)
+):
     """
     Delete all portfolio snapshots for a user (admin/user cleanup)
     """
+    # SECURITY: Verify user can only delete their own snapshots
+    user_id = sanitize_user_id(user_id)
+    verify_user_ownership(current_user, user_id)
+
     if not supabase:
         raise HTTPException(status_code=500, detail="Database not initialized")
 

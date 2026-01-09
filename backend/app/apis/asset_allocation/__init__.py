@@ -10,12 +10,14 @@ SEBI COMPLIANCE:
 - No specific fund/stock recommendations
 """
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel, Field, validator
 from typing import Optional, Dict, List
 from supabase import create_client
 import os
 import traceback
+from databutton_app.mw.auth_mw import User, get_authorized_user
+from app.security import verify_user_ownership, sanitize_user_id
 
 router = APIRouter(prefix="/routes")
 
@@ -90,13 +92,20 @@ class AllocationResponse(BaseModel):
 
 # API Endpoints
 @router.post("/save-asset-allocation")
-async def save_asset_allocation(data: SaveAllocationRequest):
+async def save_asset_allocation(
+    data: SaveAllocationRequest,
+    current_user: User = Depends(get_authorized_user)
+):
     """
     Save user's custom asset allocation preferences
 
     Saves allocation for each goal type (Short-Term, Mid-Term, Long-Term)
     """
     try:
+        # SECURITY: Verify user can only save their own asset allocation
+        data.user_id = sanitize_user_id(data.user_id)
+        verify_user_ownership(current_user, data.user_id)
+
         if not supabase:
             raise HTTPException(status_code=500, detail="Database not initialized")
 
@@ -172,13 +181,20 @@ async def save_asset_allocation(data: SaveAllocationRequest):
 
 
 @router.get("/get-asset-allocation/{user_id}")
-async def get_asset_allocation(user_id: str):
+async def get_asset_allocation(
+    user_id: str,
+    current_user: User = Depends(get_authorized_user)
+):
     """
     Retrieve user's custom asset allocation preferences
 
     Returns allocations for all goal types (Short-Term, Mid-Term, Long-Term)
     """
     try:
+        # SECURITY: Verify user can only access their own asset allocation
+        user_id = sanitize_user_id(user_id)
+        verify_user_ownership(current_user, user_id)
+
         if not supabase:
             raise HTTPException(status_code=500, detail="Database not initialized")
 
@@ -226,11 +242,19 @@ async def get_asset_allocation(user_id: str):
 
 
 @router.delete("/delete-asset-allocation/{user_id}/{goal_type}")
-async def delete_asset_allocation(user_id: str, goal_type: str):
+async def delete_asset_allocation(
+    user_id: str,
+    goal_type: str,
+    current_user: User = Depends(get_authorized_user)
+):
     """
     Delete user's asset allocation for a specific goal type
     """
     try:
+        # SECURITY: Verify user can only delete their own asset allocation
+        user_id = sanitize_user_id(user_id)
+        verify_user_ownership(current_user, user_id)
+
         if not supabase:
             raise HTTPException(status_code=500, detail="Database not initialized")
 
