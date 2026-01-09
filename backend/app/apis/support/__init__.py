@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from typing import Optional, List
 from datetime import datetime
@@ -9,6 +9,8 @@ import string
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from supabase import create_client
+from databutton_app.mw.auth_mw import User, get_authorized_user
+from app.security import verify_user_ownership, sanitize_user_id, is_admin_user
 
 router = APIRouter(prefix="/routes")
 
@@ -148,10 +150,17 @@ def send_admin_notification_email(ticket_id: str, user_name: str, user_email: Op
 
 
 @router.post("/support-tickets")
-async def create_support_ticket(ticket: SupportTicketCreate):
+async def create_support_ticket(
+    ticket: SupportTicketCreate,
+    current_user: User = Depends(get_authorized_user)
+):
     """
     Create a new support ticket
     """
+    # SECURITY: Verify user can only create tickets for themselves
+    ticket.userId = sanitize_user_id(ticket.userId)
+    verify_user_ownership(current_user, ticket.userId)
+
     if not supabase:
         raise HTTPException(status_code=500, detail="Database not initialized")
 
@@ -219,10 +228,17 @@ async def create_support_ticket(ticket: SupportTicketCreate):
 
 
 @router.get("/support-tickets/{user_id}")
-async def get_user_support_tickets(user_id: str):
+async def get_user_support_tickets(
+    user_id: str,
+    current_user: User = Depends(get_authorized_user)
+):
     """
     Get all support tickets for a specific user
     """
+    # SECURITY: Verify user can only access their own support tickets
+    user_id = sanitize_user_id(user_id)
+    verify_user_ownership(current_user, user_id)
+
     if not supabase:
         raise HTTPException(status_code=500, detail="Database not initialized")
 
@@ -245,10 +261,14 @@ async def get_user_support_tickets(user_id: str):
 
 
 @router.get("/support-tickets")
-async def get_all_support_tickets():
+async def get_all_support_tickets(current_user: User = Depends(get_authorized_user)):
     """
     Get all support tickets (admin only)
     """
+    # SECURITY: Admin-only endpoint
+    if not is_admin_user(current_user):
+        raise HTTPException(status_code=403, detail="Admin access required")
+
     if not supabase:
         raise HTTPException(status_code=500, detail="Database not initialized")
 
@@ -270,10 +290,18 @@ async def get_all_support_tickets():
 
 
 @router.patch("/support-tickets/{ticket_id}")
-async def update_support_ticket(ticket_id: str, update: SupportTicketUpdate):
+async def update_support_ticket(
+    ticket_id: str,
+    update: SupportTicketUpdate,
+    current_user: User = Depends(get_authorized_user)
+):
     """
     Update a support ticket (admin function)
     """
+    # SECURITY: Admin-only endpoint
+    if not is_admin_user(current_user):
+        raise HTTPException(status_code=403, detail="Admin access required")
+
     if not supabase:
         raise HTTPException(status_code=500, detail="Database not initialized")
 
@@ -311,7 +339,10 @@ async def update_support_ticket(ticket_id: str, update: SupportTicketUpdate):
 
 
 @router.get("/support-tickets/ticket/{ticket_id}")
-async def get_support_ticket(ticket_id: str):
+async def get_support_ticket(
+    ticket_id: str,
+    current_user: User = Depends(get_authorized_user)
+):
     """
     Get a specific support ticket by ID
     """
@@ -326,6 +357,13 @@ async def get_support_ticket(ticket_id: str):
 
         if not response.data or len(response.data) == 0:
             raise HTTPException(status_code=404, detail="Support ticket not found")
+
+        # SECURITY: Verify ticket belongs to user (unless admin)
+        ticket = response.data[0]
+        ticket_user_id = sanitize_user_id(ticket['user_id'])
+
+        if not is_admin_user(current_user):
+            verify_user_ownership(current_user, ticket_user_id)
 
         return {
             "success": True,

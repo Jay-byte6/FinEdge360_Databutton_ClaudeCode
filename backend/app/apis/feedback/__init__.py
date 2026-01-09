@@ -1,9 +1,11 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from typing import Dict, Any, Optional
 from datetime import datetime
 import os
 from supabase import create_client
+from databutton_app.mw.auth_mw import User, get_authorized_user
+from app.security import verify_user_ownership, sanitize_user_id, is_admin_user
 
 router = APIRouter(prefix="/routes")
 
@@ -31,10 +33,18 @@ class FeedbackSubmission(BaseModel):
 
 
 @router.post("/submit-feedback")
-async def submit_feedback(data: FeedbackSubmission):
+async def submit_feedback(
+    data: FeedbackSubmission,
+    current_user: User = Depends(get_authorized_user)
+):
     """
     Submit user feedback to the database
     """
+    # SECURITY: If userId provided, verify user can only submit as themselves
+    if data.userId:
+        data.userId = sanitize_user_id(data.userId)
+        verify_user_ownership(current_user, data.userId)
+
     if not supabase:
         raise HTTPException(status_code=500, detail="Database not initialized")
 
@@ -67,10 +77,17 @@ async def submit_feedback(data: FeedbackSubmission):
 
 
 @router.get("/feedback/{user_id}")
-async def get_user_feedback(user_id: str):
+async def get_user_feedback(
+    user_id: str,
+    current_user: User = Depends(get_authorized_user)
+):
     """
     Get all feedback submissions for a specific user
     """
+    # SECURITY: Verify user can only access their own feedback
+    user_id = sanitize_user_id(user_id)
+    verify_user_ownership(current_user, user_id)
+
     if not supabase:
         raise HTTPException(status_code=500, detail="Database not initialized")
 
@@ -93,10 +110,14 @@ async def get_user_feedback(user_id: str):
 
 
 @router.get("/feedback")
-async def get_all_feedback():
+async def get_all_feedback(current_user: User = Depends(get_authorized_user)):
     """
     Get all feedback submissions (admin only)
     """
+    # SECURITY: Admin-only endpoint
+    if not is_admin_user(current_user):
+        raise HTTPException(status_code=403, detail="Admin access required")
+
     if not supabase:
         raise HTTPException(status_code=500, detail="Database not initialized")
 

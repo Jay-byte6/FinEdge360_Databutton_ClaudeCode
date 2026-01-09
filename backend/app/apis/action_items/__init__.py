@@ -1,8 +1,10 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from typing import List, Optional
 import os
 from supabase import create_client
+from databutton_app.mw.auth_mw import User, get_authorized_user
+from app.security import verify_user_ownership, sanitize_user_id
 
 router = APIRouter(prefix="/routes")
 
@@ -25,10 +27,17 @@ class UserActionItems(BaseModel):
 
 
 @router.get("/user-action-items/{user_id}")
-async def get_user_action_items(user_id: str):
+async def get_user_action_items(
+    user_id: str,
+    current_user: User = Depends(get_authorized_user)
+):
     """
     Get user's completed action items
     """
+    # SECURITY: Verify user can only access their own action items
+    user_id = sanitize_user_id(user_id)
+    verify_user_ownership(current_user, user_id)
+
     if not supabase:
         raise HTTPException(status_code=500, detail="Database not initialized")
 
@@ -53,10 +62,18 @@ async def get_user_action_items(user_id: str):
 
 
 @router.post("/user-action-items/{user_id}")
-async def update_user_action_items(user_id: str, data: UserActionItems):
+async def update_user_action_items(
+    user_id: str,
+    data: UserActionItems,
+    current_user: User = Depends(get_authorized_user)
+):
     """
     Update user's completed action items
     """
+    # SECURITY: Verify user can only update their own action items
+    user_id = sanitize_user_id(user_id)
+    verify_user_ownership(current_user, user_id)
+
     if not supabase:
         raise HTTPException(status_code=500, detail="Database not initialized")
 
