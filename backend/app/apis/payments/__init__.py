@@ -7,6 +7,8 @@ import hashlib
 from datetime import datetime
 from supabase import create_client
 import razorpay
+from databutton_app.mw.auth_mw import User, get_authorized_user
+from app.security import verify_user_ownership, sanitize_user_id
 
 router = APIRouter(prefix="/routes")
 
@@ -66,9 +68,16 @@ class VerifyPaymentResponse(BaseModel):
 # ============================================
 
 @router.post("/create-razorpay-order", response_model=CreateOrderResponse)
-async def create_razorpay_order(request: CreateOrderRequest):
+async def create_razorpay_order(
+    request: CreateOrderRequest,
+    current_user: User = Depends(get_authorized_user)
+):
     """Create Razorpay order for payment"""
     try:
+        # SECURITY: Verify user can only create orders for their own account
+        request.user_id = sanitize_user_id(request.user_id)
+        verify_user_ownership(current_user, request.user_id)
+
         if not RAZORPAY_KEY_ID or not RAZORPAY_KEY_SECRET:
             raise HTTPException(
                 status_code=500,
@@ -154,9 +163,16 @@ async def create_razorpay_order(request: CreateOrderRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/verify-razorpay-payment", response_model=VerifyPaymentResponse)
-async def verify_razorpay_payment(request: VerifyPaymentRequest):
+async def verify_razorpay_payment(
+    request: VerifyPaymentRequest,
+    current_user: User = Depends(get_authorized_user)
+):
     """Verify Razorpay payment signature and create subscription"""
     try:
+        # SECURITY: Verify user can only verify their own payments
+        request.user_id = sanitize_user_id(request.user_id)
+        verify_user_ownership(current_user, request.user_id)
+
         if not RAZORPAY_KEY_SECRET:
             raise HTTPException(status_code=500, detail="Razorpay secret not configured")
 
@@ -222,9 +238,16 @@ async def verify_razorpay_payment(request: VerifyPaymentRequest):
 # ============================================
 
 @router.post("/create-stripe-session")
-async def create_stripe_session(request: CreateOrderRequest):
+async def create_stripe_session(
+    request: CreateOrderRequest,
+    current_user: User = Depends(get_authorized_user)
+):
     """Create Stripe checkout session"""
     try:
+        # SECURITY: Verify user can only create Stripe sessions for their own account
+        request.user_id = sanitize_user_id(request.user_id)
+        verify_user_ownership(current_user, request.user_id)
+
         if not STRIPE_SECRET_KEY:
             raise HTTPException(
                 status_code=500,

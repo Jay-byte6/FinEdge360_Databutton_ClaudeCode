@@ -18,6 +18,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 from app.utils.audit import log_audit, log_data_delete, get_user_audit_logs
 from app.utils.breach_detection import check_and_notify_breach
 from app.tasks.data_retention import get_inactive_users
+from databutton_app.mw.auth_mw import User, get_authorized_user
+from app.security import verify_user_ownership, sanitize_user_id, verify_user_or_admin
 
 router = APIRouter(prefix="/routes")
 
@@ -163,12 +165,20 @@ async def get_user_consents(user_id: str, request: Request) -> Dict[str, Any]:
 # ===== ACCOUNT DELETION ENDPOINT =====
 
 @router.delete("/delete-user-account/{user_id}")
-async def delete_user_account(user_id: str, request: Request) -> Dict[str, str]:
+async def delete_user_account(
+    user_id: str,
+    request: Request,
+    current_user: User = Depends(get_authorized_user)
+) -> Dict[str, str]:
     """
     Permanently delete a user account and all associated data.
     This is irreversible and complies with GDPR right to erasure.
     """
     try:
+        # SECURITY: Verify user can only delete their own account
+        user_id = sanitize_user_id(user_id)
+        verify_user_ownership(current_user, user_id)
+
         if not supabase:
             raise HTTPException(status_code=500, detail="Database not initialized")
 
