@@ -3,7 +3,7 @@ Portfolio API for CAMS statement upload and mutual fund tracking
 Handles file uploads, holdings management, and notifications
 """
 
-from fastapi import APIRouter, HTTPException, UploadFile, File, Form
+from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Depends
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 from datetime import datetime, date
@@ -12,6 +12,8 @@ import tempfile
 import traceback
 from supabase import create_client
 import dotenv
+from databutton_app.mw.auth_mw import User, get_authorized_user
+from app.security import verify_user_ownership, sanitize_user_id
 
 # Load environment variables
 dotenv.load_dotenv()
@@ -128,7 +130,8 @@ def calculate_summary(holdings: List[Dict]) -> PortfolioSummary:
 async def upload_portfolio(
     file: UploadFile = File(...),
     userId: str = Form(...),
-    password: Optional[str] = Form(None)
+    password: Optional[str] = Form(None),
+    current_user: User = Depends(get_authorized_user)
 ):
     """
     Upload and parse CAMS statement (PDF or Excel)
@@ -142,6 +145,10 @@ async def upload_portfolio(
         Upload result with parsing statistics
     """
     try:
+        # SECURITY: Verify user can only upload their own portfolio
+        userId = sanitize_user_id(userId)
+        verify_user_ownership(current_user, userId)
+
         print(f"[Portfolio Upload] User: {userId}, File: {file.filename}, Type: {file.content_type}")
 
         # Validate user
@@ -308,7 +315,10 @@ async def upload_portfolio(
 
 
 @router.get("/portfolio-holdings/{user_id}")
-async def get_portfolio_holdings(user_id: str):
+async def get_portfolio_holdings(
+    user_id: str,
+    current_user: User = Depends(get_authorized_user)
+):
     """
     Get all portfolio holdings for a user with summary
 
@@ -319,6 +329,9 @@ async def get_portfolio_holdings(user_id: str):
         Holdings array and summary object
     """
     try:
+        # SECURITY: Verify user can only access their own holdings
+        user_id = sanitize_user_id(user_id)
+        verify_user_ownership(current_user, user_id)
         print(f"[Get Portfolio Holdings] User: {user_id}")
 
         # Fetch all active holdings
@@ -339,7 +352,11 @@ async def get_portfolio_holdings(user_id: str):
 
 
 @router.get("/portfolio-notifications/{user_id}")
-async def get_portfolio_notifications(user_id: str, limit: int = 50):
+async def get_portfolio_notifications(
+    user_id: str,
+    limit: int = 50,
+    current_user: User = Depends(get_authorized_user)
+):
     """
     Get notifications for a user (unread first)
 
@@ -351,6 +368,9 @@ async def get_portfolio_notifications(user_id: str, limit: int = 50):
         List of notifications
     """
     try:
+        # SECURITY: Verify user can only access their own notifications
+        user_id = sanitize_user_id(user_id)
+        verify_user_ownership(current_user, user_id)
         print(f"[Get Notifications] User: {user_id}, Limit: {limit}")
 
         # Fetch notifications ordered by unread first, then by created date
@@ -370,7 +390,10 @@ async def get_portfolio_notifications(user_id: str, limit: int = 50):
 
 
 @router.patch("/portfolio-notifications/{notification_id}/read")
-async def mark_notification_as_read(notification_id: str):
+async def mark_notification_as_read(
+    notification_id: str,
+    current_user: User = Depends(get_authorized_user)
+):
     """
     Mark a notification as read
 
@@ -381,6 +404,15 @@ async def mark_notification_as_read(notification_id: str):
         Success message
     """
     try:
+        # SECURITY: Fetch notification first, then verify ownership
+        notification = supabase.table('portfolio_notifications').select('user_id').eq('id', notification_id).execute()
+
+        if not notification.data:
+            raise HTTPException(status_code=404, detail="Notification not found")
+
+        user_id = sanitize_user_id(notification.data[0]['user_id'])
+        verify_user_ownership(current_user, user_id)
+
         print(f"[Mark Notification Read] ID: {notification_id}")
 
         # Update notification
@@ -405,28 +437,30 @@ async def mark_notification_as_read(notification_id: str):
 
 
 @router.delete("/portfolio-holdings/{holding_id}")
-async def delete_portfolio_holding(holding_id: str, user_id: str):
+async def delete_portfolio_holding(
+    holding_id: str,
+    current_user: User = Depends(get_authorized_user)
+):
     """
     Delete a portfolio holding (verify user ownership)
 
     Args:
         holding_id: Holding ID
-        user_id: User ID (for verification)
 
     Returns:
         Success message
     """
     try:
-        print(f"[Delete Holding] ID: {holding_id}, User: {user_id}")
-
-        # Verify ownership
+        # SECURITY: Fetch holding first, then verify ownership
         holding = supabase.table('portfolio_holdings').select('user_id').eq('id', holding_id).execute()
 
         if not holding.data:
             raise HTTPException(status_code=404, detail="Holding not found")
 
-        if holding.data[0]['user_id'] != user_id:
-            raise HTTPException(status_code=403, detail="Unauthorized: You don't own this holding")
+        user_id = sanitize_user_id(holding.data[0]['user_id'])
+        verify_user_ownership(current_user, user_id)
+
+        print(f"[Delete Holding] ID: {holding_id}, User: {user_id}")
 
         # Delete holding (cascades to nav_history)
         supabase.table('portfolio_holdings').delete().eq('id', holding_id).execute()
@@ -455,17 +489,30 @@ async def delete_portfolio_holding(holding_id: str, user_id: str):
 
 
 @router.post("/manual-nav-update")
-async def manual_nav_update(user_id: Optional[str] = None):
+async def manual_nav_update(
+    user_id: Optional[str] = None,
+    current_user: User = Depends(get_authorized_user)
+):
     """
     Manually trigger NAV update (for testing)
 
     Args:
-        user_id: Optional user ID (if None, updates all users)
+        user_id: Optional user ID (if None, updates all users - admin only)
 
     Returns:
         Update statistics
     """
     try:
+        # SECURITY: If user_id provided, verify ownership; if None, admin-only
+        if user_id:
+            user_id = sanitize_user_id(user_id)
+            verify_user_ownership(current_user, user_id)
+        else:
+            # Admin-only operation to update all users
+            from app.security import is_admin_user
+            if not is_admin_user(current_user):
+                raise HTTPException(status_code=403, detail="Admin access required to update all users")
+
         print(f"[Manual NAV Update] User: {user_id or 'ALL'}")
 
         from .nav_service import batch_update_navs
@@ -486,7 +533,10 @@ async def manual_nav_update(user_id: Optional[str] = None):
 
 
 @router.post("/refresh-portfolio-nav/{user_id}")
-async def refresh_portfolio_nav(user_id: str):
+async def refresh_portfolio_nav(
+    user_id: str,
+    current_user: User = Depends(get_authorized_user)
+):
     """
     Refresh NAV for all portfolio holdings of a specific user
 
@@ -497,6 +547,9 @@ async def refresh_portfolio_nav(user_id: str):
         Update statistics
     """
     try:
+        # SECURITY: Verify user can only refresh their own portfolio NAV
+        user_id = sanitize_user_id(user_id)
+        verify_user_ownership(current_user, user_id)
         print(f"[Refresh Portfolio NAV] User: {user_id}")
 
         from .nav_service import batch_update_navs
@@ -571,7 +624,11 @@ def detect_asset_class(scheme_name: str) -> str:
 
 
 @router.patch("/portfolio-holdings/{holding_id}/assign-goal")
-async def assign_holding_to_goal(holding_id: str, request: AssignGoalRequest):
+async def assign_holding_to_goal(
+    holding_id: str,
+    request: AssignGoalRequest,
+    current_user: User = Depends(get_authorized_user)
+):
     """
     Assign a portfolio holding to a specific financial goal
     Also auto-detects and updates the asset class
@@ -580,13 +637,15 @@ async def assign_holding_to_goal(holding_id: str, request: AssignGoalRequest):
         if not supabase:
             raise HTTPException(status_code=500, detail="Database not configured")
 
-        # Fetch the holding
+        # SECURITY: Fetch the holding first, then verify ownership
         holding_response = supabase.table('portfolio_holdings').select('*').eq('id', holding_id).single().execute()
 
         if not holding_response.data:
             raise HTTPException(status_code=404, detail="Holding not found")
 
         holding = holding_response.data
+        user_id = sanitize_user_id(holding['user_id'])
+        verify_user_ownership(current_user, user_id)
 
         # Auto-detect asset class from scheme name
         asset_class = detect_asset_class(holding['scheme_name'])
@@ -615,12 +674,18 @@ async def assign_holding_to_goal(holding_id: str, request: AssignGoalRequest):
 
 
 @router.get("/goal-investment-summary/{user_id}")
-async def get_goal_investment_summary(user_id: str):
+async def get_goal_investment_summary(
+    user_id: str,
+    current_user: User = Depends(get_authorized_user)
+):
     """
     Get investment summary for all user's goals with assigned holdings
     Returns progress, asset allocation, and holdings for each goal
     """
     try:
+        # SECURITY: Verify user can only access their own goal investment summary
+        user_id = sanitize_user_id(user_id)
+        verify_user_ownership(current_user, user_id)
         if not supabase:
             raise HTTPException(status_code=500, detail="Database not configured")
 
@@ -815,7 +880,10 @@ class ManualHoldingRequest(BaseModel):
 
 
 @router.post("/add-manual-holding")
-async def add_manual_holding(request: ManualHoldingRequest):
+async def add_manual_holding(
+    request: ManualHoldingRequest,
+    current_user: User = Depends(get_authorized_user)
+):
     """
     Add a holding manually (without CAMS upload)
     Auto-fetches current NAV based on ISIN
@@ -827,6 +895,10 @@ async def add_manual_holding(request: ManualHoldingRequest):
         Created holding with auto-fetched NAV
     """
     try:
+        # SECURITY: Verify user can only add holdings to their own portfolio
+        request.user_id = sanitize_user_id(request.user_id)
+        verify_user_ownership(current_user, request.user_id)
+
         if not supabase:
             raise HTTPException(status_code=500, detail="Database not configured")
 
