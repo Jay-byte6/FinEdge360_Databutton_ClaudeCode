@@ -52,11 +52,19 @@ class ConsentResponse(BaseModel):
 # ===== CONSENT MANAGEMENT ENDPOINTS =====
 
 @router.post("/save-user-consent")
-async def save_user_consent(data: SaveConsentsRequest, request: Request) -> ConsentResponse:
+async def save_user_consent(
+    data: SaveConsentsRequest,
+    request: Request,
+    current_user: User = Depends(get_authorized_user)
+) -> ConsentResponse:
     """
     Save or update user consents for data processing activities.
     """
     try:
+        # SECURITY: Verify user can only save their own consents
+        data.userId = sanitize_user_id(data.userId)
+        verify_user_ownership(current_user, data.userId)
+
         if not supabase:
             raise HTTPException(status_code=500, detail="Database not initialized")
 
@@ -126,11 +134,19 @@ async def save_user_consent(data: SaveConsentsRequest, request: Request) -> Cons
 
 
 @router.get("/get-user-consents/{user_id}")
-async def get_user_consents(user_id: str, request: Request) -> Dict[str, Any]:
+async def get_user_consents(
+    user_id: str,
+    request: Request,
+    current_user: User = Depends(get_authorized_user)
+) -> Dict[str, Any]:
     """
     Retrieve all consents for a user.
     """
     try:
+        # SECURITY: Verify user can only access their own consents
+        user_id = sanitize_user_id(user_id)
+        verify_user_ownership(current_user, user_id)
+
         if not supabase:
             raise HTTPException(status_code=500, detail="Database not initialized")
 
@@ -256,11 +272,20 @@ async def delete_user_account(
 # ===== AUDIT LOG ENDPOINTS =====
 
 @router.get("/audit-logs/{user_id}")
-async def get_audit_logs_endpoint(user_id: str, limit: int = 100, request: Request = None) -> Dict[str, Any]:
+async def get_audit_logs_endpoint(
+    user_id: str,
+    limit: int = 100,
+    request: Request = None,
+    current_user: User = Depends(get_authorized_user)
+) -> Dict[str, Any]:
     """
     Retrieve audit logs for a specific user.
     """
     try:
+        # SECURITY: Verify user can only access their own audit logs
+        user_id = sanitize_user_id(user_id)
+        verify_user_ownership(current_user, user_id)
+
         logs = get_user_audit_logs(user_id, limit)
 
         # Log this access
@@ -286,12 +311,21 @@ async def get_audit_logs_endpoint(user_id: str, limit: int = 100, request: Reque
 # ===== DATA RETENTION ENDPOINTS =====
 
 @router.get("/inactive-users")
-async def get_inactive_users_endpoint(months: int = 18, request: Request = None) -> Dict[str, Any]:
+async def get_inactive_users_endpoint(
+    months: int = 18,
+    request: Request = None,
+    current_user: User = Depends(get_authorized_user)
+) -> Dict[str, Any]:
     """
     Get list of inactive users (admin endpoint).
     Requires authentication in production.
     """
     try:
+        # SECURITY: Admin-only endpoint
+        from app.security import is_admin_user
+        if not is_admin_user(current_user):
+            raise HTTPException(status_code=403, detail="Admin access required")
+
         inactive_users = get_inactive_users(months)
 
         return {
@@ -309,11 +343,19 @@ async def get_inactive_users_endpoint(months: int = 18, request: Request = None)
 # ===== EXPORT DATA ENDPOINT =====
 
 @router.post("/log-pdf-export/{user_id}")
-async def log_pdf_export(user_id: str, request: Request) -> Dict[str, str]:
+async def log_pdf_export(
+    user_id: str,
+    request: Request,
+    current_user: User = Depends(get_authorized_user)
+) -> Dict[str, str]:
     """
     Log PDF export event for audit trail.
     """
     try:
+        # SECURITY: Verify user can only log their own PDF exports
+        user_id = sanitize_user_id(user_id)
+        verify_user_ownership(current_user, user_id)
+
         if not supabase:
             raise HTTPException(status_code=500, detail="Database not initialized")
 
