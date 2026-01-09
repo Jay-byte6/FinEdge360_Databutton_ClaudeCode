@@ -1,9 +1,11 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from typing import Optional, Dict, Any, List
 from datetime import datetime
 from supabase import create_client
 import os
+from databutton_app.mw.auth_mw import User, get_authorized_user
+from app.security import verify_user_ownership, sanitize_user_id
 
 router = APIRouter(prefix="/routes")
 
@@ -33,9 +35,16 @@ class UserPreferenceResponse(BaseModel):
 # ============================================
 
 @router.post("/save-user-preferences", response_model=UserPreferenceResponse)
-async def save_user_preferences(data: UserPreference):
+async def save_user_preferences(
+    data: UserPreference,
+    current_user: User = Depends(get_authorized_user)
+):
     """Save or update user preferences"""
     try:
+        # SECURITY: Verify user can only save their own preferences
+        data.user_id = sanitize_user_id(data.user_id)
+        verify_user_ownership(current_user, data.user_id)
+
         if not supabase:
             raise HTTPException(status_code=500, detail="Database not initialized")
 
@@ -118,9 +127,17 @@ async def save_user_preferences(data: UserPreference):
 
 
 @router.get("/get-user-preferences/{user_id}/{preference_type}")
-async def get_user_preferences(user_id: str, preference_type: str):
+async def get_user_preferences(
+    user_id: str,
+    preference_type: str,
+    current_user: User = Depends(get_authorized_user)
+):
     """Get user preferences by type"""
     try:
+        # SECURITY: Verify user can only access their own preferences
+        user_id = sanitize_user_id(user_id)
+        verify_user_ownership(current_user, user_id)
+
         if not supabase:
             raise HTTPException(status_code=500, detail="Database not initialized")
 
@@ -159,9 +176,16 @@ async def get_user_preferences(user_id: str, preference_type: str):
 
 
 @router.get("/get-all-user-preferences/{user_id}")
-async def get_all_user_preferences(user_id: str):
+async def get_all_user_preferences(
+    user_id: str,
+    current_user: User = Depends(get_authorized_user)
+):
     """Get all preferences for a user"""
     try:
+        # SECURITY: Verify user can only access their own preferences
+        user_id = sanitize_user_id(user_id)
+        verify_user_ownership(current_user, user_id)
+
         if not supabase:
             raise HTTPException(status_code=500, detail="Database not initialized")
 
@@ -190,9 +214,17 @@ async def get_all_user_preferences(user_id: str):
 
 
 @router.delete("/reset-user-preference/{user_id}/{preference_type}")
-async def reset_user_preference(user_id: str, preference_type: str):
+async def reset_user_preference(
+    user_id: str,
+    preference_type: str,
+    current_user: User = Depends(get_authorized_user)
+):
     """Reset a specific user preference"""
     try:
+        # SECURITY: Verify user can only reset their own preferences
+        user_id = sanitize_user_id(user_id)
+        verify_user_ownership(current_user, user_id)
+
         if not supabase:
             raise HTTPException(status_code=500, detail="Database not initialized")
 

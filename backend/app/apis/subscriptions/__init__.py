@@ -9,6 +9,8 @@ import os
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from utils.email_service import send_access_code_email, send_payment_receipt_email
+from databutton_app.mw.auth_mw import User, get_authorized_user
+from app.security import verify_user_ownership, sanitize_user_id
 
 router = APIRouter(prefix="/routes")
 
@@ -274,9 +276,16 @@ async def get_active_promos():
 # ============================================
 
 @router.post("/create-subscription", response_model=SubscriptionResponse)
-async def create_subscription(data: SubscriptionCreate):
+async def create_subscription(
+    data: SubscriptionCreate,
+    current_user: User = Depends(get_authorized_user)
+):
     """Create new subscription with optional promo code"""
     try:
+        # SECURITY: Verify user can only create their own subscription
+        data.user_id = sanitize_user_id(data.user_id)
+        verify_user_ownership(current_user, data.user_id)
+
         if not supabase:
             raise HTTPException(status_code=500, detail="Database not initialized")
 
@@ -409,9 +418,16 @@ async def create_subscription(data: SubscriptionCreate):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/validate-access-code")
-async def validate_access_code(data: AccessCodeValidation):
+async def validate_access_code(
+    data: AccessCodeValidation,
+    current_user: User = Depends(get_authorized_user)
+):
     """Validate access code and unlock features"""
     try:
+        # SECURITY: Verify user can only validate their own access code
+        data.user_id = sanitize_user_id(data.user_id)
+        verify_user_ownership(current_user, data.user_id)
+
         if not supabase:
             raise HTTPException(status_code=500, detail="Database not initialized")
 
@@ -464,9 +480,16 @@ async def validate_access_code(data: AccessCodeValidation):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/user-subscription/{user_id}")
-async def get_user_subscription(user_id: str):
+async def get_user_subscription(
+    user_id: str,
+    current_user: User = Depends(get_authorized_user)
+):
     """Get user's current subscription status"""
     try:
+        # SECURITY: Verify user can only access their own subscription
+        user_id = sanitize_user_id(user_id)
+        verify_user_ownership(current_user, user_id)
+
         if not supabase:
             raise HTTPException(status_code=500, detail="Database not initialized")
 

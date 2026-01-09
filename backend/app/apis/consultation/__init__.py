@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel, EmailStr
 from typing import List, Optional
 from datetime import datetime, date, time
@@ -8,6 +8,8 @@ from email.mime.multipart import MIMEMultipart
 import os
 import traceback
 from supabase import create_client
+from databutton_app.mw.auth_mw import User, get_authorized_user
+from app.security import verify_user_ownership, sanitize_user_id
 
 router = APIRouter(prefix="/routes")
 
@@ -209,9 +211,16 @@ async def get_consultation_types():
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/book-consultation", response_model=ConsultationBookingResponse)
-async def book_consultation(booking: ConsultationBookingRequest):
+async def book_consultation(
+    booking: ConsultationBookingRequest,
+    current_user: User = Depends(get_authorized_user)
+):
     """Book a consultation (Discovery Call or Premium Consultation)"""
     try:
+        # SECURITY: Verify user can only book consultations for their own account
+        booking.user_id = sanitize_user_id(booking.user_id)
+        verify_user_ownership(current_user, booking.user_id)
+
         print(f"[Book Consultation] User: {booking.user_id}, Type: {booking.consultation_type}")
 
         if not supabase:
@@ -298,9 +307,16 @@ async def book_consultation(booking: ConsultationBookingRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/user-consultations/{user_id}")
-async def get_user_consultations(user_id: str):
+async def get_user_consultations(
+    user_id: str,
+    current_user: User = Depends(get_authorized_user)
+):
     """Get all consultations for a user"""
     try:
+        # SECURITY: Verify user can only access their own consultations
+        user_id = sanitize_user_id(user_id)
+        verify_user_ownership(current_user, user_id)
+
         if not supabase:
             raise HTTPException(status_code=500, detail="Database not initialized")
 

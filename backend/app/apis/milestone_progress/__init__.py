@@ -1,9 +1,11 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
 from supabase import create_client
 import os
+from databutton_app.mw.auth_mw import User, get_authorized_user
+from app.security import verify_user_ownership, sanitize_user_id
 
 router = APIRouter(prefix="/routes")
 
@@ -46,7 +48,11 @@ class MilestoneProgressResponse(BaseModel):
 
 
 @router.post("/save-milestone-progress/{user_id}")
-async def save_milestone_progress(user_id: str, progress: MilestoneProgressUpdate):
+async def save_milestone_progress(
+    user_id: str,
+    progress: MilestoneProgressUpdate,
+    current_user: User = Depends(get_authorized_user)
+):
     """
     Save or update milestone progress for a user
 
@@ -55,6 +61,10 @@ async def save_milestone_progress(user_id: str, progress: MilestoneProgressUpdat
     - Requesting help for milestones
     - Adding notes to milestones
     """
+    # SECURITY: Verify user can only save their own milestone progress
+    user_id = sanitize_user_id(user_id)
+    verify_user_ownership(current_user, user_id)
+
     if not supabase:
         raise HTTPException(status_code=500, detail="Database connection not configured")
 
@@ -115,12 +125,19 @@ async def save_milestone_progress(user_id: str, progress: MilestoneProgressUpdat
 
 
 @router.get("/get-milestone-progress/{user_id}")
-async def get_milestone_progress(user_id: str):
+async def get_milestone_progress(
+    user_id: str,
+    current_user: User = Depends(get_authorized_user)
+):
     """
     Get all milestone progress for a user
 
     Returns a list of all milestones with their completion status
     """
+    # SECURITY: Verify user can only access their own milestone progress
+    user_id = sanitize_user_id(user_id)
+    verify_user_ownership(current_user, user_id)
+
     if not supabase:
         raise HTTPException(status_code=500, detail="Database connection not configured")
 
@@ -138,12 +155,20 @@ async def get_milestone_progress(user_id: str):
 
 
 @router.get("/get-milestone-progress/{user_id}/{milestone_number}")
-async def get_single_milestone_progress(user_id: str, milestone_number: int):
+async def get_single_milestone_progress(
+    user_id: str,
+    milestone_number: int,
+    current_user: User = Depends(get_authorized_user)
+):
     """
     Get progress for a specific milestone
 
     Returns the progress data for a single milestone
     """
+    # SECURITY: Verify user can only access their own milestone progress
+    user_id = sanitize_user_id(user_id)
+    verify_user_ownership(current_user, user_id)
+
     if not supabase:
         raise HTTPException(status_code=500, detail="Database connection not configured")
 
@@ -174,10 +199,18 @@ async def get_single_milestone_progress(user_id: str, milestone_number: int):
 
 
 @router.delete("/delete-milestone-progress/{user_id}/{milestone_number}")
-async def delete_milestone_progress(user_id: str, milestone_number: int):
+async def delete_milestone_progress(
+    user_id: str,
+    milestone_number: int,
+    current_user: User = Depends(get_authorized_user)
+):
     """
     Delete progress for a specific milestone (mainly for testing/admin purposes)
     """
+    # SECURITY: Verify user can only delete their own milestone progress
+    user_id = sanitize_user_id(user_id)
+    verify_user_ownership(current_user, user_id)
+
     if not supabase:
         raise HTTPException(status_code=500, detail="Database connection not configured")
 
