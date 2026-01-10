@@ -34,11 +34,22 @@ DODO_PAYMENTS_ENVIRONMENT = os.getenv("DODO_PAYMENTS_ENVIRONMENT", "test_mode") 
 dodo_client = None
 if DODO_PAYMENTS_API_KEY:
     try:
+        # Try with api_key parameter first (most common in payment SDKs)
         dodo_client = DodoPayments(
-            bearer_token=DODO_PAYMENTS_API_KEY,
+            api_key=DODO_PAYMENTS_API_KEY,
             environment=DODO_PAYMENTS_ENVIRONMENT
         )
         print(f"[Dodo Payments] Client initialized successfully ({DODO_PAYMENTS_ENVIRONMENT})")
+    except TypeError:
+        # If api_key doesn't work, try bearer_token
+        try:
+            dodo_client = DodoPayments(
+                bearer_token=DODO_PAYMENTS_API_KEY,
+                environment=DODO_PAYMENTS_ENVIRONMENT
+            )
+            print(f"[Dodo Payments] Client initialized successfully with bearer_token ({DODO_PAYMENTS_ENVIRONMENT})")
+        except Exception as e:
+            print(f"[Dodo Payments] Failed to initialize client: {str(e)}")
     except Exception as e:
         print(f"[Dodo Payments] Failed to initialize client: {str(e)}")
 
@@ -109,29 +120,35 @@ async def create_razorpay_order(
 
         print(f"[Create Razorpay Order] User: {request.user_id}, Plan: {request.plan_name}")
 
-        # Fetch plan details
-        plan_response = supabase.from_("subscription_plans")\
-            .select("*")\
-            .eq("plan_name", request.plan_name)\
-            .eq("is_active", True)\
-            .execute()
+        # Hardcoded pricing (60% OFF - matches pricing page)
+        # Premium: ₹3,999 (one-time lifetime access)
+        # Expert Plus: ₹199/month or ₹1,999/year
+        PLAN_PRICES = {
+            'premium': {
+                'monthly': 3999,
+                'yearly': 3999,
+                'lifetime': 3999
+            },
+            'expert_plus': {
+                'monthly': 199,
+                'yearly': 1999,
+                'lifetime': 1999
+            }
+        }
 
-        if not plan_response.data or len(plan_response.data) == 0:
-            raise HTTPException(status_code=404, detail="Plan not found")
+        # Get price from hardcoded dict (always up-to-date with pricing page)
+        if request.plan_name not in PLAN_PRICES:
+            raise HTTPException(status_code=404, detail=f"Plan '{request.plan_name}' not found")
 
-        plan = plan_response.data[0]
+        plan_prices = PLAN_PRICES[request.plan_name]
 
         # Calculate amount based on billing cycle
-        if request.billing_cycle == 'monthly':
-            amount = int(plan['price_monthly'] * 100)  # Convert to paise
-        elif request.billing_cycle == 'yearly':
-            amount = int(plan['price_yearly'] * 100) if plan['price_yearly'] else int(plan['price_monthly'] * 12 * 100)
-        elif request.billing_cycle == 'lifetime':
-            # For Premium plan, always use the plan's monthly price (which is lifetime price)
-            # This gives ₹2,999 for Premium and ₹3,999 for Expert Plus
-            amount = int(plan['price_monthly'] * 100)  # Convert to paise
+        if request.billing_cycle in plan_prices:
+            amount = int(plan_prices[request.billing_cycle] * 100)  # Convert to paise
         else:
             raise HTTPException(status_code=400, detail="Invalid billing cycle")
+
+        print(f"[Create Razorpay Order] Plan: {request.plan_name}, Cycle: {request.billing_cycle}, Amount: ₹{amount/100}")
 
         # Apply promo code discount if provided
         if request.promo_code:
@@ -339,27 +356,35 @@ async def create_dodo_checkout(
 
         print(f"[Create Dodo Checkout] User: {request.user_id}, Plan: {request.plan_name}")
 
-        # Fetch plan details from database
-        plan_response = supabase.from_("subscription_plans")\
-            .select("*")\
-            .eq("plan_name", request.plan_name)\
-            .eq("is_active", True)\
-            .execute()
+        # Hardcoded pricing (60% OFF - matches pricing page)
+        # Premium: ₹3,999 (one-time lifetime access)
+        # Expert Plus: ₹199/month or ₹1,999/year
+        PLAN_PRICES = {
+            'premium': {
+                'monthly': 3999,
+                'yearly': 3999,
+                'lifetime': 3999
+            },
+            'expert_plus': {
+                'monthly': 199,
+                'yearly': 1999,
+                'lifetime': 1999
+            }
+        }
 
-        if not plan_response.data or len(plan_response.data) == 0:
-            raise HTTPException(status_code=404, detail="Plan not found")
+        # Get price from hardcoded dict (always up-to-date with pricing page)
+        if request.plan_name not in PLAN_PRICES:
+            raise HTTPException(status_code=404, detail=f"Plan '{request.plan_name}' not found")
 
-        plan = plan_response.data[0]
+        plan_prices = PLAN_PRICES[request.plan_name]
 
         # Calculate amount based on billing cycle
-        if request.billing_cycle == 'monthly':
-            amount = int(plan['price_monthly'] * 100)  # Convert to paise/cents
-        elif request.billing_cycle == 'yearly':
-            amount = int(plan['price_yearly'] * 100) if plan['price_yearly'] else int(plan['price_monthly'] * 12 * 100)
-        elif request.billing_cycle == 'lifetime':
-            amount = int(plan['price_monthly'] * 100)
+        if request.billing_cycle in plan_prices:
+            amount = int(plan_prices[request.billing_cycle] * 100)  # Convert to paise/cents
         else:
             raise HTTPException(status_code=400, detail="Invalid billing cycle")
+
+        print(f"[Create Dodo Checkout] Plan: {request.plan_name}, Cycle: {request.billing_cycle}, Amount: ₹{amount/100}")
 
         # Apply promo code discount if provided
         if request.promo_code:
@@ -377,29 +402,34 @@ async def create_dodo_checkout(
                     print(f"[Create Dodo Checkout] Applied discount: {promo['discount_percentage']}%")
 
         # Create Dodo Payments checkout session
-        # Note: You'll need to create products in Dodo Payments dashboard first
-        # For now, we'll use a placeholder product_id
+        # Note: Dodo Payments requires products to be created in dashboard first
+
+        checkout_data = {
+            "product_cart": [
+                {
+                    "product_id": f"finedge_{request.plan_name}_{request.billing_cycle}",
+                    "quantity": 1,
+                }
+            ],
+            "customer": {
+                "email": current_user.email if hasattr(current_user, 'email') else None,
+                "name": current_user.email.split('@')[0] if hasattr(current_user, 'email') else "User"
+            },
+            "return_url": f"{os.getenv('FRONTEND_URL', 'http://localhost:5173')}/pricing?payment=success",
+            "metadata": {
+                "user_id": request.user_id,
+                "plan_name": request.plan_name,
+                "billing_cycle": request.billing_cycle,
+                "promo_code": request.promo_code if request.promo_code else ""
+            }
+        }
+
+        print(f"[Create Dodo Checkout] Sending request to Dodo API:")
+        print(f"[Create Dodo Checkout] Data: {checkout_data}")
+        print(f"[Create Dodo Checkout] API Key (first 10 chars): {DODO_PAYMENTS_API_KEY[:10]}...")
 
         try:
-            checkout_session = dodo_client.checkout_sessions.create(
-                product_cart=[
-                    {
-                        "product_id": f"finedge_{request.plan_name}_{request.billing_cycle}",
-                        "quantity": 1,
-                    }
-                ],
-                customer={
-                    "email": current_user.email if hasattr(current_user, 'email') else None,
-                    "name": current_user.email.split('@')[0] if hasattr(current_user, 'email') else "User"
-                },
-                return_url=f"{os.getenv('FRONTEND_URL', 'http://localhost:5173')}/pricing?payment=success",
-                metadata={
-                    "user_id": request.user_id,
-                    "plan_name": request.plan_name,
-                    "billing_cycle": request.billing_cycle,
-                    "promo_code": request.promo_code if request.promo_code else ""
-                }
-            )
+            checkout_session = dodo_client.checkout_sessions.create(**checkout_data)
 
             print(f"[Create Dodo Checkout] Created session: {checkout_session.session_id}")
 
@@ -414,6 +444,11 @@ async def create_dodo_checkout(
 
         except Exception as dodo_error:
             print(f"[Create Dodo Checkout] Dodo API Error: {str(dodo_error)}")
+            print(f"[Create Dodo Checkout] Error type: {type(dodo_error)}")
+            print(f"[Create Dodo Checkout] Error details: {dodo_error.__dict__ if hasattr(dodo_error, '__dict__') else 'No details'}")
+            import traceback
+            print(f"[Create Dodo Checkout] Traceback:")
+            traceback.print_exc()
             raise HTTPException(
                 status_code=500,
                 detail=f"Failed to create Dodo checkout session: {str(dodo_error)}"

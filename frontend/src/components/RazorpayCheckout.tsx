@@ -71,20 +71,20 @@ const RazorpayCheckout: React.FC<RazorpayCheckoutProps> = ({
   const [originalAmount, setOriginalAmount] = useState(0);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'razorpay' | 'dodo'>('razorpay');
 
-  // Plan pricing (in rupees)
+  // Plan pricing (in rupees) - 60% OFF SALE PRICES
   const planPricing = {
     premium: {
-      monthly: 9999,
-      yearly: 9999,
-      lifetime: 9999
+      monthly: 3999,   // 60% OFF from ₹9,999
+      yearly: 3999,    // 60% OFF from ₹9,999
+      lifetime: 3999   // 60% OFF from ₹9,999 (one-time payment)
     },
     expert_plus: {
-      monthly: 1999,
-      yearly: 19999,
-      lifetime: 0
+      monthly: 199,    // 60% OFF from ₹499
+      yearly: 1999,    // 60% OFF from ₹4,999
+      lifetime: 1999   // Yearly price for lifetime
     },
     founder50: {
-      lifetime: 14999
+      lifetime: 14999  // Special founder offer
     }
   };
 
