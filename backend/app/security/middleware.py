@@ -106,6 +106,11 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
     async def dispatch(self, request: Request, call_next):
         client_ip = self._get_client_ip(request)
+
+        # FIX: Exempt localhost from rate limiting for development
+        if client_ip in ("127.0.0.1", "localhost", "::1"):
+            return await call_next(request)
+
         now = datetime.utcnow()
 
         # Clean old requests
