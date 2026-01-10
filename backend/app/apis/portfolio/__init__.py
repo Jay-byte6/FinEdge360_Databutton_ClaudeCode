@@ -836,6 +836,7 @@ async def get_goal_investment_summary(
                 # Include original SIP planner goal fields for frontend compatibility
                 'goalType': goal.get('goalType', 'custom'),
                 'sipRequired': goal.get('sipRequired', 0),
+                'sipCalculated': goal.get('sipCalculated', False),  # FIX: Include sipCalculated flag
                 'amountRequiredToday': goal.get('amountRequiredToday', 0),
                 'holdings': holdings_data,
                 'totals': {

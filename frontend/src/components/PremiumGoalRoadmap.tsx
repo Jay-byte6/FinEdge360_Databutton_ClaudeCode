@@ -63,6 +63,12 @@ export const PremiumGoalRoadmap: React.FC<PremiumGoalRoadmapProps> = ({ userId, 
               // Map backend response to Goal format
               // Backend includes both snake_case (goal_id, years_to_goal) and camelCase (goalType, sipRequired) fields
               goalsData = summaryData.goals
+                .filter((g: any) => {
+                  // FIX: Goals in Action = only goals with SIP calculated (active SIP plans)
+                  const hasSIPCalculated = g.sipCalculated === true;
+                  const hasSIPRequired = g.sipRequired && g.sipRequired > 0;
+                  return hasSIPCalculated && hasSIPRequired;
+                })
                 .map((g: any) => ({
                   id: g.goal_id,
                   name: g.goal_name,
@@ -70,10 +76,9 @@ export const PremiumGoalRoadmap: React.FC<PremiumGoalRoadmapProps> = ({ userId, 
                   goalType: g.goalType || 'custom',
                   amountRequiredToday: g.amountRequiredToday || g.amount_available || 0,
                   amountRequiredFuture: g.target_amount,
-                  sipRequired: g.sipRequired || g.totals?.monthly_sip || 0,
+                  sipRequired: g.sipRequired,
                   amountAvailableToday: g.total_value || 0, // Includes amount_available + portfolio holdings value
                 }))
-                .filter((g: Goal) => g.amountRequiredFuture > 0) // Only show goals with target amount
                 .sort((a: Goal, b: Goal) => a.timeYears - b.timeYears);
 
               console.log('[PremiumGoalRoadmap] Loaded goals from investment summary:', goalsData);
@@ -90,7 +95,12 @@ export const PremiumGoalRoadmap: React.FC<PremiumGoalRoadmapProps> = ({ userId, 
             const data = await response.json();
             if (data.goals && Array.isArray(data.goals)) {
               goalsData = data.goals
-                .filter((g: Goal) => g.sipRequired && g.sipRequired > 0)
+                .filter((g: any) => {
+                  // FIX: Goals in Action = only goals with SIP calculated (active SIP plans)
+                  const hasSIPCalculated = g.sipCalculated === true;
+                  const hasSIPRequired = g.sipRequired && g.sipRequired > 0;
+                  return hasSIPCalculated && hasSIPRequired;
+                })
                 .sort((a: Goal, b: Goal) => a.timeYears - b.timeYears);
             }
           }

@@ -210,19 +210,29 @@ export const autoSaveSnapshot = async (
   },
   holdingsDetails?: any[]
 ): Promise<void> => {
-  // Check if already saved today
-  if (hasSnapshotForToday(userId)) {
-    console.log('[Portfolio Snapshot] Already saved today (per localStorage), skipping...');
+  const today = new Date().toISOString().split('T')[0];
+  const lastSaved = localStorage.getItem(`portfolio_snapshot_${userId}_last`);
+
+  // FIX: Check if already saved today (compare dates)
+  if (lastSaved === today) {
+    console.log('[Portfolio Snapshot] ✅ Already saved today:', today);
     return;
   }
 
-  // Save snapshot
-  console.log('[Portfolio Snapshot] Auto-saving snapshot for today...');
+  // FIX: Always try to save, even if current_value is 0 (needed for daily change calculation)
+  console.log('[Portfolio Snapshot] 💾 Saving snapshot for today:', today);
+  console.log('[Portfolio Snapshot] Data:', {
+    current_value: portfolioSummary.current_value,
+    holdings_count: portfolioSummary.holdings_count,
+    total_profit: portfolioSummary.total_profit
+  });
+
   const success = await savePortfolioSnapshot(userId, portfolioSummary, holdingsDetails);
 
   if (!success) {
-    console.error('[Portfolio Snapshot] Failed to save snapshot - will retry on next portfolio fetch');
-    // Clear localStorage flag so it can retry
+    console.error('[Portfolio Snapshot] ❌ Failed to save snapshot - clearing localStorage to retry next time');
     localStorage.removeItem(`portfolio_snapshot_${userId}_last`);
+  } else {
+    console.log('[Portfolio Snapshot] ✅ Snapshot saved successfully for:', today);
   }
 };

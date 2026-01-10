@@ -54,7 +54,9 @@ const usePortfolioStore = create<PortfolioState>((set, get) => ({
       });
 
       // Auto-save daily snapshot for historical tracking
-      if (data.summary && data.summary.holdings_count > 0) {
+      // FIX: Save snapshot even if holdings_count is 0 (needed for daily change calculation)
+      if (data.summary) {
+        console.log('[Portfolio Store] Triggering auto-save snapshot...');
         autoSaveSnapshot(userId, data.summary, data.holdings).catch(err => {
           console.warn('[Portfolio Store] Failed to save snapshot:', err);
           // Don't show error to user - this is a background operation
