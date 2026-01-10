@@ -59,21 +59,24 @@ export const PremiumGoalRoadmap: React.FC<PremiumGoalRoadmapProps> = ({ userId, 
           const summaryResponse = await fetch(API_ENDPOINTS.getGoalInvestmentSummary(userId));
           if (summaryResponse.ok) {
             const summaryData = await summaryResponse.json();
-            if (summaryData.success && summaryData.goals && Array.isArray(summaryData.goals)) {
-              // Map summary data to Goal format
+            if (summaryData.goals && Array.isArray(summaryData.goals)) {
+              // Map backend response to Goal format
+              // Backend includes both snake_case (goal_id, years_to_goal) and camelCase (goalType, sipRequired) fields
               goalsData = summaryData.goals
-                .filter((g: any) => g.sipRequired && g.sipRequired > 0)
                 .map((g: any) => ({
-                  id: g.id,
-                  name: g.name,
-                  timeYears: g.timeYears,
-                  goalType: g.goalType,
-                  amountRequiredToday: g.amountRequiredToday,
-                  amountRequiredFuture: g.targetAmount || g.amountRequiredFuture,
-                  sipRequired: g.sipRequired,
-                  amountAvailableToday: g.totalValue || g.amountAvailableToday || 0, // Use totalValue from summary
+                  id: g.goal_id,
+                  name: g.goal_name,
+                  timeYears: g.years_to_goal,
+                  goalType: g.goalType || 'custom',
+                  amountRequiredToday: g.amountRequiredToday || g.amount_available || 0,
+                  amountRequiredFuture: g.target_amount,
+                  sipRequired: g.sipRequired || g.totals?.monthly_sip || 0,
+                  amountAvailableToday: g.total_value || 0, // Includes amount_available + portfolio holdings value
                 }))
+                .filter((g: Goal) => g.amountRequiredFuture > 0) // Only show goals with target amount
                 .sort((a: Goal, b: Goal) => a.timeYears - b.timeYears);
+
+              console.log('[PremiumGoalRoadmap] Loaded goals from investment summary:', goalsData);
             }
           }
         } catch (summaryError) {

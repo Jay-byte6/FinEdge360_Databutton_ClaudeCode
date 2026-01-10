@@ -832,6 +832,11 @@ async def get_goal_investment_summary(
                 'target_year': target_year,
                 'years_to_goal': years_to_goal,
                 'amount_available': amount_allocated,  # Allocated amount from Set Goal
+                'total_value': total_value,  # FIX: Include total value (amount_available + holdings) for progress
+                # Include original SIP planner goal fields for frontend compatibility
+                'goalType': goal.get('goalType', 'custom'),
+                'sipRequired': goal.get('sipRequired', 0),
+                'amountRequiredToday': goal.get('amountRequiredToday', 0),
                 'holdings': holdings_data,
                 'totals': {
                     'invested': total_invested,

@@ -291,7 +291,7 @@ export const ActionItemsCard: React.FC<ActionItemsCardProps> = ({ userId, financ
 
       // 11. Increase SIP by 10% Annually (If has goals)
       try {
-        const sipRes = await fetch(API_ENDPOINTS.getSipPlanner(userId));
+        const sipRes = await fetch(API_ENDPOINTS.getSIPPlanner(userId));
         if (sipRes.ok) {
           const sipData = await sipRes.json();
           if (sipData && sipData.goals && sipData.goals.length > 0) {
@@ -415,7 +415,7 @@ export const ActionItemsCard: React.FC<ActionItemsCardProps> = ({ userId, financ
 
       // 18. Set Up Auto-Debit for SIPs (TIER 1 if user has SIP plan!)
       try {
-        const sipRes = await fetch(API_ENDPOINTS.getSipPlanner(userId));
+        const sipRes = await fetch(API_ENDPOINTS.getSIPPlanner(userId));
         if (sipRes.ok) {
           const sipData = await sipRes.json();
           const hasSIPPlan = sipData && sipData.goals && sipData.goals.length > 0 &&
