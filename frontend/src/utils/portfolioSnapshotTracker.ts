@@ -212,11 +212,17 @@ export const autoSaveSnapshot = async (
 ): Promise<void> => {
   // Check if already saved today
   if (hasSnapshotForToday(userId)) {
-    console.log('[Portfolio Snapshot] Already saved today, skipping...');
+    console.log('[Portfolio Snapshot] Already saved today (per localStorage), skipping...');
     return;
   }
 
   // Save snapshot
   console.log('[Portfolio Snapshot] Auto-saving snapshot for today...');
-  await savePortfolioSnapshot(userId, portfolioSummary, holdingsDetails);
+  const success = await savePortfolioSnapshot(userId, portfolioSummary, holdingsDetails);
+
+  if (!success) {
+    console.error('[Portfolio Snapshot] Failed to save snapshot - will retry on next portfolio fetch');
+    // Clear localStorage flag so it can retry
+    localStorage.removeItem(`portfolio_snapshot_${userId}_last`);
+  }
 };

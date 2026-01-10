@@ -89,7 +89,7 @@ const Pricing: React.FC = () => {
       displayName: 'Premium',
       tagline: 'Lifetime access + 1 Free Consultation',
       icon: TrendingUp,
-      price: { monthly: 9999, yearly: 9999 },
+      price: { monthly: 3999, yearly: 3999 },  // 60% OFF from ₹9,999
       popular: true,
       features: [
         { text: 'Everything in Free', included: true },
