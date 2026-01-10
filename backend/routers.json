@@ -2,83 +2,83 @@
   "routers": {
     "financial_data": {
       "name": "financial_data",
-      "version": "2025-05-08T17:29:36",
-      "disableAuth": true
+      "version": "2026-01-09T00:00:00",
+      "disableAuth": false
     },
     "auth": {
       "name": "auth",
-      "version": "2025-05-08T16:36:57",
+      "version": "2026-01-09T00:00:00",
       "disableAuth": true
     },
     "db_schema": {
       "name": "db_schema",
-      "version": "2025-05-02T16:26:35",
+      "version": "2026-01-09T00:00:00",
       "disableAuth": true
     },
     "privacy": {
       "name": "privacy",
-      "version": "2025-05-08T16:36:57",
-      "disableAuth": true
+      "version": "2026-01-09T00:00:00",
+      "disableAuth": false
     },
     "milestone_progress": {
       "name": "milestone_progress",
-      "version": "2025-11-16T00:00:00",
-      "disableAuth": true
+      "version": "2026-01-09T00:00:00",
+      "disableAuth": false
     },
     "asset_allocation": {
       "name": "asset_allocation",
-      "version": "2025-11-17T00:00:00",
-      "disableAuth": true
+      "version": "2026-01-09T00:00:00",
+      "disableAuth": false
     },
     "user_preferences": {
       "name": "user_preferences",
-      "version": "2025-11-25T00:00:00",
-      "disableAuth": true
+      "version": "2026-01-09T00:00:00",
+      "disableAuth": false
     },
     "payments": {
       "name": "payments",
-      "version": "2025-12-04T00:00:00",
-      "disableAuth": true
+      "version": "2026-01-09T00:00:00",
+      "disableAuth": false
     },
     "subscriptions": {
       "name": "subscriptions",
-      "version": "2025-12-04T00:00:00",
-      "disableAuth": true
+      "version": "2026-01-09T00:00:00",
+      "disableAuth": false
     },
     "consultation": {
       "name": "consultation",
-      "version": "2025-12-04T00:00:00",
-      "disableAuth": true
+      "version": "2026-01-09T00:00:00",
+      "disableAuth": false
     },
     "support": {
       "name": "support",
-      "version": "2026-01-03T00:00:00",
-      "disableAuth": true
+      "version": "2026-01-09T00:00:00",
+      "disableAuth": false
     },
     "feedback": {
       "name": "feedback",
-      "version": "2026-01-03T00:00:00",
-      "disableAuth": true
+      "version": "2026-01-09T00:00:00",
+      "disableAuth": false
     },
     "portfolio": {
       "name": "portfolio",
-      "version": "2026-01-03T00:00:00",
-      "disableAuth": true
+      "version": "2026-01-09T00:00:00",
+      "disableAuth": false
     },
     "action_items": {
       "name": "action_items",
-      "version": "2026-01-03T00:00:00",
-      "disableAuth": true
+      "version": "2026-01-09T00:00:00",
+      "disableAuth": false
     },
     "portfolio_snapshots": {
       "name": "portfolio_snapshots",
-      "version": "2026-01-03T00:00:00",
-      "disableAuth": true
+      "version": "2026-01-09T00:00:00",
+      "disableAuth": false
     },
     "sip_planner": {
       "name": "sip_planner",
-      "version": "2026-01-03T00:00:00",
-      "disableAuth": true
+      "version": "2026-01-09T00:00:00",
+      "disableAuth": false
     }
   }
 }

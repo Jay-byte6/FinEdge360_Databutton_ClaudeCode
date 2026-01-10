@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 dotenv.load_dotenv()
 
 from databutton_app.mw.auth_mw import AuthConfig, get_authorized_user
+from app.security.middleware import SecurityHeadersMiddleware, RateLimitMiddleware, RequestLoggingMiddleware
 
 
 class CustomCORSMiddleware(BaseHTTPMiddleware):
@@ -167,7 +168,17 @@ def create_app() -> FastAPI:
     """Create the app. This is called by uvicorn with the factory option to construct the app object."""
     app = FastAPI()
 
-    # Add custom CORS middleware (built-in CORSMiddleware wasn't working)
+    # Add security middlewares (ORDER MATTERS - applied in reverse order)
+    # 1. Request logging (first to log everything)
+    app.add_middleware(RequestLoggingMiddleware)
+
+    # 2. Rate limiting (second to block excessive requests early)
+    app.add_middleware(RateLimitMiddleware, requests_per_minute=100, requests_per_hour=1000)
+
+    # 3. Security headers (third to add security headers to all responses)
+    app.add_middleware(SecurityHeadersMiddleware)
+
+    # 4. Custom CORS middleware (last to handle CORS properly)
     app.add_middleware(CustomCORSMiddleware)
 
     app.include_router(import_api_routers())
@@ -182,20 +193,43 @@ def create_app() -> FastAPI:
             for method in route.methods:
                 print(f"{method} {route.path}")
 
+    # Try Firebase config first (for Databutton environment)
     firebase_config = get_firebase_config()
 
-    if firebase_config is None:
-        print("No firebase config found")
-        app.state.auth_config = None
-    else:
-        print("Firebase config found")
+    if firebase_config is not None:
+        print("[AUTH] Firebase auth configured")
         auth_config = {
             "jwks_url": "https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com",
             "audience": firebase_config["projectId"],
             "header": "authorization",
         }
-
         app.state.auth_config = AuthConfig(**auth_config)
+    else:
+        # Use Supabase config for Railway deployment
+        print("Firebase config not found, using Supabase auth config")
+        supabase_url = os.getenv("SUPABASE_URL")
+        jwt_secret = os.getenv("SUPABASE_JWT_SECRET")
+
+        if supabase_url and jwt_secret:
+            print("[AUTH] Supabase auth configured with JWT_SECRET")
+            print(f"[AUTH] Supabase URL: {supabase_url}")
+            print(f"[AUTH] JWT_SECRET configured: [OK] YES")
+
+            # NOTE: jwks_url not used when JWT_SECRET is available
+            # but required by AuthConfig model
+            auth_config = {
+                "jwks_url": f"{supabase_url}/auth/v1/jwks",  # Not used with JWT_SECRET
+                "audience": "authenticated",
+                "header": "authorization",
+            }
+
+            print(f"Supabase auth configured for project")
+            app.state.auth_config = AuthConfig(**auth_config)
+        else:
+            print("[ERROR] WARNING: No auth config found!")
+            print(f"   SUPABASE_URL: {'[OK]' if supabase_url else '[MISSING]'}")
+            print(f"   SUPABASE_JWT_SECRET: {'[OK]' if jwt_secret else '[MISSING]'}")
+            app.state.auth_config = None
 
     return app
 

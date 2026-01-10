@@ -7,6 +7,8 @@ import re
 import traceback
 from supabase import create_client
 import os
+from databutton_app.mw.auth_mw import User, get_authorized_user
+from app.security import verify_user_ownership, sanitize_user_id
 
 router = APIRouter(prefix="/routes")
 
@@ -175,12 +177,16 @@ class RiskAssessmentResponse(BaseModel):
     data: Optional[Dict[str, Any]] = None
 
 @router.post("/save-financial-data")
-def save_financial_data(data: FinancialDataInput) -> SaveFinancialDataResponse:
+def save_financial_data(data: FinancialDataInput, current_user: User = Depends(get_authorized_user)) -> SaveFinancialDataResponse:
     print(f"===== [SAVE FINANCIAL DATA] START =====")
     print(f"User ID: {data.userId}")
     print(f"Has Personal Info: {data.personalInfo is not None}")
     print(f"Has Assets: {data.assets is not None}")
     print(f"Has Liabilities: {data.liabilities is not None}")
+
+    # SECURITY: Verify user can only save their own data
+    data.userId = sanitize_user_id(data.userId)
+    verify_user_ownership(current_user, data.userId)
 
     try:
         # First try to save to Supabase if available
@@ -417,8 +423,24 @@ def save_financial_data(data: FinancialDataInput) -> SaveFinancialDataResponse:
         raise HTTPException(status_code=500, detail=f"Failed to save financial data: {str(e)}")
 
 @router.get("/get-financial-data/{user_id}")
-def get_financial_data(user_id: str) -> FinancialDataOutput:
+def get_financial_data(user_id: str, current_user: User = Depends(get_authorized_user)) -> FinancialDataOutput:
     print(f"-----> Attempting to get financial data for user_id: {user_id} <-----")
+
+    try:
+        print(f"[DEBUG] current_user type: {type(current_user)}")
+        print(f"[DEBUG] current_user is None: {current_user is None}")
+        if current_user:
+            print(f"[DEBUG] current_user.sub: {current_user.sub}")
+        print(f"[DEBUG] requested user_id: {user_id}")
+    except Exception as debug_err:
+        print(f"[DEBUG ERROR] Failed to print debug info: {debug_err}")
+
+    # SECURITY: Verify user can only access their own data
+    user_id = sanitize_user_id(user_id)
+    print(f"[DEBUG] About to call verify_user_ownership...")
+    verify_user_ownership(current_user, user_id)
+    print(f"[DEBUG] verify_user_ownership completed successfully")
+
     try:
         # First try to get data from Supabase
         try:
@@ -621,8 +643,13 @@ def get_financial_data(user_id: str) -> FinancialDataOutput:
 
 # Risk Assessment Endpoints
 @router.post("/save-risk-assessment")
-def save_risk_assessment(data: RiskAssessmentData) -> RiskAssessmentResponse:
+def save_risk_assessment(data: RiskAssessmentData, current_user: User = Depends(get_authorized_user)) -> RiskAssessmentResponse:
     """Save user's risk assessment data to database"""
+
+    # SECURITY: Verify user can only save their own data
+    data.userId = sanitize_user_id(data.userId)
+    verify_user_ownership(current_user, data.userId)
+
     try:
         if not supabase:
             raise HTTPException(status_code=500, detail="Database not initialized")
@@ -677,8 +704,13 @@ def save_risk_assessment(data: RiskAssessmentData) -> RiskAssessmentResponse:
         raise HTTPException(status_code=500, detail=f"Failed to save risk assessment: {str(e)}")
 
 @router.get("/get-risk-assessment/{user_id}")
-def get_risk_assessment(user_id: str) -> Optional[Dict[str, Any]]:
+def get_risk_assessment(user_id: str, current_user: User = Depends(get_authorized_user)) -> Optional[Dict[str, Any]]:
     """Retrieve user's risk assessment data from database"""
+
+    # SECURITY: Verify user can only access their own data
+    user_id = sanitize_user_id(user_id)
+    verify_user_ownership(current_user, user_id)
+
     try:
         if not supabase:
             raise HTTPException(status_code=500, detail="Database not initialized")
@@ -719,8 +751,13 @@ def get_risk_assessment(user_id: str) -> Optional[Dict[str, Any]]:
         return None  # Return None on error instead of raising exception
 
 @router.delete("/delete-risk-assessment/{user_id}")
-def delete_risk_assessment(user_id: str) -> Dict[str, str]:
+def delete_risk_assessment(user_id: str, current_user: User = Depends(get_authorized_user)) -> Dict[str, str]:
     """Delete user's risk assessment data from database"""
+
+    # SECURITY: Verify user can only delete their own data
+    user_id = sanitize_user_id(user_id)
+    verify_user_ownership(current_user, user_id)
+
     try:
         if not supabase:
             raise HTTPException(status_code=500, detail="Database not initialized")
@@ -778,8 +815,13 @@ class SIPPlannerResponse(BaseModel):
 
 # SIP Planner Endpoints
 @router.post("/save-sip-planner")
-def save_sip_planner(data: SIPPlannerData) -> SIPPlannerResponse:
+def save_sip_planner(data: SIPPlannerData, current_user: User = Depends(get_authorized_user)) -> SIPPlannerResponse:
     """Save user's SIP planner goals and calculations to database"""
+
+    # SECURITY: Verify user can only save their own data
+    data.userId = sanitize_user_id(data.userId)
+    verify_user_ownership(current_user, data.userId)
+
     try:
         if not supabase:
             raise HTTPException(status_code=500, detail="Database not initialized")
@@ -874,8 +916,13 @@ def save_sip_planner(data: SIPPlannerData) -> SIPPlannerResponse:
         raise HTTPException(status_code=500, detail=f"Failed to save SIP planner data: {str(e)}")
 
 @router.get("/get-sip-planner/{user_id}")
-def get_sip_planner(user_id: str) -> Optional[Dict[str, Any]]:
+def get_sip_planner(user_id: str, current_user: User = Depends(get_authorized_user)) -> Optional[Dict[str, Any]]:
     """Retrieve user's SIP planner data from database"""
+
+    # SECURITY: Verify user can only access their own data
+    user_id = sanitize_user_id(user_id)
+    verify_user_ownership(current_user, user_id)
+
     try:
         if not supabase:
             raise HTTPException(status_code=500, detail="Database not initialized")

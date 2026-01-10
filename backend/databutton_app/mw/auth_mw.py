@@ -138,7 +138,42 @@ def authorize_token(
     token: str,
     auth_config: AuthConfig,
 ) -> User | None:
-    # Audience and jwks url to get signing key from based on the users config
+    import os
+
+    # Check if JWT_SECRET is available (Supabase HS256)
+    jwt_secret = os.getenv("SUPABASE_JWT_SECRET")
+
+    if jwt_secret:
+        # Use HS256 verification with JWT_SECRET (Supabase)
+        print("[AUTH] Using JWT_SECRET for token verification (HS256)")
+        try:
+            payload = jwt.decode(
+                token,
+                key=jwt_secret,
+                algorithms=["HS256"],
+                audience=auth_config.audience,
+                options={"verify_aud": True}
+            )
+
+            user = User.model_validate(payload)
+            print(f"[AUTH] User {user.sub} authenticated via JWT_SECRET (HS256)")
+            return user
+
+        except jwt.ExpiredSignatureError:
+            print("[AUTH] Token expired")
+            return None
+        except jwt.InvalidAudienceError:
+            print("[AUTH] Invalid audience")
+            return None
+        except jwt.InvalidTokenError as e:
+            print(f"[AUTH] Invalid token: {e}")
+            return None
+        except Exception as e:
+            print(f"[AUTH] Token verification failed: {e}")
+            return None
+
+    # Fallback to JWKS for Firebase/Databutton (RS256)
+    print("[AUTH] Using JWKS for token verification (RS256)")
     jwks_urls = [(auth_config.audience, auth_config.jwks_url)]
 
     payload = None
