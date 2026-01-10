@@ -52,17 +52,48 @@ export const PremiumGoalRoadmap: React.FC<PremiumGoalRoadmapProps> = ({ userId, 
 
     const fetchGoals = async () => {
       try {
-        const response = await fetch(API_ENDPOINTS.getSIPPlanner(userId));
-        if (response.ok) {
-          const data = await response.json();
-          if (data.goals && Array.isArray(data.goals)) {
-            // Sort goals by timeYears (nearest first)
-            const sortedGoals = data.goals
-              .filter((g: Goal) => g.sipRequired && g.sipRequired > 0)
-              .sort((a: Goal, b: Goal) => a.timeYears - b.timeYears);
-            setGoals(sortedGoals);
+        // Try to fetch from goal-investment-summary first (includes portfolio data)
+        let goalsData: Goal[] = [];
+
+        try {
+          const summaryResponse = await fetch(API_ENDPOINTS.getGoalInvestmentSummary(userId));
+          if (summaryResponse.ok) {
+            const summaryData = await summaryResponse.json();
+            if (summaryData.success && summaryData.goals && Array.isArray(summaryData.goals)) {
+              // Map summary data to Goal format
+              goalsData = summaryData.goals
+                .filter((g: any) => g.sipRequired && g.sipRequired > 0)
+                .map((g: any) => ({
+                  id: g.id,
+                  name: g.name,
+                  timeYears: g.timeYears,
+                  goalType: g.goalType,
+                  amountRequiredToday: g.amountRequiredToday,
+                  amountRequiredFuture: g.targetAmount || g.amountRequiredFuture,
+                  sipRequired: g.sipRequired,
+                  amountAvailableToday: g.totalValue || g.amountAvailableToday || 0, // Use totalValue from summary
+                }))
+                .sort((a: Goal, b: Goal) => a.timeYears - b.timeYears);
+            }
+          }
+        } catch (summaryError) {
+          console.log('[PremiumGoalRoadmap] Goal investment summary not available, falling back to SIP planner');
+        }
+
+        // Fallback to getSIPPlanner if summary doesn't work
+        if (goalsData.length === 0) {
+          const response = await fetch(API_ENDPOINTS.getSIPPlanner(userId));
+          if (response.ok) {
+            const data = await response.json();
+            if (data.goals && Array.isArray(data.goals)) {
+              goalsData = data.goals
+                .filter((g: Goal) => g.sipRequired && g.sipRequired > 0)
+                .sort((a: Goal, b: Goal) => a.timeYears - b.timeYears);
+            }
           }
         }
+
+        setGoals(goalsData);
       } catch (error) {
         console.error('[PremiumGoalRoadmap] Error fetching goals:', error);
       } finally {

@@ -76,6 +76,7 @@ export const API_ENDPOINTS = {
   refreshPortfolioNav: (userId: string) => `${API_BASE_URL}/routes/refresh-portfolio-nav/${userId}`,
   getPortfolioSyncStatus: (userId: string) => `${API_BASE_URL}/routes/portfolio-sync-status/${userId}`,
   togglePortfolioSync: `${API_BASE_URL}/routes/toggle-portfolio-sync`,
+  getGoalInvestmentSummary: (userId: string) => `${API_BASE_URL}/routes/goal-investment-summary/${userId}`,
 
   // Action Items (Dashboard checklist)
   getUserActionItems: (userId: string) => `${API_BASE_URL}/routes/user-action-items/${userId}`,
