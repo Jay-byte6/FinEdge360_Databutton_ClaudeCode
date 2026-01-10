@@ -63,7 +63,11 @@ const RazorpayCheckout: React.FC<RazorpayCheckoutProps> = ({
   const [discount, setDiscount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [verifying, setVerifying] = useState(false);
-  const [paymentConfig, setPaymentConfig] = useState<PaymentConfig | null>(null);
+  const [paymentConfig, setPaymentConfig] = useState<PaymentConfig>({
+    razorpay: { enabled: false, key_id: null },
+    stripe: { enabled: false, publishable_key: '' },
+    dodo: { enabled: false, environment: 'test_mode' }
+  });
   const [originalAmount, setOriginalAmount] = useState(0);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'razorpay' | 'dodo'>('razorpay');
 
@@ -117,11 +121,21 @@ const RazorpayCheckout: React.FC<RazorpayCheckoutProps> = ({
   const fetchPaymentConfig = async () => {
     try {
       const response = await fetch(API_ENDPOINTS.paymentConfig);
+      if (!response.ok) {
+        throw new Error('Failed to fetch payment config');
+      }
       const data = await response.json();
+      console.log('[Payment Config] Loaded:', data);
       setPaymentConfig(data);
     } catch (error) {
-      console.error('Failed to fetch payment config:', error);
+      console.error('[Payment Config] Failed to fetch:', error);
       toast.error('Failed to load payment configuration');
+      // Set empty config to prevent errors
+      setPaymentConfig({
+        razorpay: { enabled: false, key_id: null },
+        stripe: { enabled: false, publishable_key: '' },
+        dodo: { enabled: false, environment: 'test_mode' }
+      });
     }
   };
 
@@ -182,7 +196,7 @@ const RazorpayCheckout: React.FC<RazorpayCheckoutProps> = ({
       return;
     }
 
-    if (!paymentConfig?.razorpay.enabled) {
+    if (!paymentConfig.razorpay.enabled) {
       toast.error('Payment gateway not configured');
       return;
     }
@@ -302,7 +316,7 @@ const RazorpayCheckout: React.FC<RazorpayCheckoutProps> = ({
       return;
     }
 
-    if (!paymentConfig?.dodo.enabled) {
+    if (!paymentConfig.dodo.enabled) {
       toast.error('Dodo Payments not configured');
       return;
     }
@@ -384,7 +398,7 @@ const RazorpayCheckout: React.FC<RazorpayCheckoutProps> = ({
 
             <CardContent className="space-y-6 pt-6">
               {/* Payment not configured warning */}
-              {!paymentConfig?.razorpay.enabled && (
+              {!paymentConfig.razorpay.enabled && (
                 <div className="flex items-start gap-3 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                   <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
                   <div className="text-sm">
@@ -434,7 +448,7 @@ const RazorpayCheckout: React.FC<RazorpayCheckoutProps> = ({
               </div>
 
               {/* Payment Method Selection */}
-              {paymentConfig && (paymentConfig.razorpay.enabled || paymentConfig.dodo.enabled) && (
+              {(paymentConfig.razorpay.enabled || paymentConfig.dodo.enabled) && (
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-700">Payment Method</label>
                   <div className="grid grid-cols-2 gap-3">
@@ -546,8 +560,8 @@ const RazorpayCheckout: React.FC<RazorpayCheckoutProps> = ({
                   disabled={
                     loading ||
                     verifying ||
-                    (selectedPaymentMethod === 'razorpay' && !paymentConfig?.razorpay.enabled) ||
-                    (selectedPaymentMethod === 'dodo' && !paymentConfig?.dodo.enabled)
+                    (selectedPaymentMethod === 'razorpay' && !paymentConfig.razorpay.enabled) ||
+                    (selectedPaymentMethod === 'dodo' && !paymentConfig.dodo.enabled)
                   }
                   className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
                 >
