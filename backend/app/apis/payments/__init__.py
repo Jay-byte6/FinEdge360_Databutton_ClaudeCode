@@ -7,6 +7,7 @@ import hashlib
 from datetime import datetime
 from supabase import create_client
 import razorpay
+from dodopayments import DodoPayments
 from databutton_app.mw.auth_mw import User, get_authorized_user
 from app.security import verify_user_ownership, sanitize_user_id
 
@@ -25,9 +26,26 @@ RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "")
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
 
+# Dodo Payments configuration
+DODO_PAYMENTS_API_KEY = os.getenv("DODO_PAYMENTS_API_KEY", "")
+DODO_PAYMENTS_ENVIRONMENT = os.getenv("DODO_PAYMENTS_ENVIRONMENT", "test_mode")  # test_mode or live_mode
+
+# Initialize Dodo Payments client
+dodo_client = None
+if DODO_PAYMENTS_API_KEY:
+    try:
+        dodo_client = DodoPayments(
+            bearer_token=DODO_PAYMENTS_API_KEY,
+            environment=DODO_PAYMENTS_ENVIRONMENT
+        )
+        print(f"[Dodo Payments] Client initialized successfully ({DODO_PAYMENTS_ENVIRONMENT})")
+    except Exception as e:
+        print(f"[Dodo Payments] Failed to initialize client: {str(e)}")
+
 print(f"[Payments API] Initialized")
 print(f"  Razorpay configured: {bool(RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET)}")
 print(f"  Stripe configured: {bool(STRIPE_SECRET_KEY)}")
+print(f"  Dodo Payments configured: {bool(DODO_PAYMENTS_API_KEY)}")
 
 # ============================================
 # MODELS
@@ -38,7 +56,7 @@ class CreateOrderRequest(BaseModel):
     plan_name: str  # 'premium' or 'expert_plus'
     billing_cycle: str  # 'monthly', 'yearly'
     promo_code: Optional[str] = None
-    payment_method: str  # 'razorpay' or 'stripe'
+    payment_method: str  # 'razorpay', 'stripe', or 'dodo'
 
 class CreateOrderResponse(BaseModel):
     success: bool
@@ -47,6 +65,8 @@ class CreateOrderResponse(BaseModel):
     currency: str
     key_id: Optional[str] = None  # For Razorpay
     client_secret: Optional[str] = None  # For Stripe
+    checkout_url: Optional[str] = None  # For Dodo Payments
+    session_id: Optional[str] = None  # For Dodo Payments
 
 class VerifyPaymentRequest(BaseModel):
     user_id: str
@@ -294,6 +314,155 @@ async def stripe_webhook():
         raise HTTPException(status_code=500, detail=str(e))
 
 # ============================================
+# DODO PAYMENTS INTEGRATION
+# ============================================
+
+@router.post("/create-dodo-checkout", response_model=CreateOrderResponse)
+async def create_dodo_checkout(
+    request: CreateOrderRequest,
+    current_user: User = Depends(get_authorized_user)
+):
+    """Create Dodo Payments checkout session"""
+    try:
+        # SECURITY: Verify user can only create checkout sessions for their own account
+        request.user_id = sanitize_user_id(request.user_id)
+        verify_user_ownership(current_user, request.user_id)
+
+        if not dodo_client:
+            raise HTTPException(
+                status_code=500,
+                detail="Dodo Payments not configured. Please set DODO_PAYMENTS_API_KEY"
+            )
+
+        if not supabase:
+            raise HTTPException(status_code=500, detail="Database not initialized")
+
+        print(f"[Create Dodo Checkout] User: {request.user_id}, Plan: {request.plan_name}")
+
+        # Fetch plan details from database
+        plan_response = supabase.from_("subscription_plans")\
+            .select("*")\
+            .eq("plan_name", request.plan_name)\
+            .eq("is_active", True)\
+            .execute()
+
+        if not plan_response.data or len(plan_response.data) == 0:
+            raise HTTPException(status_code=404, detail="Plan not found")
+
+        plan = plan_response.data[0]
+
+        # Calculate amount based on billing cycle
+        if request.billing_cycle == 'monthly':
+            amount = int(plan['price_monthly'] * 100)  # Convert to paise/cents
+        elif request.billing_cycle == 'yearly':
+            amount = int(plan['price_yearly'] * 100) if plan['price_yearly'] else int(plan['price_monthly'] * 12 * 100)
+        elif request.billing_cycle == 'lifetime':
+            amount = int(plan['price_monthly'] * 100)
+        else:
+            raise HTTPException(status_code=400, detail="Invalid billing cycle")
+
+        # Apply promo code discount if provided
+        if request.promo_code:
+            promo_response = supabase.from_("promo_codes")\
+                .select("*")\
+                .eq("code", request.promo_code.upper())\
+                .eq("is_active", True)\
+                .execute()
+
+            if promo_response.data and len(promo_response.data) > 0:
+                promo = promo_response.data[0]
+                if promo.get('discount_percentage'):
+                    discount = (amount * promo['discount_percentage']) // 100
+                    amount = amount - discount
+                    print(f"[Create Dodo Checkout] Applied discount: {promo['discount_percentage']}%")
+
+        # Create Dodo Payments checkout session
+        # Note: You'll need to create products in Dodo Payments dashboard first
+        # For now, we'll use a placeholder product_id
+
+        try:
+            checkout_session = dodo_client.checkout_sessions.create(
+                product_cart=[
+                    {
+                        "product_id": f"finedge_{request.plan_name}_{request.billing_cycle}",
+                        "quantity": 1,
+                    }
+                ],
+                customer={
+                    "email": current_user.email if hasattr(current_user, 'email') else None,
+                    "name": current_user.email.split('@')[0] if hasattr(current_user, 'email') else "User"
+                },
+                return_url=f"{os.getenv('FRONTEND_URL', 'http://localhost:5173')}/pricing?payment=success",
+                metadata={
+                    "user_id": request.user_id,
+                    "plan_name": request.plan_name,
+                    "billing_cycle": request.billing_cycle,
+                    "promo_code": request.promo_code if request.promo_code else ""
+                }
+            )
+
+            print(f"[Create Dodo Checkout] Created session: {checkout_session.session_id}")
+
+            return CreateOrderResponse(
+                success=True,
+                order_id=checkout_session.session_id,
+                amount=amount,
+                currency="INR",
+                checkout_url=checkout_session.url,
+                session_id=checkout_session.session_id
+            )
+
+        except Exception as dodo_error:
+            print(f"[Create Dodo Checkout] Dodo API Error: {str(dodo_error)}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"Failed to create Dodo checkout session: {str(dodo_error)}"
+            )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"[Create Dodo Checkout] Error: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/dodo-webhook")
+async def dodo_webhook(request: dict):
+    """Handle Dodo Payments webhook events"""
+    try:
+        print(f"[Dodo Webhook] Received webhook: {request}")
+
+        # Verify webhook signature (if Dodo Payments provides webhook secrets)
+        # Process payment success event
+        # Create subscription in database
+
+        event_type = request.get("event_type")
+
+        if event_type == "payment.succeeded":
+            session_id = request.get("session_id")
+            metadata = request.get("metadata", {})
+
+            user_id = metadata.get("user_id")
+            plan_name = metadata.get("plan_name")
+            billing_cycle = metadata.get("billing_cycle")
+
+            print(f"[Dodo Webhook] Payment succeeded for user: {user_id}, plan: {plan_name}")
+
+            # Here you would create the subscription in your database
+            # Similar to how it's done in verify_razorpay_payment
+
+            return {"success": True, "message": "Webhook processed"}
+
+        return {"success": True, "message": "Webhook received"}
+
+    except Exception as e:
+        print(f"[Dodo Webhook] Error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ============================================
 # UTILITY ENDPOINTS
 # ============================================
 
@@ -308,6 +477,10 @@ async def get_payment_config():
         "stripe": {
             "enabled": bool(STRIPE_SECRET_KEY),
             "publishable_key": os.getenv("STRIPE_PUBLISHABLE_KEY", "")
+        },
+        "dodo": {
+            "enabled": bool(DODO_PAYMENTS_API_KEY),
+            "environment": DODO_PAYMENTS_ENVIRONMENT
         }
     }
 

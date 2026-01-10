@@ -58,6 +58,7 @@ export const API_ENDPOINTS = {
   paymentConfig: `${API_BASE_URL}/routes/payment-config`,
   createRazorpayOrder: `${API_BASE_URL}/routes/create-razorpay-order`,
   verifyRazorpayPayment: `${API_BASE_URL}/routes/verify-razorpay-payment`,
+  createDodoCheckout: `${API_BASE_URL}/routes/create-dodo-checkout`,
   validatePromoCode: `${API_BASE_URL}/routes/validate-promo-code`,
 
   // Subscriptions

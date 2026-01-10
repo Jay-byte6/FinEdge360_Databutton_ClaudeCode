@@ -11,6 +11,7 @@ requests
 supabase
 httpx
 razorpay==1.4.2
+dodopayments  # Dodo Payments integration
 
 # Portfolio tracking dependencies (Added for CAMS upload & NAV tracking)
 pdfplumber==0.10.3  # PDF parsing for CAMS statements

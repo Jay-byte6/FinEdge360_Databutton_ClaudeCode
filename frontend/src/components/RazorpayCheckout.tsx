@@ -24,6 +24,10 @@ interface PaymentConfig {
     enabled: boolean;
     publishable_key: string;
   };
+  dodo: {
+    enabled: boolean;
+    environment: string;
+  };
 }
 
 interface OrderResponse {
@@ -61,6 +65,7 @@ const RazorpayCheckout: React.FC<RazorpayCheckoutProps> = ({
   const [verifying, setVerifying] = useState(false);
   const [paymentConfig, setPaymentConfig] = useState<PaymentConfig | null>(null);
   const [originalAmount, setOriginalAmount] = useState(0);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'razorpay' | 'dodo'>('razorpay');
 
   // Plan pricing (in rupees)
   const planPricing = {
@@ -291,6 +296,52 @@ const RazorpayCheckout: React.FC<RazorpayCheckoutProps> = ({
     }
   };
 
+  const handleDodoPayment = async () => {
+    if (!user?.id) {
+      toast.error('Please login to continue');
+      return;
+    }
+
+    if (!paymentConfig?.dodo.enabled) {
+      toast.error('Dodo Payments not configured');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      // Create Dodo checkout session
+      const response = await fetch(API_ENDPOINTS.createDodoCheckout, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: user.id,
+          plan_name: billingCycle === 'lifetime' ? 'premium' : planName,
+          billing_cycle: billingCycle,
+          promo_code: appliedPromo,
+          payment_method: 'dodo'
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.checkout_url) {
+        // Redirect user to Dodo Payments checkout page
+        window.location.href = data.checkout_url;
+      } else {
+        throw new Error('Failed to create Dodo checkout session');
+      }
+    } catch (error) {
+      console.error('Dodo payment error:', error);
+      toast.error('Failed to initiate Dodo payment');
+      setLoading(false);
+    }
+  };
+
+  const handlePaymentMethodChange = (method: 'razorpay' | 'dodo') => {
+    setSelectedPaymentMethod(method);
+  };
+
   return (
     <AnimatePresence>
       <motion.div
@@ -382,6 +433,49 @@ const RazorpayCheckout: React.FC<RazorpayCheckoutProps> = ({
                 )}
               </div>
 
+              {/* Payment Method Selection */}
+              {paymentConfig && (paymentConfig.razorpay.enabled || paymentConfig.dodo.enabled) && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">Payment Method</label>
+                  <div className="grid grid-cols-2 gap-3">
+                    {paymentConfig.razorpay.enabled && (
+                      <Button
+                        type="button"
+                        variant={selectedPaymentMethod === 'razorpay' ? 'default' : 'outline'}
+                        className={`h-auto p-4 flex flex-col items-center gap-2 ${
+                          selectedPaymentMethod === 'razorpay'
+                            ? 'bg-blue-600 text-white hover:bg-blue-700'
+                            : 'hover:bg-gray-50'
+                        }`}
+                        onClick={() => handlePaymentMethodChange('razorpay')}
+                        disabled={loading || verifying}
+                      >
+                        <CreditCard className="w-5 h-5" />
+                        <span className="text-sm font-medium">Razorpay</span>
+                        <span className="text-xs opacity-75">Credit/Debit/UPI/Wallet</span>
+                      </Button>
+                    )}
+                    {paymentConfig.dodo.enabled && (
+                      <Button
+                        type="button"
+                        variant={selectedPaymentMethod === 'dodo' ? 'default' : 'outline'}
+                        className={`h-auto p-4 flex flex-col items-center gap-2 ${
+                          selectedPaymentMethod === 'dodo'
+                            ? 'bg-blue-600 text-white hover:bg-blue-700'
+                            : 'hover:bg-gray-50'
+                        }`}
+                        onClick={() => handlePaymentMethodChange('dodo')}
+                        disabled={loading || verifying}
+                      >
+                        <CreditCard className="w-5 h-5" />
+                        <span className="text-sm font-medium">Dodo Payments</span>
+                        <span className="text-xs opacity-75">Secure Checkout</span>
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {/* Price Breakdown */}
               <div className="space-y-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
                 <div className="flex items-center justify-between text-sm">
@@ -430,7 +524,11 @@ const RazorpayCheckout: React.FC<RazorpayCheckoutProps> = ({
               {/* Security Badge */}
               <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
                 <Lock className="w-4 h-4" />
-                <span>Secured by Razorpay • 256-bit SSL</span>
+                <span>
+                  {selectedPaymentMethod === 'razorpay'
+                    ? 'Secured by Razorpay • 256-bit SSL'
+                    : 'Secured by Dodo Payments • 256-bit SSL'}
+                </span>
               </div>
 
               {/* Action Buttons */}
@@ -444,8 +542,13 @@ const RazorpayCheckout: React.FC<RazorpayCheckoutProps> = ({
                   Cancel
                 </Button>
                 <Button
-                  onClick={handlePayment}
-                  disabled={loading || verifying || !paymentConfig?.razorpay.enabled}
+                  onClick={selectedPaymentMethod === 'razorpay' ? handlePayment : handleDodoPayment}
+                  disabled={
+                    loading ||
+                    verifying ||
+                    (selectedPaymentMethod === 'razorpay' && !paymentConfig?.razorpay.enabled) ||
+                    (selectedPaymentMethod === 'dodo' && !paymentConfig?.dodo.enabled)
+                  }
                   className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
                 >
                   {verifying ? (
