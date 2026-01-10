@@ -141,7 +141,7 @@ export default function Dashboard() {
           await fetchFinancialData(user.id);
         } catch (error) {
           console.error("Error loading financial data:", error);
-          toast.error("Could not load your financial data. Please try again later.");
+          toast.error("Welcome! Please complete your financial profile in the Profile page to view your dashboard.");
         } finally {
           setIsLoading(false);
         }

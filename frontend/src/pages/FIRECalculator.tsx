@@ -192,8 +192,8 @@ export default function FIRECalculator() {
         await fetchFinancialData(user.id);
       } catch (error) {
         console.error("Error fetching financial data:", error);
-        setCalculationError("Failed to load financial data. Have you entered your financial details?");
-        toast.error("Could not load financial data");
+        setCalculationError("Welcome! To use the FIRE Calculator, please complete your financial profile first. Go to the Profile page to enter your financial details.");
+        toast.error("Please complete your financial profile to use this feature");
       }
     };
 

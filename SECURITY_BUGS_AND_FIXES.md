@@ -165,6 +165,73 @@ ImportError: cannot import name 'verify_user_ownership' from 'app.security'
 
 ---
 
+### 🐛 Bug #5: Confusing Error Messages for New Users
+
+**Symptom:**
+- New users visiting Dashboard, FIRE Calculator, or Net Worth pages before entering financial details
+- Received unhelpful error message: "Error loading data...have you entered your financial details?"
+- Message was phrased as a question rather than providing clear guidance
+- No direction on where to go or what to do
+
+**When Discovered:** Post-security implementation UX review
+**Severity:** 🟡 MEDIUM - UX issue, not blocking but creates poor first-time user experience
+
+**Evidence:**
+```typescript
+// FIRECalculator.tsx (Line 195) - OLD MESSAGE
+setCalculationError("Failed to load financial data. Have you entered your financial details?");
+toast.error("Could not load financial data");
+
+// NetWorth.tsx (Line 246) - OLD MESSAGE
+setCalculationError("Failed to load financial data. Have you entered your financial details?");
+toast.error("Could not load financial data");
+
+// Dashboard.tsx (Line 144) - OLD MESSAGE
+toast.error("Could not load your financial data. Please try again later.");
+```
+
+**User Experience Impact:**
+- New users felt confused: "Have I entered details? I don't know"
+- No clear call-to-action on what to do next
+- Message implied a technical failure rather than missing data
+- Users didn't know where to enter financial details
+
+**Root Cause:**
+- Error messages written from developer perspective, not user perspective
+- Assumed users would understand "financial details" = Profile page
+- No clear navigation guidance provided
+- Same generic error shown for both technical failures and missing data
+
+**Fix Applied:**
+
+```typescript
+// FIRECalculator.tsx (Line 195) - NEW MESSAGE
+setCalculationError("Welcome! To use the FIRE Calculator, please complete your financial profile first. Go to the Profile page to enter your financial details.");
+toast.error("Please complete your financial profile to use this feature");
+
+// NetWorth.tsx (Line 246) - NEW MESSAGE
+setCalculationError("Welcome! To view your Net Worth, please complete your financial profile first. Go to the Profile page to enter your financial details.");
+toast.error("Please complete your financial profile to use this feature");
+
+// Dashboard.tsx (Line 144) - NEW MESSAGE
+toast.error("Welcome! Please complete your financial profile in the Profile page to view your dashboard.");
+```
+
+**Changes Made:**
+1. ✅ Welcoming tone ("Welcome!") instead of error tone
+2. ✅ Clear action: "complete your financial profile"
+3. ✅ Specific navigation: "Go to the Profile page"
+4. ✅ Context-aware messaging for each page (FIRE Calculator vs Net Worth vs Dashboard)
+
+**Files Modified:**
+- `frontend/src/pages/FIRECalculator.tsx` (Line 195-196)
+- `frontend/src/pages/NetWorth.tsx` (Line 246-247)
+- `frontend/src/pages/Dashboard.tsx` (Line 144)
+
+**Result:** ✅ New users now receive clear, actionable guidance on what to do next
+
+---
+
 ## Root Causes
 
 ### Bug #1: Localhost Security Not Working
@@ -569,8 +636,8 @@ git push origin master
 
 **Git Commits Made:** 7
 **Time Spent:** ~4 hours
-**Bugs Encountered:** 4 critical
-**Bugs Fixed:** 4 ✅
+**Bugs Encountered:** 5 (4 critical, 1 medium UX issue)
+**Bugs Fixed:** 5 ✅
 
 ---
 
@@ -601,4 +668,5 @@ git push origin master
 
 **Created by:** Claude Sonnet 4.5
 **Date:** January 10, 2026
-**Version:** 1.0
+**Last Updated:** January 10, 2026 (Added Bug #5: UX Error Messages)
+**Version:** 1.1
