@@ -120,15 +120,18 @@ const RazorpayCheckout: React.FC<RazorpayCheckoutProps> = ({
 
   const fetchPaymentConfig = async () => {
     try {
+      // Note: This endpoint is public (no auth required) - moved to db_schema router
       const response = await fetch(API_ENDPOINTS.paymentConfig);
+
       if (!response.ok) {
-        throw new Error('Failed to fetch payment config');
+        throw new Error(`Failed to fetch payment config: ${response.status} ${response.statusText}`);
       }
+
       const data = await response.json();
-      console.log('[Payment Config] Loaded:', data);
+      console.log('[Payment Config] ✅ Loaded:', data);
       setPaymentConfig(data);
     } catch (error) {
-      console.error('[Payment Config] Failed to fetch:', error);
+      console.error('[Payment Config] ❌ Failed to fetch:', error);
       toast.error('Failed to load payment configuration');
       // Set empty config to prevent errors
       setPaymentConfig({

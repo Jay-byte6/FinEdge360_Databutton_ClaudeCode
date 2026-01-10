@@ -175,6 +175,35 @@ def init_database() -> InitializeDatabaseResponse:
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to initialize database: {str(e)}")
 
+@router.get("/payment-config")
+async def get_payment_config():
+    """
+    Get payment configuration (public endpoint - no auth required)
+    Returns public keys only for frontend payment gateway initialization
+    """
+    # Get payment gateway credentials from environment
+    RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID", "")
+    RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "")
+    STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
+    DODO_PAYMENTS_API_KEY = os.getenv("DODO_PAYMENTS_API_KEY", "")
+    DODO_PAYMENTS_ENVIRONMENT = os.getenv("DODO_PAYMENTS_ENVIRONMENT", "test_mode")
+
+    return {
+        "razorpay": {
+            "enabled": bool(RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET),
+            "key_id": RAZORPAY_KEY_ID if RAZORPAY_KEY_ID else None
+        },
+        "stripe": {
+            "enabled": bool(STRIPE_SECRET_KEY),
+            "publishable_key": os.getenv("STRIPE_PUBLISHABLE_KEY", "")
+        },
+        "dodo": {
+            "enabled": bool(DODO_PAYMENTS_API_KEY),
+            "environment": DODO_PAYMENTS_ENVIRONMENT
+        }
+    }
+
+
 @router.get("/schema")
 def get_database_schema() -> SchemaResponse:
     """Get the current database schema from Supabase"""
